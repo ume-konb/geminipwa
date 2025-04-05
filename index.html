@@ -631,7 +631,7 @@
             gap: 10px;
         }
         .history-item-dates {
-            font-size: 10px;
+            font-size: 9px;
             color: var(--text-secondary);
             flex-shrink: 0;
             line-height: 1.3;
@@ -2037,12 +2037,12 @@
                 if (!timestamp) return '';
                 try {
                     // 日本語形式でフォーマット
-                    return new Intl.DateTimeFormat('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).format(new Date(timestamp));
+                    return new Intl.DateTimeFormat('ja-JP', { year: '2-digit', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date(timestamp));
                 } catch (e) {
                     // Intlが使えない場合のフォールバック
                     console.warn("Intl.DateTimeFormatエラー:", e);
                     const d = new Date(timestamp);
-                    return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+                    return `${String(d.getFullYear()).slice(-2)}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
                 }
             },
 
