@@ -1,4 +1,5 @@
 /** > nul 2>&1
+cd /d %~dp0
 @echo off
 @SET PS_SCRIPT= Add-Type -TypeDefinition (Get-Content -Encoding UTF8 -Path '%~f0' -Raw) -ReferencedAssemblies @('System.Runtime.dll','System.Web.dll','System.Web.Extensions.dll'); [EasyFaceHTTPServer]::Main(0);
 powershell.exe -noprofile -executionpolicy bypass -command "%PS_SCRIPT%"
