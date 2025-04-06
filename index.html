@@ -226,15 +226,27 @@
             min-width: 30px;
             flex-shrink: 0;
         }
+        /* 履歴画面ヘッダーのレイアウト調整 */
         #history-screen .app-header {
-            flex-direction: row-reverse;
+            flex-direction: row-reverse; /* 右から配置: [戻る] [タイトル] [インポート] */
+            justify-content: flex-start; /* 左寄せにする */
         }
-
         #history-screen .app-header h1#history-title {
             margin-right: 0;
             margin-left: auto;
             text-align: right;
         }
+        #history-screen .app-header #back-to-chat-from-history {
+            order: 1; /* 戻るボタンを一番右に */
+        }
+        #history-screen .app-header #history-title {
+            order: 2; /* タイトルを中央に */
+        }
+        #history-screen .app-header #import-history-btn {
+            order: 3; /* インポートボタンを一番左に */
+            margin-right: 0; /* 右マージン削除 */
+        }
+
         .header-save-button {
             padding: 4px 12px;
             font-size: 13px;
@@ -1108,8 +1120,11 @@
         <!-- 履歴画面 -->
         <div id="history-screen" class="screen">
             <header class="app-header">
-                <button id="back-to-chat-from-history" class="header-button" aria-label="チャットへ戻る">＞</button> <!-- これが右端に来る -->
-                <h1 id="history-title">履歴一覧</h1> <!-- これがボタンの左に来る -->
+                <!-- 要素の順序変更: 戻るボタン -> タイトル -> インポートボタン -->
+                <button id="back-to-chat-from-history" class="header-button" aria-label="チャットへ戻る">＞</button>
+                <h1 id="history-title">履歴一覧</h1>
+                <button id="import-history-btn" class="header-save-button" title="履歴をインポート">インポート</button>
+                <input type="file" id="import-history-input" accept=".txt" class="hidden"> <!-- インポート用ファイル入力 -->
             </header>
             <main class="main-content">
                 <ul id="history-list" class="history-list">
@@ -1258,7 +1273,13 @@
                        <option value="updatedAt">更新日時 (新しい順)</option>
                        <option value="createdAt">作成日時 (新しい順)</option>
                    </select>
-                   <!-- 追加モデル入力欄 (移動後) -->
+                   <!-- フォント指定 -->
+                   <label for="font-family-input">アプリのフォント:</label>
+                   <input type="text" id="font-family-input" placeholder="例: 'Meiryo', sans-serif" aria-label="アプリ全体のフォント">
+                   <p style="font-size: 11px; color: var(--text-secondary); margin-top: -5px; margin-bottom: 10px;">
+                       ※ 端末またはPCにインストールされているフォント名を指定。
+                   </p>
+                   <!-- 追加モデル入力欄 -->
                    <label for="additional-models">追加モデル (カンマ区切り):</label>
                    <textarea id="additional-models" placeholder="例: gemini-2.0-pro,gemini-2.0-flash-lite" aria-label="追加モデル"></textarea>
                    <p style="font-size: 11px; color: var(--text-secondary); margin-top: -5px; margin-bottom: 10px;">
@@ -1274,7 +1295,7 @@
                      <button id="clear-data-btn">全データクリア (履歴と設定)</button>
                      <button id="update-app-btn">アプリを更新 (キャッシュクリア)</button>
                      <p style="font-size: 11px; color: var(--text-secondary); margin-top: -5px; margin-bottom: 10px;">
-                         ※サーバー側のhtmlファイルなどはブラウザにキャッシュされるため、<BR>
+                         ※ サーバー側のhtmlファイルなどはブラウザにキャッシュされるため、<BR>
                          このボタンで明示的にサーバーがから再取得しない限り更新されない。
                      </p>
                 </div>
@@ -1310,7 +1331,7 @@
         <script>
         // --- 定数 ---
         const DB_NAME = 'GeminiPWA_DB';
-        const DB_VERSION = 6; // スキーマ変更 (settingsにconcatDummyModel追加) のためバージョンアップ
+        const DB_VERSION = 7; // スキーマ変更 (settingsにfontFamily追加) のためバージョンアップ
         const SETTINGS_STORE = 'settings';
         const CHATS_STORE = 'chats';
         const CHAT_UPDATEDAT_INDEX = 'updatedAtIndex';
@@ -1321,13 +1342,15 @@
         const DEFAULT_MAX_TOKENS = 4000;
         const DEFAULT_TOP_K = 40;
         const DEFAULT_TOP_P = 0.95;
+        const DEFAULT_FONT_FAMILY = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'; // デフォルトフォント
         const CHAT_TITLE_LENGTH = 15;
         const TEXTAREA_MAX_HEIGHT = 120;
         const GEMINI_API_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models/';
         const DUPLICATE_SUFFIX = ' (コピー)';
+        const IMPORT_PREFIX = '(取込) ';
         const LIGHT_THEME_COLOR = '#4a90e2';
         const DARK_THEME_COLOR = '#007aff';
-        const APP_VERSION = "0.09"; // ダミーモデル連結機能追加のためバージョンアップ
+        const APP_VERSION = "0.10"; // 履歴インポート、フォント指定機能追加
         const SWIPE_THRESHOLD = 50; // スワイプ判定の閾値 (px)
 
         // --- DOM要素 ---
@@ -1365,6 +1388,7 @@
             enterToSendCheckbox: document.getElementById('enter-to-send'),
             historySortOrderSelect: document.getElementById('history-sort-order'),
             darkModeToggle: document.getElementById('dark-mode-toggle'),
+            fontFamilyInput: document.getElementById('font-family-input'), // フォント指定入力
             appVersionSpan: document.getElementById('app-version'),
             // 背景画像設定要素
             backgroundImageInput: document.getElementById('background-image-input'),
@@ -1380,6 +1404,8 @@
             saveSettingsBtns: document.querySelectorAll('.js-save-settings-btn'),
             updateAppBtn: document.getElementById('update-app-btn'),
             clearDataBtn: document.getElementById('clear-data-btn'),
+            importHistoryBtn: document.getElementById('import-history-btn'), // 履歴インポートボタン
+            importHistoryInput: document.getElementById('import-history-input'), // 履歴インポートファイル入力
             // カスタムダイアログ
             alertDialog: document.getElementById('alertDialog'),
             alertMessage: document.getElementById('alertDialog').querySelector('.dialog-message'),
@@ -1419,6 +1445,7 @@
                 historySortOrder: 'updatedAt',
                 darkMode: false, // デフォルトはダークモードOFF
                 backgroundImageBlob: null, // デフォルト背景はnull
+                fontFamily: '', // デフォルトフォントは空 (CSS変数で定義)
             },
             backgroundImageUrl: null, // 生成されたオブジェクトURL (DBには保存しない)
             isSending: false,
@@ -1508,6 +1535,13 @@
                                 const settingsStore = transaction.objectStore(SETTINGS_STORE);
                                 // settingsStore.add({ key: 'concatDummyModel', value: false }); // 例
                              } catch (e) { console.error("設定ストアのアップグレード中にエラー(V6):", e); }
+                        }
+                        // V7での変更: settingsストアに fontFamily の初期値を追加 (もし必要なら)
+                        if (event.oldVersion < 7 && transaction) {
+                             try {
+                                const settingsStore = transaction.objectStore(SETTINGS_STORE);
+                                // settingsStore.add({ key: 'fontFamily', value: '' }); // 例
+                             } catch (e) { console.error("設定ストアのアップグレード中にエラー(V7):", e); }
                         }
 
 
@@ -2031,8 +2065,14 @@
                     }
                     // タイトルを切り詰める
                     if(baseTitle) {
-                        const truncated = baseTitle.substring(0, CHAT_TITLE_LENGTH);
-                        titleText = truncated + (baseTitle.length > CHAT_TITLE_LENGTH ? '...' : '');
+                        // インポート接頭辞を除いて切り詰める
+                        const displayBase = baseTitle.startsWith(IMPORT_PREFIX) ? baseTitle.substring(IMPORT_PREFIX.length) : baseTitle;
+                        const truncated = displayBase.substring(0, CHAT_TITLE_LENGTH);
+                        titleText = truncated + (displayBase.length > CHAT_TITLE_LENGTH ? '...' : '');
+                        // インポート接頭辞を再度付与
+                        if (baseTitle.startsWith(IMPORT_PREFIX)) {
+                            titleText = IMPORT_PREFIX + titleText;
+                        }
                     } else if(state.currentMessages.length > 0) {
                         titleText = 'チャット履歴'; // ベースタイトルが空でもメッセージがあれば
                     }
@@ -2163,12 +2203,14 @@
                 elements.enterToSendCheckbox.checked = state.settings.enterToSend;
                 elements.historySortOrderSelect.value = state.settings.historySortOrder || 'updatedAt';
                 elements.darkModeToggle.checked = state.settings.darkMode; // ダークモードチェックボックスに状態を適用
+                elements.fontFamilyInput.value = state.settings.fontFamily || ''; // フォント設定を適用
 
                 // ユーザー指定モデルをコンボボックスに追加
                 this.updateUserModelOptions();
 
                 this.updateBackgroundSettingsUI(); // 背景画像UI要素を更新
                 this.applyDarkMode(); // 読み込み/更新された設定を反映してテーマを適用 (チェックボックス設定後)
+                this.applyFontFamily(); // フォント設定を適用
             },
 
             // ユーザー指定モデルをコンボボックスに反映
@@ -2205,6 +2247,14 @@
                 document.body.classList.toggle('light-mode-forced', !isDark);
                 elements.themeColorMeta.content = isDark ? DARK_THEME_COLOR : LIGHT_THEME_COLOR;
                 console.log(`ダークモード ${isDark ? '有効' : '無効'}. テーマカラー: ${elements.themeColorMeta.content}`);
+            },
+
+            // フォント設定を適用
+            applyFontFamily() {
+                const customFont = state.settings.fontFamily?.trim();
+                const fontFamilyToApply = customFont ? customFont : DEFAULT_FONT_FAMILY;
+                document.documentElement.style.setProperty('--font-family', fontFamilyToApply);
+                console.log(`フォント適用: ${fontFamilyToApply}`);
             },
 
             // 画面を表示 (スワイプアニメーション対応)
@@ -2619,8 +2669,9 @@
                     await dbUtils.openDB(); // DBを開く
                     await dbUtils.loadSettings(); // 設定を読み込む (stateに反映)
 
-                    // 読み込んだ設定に基づいて初期テーマを適用 (OS設定も考慮)
+                    // 読み込んだ設定に基づいて初期テーマとフォントを適用
                     uiUtils.applyDarkMode();
+                    uiUtils.applyFontFamily();
 
                     // 読み込んだ設定に基づいて背景画像を適用
                     if (state.settings.backgroundImageBlob instanceof Blob) {
@@ -2688,6 +2739,14 @@
                         e.preventDefault(); // デフォルトの改行動作を抑制
                         if (!elements.sendButton.disabled) this.handleSend(); // 送信ボタンが有効なら送信
                     }
+                });
+
+                // 履歴アクション
+                elements.importHistoryBtn.addEventListener('click', () => elements.importHistoryInput.click());
+                elements.importHistoryInput.addEventListener('change', (event) => {
+                    const file = event.target.files[0];
+                    if (file) this.handleHistoryImport(file);
+                    event.target.value = null; // 同じファイルを選択できるようにリセット
                 });
 
                 // 設定アクション
@@ -3284,6 +3343,91 @@
                 }
             },
 
+            // --- 履歴インポートハンドラ ---
+            async handleHistoryImport(file) {
+                if (!file || !file.type.startsWith('text/plain')) {
+                    await uiUtils.showCustomAlert("テキストファイル (.txt) を選択してください。");
+                    return;
+                }
+                console.log("履歴インポート開始:", file.name);
+                const reader = new FileReader();
+
+                reader.onload = async (event) => {
+                    const textContent = event.target.result;
+                    if (!textContent) {
+                        await uiUtils.showCustomAlert("ファイルの内容が空です。");
+                        return;
+                    }
+                    try {
+                        const importedMessages = this.parseImportedHistory(textContent);
+                        if (importedMessages.length === 0) {
+                            await uiUtils.showCustomAlert("ファイルから有効なメッセージを読み込めませんでした。形式を確認してください。");
+                            return;
+                        }
+
+                        // ファイル名から拡張子を除去してタイトル生成
+                        const fileNameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
+                        const newTitle = IMPORT_PREFIX + (fileNameWithoutExt || `Imported_${Date.now()}`);
+
+                        const newChatData = {
+                            messages: importedMessages,
+                            updatedAt: Date.now(),
+                            createdAt: Date.now(),
+                            title: newTitle.substring(0, 100) // 100文字制限
+                        };
+
+                        // 新しいチャットとしてDBに追加
+                        const newChatId = await new Promise((resolve, reject) => {
+                            const store = dbUtils._getStore(CHATS_STORE, 'readwrite');
+                            const request = store.add(newChatData);
+                            request.onsuccess = (event) => resolve(event.target.result);
+                            request.onerror = (event) => reject(event.target.error);
+                        });
+
+                        console.log("履歴インポート成功:", newChatId);
+                        await uiUtils.showCustomAlert(`履歴「${newChatData.title}」をインポートしました。`);
+                        // 履歴リストを再描画
+                        uiUtils.renderHistoryList();
+
+                    } catch (error) {
+                        console.error("履歴インポート処理エラー:", error);
+                        await uiUtils.showCustomAlert(`履歴のインポート中にエラーが発生しました: ${error.message}`);
+                    }
+                };
+
+                reader.onerror = async (event) => {
+                    console.error("ファイル読み込みエラー:", event.target.error);
+                    await uiUtils.showCustomAlert("ファイルの読み込みに失敗しました。");
+                };
+
+                reader.readAsText(file); // ファイルをテキストとして読み込む
+            },
+
+            // インポートされたテキストをパースする
+            parseImportedHistory(text) {
+                const messages = [];
+                // 正規表現でブロックを抽出: <|#|role|#|>\ncontent\n<|#|/role|#|>
+                const blockRegex = /<\|#\|(user|model)\|#\|>([\s\S]*?)<\|#\|\/\1\|#\|>/g;
+                let match;
+
+                while ((match = blockRegex.exec(text)) !== null) {
+                    const role = match[1];
+                    // contentの前後の改行や空白を除去
+                    const content = match[2].trim();
+
+                    if (role && content) {
+                        messages.push({
+                            role: role,
+                            content: content, // 無害化は表示時に行われるため、ここではそのまま格納
+                            timestamp: Date.now() // インポート時のタイムスタンプ
+                        });
+                    }
+                }
+                console.log(`インポートテキストから ${messages.length} 件のメッセージをパースしました。`);
+                return messages;
+            },
+            // -------------------------------
+
             // --- 背景画像ハンドラ ---
              // 背景画像アップロード処理
              async handleBackgroundImageUpload(file) {
@@ -3365,7 +3509,8 @@
                      pseudoStreaming: elements.pseudoStreamingCheckbox.checked,
                      enterToSend: elements.enterToSendCheckbox.checked,
                      historySortOrder: elements.historySortOrderSelect.value,
-                     darkMode: elements.darkModeToggle.checked
+                     darkMode: elements.darkModeToggle.checked,
+                     fontFamily: elements.fontFamilyInput.value.trim() // フォント設定を取得
                  };
 
                  // --- 数値入力のバリデーション ---
@@ -3400,7 +3545,7 @@
 
                      // 全設定をUIに再適用 (バリデーションで修正された値も反映)
                      uiUtils.applySettingsToUI();
-                     // applyDarkModeはapplySettingsToUI内で呼ばれる
+                     // applyDarkModeとapplyFontFamilyはapplySettingsToUI内で呼ばれる
 
                      console.log("設定保存成功:", { ...state.settings, backgroundImageBlob: state.settings.backgroundImageBlob ? '[Blob]' : null });
                      await uiUtils.showCustomAlert("設定を保存しました。");
@@ -3468,13 +3613,14 @@
                             historySortOrder: 'updatedAt',
                             // ダークモードはOS設定にフォールバック
                             darkMode: window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false,
-                            backgroundImageBlob: null
+                            backgroundImageBlob: null,
+                            fontFamily: '' // フォントもリセット
                         };
                         state.backgroundImageUrl = null;
 
                         // リセットされた状態をUIに適用
                         document.documentElement.style.setProperty('--chat-background-image', 'none'); // 背景スタイルリセット
-                        uiUtils.applySettingsToUI(); // 設定UIをリセット (ダークモード、背景UI含む)
+                        uiUtils.applySettingsToUI(); // 設定UIをリセット (ダークモード、背景UI、フォント含む)
                         this.startNewChat(); // 新規チャット状態にする
                         uiUtils.showScreen('chat'); // チャット画面を表示
                     } catch (error) {
