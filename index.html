@@ -1110,7 +1110,6 @@
             <header class="app-header">
                 <button id="back-to-chat-from-history" class="header-button" aria-label="チャットへ戻る">＞</button> <!-- これが右端に来る -->
                 <h1 id="history-title">履歴一覧</h1> <!-- これがボタンの左に来る -->
-                <!-- <div style="width: 40px;"></div> --> <!-- ← この行を削除またはコメントアウト -->
             </header>
             <main class="main-content">
                 <ul id="history-list" class="history-list">
@@ -1205,6 +1204,14 @@
 
                    <label for="dummy-model">ダミー Model プロンプト (送信時のみ追加):</label>
                    <textarea id="dummy-model" placeholder="API送信直前に model ロールとして履歴最末尾に追加されます" aria-label="ダミー Model プロンプト"></textarea>
+
+                   <label class="checkbox-label">
+                       <input type="checkbox" id="concat-dummy-model">
+                       ダミーモデルと回答を連結
+                   </label>
+                   <p style="font-size: 11px; color: var(--text-secondary); margin-top: -5px; margin-bottom: 10px;">
+                       ※チェック時、モデル応答の先頭に上記ダミーModelの内容を付与。
+                   </p>
 
                    <label class="checkbox-label">
                        <input type="checkbox" id="pseudo-streaming">
@@ -1303,7 +1310,7 @@
         <script>
         // --- 定数 ---
         const DB_NAME = 'GeminiPWA_DB';
-        const DB_VERSION = 5; // スキーマ変更 (settingsにadditionalModels追加) のためバージョンアップ
+        const DB_VERSION = 6; // スキーマ変更 (settingsにconcatDummyModel追加) のためバージョンアップ
         const SETTINGS_STORE = 'settings';
         const CHATS_STORE = 'chats';
         const CHAT_UPDATEDAT_INDEX = 'updatedAtIndex';
@@ -1320,7 +1327,7 @@
         const DUPLICATE_SUFFIX = ' (コピー)';
         const LIGHT_THEME_COLOR = '#4a90e2';
         const DARK_THEME_COLOR = '#007aff';
-        const APP_VERSION = "0.08"; // スワイプ方向修正のためバージョンアップ
+        const APP_VERSION = "0.09"; // ダミーモデル連結機能追加のためバージョンアップ
         const SWIPE_THRESHOLD = 50; // スワイプ判定の閾値 (px)
 
         // --- DOM要素 ---
@@ -1352,6 +1359,7 @@
             topPInput: document.getElementById('top-p'),
             dummyUserInput: document.getElementById('dummy-user'),
             dummyModelInput: document.getElementById('dummy-model'),
+            concatDummyModelCheckbox: document.getElementById('concat-dummy-model'), // ダミーモデル連結チェックボックス
             additionalModelsTextarea: document.getElementById('additional-models'), // 追加モデル入力
             pseudoStreamingCheckbox: document.getElementById('pseudo-streaming'),
             enterToSendCheckbox: document.getElementById('enter-to-send'),
@@ -1404,6 +1412,7 @@
                 topP: null,
                 dummyUser: '',
                 dummyModel: '',
+                concatDummyModel: false, // ダミーモデル連結設定
                 additionalModels: '', // 追加モデル用設定
                 pseudoStreaming: false,
                 enterToSend: true,
@@ -1490,9 +1499,15 @@
                         if (event.oldVersion < 5 && transaction) {
                              try {
                                 const settingsStore = transaction.objectStore(SETTINGS_STORE);
-                                // 既存のデータがない場合にのみデフォルト値を追加するなどの処理が可能
-                                // settingsStore.add({ key: 'additionalModels', value: '' });
-                             } catch (e) { console.error("設定ストアのアップグレード中にエラー:", e); }
+                                // settingsStore.add({ key: 'additionalModels', value: '' }); // 例
+                             } catch (e) { console.error("設定ストアのアップグレード中にエラー(V5):", e); }
+                        }
+                        // V6での変更: settingsストアに concatDummyModel の初期値を追加 (もし必要なら)
+                        if (event.oldVersion < 6 && transaction) {
+                             try {
+                                const settingsStore = transaction.objectStore(SETTINGS_STORE);
+                                // settingsStore.add({ key: 'concatDummyModel', value: false }); // 例
+                             } catch (e) { console.error("設定ストアのアップグレード中にエラー(V6):", e); }
                         }
 
 
@@ -1584,7 +1599,7 @@
                                          if (loadedValue !== null) console.warn(`読み込んだ 'backgroundImageBlob' がBlobではありません。nullに設定します。型: ${typeof loadedValue}`);
                                          state.settings[key] = null; // Blobでないか明示的にnullならnullを使用
                                     }
-                                } else if (key === 'darkMode' || key === 'streamingOutput' || key === 'pseudoStreaming' || key === 'enterToSend') {
+                                } else if (key === 'darkMode' || key === 'streamingOutput' || key === 'pseudoStreaming' || key === 'enterToSend' || key === 'concatDummyModel') {
                                      // 真偽値: 厳密にtrueかチェック
                                      state.settings[key] = loadedValue === true;
                                 } else if (typeof defaultValue === 'number' || defaultValue === null) {
@@ -2142,7 +2157,8 @@
                 elements.topPInput.value = state.settings.topP === null ? '' : state.settings.topP;
                 elements.dummyUserInput.value = state.settings.dummyUser || '';
                 elements.dummyModelInput.value = state.settings.dummyModel || '';
-                elements.additionalModelsTextarea.value = state.settings.additionalModels || ''; // 追加モデル
+                elements.concatDummyModelCheckbox.checked = state.settings.concatDummyModel;
+                elements.additionalModelsTextarea.value = state.settings.additionalModels || '';
                 elements.pseudoStreamingCheckbox.checked = state.settings.pseudoStreaming;
                 elements.enterToSendCheckbox.checked = state.settings.enterToSend;
                 elements.historySortOrderSelect.value = state.settings.historySortOrder || 'updatedAt';
@@ -3007,14 +3023,19 @@
             },
 
             // テキストを1文字ずつタイプ表示 (ストリーミング風)
-            async typeCharacterByCharacter(textChunks, messageIndex, signal) {
+            async typeCharacterByCharacter(textChunks, messageIndex, signal, prefix = '') {
                 const speed = state.settings.streamingSpeed;
-                let accumulatedRawContent = ''; // 蓄積された生テキスト
-                state.partialStreamContent = ''; // 部分表示用コンテンツをリセット
+                let accumulatedRawContent = prefix; // 初期値をprefixに
+                state.partialStreamContent = prefix; // 初期値をprefixに
 
-                // 速度設定が無効なら一括表示
+                // プレフィックスがあれば最初に表示
+                if (prefix) {
+                    uiUtils.updateStreamingMessage(messageIndex, ''); // プレフィックスを反映させるための初期更新
+                }
+
+                // 速度設定が無効なら一括表示 (プレフィックス含む)
                 if (!speed || speed <= 0) {
-                    accumulatedRawContent = textChunks.join('');
+                    accumulatedRawContent = prefix + textChunks.join(''); // prefixを連結
                     state.partialStreamContent = accumulatedRawContent;
                     uiUtils.updateStreamingMessage(messageIndex, ''); // 一括でUI更新
                     return accumulatedRawContent;
@@ -3131,6 +3152,9 @@
                     // API呼び出し
                     const response = await apiUtils.callGeminiApi(apiMessages, generationConfig, systemInstruction);
 
+                    // プレフィックスを決定 (ダミーモデル連結用)
+                    const dummyModelPrefix = (state.settings.concatDummyModel && state.settings.dummyModel) ? state.settings.dummyModel : '';
+
                     // ストリーミング処理
                     if (state.settings.streamingOutput) {
                         // プレースホルダーを追加
@@ -3138,8 +3162,8 @@
                         // ストリームを処理
                         const streamResult = await apiUtils.handleStreamingResponse(response);
                         modelResponseMetadata = { finishReason: streamResult.finishReason, safetyRatings: streamResult.safetyRatings };
-                        // テキストチャンクをタイプ表示
-                        modelResponseRawContent = await this.typeCharacterByCharacter(streamResult.textChunks, modelMessageIndex, state.abortController.signal);
+                        // テキストチャンクをタイプ表示 (プレフィックスを渡す)
+                        modelResponseRawContent = await this.typeCharacterByCharacter(streamResult.textChunks, modelMessageIndex, state.abortController.signal, dummyModelPrefix);
                         // 中断された場合はエラーを投げる
                         if (modelResponseMetadata.finishReason === 'ABORTED' || state.abortController?.signal.aborted) {
                             throw new Error("リクエストがキャンセルされました。");
@@ -3148,28 +3172,31 @@
                         const data = await response.json();
                         console.log("API応答 (非ストリーミング):", data);
                         const candidate = data.candidates?.[0];
+                        let rawContentFromApi = ""; // APIからの生コンテンツ
                         if (candidate) {
                             modelResponseMetadata = { finishReason: candidate.finishReason, safetyRatings: candidate.safetyRatings };
-                            modelResponseRawContent = candidate.content?.parts?.[0]?.text || "";
+                            rawContentFromApi = candidate.content?.parts?.[0]?.text || "";
                             // 停止理由がSTOP/MAX_TOKENS以外なら理由を追記
                             if (candidate.finishReason && candidate.finishReason !== "STOP" && candidate.finishReason !== "MAX_TOKENS") {
-                                modelResponseRawContent += `\n\n(理由: ${candidate.finishReason})`;
+                                rawContentFromApi += `\n\n(理由: ${candidate.finishReason})`;
                             }
                             // 応答が空で理由がSTOPの場合
-                            if (!modelResponseRawContent && candidate.finishReason === "STOP") {
-                                modelResponseRawContent = "(応答が空です)";
+                            if (!rawContentFromApi && candidate.finishReason === "STOP") {
+                                rawContentFromApi = "(応答が空です)";
                             }
                         } else {
                             // 候補がない場合 (ブロックなど)
-                            modelResponseRawContent = "応答候補がありません";
+                            rawContentFromApi = "応答候補がありません";
                             if(data.promptFeedback) { // ブロック理由などがあれば追記
-                                modelResponseRawContent += ` (理由: ${data.promptFeedback.blockReason || '不明'})`;
+                                rawContentFromApi += ` (理由: ${data.promptFeedback.blockReason || '不明'})`;
                                 modelResponseMetadata.promptFeedback = data.promptFeedback;
                                 modelResponseMetadata.finishReason = data.promptFeedback.blockReason || 'ERROR';
                             } else {
                                 modelResponseMetadata.finishReason = 'ERROR';
                             }
                         }
+                        // 非ストリーミング応答にプレフィックスを連結
+                        modelResponseRawContent = dummyModelPrefix + rawContentFromApi;
                         // メッセージをUIに追加
                         uiUtils.appendMessage('model', modelResponseRawContent, modelMessageIndex);
                     }
@@ -3178,7 +3205,7 @@
                     if (modelResponseRawContent || modelResponseMetadata.finishReason) {
                          const modelMessage = {
                              role: 'model',
-                             content: modelResponseRawContent,
+                             content: modelResponseRawContent, // 連結後のコンテンツ
                              timestamp: Date.now(),
                              ...modelResponseMetadata // finishReason, safetyRatingsなど
                          };
@@ -3203,14 +3230,16 @@
                     const isAbort = error.message === "リクエストがキャンセルされました。";
                     const displayErrorMessage = isAbort ? error.message : (error.message || "不明なエラーが発生しました");
 
-                    // ストリーミング中にエラーが発生し、部分的なコンテンツがある場合
+                    // ストリーミングエラー時の部分コンテンツにもプレフィックスを考慮
+                    // typeCharacterByCharacterが中断した場合、state.partialStreamContentには既にプレフィックスが含まれているはず
                     const partialRawContent = state.partialStreamContent || error.cause?.partialChunks?.join('');
+
                     if (partialRawContent && state.settings.streamingOutput) {
                          // 部分的なコンテンツにエラー/中断情報を追記して保存
                          const finalPartialContent = partialRawContent + `\n\n(${isAbort ? '中断されました' : 'エラーが発生しました'})`;
                          const partialMessage = {
                              role: 'model',
-                             content: finalPartialContent,
+                             content: finalPartialContent, // プレフィックスが含まれた部分コンテンツ
                              timestamp: Date.now(),
                              error: true, // エラーフラグ
                              finishReason: isAbort ? 'ABORTED' : (modelResponseMetadata.finishReason || 'ERROR'),
@@ -3331,7 +3360,8 @@
                      topP: elements.topPInput.value === '' ? null : parseFloat(elements.topPInput.value),
                      dummyUser: elements.dummyUserInput.value.trim(),
                      dummyModel: elements.dummyModelInput.value.trim(),
-                     additionalModels: elements.additionalModelsTextarea.value.trim(), // 追加モデル
+                     concatDummyModel: elements.concatDummyModelCheckbox.checked,
+                     additionalModels: elements.additionalModelsTextarea.value.trim(),
                      pseudoStreaming: elements.pseudoStreamingCheckbox.checked,
                      enterToSend: elements.enterToSendCheckbox.checked,
                      historySortOrder: elements.historySortOrderSelect.value,
@@ -3431,7 +3461,8 @@
                             topP: null,
                             dummyUser: '',
                             dummyModel: '',
-                            additionalModels: '', // 追加モデルもクリア
+                            concatDummyModel: false,
+                            additionalModels: '',
                             pseudoStreaming: false,
                             enterToSend: true,
                             historySortOrder: 'updatedAt',
@@ -3535,7 +3566,7 @@
                  textarea.focus();
                  textarea.select(); // テキスト全選択
             },
-            
+
             // メッセージ編集を保存
             async saveEditMessage(index, messageElement) {
                 const textarea = messageElement.querySelector('.edit-textarea');
