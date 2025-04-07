@@ -42,7 +42,7 @@ sw.jsのおかげで一度アクセスしたらブラウザ内に必要ファイ
 （ブラウザの中のデータベース。Github Pagesの当リポジトリのオリジン)
 * 通信はGeminiAPIとしか行いません。
 * 履歴は履歴一覧からテキストファイルとしてエクスポートできます  
-逆(インポート)は今のところできません
+逆(インポート)は今のところ~~できません~~できます
 
 ## Dependencies
 This project uses the following third-party libraries:
