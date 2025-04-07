@@ -1350,7 +1350,7 @@
         const IMPORT_PREFIX = '(取込) ';
         const LIGHT_THEME_COLOR = '#4a90e2';
         const DARK_THEME_COLOR = '#007aff';
-        const APP_VERSION = "0.10"; // 履歴インポート、フォント指定機能追加
+        const APP_VERSION = "0.11"; // 編集エリアの高さ調整、Tabキー対応、履歴タイトル編集バグ修正
         const SWIPE_THRESHOLD = 50; // スワイプ判定の閾値 (px)
 
         // --- DOM要素 ---
@@ -2257,42 +2257,66 @@
                 console.log(`フォント適用: ${fontFamilyToApply}`);
             },
 
-            // 画面を表示 (スワイプアニメーション対応)
+            // 画面を表示 (スワイプアニメーション + inert対応)
             showScreen(screenName) {
                 // 編集中ならキャンセル
                 if (state.editingMessageIndex !== null) {
                      const messageElement = elements.messageContainer.querySelector(`.message[data-index="${state.editingMessageIndex}"]`);
-                     appLogic.cancelEditMessage(state.editingMessageIndex, messageElement);
+                     if (messageElement) { // 要素が存在する場合のみキャンセル処理
+                        appLogic.cancelEditMessage(state.editingMessageIndex, messageElement);
+                     } else {
+                        state.editingMessageIndex = null; // 要素が見つからない場合はインデックスのみリセット
+                     }
                 }
 
-                // 全ての画面から active クラスを削除
-                elements.chatScreen.classList.remove('active');
-                elements.historyScreen.classList.remove('active');
-                elements.settingsScreen.classList.remove('active');
+                const allScreens = [elements.chatScreen, elements.historyScreen, elements.settingsScreen];
+                let activeScreen = null;
 
-                // 各画面の transform を設定 (修正後)
+                // まず全ての画面を非アクティブ＆inert状態にする
+                allScreens.forEach(screen => {
+                    screen.classList.remove('active');
+                    screen.inert = true; // 非アクティブ画面は操作不可に
+                    // アニメーションがスムーズに見えるように、一旦トランジションをリセットする場合があります
+                    // screen.style.transition = 'none';
+                });
+
+                // ターゲット画面に応じてtransformとアクティブ設定
                 if (screenName === 'chat') {
+                    activeScreen = elements.chatScreen;
                     elements.chatScreen.style.transform = 'translateX(0)';
-                    elements.historyScreen.style.transform = 'translateX(-100%)'; // 左画面外
-                    elements.settingsScreen.style.transform = 'translateX(100%)'; // 右画面外
-                    elements.chatScreen.classList.add('active'); // アクティブクラス付与
+                    elements.historyScreen.style.transform = 'translateX(-100%)';
+                    elements.settingsScreen.style.transform = 'translateX(100%)';
                     // チャット画面表示時の追加処理
                     requestAnimationFrame(() => { this.adjustTextareaHeight(); this.scrollToBottom(); });
                 } else if (screenName === 'history') {
-                    elements.chatScreen.style.transform = 'translateX(100%)'; // 右へ移動
-                    elements.historyScreen.style.transform = 'translateX(0)'; // 中央へ
-                    elements.settingsScreen.style.transform = 'translateX(200%)'; // さらに右へ
-                    elements.historyScreen.classList.add('active');
+                    activeScreen = elements.historyScreen;
+                    elements.chatScreen.style.transform = 'translateX(100%)';
+                    elements.historyScreen.style.transform = 'translateX(0)';
+                    elements.settingsScreen.style.transform = 'translateX(200%)'; // さらに右奥へ
                     // 履歴画面表示時の追加処理
                     this.renderHistoryList();
                 } else if (screenName === 'settings') {
-                    elements.chatScreen.style.transform = 'translateX(-100%)'; // 左へ移動
-                    elements.historyScreen.style.transform = 'translateX(-200%)'; // さらに左へ
-                    elements.settingsScreen.style.transform = 'translateX(0)'; // 中央へ
-                    elements.settingsScreen.classList.add('active');
+                    activeScreen = elements.settingsScreen;
+                    elements.chatScreen.style.transform = 'translateX(-100%)';
+                    elements.historyScreen.style.transform = 'translateX(-200%)'; // さらに左奥へ
+                    elements.settingsScreen.style.transform = 'translateX(0)';
                     // 設定画面表示時の追加処理
                     this.applySettingsToUI(); // 現在の状態をUIに適用
                 }
+
+                // アニメーションを再度有効にする (transform設定後)
+                // requestAnimationFrameを使用すると、ブラウザが次の描画フレームでスタイル変更を適用するのに役立ちます
+                requestAnimationFrame(() => {
+                    allScreens.forEach(screen => {
+                        screen.style.transition = 'transform 0.3s ease-in-out';
+                    });
+
+                    // アクティブ画面のinertを解除し、クラスを付与
+                    if (activeScreen) {
+                        activeScreen.inert = false; // アクティブ画面は操作可能に
+                        activeScreen.classList.add('active');
+                    }
+                });
             },
 
             // 送信状態を設定
@@ -2397,7 +2421,7 @@
                 elements.promptInput.addEventListener('keypress', enterHandler);
 
                 elements.promptOkBtn.onclick = () => elements.promptDialog.close(elements.promptInput.value); // OK時は入力値を返す
-                elements.promptCancelBtn.onclick = () => elements.promptDialog.close(null); // キャンセル時はnullを返す
+                elements.promptCancelBtn.onclick = () => elements.promptDialog.close(''); // キャンセル時は空文字列 ('') を渡す
 
                 // ダイアログが閉じたらEnterキーリスナーを削除
                 const closeHandler = () => {
@@ -3051,31 +3075,33 @@
                     }
                 }
             },
-
+            
             // 履歴アイテムのタイトルを編集
             async editHistoryTitle(chatId, titleElement) {
                 const currentTitle = titleElement.textContent;
-                const newTitle = await uiUtils.showCustomPrompt("新しいタイトル:", currentTitle); // プロンプト表示
+                const newTitle = await uiUtils.showCustomPrompt("新しいタイトル:", currentTitle); // newTitle は OK なら文字列、キャンセルなら ''
 
-                // 新しいタイトルが入力され、かつ変更があった場合
-                if (newTitle !== null && newTitle.trim() !== '' && newTitle.trim() !== currentTitle) {
-                    const trimmedTitle = newTitle.trim().substring(0, 100); // 100文字に制限
+                // キャンセル時('')でなく、入力があり(trim後空でなく)、変更があった場合
+                const trimmedTitle = (newTitle !== null) ? newTitle.trim() : '';
+
+                if (newTitle !== '' && trimmedTitle !== '' && trimmedTitle !== currentTitle) {
+                    const finalTitle = trimmedTitle.substring(0, 100); // 100文字に制限
                     try {
-                        await dbUtils.updateChatTitleDb(chatId, trimmedTitle); // DB更新
+                        await dbUtils.updateChatTitleDb(chatId, finalTitle); // DB更新
                         // UI更新
-                        titleElement.textContent = trimmedTitle;
-                        titleElement.title = trimmedTitle; // ホバータイトルも更新
+                        titleElement.textContent = finalTitle;
+                        titleElement.title = finalTitle; // ホバータイトルも更新
                         // 更新日時も更新表示
                         const dateElement = titleElement.closest('.history-item')?.querySelector('.updated-date');
                         if(dateElement) dateElement.textContent = `更新: ${uiUtils.formatDate(Date.now())}`;
                         // 現在表示中のチャットのタイトルが変更されたら、ヘッダーも更新
                         if (state.currentChatId === chatId) {
-                            uiUtils.updateChatTitle(trimmedTitle);
+                            uiUtils.updateChatTitle(finalTitle);
                         }
                     } catch (error) {
                         await uiUtils.showCustomAlert(`タイトル更新エラー: ${error}`);
                     }
-                } else if (newTitle !== null) {
+                } else {
                     // キャンセルまたは変更なし
                     console.log("タイトル編集キャンセルまたは変更なし");
                 }
@@ -3676,7 +3702,7 @@
                  textarea.value = rawContent;
                  textarea.classList.add('edit-textarea');
                  textarea.rows = 3; // 初期行数
-                 textarea.oninput = () => uiUtils.adjustTextareaHeight(textarea, 200); // 入力で高さ調整 (最大200px)
+                 textarea.oninput = () => uiUtils.adjustTextareaHeight(textarea, 400); // 入力で高さ調整 (最大400px)
 
                  // 取得した幅をテキストエリアに適用
                  textarea.style.width = originalContentWidth;
@@ -3708,7 +3734,7 @@
                  editArea.classList.remove('hidden'); // 編集エリア表示
 
                  // 初期高さ調整とフォーカス
-                 uiUtils.adjustTextareaHeight(textarea, 200);
+                 uiUtils.adjustTextareaHeight(textarea, 400);
                  textarea.focus();
                  textarea.select(); // テキスト全選択
             },
