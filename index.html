@@ -16,6 +16,7 @@
             --bg-input: #ffffff;
             --bg-user-message: #dcf8c6;
             --bg-model-message: #e5e5ea;
+            --bg-system-message: #f0f8ff; /* システムプロンプト用 */
             --bg-error-message: #ffebee;
             --bg-button: #4a90e2;
             --bg-button-hover: #357abd;
@@ -49,11 +50,13 @@
             --text-error: #c62828;
             --text-link: #4a90e2;
             --text-placeholder: #999999;
+            --text-system: #555; /* システムプロンプト用 */
 
             --border-primary: #cccccc;
             --border-secondary: #dddddd;
             --border-tertiary: #eeeeee;
             --border-danger: #ffcdd2;
+            --border-system: #add8e6; /* システムプロンプト用 */
 
             --shadow-primary: rgba(0, 0, 0, 0.1);
             --shadow-secondary: rgba(0,0,0,0.1);
@@ -71,6 +74,7 @@
             --bg-input: #303030;
             --bg-user-message: #056162;
             --bg-model-message: #3a3a3c;
+            --bg-system-message: #2a3a4a; /* システムプロンプト用 */
             --bg-error-message: #5c1c1c;
             --bg-button: #007aff;
             --bg-button-hover: #005ecb;
@@ -104,11 +108,13 @@
             --text-error: #ff8a80;
             --text-link: #00aaff;
             --text-placeholder: #777777;
+            --text-system: #ccc; /* システムプロンプト用 */
 
             --border-primary: #444444;
             --border-secondary: #555555;
             --border-tertiary: #333333;
             --border-danger: #7a2e35;
+            --border-system: #4682b4; /* システムプロンプト用 */
 
             --shadow-primary: rgba(255, 255, 255, 0.1);
             --shadow-secondary: rgba(0, 0, 0, 0.5);
@@ -372,6 +378,87 @@
             z-index: 2;
             background-color: var(--bg-secondary); /* 入力エリアの背景は不透明 */
         }
+
+        /* --- システムプロンプト表示エリア --- */
+        .system-prompt-area {
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-system);
+            border-radius: 8px;
+            background-color: var(--bg-system-message);
+            color: var(--text-system);
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, opacity 0.3s ease, visibility 0.3s ease, max-height 0.3s ease; /* transition追加 */
+            position: relative;
+            z-index: 1; /* メッセージより手前 */
+            overflow: hidden; /* hiddenクラスでのアニメーション用 */
+            max-height: 500px; /* 通常時の最大高さ (アニメーション用) */
+        }
+        .system-prompt-area.hidden {
+            padding-top: 0;
+            padding-bottom: 0;
+            margin-bottom: 0;
+            border-width: 0;
+            max-height: 0; /* 非表示時の高さ */
+            opacity: 0;
+            visibility: hidden;
+        }
+        .system-prompt-area details {
+            width: 100%;
+        }
+        .system-prompt-area summary {
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--text-primary); /* summaryは通常テキスト色 */
+            list-style: none; /* マーカーを消す */
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            user-select: none; /* テキスト選択不可 */
+            -webkit-user-select: none; /* Safari用 */
+            -moz-user-select: none; /* Firefox用 */
+            -ms-user-select: none; /* IE/Edge用 */
+            outline: none; /* フォーカス時のアウトラインを消す */
+            -webkit-tap-highlight-color: transparent; /* モバイルタップ時のハイライトを消す */
+        }
+        .system-prompt-area summary::-webkit-details-marker { display: none; } /* Chrome/Safari */
+        .system-prompt-area summary::marker { display: none; } /* Firefox */
+        .system-prompt-area summary::after {
+            content: '▼'; /* 閉じた状態のアイコン */
+            font-size: 10px;
+            margin-left: 5px;
+            transition: transform 0.2s ease;
+        }
+        .system-prompt-area details[open] summary::after {
+            transform: rotate(180deg); /* 開いた状態のアイコン */
+        }
+        .system-prompt-content {
+            margin-top: 10px;
+        }
+        .system-prompt-content textarea {
+            width: 100%;
+            min-height: 60px;
+            max-height: 200px; /* 最大高さを設定 */
+            margin-bottom: 8px;
+            font-size: 13px;
+            background-color: var(--bg-input);
+            color: var(--text-primary);
+            border-color: var(--border-primary);
+        }
+        .system-prompt-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+        .system-prompt-actions button {
+            padding: 4px 10px;
+            font-size: 12px;
+        }
+        .system-prompt-actions .save-system-prompt-btn { background-color: var(--bg-button-save); }
+        .system-prompt-actions .save-system-prompt-btn:hover { background-color: var(--bg-button-save-hover); }
+        .system-prompt-actions .cancel-system-prompt-btn { background-color: var(--bg-button-cancel); }
+        .system-prompt-actions .cancel-system-prompt-btn:hover { background-color: var(--bg-button-cancel-hover); }
+        /* ------------------------------------ */
 
         .message-container {
             display: flex;
@@ -829,6 +916,7 @@
             --bg-input: #303030;
             --bg-user-message: #056162;
             --bg-model-message: #3a3a3c;
+            --bg-system-message: #2a3a4a; /* システムプロンプト用 */
             --bg-error-message: #5c1c1c;
             --bg-button: #007aff;
             --bg-button-hover: #005ecb;
@@ -862,11 +950,13 @@
             --text-error: #ff8a80;
             --text-link: #00aaff;
             --text-placeholder: #777777;
+            --text-system: #ccc; /* システムプロンプト用 */
 
             --border-primary: #444444;
             --border-secondary: #555555;
             --border-tertiary: #333333;
             --border-danger: #7a2e35;
+            --border-system: #4682b4; /* システムプロンプト用 */
 
             --shadow-primary: rgba(255, 255, 255, 0.1);
             --shadow-secondary: rgba(0, 0, 0, 0.5);
@@ -1106,6 +1196,20 @@
                 <button id="goto-settings-btn" class="header-button" aria-label="設定へ">⚙</button>
             </header>
             <main class="main-content">
+                <!-- システムプロンプト表示/編集エリア -->
+                <div id="system-prompt-area" class="system-prompt-area">
+                    <details id="system-prompt-details">
+                        <summary>システムプロンプト</summary>
+                        <div class="system-prompt-content">
+                            <textarea id="system-prompt-editor" aria-label="システムプロンプト編集"></textarea>
+                            <div class="system-prompt-actions">
+                                <button id="cancel-system-prompt-btn" class="cancel-system-prompt-btn">キャンセル</button>
+                                <button id="save-system-prompt-btn" class="save-system-prompt-btn">保存</button>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+                <!-- メッセージコンテナ -->
                 <div id="message-container" class="message-container">
                     <!-- メッセージはここに読み込まれる -->
                 </div>
@@ -1189,8 +1293,8 @@
 
                 <div class="settings-group">
                     <h3>パラメータ</h3>
-                    <label for="system-prompt">システムプロンプト:</label>
-                    <textarea id="system-prompt" placeholder="例: あなたは親切なアシスタントです。" aria-label="システムプロンプト"></textarea>
+                    <label for="system-prompt-default">システムプロンプト (デフォルト):</label>
+                    <textarea id="system-prompt-default" placeholder="例: あなたは親切なアシスタントです。新規チャット作成時に適用されます。" aria-label="システムプロンプト (デフォルト)"></textarea>
 
                     <div class="param-grid">
                         <div>
@@ -1268,6 +1372,14 @@
                        <input type="checkbox" id="dark-mode-toggle">
                        ダークモードを使用する
                    </label>
+                   <!-- システムプロンプト非表示設定 -->
+                   <label class="checkbox-label">
+                       <input type="checkbox" id="hide-system-prompt-toggle">
+                       システムプロンプト非表示
+                   </label>
+                   <p style="font-size: 11px; color: var(--text-secondary); margin-top: -5px; margin-bottom: 10px;">
+                       ※ 没入感を高めたい場合に。非表示でも機能は有効。
+                   </p>
                    <label for="history-sort-order">履歴のソート順:</label>
                    <select id="history-sort-order" aria-label="履歴のソート順">
                        <option value="updatedAt">更新日時 (新しい順)</option>
@@ -1331,7 +1443,7 @@
         <script>
         // --- 定数 ---
         const DB_NAME = 'GeminiPWA_DB';
-        const DB_VERSION = 7; // スキーマ変更 (settingsにfontFamily追加) のためバージョンアップ
+        const DB_VERSION = 8; // スキーマ変更 (chatsにsystemPrompt追加想定) のためバージョンアップ
         const SETTINGS_STORE = 'settings';
         const CHATS_STORE = 'chats';
         const CHAT_UPDATEDAT_INDEX = 'updatedAtIndex';
@@ -1350,7 +1462,7 @@
         const IMPORT_PREFIX = '(取込) ';
         const LIGHT_THEME_COLOR = '#4a90e2';
         const DARK_THEME_COLOR = '#007aff';
-        const APP_VERSION = "0.11"; // 編集エリアの高さ調整、Tabキー対応、履歴タイトル編集バグ修正
+        const APP_VERSION = "0.12"; // システムプロンプト関連改修
         const SWIPE_THRESHOLD = 50; // スワイプ判定の閾値 (px)
 
         // --- DOM要素 ---
@@ -1369,13 +1481,19 @@
             noHistoryMessage: document.getElementById('no-history-message'),
             historyItemTemplate: document.querySelector('.js-history-item-template'),
             themeColorMeta: document.getElementById('theme-color-meta'),
+            // システムプロンプトUI
+            systemPromptArea: document.getElementById('system-prompt-area'),
+            systemPromptDetails: document.getElementById('system-prompt-details'),
+            systemPromptEditor: document.getElementById('system-prompt-editor'),
+            saveSystemPromptBtn: document.getElementById('save-system-prompt-btn'),
+            cancelSystemPromptBtn: document.getElementById('cancel-system-prompt-btn'),
             // 設定要素
             apiKeyInput: document.getElementById('api-key'),
             modelNameSelect: document.getElementById('model-name'),
             userDefinedModelsGroup: document.getElementById('user-defined-models-group'), // ユーザー指定モデルのoptgroup
             streamingOutputCheckbox: document.getElementById('streaming-output'),
             streamingSpeedInput: document.getElementById('streaming-speed'),
-            systemPromptTextarea: document.getElementById('system-prompt'),
+            systemPromptDefaultTextarea: document.getElementById('system-prompt-default'), // デフォルト用
             temperatureInput: document.getElementById('temperature'),
             maxTokensInput: document.getElementById('max-tokens'),
             topKInput: document.getElementById('top-k'),
@@ -1389,6 +1507,7 @@
             historySortOrderSelect: document.getElementById('history-sort-order'),
             darkModeToggle: document.getElementById('dark-mode-toggle'),
             fontFamilyInput: document.getElementById('font-family-input'), // フォント指定入力
+            hideSystemPromptToggle: document.getElementById('hide-system-prompt-toggle'), // SP非表示トグル
             appVersionSpan: document.getElementById('app-version'),
             // 背景画像設定要素
             backgroundImageInput: document.getElementById('background-image-input'),
@@ -1426,12 +1545,13 @@
             db: null,
             currentChatId: null,
             currentMessages: [],
+            currentSystemPrompt: '', // 現在のチャットのシステムプロンプト
             settings: { // デフォルト値
                 apiKey: '',
                 modelName: DEFAULT_MODEL,
                 streamingOutput: true,
                 streamingSpeed: DEFAULT_STREAMING_SPEED,
-                systemPrompt: '',
+                systemPrompt: '', // デフォルトのシステムプロンプト
                 temperature: null,
                 maxTokens: null,
                 topK: null,
@@ -1446,12 +1566,14 @@
                 darkMode: false, // デフォルトはダークモードOFF
                 backgroundImageBlob: null, // デフォルト背景はnull
                 fontFamily: '', // デフォルトフォントは空 (CSS変数で定義)
+                hideSystemPromptInChat: false, // SP非表示設定 (デフォルトfalse)
             },
             backgroundImageUrl: null, // 生成されたオブジェクトURL (DBには保存しない)
             isSending: false,
             abortController: null,
             partialStreamContent: '',
             editingMessageIndex: null,
+            isEditingSystemPrompt: false, // システムプロンプト編集中フラグ
             touchStartX: 0, // スワイプ開始X座標
             touchStartY: 0, // スワイプ開始Y座標
             touchEndX: 0,   // スワイプ終了X座標
@@ -1517,35 +1639,13 @@
                         const transaction = event.target.transaction;
                         console.log(`IndexedDBをバージョン ${event.oldVersion} から ${event.newVersion} へアップグレード中...`);
 
-                        // 設定ストア
+                        // 設定ストア (変更なし)
                         if (!db.objectStoreNames.contains(SETTINGS_STORE)) {
                             db.createObjectStore(SETTINGS_STORE, { keyPath: 'key' });
                             console.log(`オブジェクトストア ${SETTINGS_STORE} 作成`);
                         }
-                        // V5での変更: settingsストアに additionalModels の初期値を追加 (もし必要なら)
-                        if (event.oldVersion < 5 && transaction) {
-                             try {
-                                const settingsStore = transaction.objectStore(SETTINGS_STORE);
-                                // settingsStore.add({ key: 'additionalModels', value: '' }); // 例
-                             } catch (e) { console.error("設定ストアのアップグレード中にエラー(V5):", e); }
-                        }
-                        // V6での変更: settingsストアに concatDummyModel の初期値を追加 (もし必要なら)
-                        if (event.oldVersion < 6 && transaction) {
-                             try {
-                                const settingsStore = transaction.objectStore(SETTINGS_STORE);
-                                // settingsStore.add({ key: 'concatDummyModel', value: false }); // 例
-                             } catch (e) { console.error("設定ストアのアップグレード中にエラー(V6):", e); }
-                        }
-                        // V7での変更: settingsストアに fontFamily の初期値を追加 (もし必要なら)
-                        if (event.oldVersion < 7 && transaction) {
-                             try {
-                                const settingsStore = transaction.objectStore(SETTINGS_STORE);
-                                // settingsStore.add({ key: 'fontFamily', value: '' }); // 例
-                             } catch (e) { console.error("設定ストアのアップグレード中にエラー(V7):", e); }
-                        }
 
-
-                        // チャットストア & インデックス
+                        // チャットストア & インデックス (変更なし、systemPromptは動的に追加される)
                         let chatStore;
                         if (!db.objectStoreNames.contains(CHATS_STORE)) {
                             chatStore = db.createObjectStore(CHATS_STORE, { keyPath: 'id', autoIncrement: true });
@@ -1564,6 +1664,13 @@
                         if (chatStore && !chatStore.indexNames.contains(CHAT_CREATEDAT_INDEX)) {
                             chatStore.createIndex(CHAT_CREATEDAT_INDEX, 'createdAt', { unique: false });
                             console.log(`インデックス ${CHAT_CREATEDAT_INDEX} を ${CHATS_STORE} に作成`);
+                        }
+
+                        // V8での変更: 既存のチャットデータに systemPrompt フィールドを追加する必要はない
+                        // IndexedDBはスキーマレスなので、新しいフィールドは保存時に自動的に追加される
+                        // 読み込み時に存在しない場合はデフォルト値を使用する
+                        if (event.oldVersion < 8) {
+                            console.log("V8へのアップグレード: chatsストアにsystemPromptフィールドが動的に追加されます。");
                         }
                     };
                 });
@@ -1633,8 +1740,10 @@
                                          if (loadedValue !== null) console.warn(`読み込んだ 'backgroundImageBlob' がBlobではありません。nullに設定します。型: ${typeof loadedValue}`);
                                          state.settings[key] = null; // Blobでないか明示的にnullならnullを使用
                                     }
+                                } else if (key === 'hideSystemPromptInChat') { // SP非表示設定
+                                    state.settings[key] = loadedValue === true;
                                 } else if (key === 'darkMode' || key === 'streamingOutput' || key === 'pseudoStreaming' || key === 'enterToSend' || key === 'concatDummyModel') {
-                                     // 真偽値: 厳密にtrueかチェック
+                                     // その他の真偽値: 厳密にtrueかチェック
                                      state.settings[key] = loadedValue === true;
                                 } else if (typeof defaultValue === 'number' || defaultValue === null) {
                                      // 数値 (オプションのものはnullを扱う)
@@ -1693,10 +1802,10 @@
             // チャットを保存 (タイトル指定可)
             async saveChat(optionalTitle = null) {
                 await this.openDB();
-                // メッセージがない場合は保存しない
-                if (!state.currentMessages || state.currentMessages.length === 0) {
-                    if(state.currentChatId) console.log(`saveChat: 既存チャット ${state.currentChatId} にメッセージがないため保存せず`);
-                    else console.log("saveChat: 新規チャットに保存するメッセージなし");
+                // メッセージもシステムプロンプトもない場合は保存しない
+                if ((!state.currentMessages || state.currentMessages.length === 0) && !state.currentSystemPrompt) {
+                    if(state.currentChatId) console.log(`saveChat: 既存チャット ${state.currentChatId} にメッセージもシステムプロンプトもないため保存せず`);
+                    else console.log("saveChat: 新規チャットに保存するメッセージもシステムプロンプトもなし");
                     return Promise.resolve(state.currentChatId); // 現在のIDを返す
                 }
 
@@ -1726,6 +1835,7 @@
                         const chatIdForOperation = existingChatData ? existingChatData.id : state.currentChatId;
                         const chatData = {
                             messages: messagesToSave,
+                            systemPrompt: state.currentSystemPrompt, // システムプロンプトを保存
                             updatedAt: now,
                             createdAt: existingChatData ? existingChatData.createdAt : now, // 新規なら現在時刻
                             title: title,
@@ -2055,12 +2165,12 @@
                     isNewChat = false;
                     if (definitiveTitle !== null) { // 引数でタイトルが指定されていればそれを使う
                         baseTitle = definitiveTitle;
-                    } else { // 指定がなければメッセージから推測
+                    } else { // 指定がなければメッセージから推測 (ユーザーメッセージ優先)
                         const firstUserMessage = state.currentMessages.find(m => m.role === 'user');
                         if (firstUserMessage) {
                             baseTitle = firstUserMessage.content;
-                        } else if (state.currentMessages.length > 0) {
-                            baseTitle = "チャット履歴"; // ユーザーメッセージがない場合
+                        } else if (state.currentMessages.length > 0) { // ユーザーメッセージ以外でもメッセージがあれば
+                            baseTitle = "チャット履歴";
                         }
                     }
                     // タイトルを切り詰める
@@ -2073,11 +2183,11 @@
                         if (baseTitle.startsWith(IMPORT_PREFIX)) {
                             titleText = IMPORT_PREFIX + titleText;
                         }
-                    } else if(state.currentMessages.length > 0) {
-                        titleText = 'チャット履歴'; // ベースタイトルが空でもメッセージがあれば
+                    } else if(state.currentMessages.length > 0) { // メッセージがあれば (SPは考慮しない)
+                        titleText = 'チャット履歴';
                     }
                     // メッセージがあるのにタイトルが「新規チャット」のままなら変更
-                    if (titleText === '新規チャット' && state.currentMessages.length > 0) {
+                    if (titleText === '新規チャット' && state.currentMessages.length > 0) { // メッセージがあれば (SPは考慮しない)
                         titleText = 'チャット履歴';
                     }
                 }
@@ -2190,7 +2300,7 @@
                 elements.modelNameSelect.value = state.settings.modelName || DEFAULT_MODEL;
                 elements.streamingOutputCheckbox.checked = state.settings.streamingOutput;
                 elements.streamingSpeedInput.value = state.settings.streamingSpeed ?? DEFAULT_STREAMING_SPEED;
-                elements.systemPromptTextarea.value = state.settings.systemPrompt || '';
+                elements.systemPromptDefaultTextarea.value = state.settings.systemPrompt || ''; // デフォルト用
                 elements.temperatureInput.value = state.settings.temperature === null ? '' : state.settings.temperature;
                 elements.maxTokensInput.value = state.settings.maxTokens === null ? '' : state.settings.maxTokens;
                 elements.topKInput.value = state.settings.topK === null ? '' : state.settings.topK;
@@ -2204,6 +2314,7 @@
                 elements.historySortOrderSelect.value = state.settings.historySortOrder || 'updatedAt';
                 elements.darkModeToggle.checked = state.settings.darkMode; // ダークモードチェックボックスに状態を適用
                 elements.fontFamilyInput.value = state.settings.fontFamily || ''; // フォント設定を適用
+                elements.hideSystemPromptToggle.checked = state.settings.hideSystemPromptInChat; // SP非表示設定
 
                 // ユーザー指定モデルをコンボボックスに追加
                 this.updateUserModelOptions();
@@ -2211,6 +2322,7 @@
                 this.updateBackgroundSettingsUI(); // 背景画像UI要素を更新
                 this.applyDarkMode(); // 読み込み/更新された設定を反映してテーマを適用 (チェックボックス設定後)
                 this.applyFontFamily(); // フォント設定を適用
+                this.toggleSystemPromptVisibility(); // SP表示/非表示を適用
             },
 
             // ユーザー指定モデルをコンボボックスに反映
@@ -2257,6 +2369,26 @@
                 console.log(`フォント適用: ${fontFamilyToApply}`);
             },
 
+            // --- システムプロンプトUI更新 ---
+            updateSystemPromptUI() {
+                elements.systemPromptEditor.value = state.currentSystemPrompt;
+                // 編集中でない場合、detailsタグを閉じる
+                if (!state.isEditingSystemPrompt) {
+                    elements.systemPromptDetails.removeAttribute('open');
+                }
+                // テキストエリアの高さを調整
+                this.adjustTextareaHeight(elements.systemPromptEditor, 200);
+                // 表示/非表示を制御
+                this.toggleSystemPromptVisibility();
+            },
+            // システムプロンプトエリアの表示/非表示を切り替え
+            toggleSystemPromptVisibility() {
+                const shouldHide = state.settings.hideSystemPromptInChat;
+                elements.systemPromptArea.classList.toggle('hidden', shouldHide);
+                console.log(`システムプロンプト表示エリア ${shouldHide ? '非表示' : '表示'}`);
+            },
+            // --------------------------------
+
             // 画面を表示 (スワイプアニメーション + inert対応)
             showScreen(screenName) {
                 // 編集中ならキャンセル
@@ -2267,6 +2399,10 @@
                      } else {
                         state.editingMessageIndex = null; // 要素が見つからない場合はインデックスのみリセット
                      }
+                }
+                // システムプロンプト編集中ならキャンセル
+                if (state.isEditingSystemPrompt) {
+                    appLogic.cancelEditSystemPrompt();
                 }
 
                 const allScreens = [elements.chatScreen, elements.historyScreen, elements.settingsScreen];
@@ -2287,7 +2423,11 @@
                     elements.historyScreen.style.transform = 'translateX(-100%)';
                     elements.settingsScreen.style.transform = 'translateX(100%)';
                     // チャット画面表示時の追加処理
-                    requestAnimationFrame(() => { this.adjustTextareaHeight(); this.scrollToBottom(); });
+                    requestAnimationFrame(() => {
+                        this.updateSystemPromptUI(); // システムプロンプトUI更新 (表示/非表示含む)
+                        this.adjustTextareaHeight();
+                        this.scrollToBottom();
+                    });
                 } else if (screenName === 'history') {
                     activeScreen = elements.historyScreen;
                     elements.chatScreen.style.transform = 'translateX(100%)';
@@ -2330,6 +2470,9 @@
                     elements.userInput.disabled = true; // 入力欄無効化
                     elements.loadingIndicator.classList.remove('hidden'); // ローディング表示
                     elements.loadingIndicator.setAttribute('aria-live', 'polite'); // スクリーンリーダー用
+                    // システムプロンプト編集も不可にする
+                    elements.systemPromptDetails.style.pointerEvents = 'none';
+                    elements.systemPromptDetails.style.opacity = '0.7';
                 } else {
                     elements.sendButton.textContent = '送';
                     elements.sendButton.classList.remove('sending');
@@ -2339,6 +2482,9 @@
                     elements.userInput.disabled = false; // 入力欄有効化
                     elements.loadingIndicator.classList.add('hidden'); // ローディング非表示
                     elements.loadingIndicator.removeAttribute('aria-live');
+                    // システムプロンプト編集を可能にする
+                    elements.systemPromptDetails.style.pointerEvents = '';
+                    elements.systemPromptDetails.style.opacity = '';
                 }
             },
 
@@ -2464,8 +2610,8 @@
                     contents: messagesForApi,
                     // generationConfigが空でない場合のみ追加
                     ...(Object.keys(generationConfig).length > 0 && { generationConfig }),
-                    // systemInstructionが存在する場合のみ追加
-                    ...(systemInstruction && { systemInstruction }),
+                    // systemInstructionが存在する場合のみ追加 (systemInstructionはオブジェクト形式)
+                    ...(systemInstruction && systemInstruction.parts && systemInstruction.parts.length > 0 && systemInstruction.parts[0].text && { systemInstruction }),
                     // 安全性設定 (全てブロック解除)
                      safetySettings : [
                          { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
@@ -2765,6 +2911,22 @@
                     }
                 });
 
+                // システムプロンプトUIアクション
+                elements.systemPromptDetails.addEventListener('toggle', (event) => {
+                    if (event.target.open) {
+                        // 開いたときに編集モードに入る
+                        this.startEditSystemPrompt();
+                    } else if (state.isEditingSystemPrompt) {
+                        // 閉じられたときに編集中だったらキャンセル
+                        this.cancelEditSystemPrompt();
+                    }
+                });
+                elements.saveSystemPromptBtn.addEventListener('click', () => this.saveCurrentSystemPrompt());
+                elements.cancelSystemPromptBtn.addEventListener('click', () => this.cancelEditSystemPrompt());
+                elements.systemPromptEditor.addEventListener('input', () => {
+                    uiUtils.adjustTextareaHeight(elements.systemPromptEditor, 200); // 高さ調整
+                });
+
                 // 履歴アクション
                 elements.importHistoryBtn.addEventListener('click', () => elements.importHistoryInput.click());
                 elements.importHistoryInput.addEventListener('change', (event) => {
@@ -2795,6 +2957,13 @@
                     event.target.value = null; // 同じファイルを選択できるようにリセット
                 });
                 elements.deleteBackgroundBtn.addEventListener('click', () => this.confirmDeleteBackgroundImage());
+
+                // SP非表示トグルリスナー
+                elements.hideSystemPromptToggle.addEventListener('change', () => {
+                    state.settings.hideSystemPromptInChat = elements.hideSystemPromptToggle.checked;
+                    uiUtils.toggleSystemPromptVisibility(); // UIを即時更新
+                    // 注意: DBへの保存は「設定を保存」ボタンで行われる
+                });
 
                 // スワイプイベントリスナー (チャット画面のみ)
                 elements.chatScreen.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: true });
@@ -2897,8 +3066,14 @@
                     const msgEl = elements.messageContainer.querySelector(`.message[data-index="${state.editingMessageIndex}"]`);
                     this.cancelEditMessage(state.editingMessageIndex, msgEl); // 編集キャンセル
                 }
-                // 現在のチャットにメッセージがあり、IDもあれば保存を試みる
-                if (state.currentMessages.length > 0 && state.currentChatId) {
+                // システムプロンプト編集中なら破棄確認
+                if (state.isEditingSystemPrompt) {
+                    const confirmed = await uiUtils.showCustomConfirm("システムプロンプト編集中です。変更を破棄して新規チャットを開始しますか？");
+                    if (!confirmed) return;
+                    this.cancelEditSystemPrompt();
+                }
+                // 現在のチャットにメッセージまたはシステムプロンプトがあり、IDもあれば保存を試みる
+                if ((state.currentMessages.length > 0 || state.currentSystemPrompt) && state.currentChatId) {
                     try {
                         await dbUtils.saveChat();
                     } catch (error) {
@@ -2916,6 +3091,8 @@
             startNewChat() {
                 state.currentChatId = null; // IDリセット
                 state.currentMessages = []; // メッセージクリア
+                state.currentSystemPrompt = state.settings.systemPrompt; // デフォルトのシステムプロンプトを適用
+                uiUtils.updateSystemPromptUI(); // システムプロンプトUI更新
                 uiUtils.renderChatMessages(); // 表示クリア
                 uiUtils.updateChatTitle(); // タイトルを「新規チャット」に
                 elements.userInput.value = ''; // 入力欄クリア
@@ -2939,8 +3116,14 @@
                      const msgEl = elements.messageContainer.querySelector(`.message[data-index="${state.editingMessageIndex}"]`);
                      this.cancelEditMessage(state.editingMessageIndex, msgEl);
                  }
+                 // システムプロンプト編集中なら破棄確認
+                 if (state.isEditingSystemPrompt) {
+                     const confirmed = await uiUtils.showCustomConfirm("システムプロンプト編集中です。変更を破棄して別のチャットを読み込みますか？");
+                     if (!confirmed) return;
+                     this.cancelEditSystemPrompt();
+                 }
                  // 現在のチャットを保存 (skipSaveがfalseの場合)
-                 if (!skipSave && state.currentMessages.length > 0 && state.currentChatId) {
+                 if (!skipSave && (state.currentMessages.length > 0 || state.currentSystemPrompt) && state.currentChatId) {
                      try {
                          await dbUtils.saveChat();
                      } catch (error) {
@@ -2954,6 +3137,9 @@
                     if (chat) {
                         state.currentChatId = chat.id;
                         state.currentMessages = chat.messages || []; // メッセージをstateに設定
+                        // システムプロンプトを読み込み (存在しなければデフォルトを使用)
+                        state.currentSystemPrompt = chat.systemPrompt !== undefined ? chat.systemPrompt : state.settings.systemPrompt;
+                        uiUtils.updateSystemPromptUI(); // システムプロンプトUI更新
                         uiUtils.renderChatMessages(); // メッセージ表示更新
                         uiUtils.updateChatTitle(chat.title); // タイトル更新
                         elements.userInput.value = ''; // 入力欄クリア
@@ -2976,7 +3162,8 @@
                 // 送信中・編集中・他チャット保存の確認 (loadChatと同様)
                 if (state.isSending) { const conf = await uiUtils.showCustomConfirm("送信中です。中断してチャットを複製しますか？"); if (!conf) return; this.abortRequest(); }
                 if (state.editingMessageIndex !== null) { const conf = await uiUtils.showCustomConfirm("編集中です。変更を破棄してチャットを複製しますか？"); if (!conf) return; const msgEl = elements.messageContainer.querySelector(`.message[data-index="${state.editingMessageIndex}"]`); this.cancelEditMessage(state.editingMessageIndex, msgEl); }
-                if (state.currentMessages.length > 0 && state.currentChatId && state.currentChatId !== id) { try { await dbUtils.saveChat(); } catch (error) { console.error("複製前の現チャット保存失敗:", error); const conf = await uiUtils.showCustomConfirm("現在のチャット保存に失敗しました。複製を続行しますか？"); if (!conf) return; } }
+                if (state.isEditingSystemPrompt) { const conf = await uiUtils.showCustomConfirm("システムプロンプト編集中です。変更を破棄してチャットを複製しますか？"); if (!conf) return; this.cancelEditSystemPrompt(); }
+                if ((state.currentMessages.length > 0 || state.currentSystemPrompt) && state.currentChatId && state.currentChatId !== id) { try { await dbUtils.saveChat(); } catch (error) { console.error("複製前の現チャット保存失敗:", error); const conf = await uiUtils.showCustomConfirm("現在のチャット保存に失敗しました。複製を続行しますか？"); if (!conf) return; } }
 
                 try {
                     const chat = await dbUtils.getChat(id); // 複製元を取得
@@ -2993,6 +3180,7 @@
                         // 新しいチャットデータを作成
                         const newChatData = {
                             messages: duplicatedMessages,
+                            systemPrompt: chat.systemPrompt || '', // システムプロンプトもコピー
                             updatedAt: Date.now(), // 更新/作成日時は現在
                             createdAt: Date.now(),
                             title: newTitle
@@ -3026,18 +3214,25 @@
 
                  try {
                      const chat = await dbUtils.getChat(chatId);
-                     if (!chat || !chat.messages || chat.messages.length === 0) {
+                     if (!chat || ((!chat.messages || chat.messages.length === 0) && !chat.systemPrompt)) {
                          await uiUtils.showCustomAlert("チャットデータが空です。");
                          return;
                      }
                      // エクスポート用テキスト生成
                      let exportText = '';
-                     chat.messages.forEach(msg => {
-                         // userとmodelのメッセージのみ出力
-                         if (msg.role === 'user' || msg.role === 'model') {
-                             exportText += `<|#|${msg.role}|#|>\n${msg.content}\n<|#|/${msg.role}|#|>\n\n`;
-                         }
-                     });
+                     // システムプロンプトを出力
+                     if (chat.systemPrompt) {
+                         exportText += `<|#|system|#|>\n${chat.systemPrompt}\n<|#|/system|#|>\n\n`;
+                     }
+                     // メッセージを出力
+                     if (chat.messages) {
+                         chat.messages.forEach(msg => {
+                             // userとmodelのメッセージのみ出力
+                             if (msg.role === 'user' || msg.role === 'model') {
+                                 exportText += `<|#|${msg.role}|#|>\n${msg.content}\n<|#|/${msg.role}|#|>\n\n`;
+                             }
+                         });
+                     }
                      // Blobを作成してダウンロードリンクを生成
                      const blob = new Blob([exportText.trim()], { type: 'text/plain;charset=utf-8' });
                      const url = URL.createObjectURL(blob);
@@ -3075,7 +3270,7 @@
                     }
                 }
             },
-            
+
             // 履歴アイテムのタイトルを編集
             async editHistoryTitle(chatId, titleElement) {
                 const currentTitle = titleElement.textContent;
@@ -3153,6 +3348,11 @@
                     await uiUtils.showCustomAlert("他のメッセージを編集中です。");
                     return;
                 }
+                // システムプロンプト編集中は送信不可
+                if (state.isEditingSystemPrompt) {
+                    await uiUtils.showCustomAlert("システムプロンプトを編集中です。");
+                    return;
+                }
                 // 送信するテキストを取得 (リトライ時は最後のメッセージ、通常は入力欄)
                 const text = isRetry ? retryMessages[retryMessages.length - 1].content : elements.userInput.value.trim();
 
@@ -3197,9 +3397,12 @@
                     // タイトルがなければ最初のユーザーメッセージから推測
                     if (!titleToSave) {
                         const firstUserMsg = state.currentMessages.find(m => m.role === 'user');
-                        if(firstUserMsg) titleToSave = firstUserMsg.content.substring(0, 50);
+                        if(firstUserMsg) {
+                            titleToSave = firstUserMsg.content.substring(0, 50);
+                        }
+                        // ユーザーメッセージがない場合は "無題のチャット" のまま (saveChat内で処理)
                     }
-                    await dbUtils.saveChat(titleToSave); // タイトルを指定して保存
+                    await dbUtils.saveChat(titleToSave); // タイトルを指定して保存 (systemPromptも保存される)
                 } catch (error) {
                     console.error("送信前のチャット保存失敗:", error);
                     // 保存失敗しても送信は試みる (エラー表示)
@@ -3224,9 +3427,9 @@
                 if (state.settings.topK !== null) generationConfig.topK = state.settings.topK;
                 if (state.settings.topP !== null) generationConfig.topP = state.settings.topP;
 
-                // システムプロンプト (systemInstruction) を作成
-                const systemInstruction = state.settings.systemPrompt?.trim()
-                    ? { role: "system", parts: [{ text: state.settings.systemPrompt.trim() }] }
+                // システムプロンプト (systemInstruction) を作成 (現在のチャットのものを使用)
+                const systemInstruction = state.currentSystemPrompt?.trim()
+                    ? { role: "system", parts: [{ text: state.currentSystemPrompt.trim() }] }
                     : null;
 
                 let modelResponseRawContent = ''; // モデル応答の生テキスト
@@ -3385,9 +3588,9 @@
                         return;
                     }
                     try {
-                        const importedMessages = this.parseImportedHistory(textContent);
-                        if (importedMessages.length === 0) {
-                            await uiUtils.showCustomAlert("ファイルから有効なメッセージを読み込めませんでした。形式を確認してください。");
+                        const { messages: importedMessages, systemPrompt: importedSystemPrompt } = this.parseImportedHistory(textContent);
+                        if (importedMessages.length === 0 && !importedSystemPrompt) {
+                            await uiUtils.showCustomAlert("ファイルから有効なメッセージまたはシステムプロンプトを読み込めませんでした。形式を確認してください。");
                             return;
                         }
 
@@ -3397,6 +3600,7 @@
 
                         const newChatData = {
                             messages: importedMessages,
+                            systemPrompt: importedSystemPrompt || '', // インポートされたシステムプロンプト
                             updatedAt: Date.now(),
                             createdAt: Date.now(),
                             title: newTitle.substring(0, 100) // 100文字制限
@@ -3432,8 +3636,9 @@
             // インポートされたテキストをパースする
             parseImportedHistory(text) {
                 const messages = [];
-                // 正規表現でブロックを抽出: <|#|role|#|>\ncontent\n<|#|/role|#|>
-                const blockRegex = /<\|#\|(user|model)\|#\|>([\s\S]*?)<\|#\|\/\1\|#\|>/g;
+                let systemPrompt = '';
+                // 正規表現でブロックを抽出: <|#|role|#|>\ncontent\n<|#|/role|#|> (system, user, model)
+                const blockRegex = /<\|#\|(system|user|model)\|#\|>([\s\S]*?)<\|#\|\/\1\|#\|>/g;
                 let match;
 
                 while ((match = blockRegex.exec(text)) !== null) {
@@ -3441,7 +3646,9 @@
                     // contentの前後の改行や空白を除去
                     const content = match[2].trim();
 
-                    if (role && content) {
+                    if (role === 'system' && content) {
+                        systemPrompt = content; // システムプロンプトを抽出
+                    } else if ((role === 'user' || role === 'model') && content) {
                         messages.push({
                             role: role,
                             content: content, // 無害化は表示時に行われるため、ここではそのまま格納
@@ -3449,8 +3656,8 @@
                         });
                     }
                 }
-                console.log(`インポートテキストから ${messages.length} 件のメッセージをパースしました。`);
-                return messages;
+                console.log(`インポートテキストから ${messages.length} 件のメッセージとシステムプロンプト(${systemPrompt ? 'あり' : 'なし'})をパースしました。`);
+                return { messages, systemPrompt };
             },
             // -------------------------------
 
@@ -3523,7 +3730,7 @@
                      modelName: elements.modelNameSelect.value,
                      streamingOutput: elements.streamingOutputCheckbox.checked,
                      streamingSpeed: elements.streamingSpeedInput.value === '' ? DEFAULT_STREAMING_SPEED : parseInt(elements.streamingSpeedInput.value),
-                     systemPrompt: elements.systemPromptTextarea.value.trim(),
+                     systemPrompt: elements.systemPromptDefaultTextarea.value.trim(), // デフォルト用
                      temperature: elements.temperatureInput.value === '' ? null : parseFloat(elements.temperatureInput.value),
                      maxTokens: elements.maxTokensInput.value === '' ? null : parseInt(elements.maxTokensInput.value),
                      topK: elements.topKInput.value === '' ? null : parseInt(elements.topKInput.value),
@@ -3536,7 +3743,8 @@
                      enterToSend: elements.enterToSendCheckbox.checked,
                      historySortOrder: elements.historySortOrderSelect.value,
                      darkMode: elements.darkModeToggle.checked,
-                     fontFamily: elements.fontFamilyInput.value.trim() // フォント設定を取得
+                     fontFamily: elements.fontFamilyInput.value.trim(), // フォント設定を取得
+                     hideSystemPromptInChat: elements.hideSystemPromptToggle.checked, // SP非表示設定
                  };
 
                  // --- 数値入力のバリデーション ---
@@ -3571,7 +3779,7 @@
 
                      // 全設定をUIに再適用 (バリデーションで修正された値も反映)
                      uiUtils.applySettingsToUI();
-                     // applyDarkModeとapplyFontFamilyはapplySettingsToUI内で呼ばれる
+                     // applyDarkMode, applyFontFamily, toggleSystemPromptVisibility は applySettingsToUI内で呼ばれる
 
                      console.log("設定保存成功:", { ...state.settings, backgroundImageBlob: state.settings.backgroundImageBlob ? '[Blob]' : null });
                      await uiUtils.showCustomAlert("設定を保存しました。");
@@ -3620,12 +3828,13 @@
                         // stateを完全に初期デフォルト状態にリセット
                         state.currentChatId = null;
                         state.currentMessages = [];
+                        state.currentSystemPrompt = ''; // システムプロンプトもリセット
                         state.settings = { // 初期デフォルト値に戻す
                             apiKey: '',
                             modelName: DEFAULT_MODEL,
                             streamingOutput: true,
                             streamingSpeed: DEFAULT_STREAMING_SPEED,
-                            systemPrompt: '',
+                            systemPrompt: '', // デフォルトSPもリセット
                             temperature: null,
                             maxTokens: null,
                             topK: null,
@@ -3640,20 +3849,54 @@
                             // ダークモードはOS設定にフォールバック
                             darkMode: window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false,
                             backgroundImageBlob: null,
-                            fontFamily: '' // フォントもリセット
+                            fontFamily: '', // フォントもリセット
+                            hideSystemPromptInChat: false, // SP非表示もリセット
                         };
                         state.backgroundImageUrl = null;
 
                         // リセットされた状態をUIに適用
                         document.documentElement.style.setProperty('--chat-background-image', 'none'); // 背景スタイルリセット
-                        uiUtils.applySettingsToUI(); // 設定UIをリセット (ダークモード、背景UI、フォント含む)
-                        this.startNewChat(); // 新規チャット状態にする
+                        uiUtils.applySettingsToUI(); // 設定UIをリセット (ダークモード、背景UI、フォント、SP表示含む)
+                        this.startNewChat(); // 新規チャット状態にする (デフォルトSPが適用される)
                         uiUtils.showScreen('chat'); // チャット画面を表示
                     } catch (error) {
                         await uiUtils.showCustomAlert(`データ削除中にエラーが発生しました: ${error}`);
                     }
                 }
             },
+
+            // --- システムプロンプト編集 ---
+            startEditSystemPrompt() {
+                if (state.isSending) return; // 送信中は編集不可
+                state.isEditingSystemPrompt = true;
+                elements.systemPromptEditor.value = state.currentSystemPrompt; // 現在の値で初期化
+                uiUtils.adjustTextareaHeight(elements.systemPromptEditor, 200);
+                elements.systemPromptEditor.focus();
+                console.log("システムプロンプト編集開始");
+            },
+            async saveCurrentSystemPrompt() {
+                const newPrompt = elements.systemPromptEditor.value.trim();
+                if (newPrompt !== state.currentSystemPrompt) {
+                    state.currentSystemPrompt = newPrompt;
+                    try {
+                        await dbUtils.saveChat(); // 現在のチャットを保存 (SP含む)
+                        console.log("システムプロンプト保存完了");
+                    } catch (error) {
+                        await uiUtils.showCustomAlert("システムプロンプトの保存に失敗しました。");
+                        // エラー時は元の値に戻す？ UIはそのままにする？ -> UIはそのまま
+                    }
+                }
+                state.isEditingSystemPrompt = false;
+                elements.systemPromptDetails.removeAttribute('open'); // detailsを閉じる
+            },
+            cancelEditSystemPrompt() {
+                state.isEditingSystemPrompt = false;
+                elements.systemPromptEditor.value = state.currentSystemPrompt; // 元の値に戻す
+                elements.systemPromptDetails.removeAttribute('open'); // detailsを閉じる
+                uiUtils.adjustTextareaHeight(elements.systemPromptEditor, 200);
+                console.log("システムプロンプト編集キャンセル");
+            },
+            // -----------------------------
 
             // --- メッセージアクション ---
             // メッセージ編集開始
@@ -3666,6 +3909,11 @@
                  // 他のメッセージを編集中なら警告
                  if (state.editingMessageIndex !== null && state.editingMessageIndex !== index) {
                      await uiUtils.showCustomAlert("他のメッセージを編集中です。");
+                     return;
+                 }
+                 // システムプロンプト編集中なら警告
+                 if (state.isEditingSystemPrompt) {
+                     await uiUtils.showCustomAlert("システムプロンプトを編集中です。");
                      return;
                  }
                  // すでに編集中ならフォーカスするだけ
@@ -3762,17 +4010,20 @@
 
                 // UIのメッセージ内容を更新
                 const contentDiv = messageElement.querySelector('.message-content');
-                if(contentDiv && typeof marked !== 'undefined') {
+                if(contentDiv && typeof marked !== 'undefined' && originalMessage.role === 'model') { // モデルメッセージのみMarkdown
                     try {
                         contentDiv.innerHTML = marked.parse(newRawContent || ''); // Markdownパース
                     } catch (e) {
                         console.error("編集保存時のMarkdownパースエラー:", e);
                         contentDiv.textContent = newRawContent; // エラー時はテキスト表示
                     }
-                } else if (contentDiv) { // markedがない場合 or ユーザーメッセージ
+                } else if (contentDiv) { // ユーザーメッセージ or markedなし
                     const pre = contentDiv.querySelector('pre') || document.createElement('pre');
                     pre.textContent = newRawContent;
-                    if(!contentDiv.querySelector('pre')) contentDiv.appendChild(pre);
+                    if(!contentDiv.querySelector('pre')) {
+                        contentDiv.innerHTML = ''; // 既存内容をクリア
+                        contentDiv.appendChild(pre);
+                    }
                 }
 
                 this.finishEditing(messageElement); // 編集UIを終了
@@ -3781,7 +4032,10 @@
                 let requiresTitleUpdate = (index === state.currentMessages.findIndex(m => m.role === 'user'));
                 try {
                     // タイトル更新が必要なら新しいタイトルを生成して保存
-                    let newTitleForSave = requiresTitleUpdate ? (newRawContent.substring(0, 50) || "無題のチャット") : null;
+                    let newTitleForSave = null;
+                    if (requiresTitleUpdate) {
+                        newTitleForSave = newRawContent.substring(0, 50) || "無題のチャット"; // SPは参照しない
+                    }
                     await dbUtils.saveChat(newTitleForSave);
                     // UIのタイトルも更新
                     if (requiresTitleUpdate) {
@@ -3845,6 +4099,11 @@
                       await uiUtils.showCustomAlert("送信中は削除できません。");
                       return;
                   }
+                  // システムプロンプト編集中は不可
+                  if (state.isEditingSystemPrompt) {
+                      await uiUtils.showCustomAlert("システムプロンプト編集中は削除できません。");
+                      return;
+                  }
                   // インデックス範囲チェック
                   if (index < 0 || index >= state.currentMessages.length) return;
 
@@ -3866,14 +4125,14 @@
                         let newTitleForSave = null;
                         if (requiresTitleUpdate) { // タイトル更新が必要な場合
                             const newFirstUserMessage = newFirstUserMsgIndex !== -1 ? state.currentMessages[newFirstUserMsgIndex] : null;
-                            newTitleForSave = newFirstUserMessage ? newFirstUserMessage.content.substring(0, 50) : "無題のチャット";
+                            newTitleForSave = newFirstUserMessage ? newFirstUserMessage.content.substring(0, 50) : "無題のチャット"; // SPは参照しない
                         }
                         await dbUtils.saveChat(newTitleForSave); // チャット保存 (タイトルも更新される可能性あり)
                         if (requiresTitleUpdate) {
                             uiUtils.updateChatTitle(newTitleForSave); // UIタイトル更新
                         }
-                        // メッセージが空になったら新規チャット状態にする
-                        if (state.currentMessages.length === 0 && state.currentChatId) {
+                        // メッセージが空になり、システムプロンプトもない場合、新規チャット状態にする
+                        if (state.currentMessages.length === 0 && !state.currentSystemPrompt && state.currentChatId) {
                             console.log("チャットが空になったためリセットします。");
                             this.startNewChat();
                         }
@@ -3892,6 +4151,11 @@
                   // 送信中は不可
                   if (state.isSending) {
                       await uiUtils.showCustomAlert("送信中です。");
+                      return;
+                  }
+                  // システムプロンプト編集中は不可
+                  if (state.isEditingSystemPrompt) {
+                      await uiUtils.showCustomAlert("システムプロンプト編集中はリトライできません。");
                       return;
                   }
                   const userMessage = state.currentMessages[index];
