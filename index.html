@@ -1462,7 +1462,7 @@
         const IMPORT_PREFIX = '(取込) ';
         const LIGHT_THEME_COLOR = '#4a90e2';
         const DARK_THEME_COLOR = '#007aff';
-        const APP_VERSION = "0.12"; // システムプロンプト関連改修
+        const APP_VERSION = "0.13"; // 履歴読み込み時の現在チャット保存処理を削除
         const SWIPE_THRESHOLD = 50; // スワイプ判定の閾値 (px)
 
         // --- DOM要素 ---
@@ -2865,7 +2865,7 @@
                     // 最新のチャットを読み込むか、新規チャットを開始
                     const chats = await dbUtils.getAllChats(state.settings.historySortOrder);
                     if (chats && chats.length > 0) {
-                        await this.loadChat(chats[0].id, true); // 最新チャットを読み込み (初回なので保存はスキップ)
+                        await this.loadChat(chats[0].id); // 最新チャットを読み込み
                     } else {
                         this.startNewChat(); // 履歴がなければ新規チャット
                     }
@@ -3102,7 +3102,7 @@
             },
 
             // 指定IDのチャットを読み込む
-            async loadChat(id, skipSave = false) {
+            async loadChat(id) {
                  // 送信中なら中断確認
                  if (state.isSending) {
                      const confirmed = await uiUtils.showCustomConfirm("送信中です。中断して別のチャットを読み込みますか？");
@@ -3122,16 +3122,7 @@
                      if (!confirmed) return;
                      this.cancelEditSystemPrompt();
                  }
-                 // 現在のチャットを保存 (skipSaveがfalseの場合)
-                 if (!skipSave && (state.currentMessages.length > 0 || state.currentSystemPrompt) && state.currentChatId) {
-                     try {
-                         await dbUtils.saveChat();
-                     } catch (error) {
-                         console.error("チャット読み込み前の保存失敗:", error);
-                         const conf = await uiUtils.showCustomConfirm("現在のチャットの保存に失敗しました。別のチャットを読み込みますか？");
-                         if (!conf) return;
-                     }
-                 }
+                 
                 try {
                     const chat = await dbUtils.getChat(id); // DBからチャット取得
                     if (chat) {
