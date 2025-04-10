@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GeminiPWA</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" id="theme-color-meta" content="#4a90e2">
@@ -60,6 +60,8 @@
 
             --shadow-primary: rgba(0, 0, 0, 0.1);
             --shadow-secondary: rgba(0,0,0,0.1);
+
+            --message-max-width: 85%;
 
             --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 
@@ -308,11 +310,11 @@
         /* --- メインコンテンツエリア --- */
         .main-content {
             flex-grow: 1;
-            overflow-y: auto; /* 各画面のコンテンツをスクロール可能に */
+            overflow-y: auto; /* デフォルトは縦スクロール */
             padding: 15px;
             position: relative; /* 必要に応じて内部要素の配置基準に */
             z-index: 1; /* オーバーレイより手前 */
-            touch-action: pan-y; /* 縦スクロールを優先 (スワイプ用) */
+            touch-action: pan-y; /* デフォルトは縦方向のパン操作を許可 */
         }
 
         /* --- 画面共通スタイル (スワイプアニメーション用) --- */
@@ -371,6 +373,9 @@
             padding-bottom: 80px; /* 入力エリアのスペース */
             z-index: 1; /* チャットコンテンツをオーバーレイより手前に */
             background-color: transparent; /* オーバーレイ/背景画像が見えるように */
+            /* overflow-y: auto; を overflow: auto; に変更して水平スクロールも可能に */
+            overflow: auto;
+            touch-action: pan-x pan-y pinch-zoom; /* 水平・垂直パン・ピンチズームを許可 */
         }
         /* ヘッダーとフッターはオーバーレイより手前 */
         #chat-screen .app-header { z-index: 2; }
@@ -378,6 +383,12 @@
             z-index: 2;
             background-color: var(--bg-secondary); /* 入力エリアの背景は不透明 */
         }
+        /* 履歴画面と設定画面のメインコンテンツでピンチズームを抑制 */
+        #history-screen .main-content,
+        #settings-screen .main-content {
+            touch-action: pan-y; /* 縦スクロールのみ許可 */
+        }
+
 
         /* --- システムプロンプト表示エリア --- */
         .system-prompt-area {
@@ -470,7 +481,7 @@
         .message {
             padding: 10px 15px;
             border-radius: 15px;
-            max-width: 85%;
+            max-width: var(--message-max-width);
             min-width: 30%;
             min-height: 40px;
             position: relative;
@@ -689,6 +700,7 @@
         }
         #history-screen .main-content {
              background-color: transparent; /* screenの背景色が見えるように */
+             /* touch-action: pan-y; */ /* 上部で指定済み */
         }
 
         .history-list {
@@ -780,6 +792,7 @@
         }
          #settings-screen .main-content {
              background-color: transparent; /* screenの背景色が見えるように */
+             /* touch-action: pan-y; */ /* 上部で指定済み */
         }
 
         .settings-group {
@@ -897,14 +910,6 @@
             vertical-align: middle;
         }
         /* ========================================== */
-
-
-        /* --- レスポンシブ調整 --- */
-        @media (min-width: 600px) {
-            .message {
-                max-width: 75%;
-            }
-        }
 
         /* --- OSのカラースキームを優先 --- */
         @media (prefers-color-scheme: dark) {
@@ -1462,8 +1467,9 @@
         const IMPORT_PREFIX = '(取込) ';
         const LIGHT_THEME_COLOR = '#4a90e2';
         const DARK_THEME_COLOR = '#007aff';
-        const APP_VERSION = "0.13"; // 履歴読み込み時の現在チャット保存処理を削除
+        const APP_VERSION = "0.14"; // ラグ問題、ピンチズーム、戻るボタン対応、
         const SWIPE_THRESHOLD = 50; // スワイプ判定の閾値 (px)
+        const ZOOM_THRESHOLD = 1.01; // ズーム状態と判定するスケールの閾値 (誤差考慮)
 
         // --- DOM要素 ---
         const elements = {
@@ -1579,7 +1585,28 @@
             touchEndX: 0,   // スワイプ終了X座標
             touchEndY: 0,   // スワイプ終了Y座標
             isSwiping: false, // スワイプ中フラグ
+            isZoomed: false, // ズーム状態フラグ
+            currentScreen: 'chat', // 現在表示中の画面名 (戻るボタン制御用)
         };
+
+        function updateMessageMaxWidthVar() {
+            const container = elements.messageContainer; // messageContainer要素を取得
+            if (!container) return;
+
+            // コンテナ幅に基づいて最大幅を計算
+            let maxWidthPx = container.clientWidth * 0.8;
+
+            // 計算したピクセル値をCSS変数に設定
+            document.documentElement.style.setProperty('--message-max-width', `${maxWidthPx}px`);
+            // console.log(`CSS Variable --message-max-width updated to: ${maxWidthPx}px`); // ログ削減
+        }
+
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            // Debounce処理: リサイズ完了後に一度だけ実行
+            resizeTimer = setTimeout(updateMessageMaxWidthVar, 150);
+        });
 
         // --- ユーティリティ関数 ---
         const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -2389,8 +2416,8 @@
             },
             // --------------------------------
 
-            // 画面を表示 (スワイプアニメーション + inert対応)
-            showScreen(screenName) {
+            // 画面を表示 (スワイプアニメーション + inert対応 + 戻るボタン対応)
+            showScreen(screenName, fromPopState = false) {
                 // 編集中ならキャンセル
                 if (state.editingMessageIndex !== null) {
                      const messageElement = elements.messageContainer.querySelector(`.message[data-index="${state.editingMessageIndex}"]`);
@@ -2405,15 +2432,37 @@
                     appLogic.cancelEditSystemPrompt();
                 }
 
+                // 現在の画面と同じなら何もしない
+                if (screenName === state.currentScreen) {
+                    // console.log(`showScreen: Already on screen ${screenName}.`); // ログ削減
+                    return;
+                }
+
                 const allScreens = [elements.chatScreen, elements.historyScreen, elements.settingsScreen];
                 let activeScreen = null;
+
+                // fromPopStateがfalseの場合のみ履歴操作を行う (UI操作時)
+                if (!fromPopState) {
+                    if (screenName === 'history' || screenName === 'settings') {
+                        // 履歴/設定画面への遷移時は履歴を追加
+                        history.pushState({ screen: screenName }, '', `#${screenName}`);
+                        console.log(`Pushed state: ${screenName}`);
+                    } else if (screenName === 'chat') {
+                        // チャット画面へ戻る遷移 (通常はUIの戻るボタンやpopstateで処理される想定だが、
+                        // 直接 showScreen('chat') が呼ばれた場合も考慮)
+                        // ここではURLハッシュのみ更新し、履歴スタックは変更しない
+                        history.replaceState({ screen: 'chat' }, '', '#chat');
+                        console.log(`Replaced state: ${screenName}`);
+                    }
+                } else {
+                    // popstateイベント経由の場合は履歴操作は行わない
+                    console.log(`showScreen called from popstate for ${screenName}`);
+                }
 
                 // まず全ての画面を非アクティブ＆inert状態にする
                 allScreens.forEach(screen => {
                     screen.classList.remove('active');
                     screen.inert = true; // 非アクティブ画面は操作不可に
-                    // アニメーションがスムーズに見えるように、一旦トランジションをリセットする場合があります
-                    // screen.style.transition = 'none';
                 });
 
                 // ターゲット画面に応じてtransformとアクティブ設定
@@ -2422,9 +2471,8 @@
                     elements.chatScreen.style.transform = 'translateX(0)';
                     elements.historyScreen.style.transform = 'translateX(-100%)';
                     elements.settingsScreen.style.transform = 'translateX(100%)';
-                    // チャット画面表示時の追加処理
                     requestAnimationFrame(() => {
-                        this.updateSystemPromptUI(); // システムプロンプトUI更新 (表示/非表示含む)
+                        this.updateSystemPromptUI();
                         this.adjustTextareaHeight();
                         this.scrollToBottom();
                     });
@@ -2432,31 +2480,30 @@
                     activeScreen = elements.historyScreen;
                     elements.chatScreen.style.transform = 'translateX(100%)';
                     elements.historyScreen.style.transform = 'translateX(0)';
-                    elements.settingsScreen.style.transform = 'translateX(200%)'; // さらに右奥へ
-                    // 履歴画面表示時の追加処理
+                    elements.settingsScreen.style.transform = 'translateX(200%)';
                     this.renderHistoryList();
                 } else if (screenName === 'settings') {
                     activeScreen = elements.settingsScreen;
                     elements.chatScreen.style.transform = 'translateX(-100%)';
-                    elements.historyScreen.style.transform = 'translateX(-200%)'; // さらに左奥へ
+                    elements.historyScreen.style.transform = 'translateX(-200%)';
                     elements.settingsScreen.style.transform = 'translateX(0)';
-                    // 設定画面表示時の追加処理
-                    this.applySettingsToUI(); // 現在の状態をUIに適用
+                    this.applySettingsToUI();
                 }
 
-                // アニメーションを再度有効にする (transform設定後)
-                // requestAnimationFrameを使用すると、ブラウザが次の描画フレームでスタイル変更を適用するのに役立ちます
+                // アニメーション適用とアクティブ化
                 requestAnimationFrame(() => {
                     allScreens.forEach(screen => {
                         screen.style.transition = 'transform 0.3s ease-in-out';
                     });
-
-                    // アクティブ画面のinertを解除し、クラスを付与
                     if (activeScreen) {
                         activeScreen.inert = false; // アクティブ画面は操作可能に
                         activeScreen.classList.add('active');
                     }
                 });
+
+                // 現在の画面名をstateに保存
+                state.currentScreen = screenName;
+                console.log(`Navigated to screen: ${screenName}`);
             },
 
             // 送信状態を設定
@@ -2832,7 +2879,9 @@
                     // ここで独自のインストールボタンを表示するロジックを追加可能
                 });
 
-                uiUtils.showScreen('chat'); // 初期画面をチャットに設定
+                // 初期画面をチャットに設定 (UI表示のみ、state更新と履歴操作は後で)
+                uiUtils.showScreen('chat');
+
                 registerServiceWorker(); // Service Worker登録
 
                 try {
@@ -2870,14 +2919,23 @@
                         this.startNewChat(); // 履歴がなければ新規チャット
                     }
 
+                    // 初期状態を履歴スタックに設定 (loadChat/startNewChatの後)
+                    history.replaceState({ screen: 'chat' }, '', '#chat');
+                    state.currentScreen = 'chat'; // stateも初期化
+                    console.log("Initial history state set to #chat");
+
                 } catch (error) {
                     console.error("初期化失敗:", error);
                     await uiUtils.showCustomAlert(`アプリの初期化に失敗しました: ${error}`);
                     // 致命的なエラーの場合はアプリ内容をエラー表示に置き換え
                     elements.appContainer.innerHTML = `<p style="padding: 20px; text-align: center; color: red;">アプリの起動に失敗しました。</p>`;
                 } finally {
-                    // イベントリスナーを設定
+                    // max-widthの固定幅をpxで算出
+                    updateMessageMaxWidthVar();
+                    // イベントリスナーを設定 (初期履歴設定後)
                     this.setupEventListeners();
+                    // ズーム状態を初期化
+                    this.updateZoomState();
                     // UI調整
                     uiUtils.adjustTextareaHeight();
                     uiUtils.setSendingState(false); // 送信状態をリセット
@@ -2889,8 +2947,9 @@
                 // ナビゲーションボタン
                 elements.gotoHistoryBtn.addEventListener('click', () => uiUtils.showScreen('history'));
                 elements.gotoSettingsBtn.addEventListener('click', () => uiUtils.showScreen('settings'));
-                elements.backToChatFromHistoryBtn.addEventListener('click', () => uiUtils.showScreen('chat'));
-                elements.backToChatFromSettingsBtn.addEventListener('click', () => uiUtils.showScreen('chat'));
+                // 戻るボタンは history.back() を使用
+                elements.backToChatFromHistoryBtn.addEventListener('click', () => history.back());
+                elements.backToChatFromSettingsBtn.addEventListener('click', () => history.back());
 
                 // チャットアクション
                 elements.newChatBtn.addEventListener('click', async () => {
@@ -2966,22 +3025,70 @@
                 });
 
                 // スワイプイベントリスナー (チャット画面のみ)
-                elements.chatScreen.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: true });
-                elements.chatScreen.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false }); // preventDefaultのためpassive: false
+                // passive: false にして preventDefault を呼べるようにする (必要に応じて)
+                elements.chatScreen.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: true }); // passive: trueのまま、moveで必要なら変更
+                elements.chatScreen.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false }); // 横スワイプ判定時にpreventDefaultするため false
                 elements.chatScreen.addEventListener('touchend', this.handleTouchEnd.bind(this));
+
+                // VisualViewport APIリスナー (ズーム状態監視)
+                if ('visualViewport' in window) {
+                    window.visualViewport.addEventListener('resize', this.updateZoomState.bind(this));
+                    window.visualViewport.addEventListener('scroll', this.updateZoomState.bind(this));
+                } else {
+                    console.warn("VisualViewport API is not supported in this browser.");
+                    // フォールバックが必要な場合の処理 (例: ピンチジェスチャーを簡易的に検出するなど)
+                }
+
+                // popstate イベントリスナー (戻るボタン/ジェスチャー対応)
+                window.addEventListener('popstate', this.handlePopState.bind(this));
+                console.log("popstate listener added.");
             },
 
-            // --- スワイプ処理 ---
+            // popstateイベントハンドラ (戻るボタン/ジェスチャー)
+            handlePopState(event) {
+                // 履歴スタックから遷移先の画面名を取得、なければチャット画面
+                const targetScreen = event.state?.screen || 'chat';
+                console.log(`popstate event fired: Navigating to screen '${targetScreen}' from history state.`);
+                // showScreenを呼び出す (fromPopState = true を渡して履歴操作を抑制)
+                uiUtils.showScreen(targetScreen, true);
+            },
+
+            // ズーム状態を更新
+            updateZoomState() {
+                if ('visualViewport' in window) {
+                    // スケールが閾値より大きい場合をズームとみなす
+                    const newZoomState = window.visualViewport.scale > ZOOM_THRESHOLD;
+                    if (state.isZoomed !== newZoomState) {
+                        state.isZoomed = newZoomState;
+                        console.log(`Zoom state updated: ${state.isZoomed}`);
+                        // ズーム状態に応じてbodyにクラスを追加/削除
+                        document.body.classList.toggle('zoomed', state.isZoomed);
+                    }
+                }
+            },
+
+
+            // --- スワイプ処理 (ズーム対応) ---
             handleTouchStart(event) {
-                // マルチタッチは無視
-                if (event.touches.length > 1) return;
+                // マルチタッチ(ピンチ操作など)やズーム中はスワイプ開始点を記録しない
+                if (event.touches.length > 1 || state.isZoomed) {
+                    state.touchStartX = 0; // 開始点をリセットしてスワイプ判定を無効化
+                    state.touchStartY = 0;
+                    state.isSwiping = false;
+                    return;
+                }
                 state.touchStartX = event.touches[0].clientX;
                 state.touchStartY = event.touches[0].clientY;
                 state.isSwiping = false; // スワイプ開始時はフラグをリセット
+                state.touchEndX = state.touchStartX; // touchendで使えるように初期化
+                state.touchEndY = state.touchStartY;
             },
 
             handleTouchMove(event) {
-                if (event.touches.length > 1 || !state.touchStartX || !state.touchStartY) return;
+                // 開始点がない、マルチタッチ、ズーム中は処理しない
+                if (!state.touchStartX || event.touches.length > 1 || state.isZoomed) {
+                    return;
+                }
 
                 const currentX = event.touches[0].clientX;
                 const currentY = event.touches[0].clientY;
@@ -2989,16 +3096,12 @@
                 const diffY = state.touchStartY - currentY;
 
                 // 横方向の移動が縦方向より大きい場合にスワイプと判定
+                // isSwipingフラグを立てるのは閾値を超えたときではなく、横移動が優位な場合
                 if (Math.abs(diffX) > Math.abs(diffY)) {
                     state.isSwiping = true;
-                    // 横スクロール(スワイプ)中はデフォルトの縦スクロールを抑制
+                    // 横スワイプ(画面遷移の可能性)中はデフォルトの縦スクロールを抑制
+                    // これにより、意図しない縦スクロールと画面遷移の競合を防ぐ
                     event.preventDefault();
-                    // 必要であればスワイプ中の視覚フィードバックを追加 (例: 画面を少し動かす)
-                    // const swipeAmount = -diffX;
-                    // elements.chatScreen.style.transition = 'none'; // アニメーションを一時的に無効化
-                    // elements.chatScreen.style.transform = `translateX(${swipeAmount}px)`;
-                    // elements.historyScreen.style.transform = `translateX(${-100 + swipeAmount / window.innerWidth * 100}%)`; // 修正
-                    // elements.settingsScreen.style.transform = `translateX(${100 + swipeAmount / window.innerWidth * 100}%)`; // 修正
                 } else {
                     // 縦方向の移動が大きい場合はスワイプフラグを解除
                     state.isSwiping = false;
@@ -3009,28 +3112,35 @@
             },
 
             handleTouchEnd(event) {
-                if (!state.touchStartX || !state.touchStartY || !state.isSwiping) {
-                    // スワイプでない、または開始点がない場合はリセットして終了
-                    this.resetSwipeState();
-                    return;
-                }
+                 // ズーム状態を最終確認 (touchendまでに変わる可能性もあるため)
+                 this.updateZoomState();
+                 if (state.isZoomed) {
+                     console.log("Zoomed state detected on touchend, skipping swipe navigation.");
+                     this.resetSwipeState();
+                     return;
+                 }
+
+                 // スワイプ中でない、または開始点がない場合はリセットして終了
+                 if (!state.isSwiping || !state.touchStartX) {
+                     this.resetSwipeState();
+                     return;
+                 }
 
                 const diffX = state.touchStartX - state.touchEndX;
                 const diffY = state.touchStartY - state.touchEndY; // 縦移動量も一応計算
 
                 // スワイプ距離が閾値を超えているか、かつ横移動が縦移動より大きいか
                 if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(diffX) > Math.abs(diffY)) {
-                    if (diffX > 0) { // 左スワイプ (右から左へ) -> 設定画面へ (修正後)
+                    if (diffX > 0) { // 左スワイプ (右から左へ) -> 設定画面へ
                         console.log("左スワイプ検出 -> 設定画面へ");
-                        uiUtils.showScreen('settings');
-                    } else { // 右スワイプ (左から右へ) -> 履歴画面へ (修正後)
+                        uiUtils.showScreen('settings'); // showScreenが履歴操作を行う
+                    } else { // 右スワイプ (左から右へ) -> 履歴画面へ
                         console.log("右スワイプ検出 -> 履歴画面へ");
-                        uiUtils.showScreen('history');
+                        uiUtils.showScreen('history'); // showScreenが履歴操作を行う
                     }
                 } else {
-                    // 閾値未満の場合は元の位置に戻す (もしmoveで動かしていた場合)
+                    // 閾値未満または縦移動が大きい場合は何もしない
                     console.log("スワイプ距離不足 or 縦移動大");
-                    // uiUtils.showScreen('chat'); // 元の画面に戻すアニメーション
                 }
 
                 this.resetSwipeState(); // スワイプ状態をリセット
@@ -3042,11 +3152,6 @@
                 state.touchEndX = 0;
                 state.touchEndY = 0;
                 state.isSwiping = false;
-                // スワイプ中の視覚フィードバックをリセット (もし実装した場合)
-                // elements.chatScreen.style.transition = '';
-                // elements.historyScreen.style.transition = '';
-                // elements.settingsScreen.style.transition = '';
-                // uiUtils.showScreen('chat'); // 現在の画面に戻す
             },
             // --- スワイプ処理ここまで ---
 
@@ -3084,7 +3189,7 @@
                 }
                 // 新規チャットを開始
                 this.startNewChat();
-                uiUtils.showScreen('chat'); // チャット画面を表示
+                uiUtils.showScreen('chat'); // チャット画面を表示 (URLハッシュも更新)
             },
 
             // 新規チャットを開始する (状態リセット)
@@ -3098,7 +3203,10 @@
                 elements.userInput.value = ''; // 入力欄クリア
                 uiUtils.adjustTextareaHeight(); // 高さ調整
                 uiUtils.setSendingState(false); // 送信状態リセット
-                console.log("新規チャット開始");
+                // 履歴状態をチャット画面にリセット (新規開始時は常にチャット画面のはず)
+                history.replaceState({ screen: 'chat' }, '', '#chat');
+                state.currentScreen = 'chat'; // stateも更新
+                console.log("新規チャット開始、履歴状態を #chat にリセット");
             },
 
             // 指定IDのチャットを読み込む
@@ -3122,7 +3230,7 @@
                      if (!confirmed) return;
                      this.cancelEditSystemPrompt();
                  }
-                 
+
                 try {
                     const chat = await dbUtils.getChat(id); // DBからチャット取得
                     if (chat) {
@@ -3136,7 +3244,11 @@
                         elements.userInput.value = ''; // 入力欄クリア
                         uiUtils.adjustTextareaHeight();
                         uiUtils.setSendingState(false);
-                        console.log("チャット読み込み完了:", id);
+                        // 読み込み成功後、履歴状態をチャット画面に設定 (戻るでアプリ終了を期待)
+                        // 既にチャット画面が表示されているはずなので replaceState でよい
+                        history.replaceState({ screen: 'chat' }, '', '#chat');
+                        state.currentScreen = 'chat';
+                        console.log("チャット読み込み完了:", id, "履歴状態を #chat に設定");
                     } else {
                         // チャットが見つからない場合
                         await uiUtils.showCustomAlert("チャット履歴が見つかりませんでした。");
@@ -3185,10 +3297,10 @@
                         });
                         console.log("チャット複製完了:", id, "->", newChatId);
                         // 履歴画面が表示されていればリストを更新、そうでなければアラート表示
-                        if (!elements.historyScreen.classList.contains('active')) { // activeクラスで判定
-                            await uiUtils.showCustomAlert(`チャット「${newTitle}」を複製しました。`);
-                        } else {
+                        if (state.currentScreen === 'history') { // stateで判定
                             uiUtils.renderHistoryList();
+                        } else {
+                            await uiUtils.showCustomAlert(`チャット「${newTitle}」を複製しました。`);
                         }
                     } else {
                         await uiUtils.showCustomAlert("複製元のチャットが見つかりません。");
@@ -3251,9 +3363,9 @@
                         await dbUtils.deleteChat(id); // DBから削除
                         console.log("チャット削除:", id);
                         if (isDeletingCurrent) { // 現在のチャットを削除した場合
-                            this.startNewChat(); // 新規チャット状態にする
-                            uiUtils.showScreen('chat'); // チャット画面を表示
-                        } else if (elements.historyScreen.classList.contains('active')) { // 履歴画面表示中ならリスト更新
+                            this.startNewChat(); // 新規チャット状態にする (履歴状態もリセットされる)
+                            uiUtils.showScreen('chat', true); // popstate経由ではないが、履歴操作はstartNewChatに任せるためtrue
+                        } else if (state.currentScreen === 'history') { // 履歴画面表示中ならリスト更新
                             uiUtils.renderHistoryList();
                         }
                     } catch (error) {
@@ -3776,7 +3888,7 @@
                      await uiUtils.showCustomAlert("設定を保存しました。");
 
                      // ソート順が変更され、履歴画面が表示中ならリストを再描画
-                     if (newSettings.historySortOrder !== oldSortOrder && elements.historyScreen.classList.contains('active')) {
+                     if (newSettings.historySortOrder !== oldSortOrder && state.currentScreen === 'history') {
                          uiUtils.renderHistoryList();
                      }
                  } catch (error) {
@@ -3848,8 +3960,8 @@
                         // リセットされた状態をUIに適用
                         document.documentElement.style.setProperty('--chat-background-image', 'none'); // 背景スタイルリセット
                         uiUtils.applySettingsToUI(); // 設定UIをリセット (ダークモード、背景UI、フォント、SP表示含む)
-                        this.startNewChat(); // 新規チャット状態にする (デフォルトSPが適用される)
-                        uiUtils.showScreen('chat'); // チャット画面を表示
+                        this.startNewChat(); // 新規チャット状態にする (履歴状態もリセットされる)
+                        uiUtils.showScreen('chat', true); // popstate経由ではないが履歴操作はstartNewChatに任せる
                     } catch (error) {
                         await uiUtils.showCustomAlert(`データ削除中にエラーが発生しました: ${error}`);
                     }
@@ -3922,19 +4034,17 @@
                  const contentDiv = messageElement.querySelector('.message-content');
                  const editArea = messageElement.querySelector('.message-edit-area');
                  editArea.innerHTML = ''; // 編集エリアをクリア
-
-                 let originalContentWidth = '100%'; // デフォルト値
-                 if (contentDiv) {
-                     // contentDivが表示されている状態で幅を取得
-                     const rect = contentDiv.getBoundingClientRect();
-                     // 幅が0より大きい場合のみピクセル値で設定
-                     if (rect.width > 0) {
-                         originalContentWidth = `${rect.width}px`;
-                         console.log(`元のコンテンツ幅を取得: ${originalContentWidth}`);
-                     } else {
-                         console.warn("元のコンテンツ幅が0でした。デフォルト幅を使用します。");
-                     }
+                 
+                 let horizontalPadding = 0;
+                 try {// パディング計算
+                     const computedStyle = window.getComputedStyle(messageElement);
+                     const paddingLeft = parseFloat(computedStyle.paddingLeft) || 0;
+                     const paddingRight = parseFloat(computedStyle.paddingRight) || 0;
+                     horizontalPadding = paddingLeft + paddingRight;
+                 } catch (e) {
+                     console.error("幅の動的計算中にエラー:", e);
                  }
+                 messageElement.style.width = `calc(var(--message-max-width) + ${horizontalPadding}px + 17px)`/*17pxは決め打ち。対処療法*/;
 
                  // テキストエリア作成
                  const textarea = document.createElement('textarea');
@@ -3942,9 +4052,6 @@
                  textarea.classList.add('edit-textarea');
                  textarea.rows = 3; // 初期行数
                  textarea.oninput = () => uiUtils.adjustTextareaHeight(textarea, 400); // 入力で高さ調整 (最大400px)
-
-                 // 取得した幅をテキストエリアに適用
-                 textarea.style.width = originalContentWidth;
 
                  // アクションボタンエリア作成
                  const actionsDiv = document.createElement('div');
@@ -4057,18 +4164,14 @@
                 const editArea = messageElement.querySelector('.message-edit-area');
                 const contentDiv = messageElement.querySelector('.message-content');
                 const textarea = messageElement.querySelector('.edit-textarea');
+                
+                messageElement.style.removeProperty('width');
 
                 messageElement.classList.remove('editing'); // 編集中クラス削除
                 if(contentDiv) contentDiv.classList.remove('hidden'); // 元のコンテンツ表示
                 if(editArea) { // 編集エリアを非表示にして内容クリア
                     editArea.classList.add('hidden');
                     editArea.innerHTML = '';
-                }
-
-                // テキストエリアに設定したインライン幅スタイルを削除
-                if (textarea) {
-                    textarea.style.removeProperty('width');
-                    console.log("編集テキストエリアの幅スタイルを削除しました。");
                 }
 
                 // 編集中インデックスをリセット
