@@ -3203,10 +3203,12 @@
                 elements.userInput.value = ''; // 入力欄クリア
                 uiUtils.adjustTextareaHeight(); // 高さ調整
                 uiUtils.setSendingState(false); // 送信状態リセット
+                
+                // 削除：画面遷移は呼び出し元の責任で実行する
                 // 履歴状態をチャット画面にリセット (新規開始時は常にチャット画面のはず)
-                history.replaceState({ screen: 'chat' }, '', '#chat');
-                state.currentScreen = 'chat'; // stateも更新
-                console.log("新規チャット開始、履歴状態を #chat にリセット");
+                //history.replaceState({ screen: 'chat' }, '', '#chat');
+                //state.currentScreen = 'chat'; // stateも更新
+                //console.log("新規チャット開始、履歴状態を #chat にリセット");
             },
 
             // 指定IDのチャットを読み込む
@@ -3253,10 +3255,12 @@
                         // チャットが見つからない場合
                         await uiUtils.showCustomAlert("チャット履歴が見つかりませんでした。");
                         this.startNewChat(); // 新規チャットを開始
+                        uiUtils.showScreen('chat'); // チャット画面へ遷移させる
                     }
                 } catch (error) {
                     await uiUtils.showCustomAlert(`チャットの読み込みエラー: ${error}`);
                     this.startNewChat(); // エラー時も新規チャットへ
+                    uiUtils.showScreen('chat'); // チャット画面へ遷移させる
                 }
             },
 
@@ -3358,18 +3362,38 @@
             async confirmDeleteChat(id, title) {
                  const confirmed = await uiUtils.showCustomConfirm(`「${title || 'この履歴'}」を削除しますか？`);
                  if (confirmed) {
-                    const isDeletingCurrent = state.currentChatId === id; // 削除対象が現在のチャットか
+                    const isDeletingCurrent = state.currentChatId === id;
+                    const currentScreenBeforeDelete = state.currentScreen;
+
                     try {
-                        await dbUtils.deleteChat(id); // DBから削除
+                        // 1. DBから削除
+                        await dbUtils.deleteChat(id);
                         console.log("チャット削除:", id);
-                        if (isDeletingCurrent) { // 現在のチャットを削除した場合
-                            this.startNewChat(); // 新規チャット状態にする (履歴状態もリセットされる)
-                            uiUtils.showScreen('chat', true); // popstate経由ではないが、履歴操作はstartNewChatに任せるためtrue
-                        } else if (state.currentScreen === 'history') { // 履歴画面表示中ならリスト更新
-                            uiUtils.renderHistoryList();
+
+                        // 2. 表示中チャット削除なら内部状態リセット
+                        if (isDeletingCurrent) {
+                            console.log("表示中のチャットが削除されたため、内部状態を新規チャットにリセット。");
+                            this.startNewChat(); // 状態リセットのみ
                         }
+
+                        // 3. 履歴画面での操作ならリストUI更新 & 状態リセット判定
+                        if (currentScreenBeforeDelete === 'history') {
+                            console.log("履歴画面での操作のため、リストUIを更新します。");
+                            await uiUtils.renderHistoryList(); // リストUIを更新
+                            const listIsEmpty = elements.historyList.querySelectorAll('.history-item:not(.js-history-item-template)').length === 0;
+
+                            // リストが空になった場合、内部状態をリセットする（念のため）
+                            if (listIsEmpty) {
+                                console.log("履歴リストが空になりました。");
+                                if (!isDeletingCurrent) {
+                                    this.startNewChat();
+                                }
+                            }
+                        }
+
                     } catch (error) {
                         await uiUtils.showCustomAlert(`チャット削除エラー: ${error}`);
+                        uiUtils.setSendingState(false); // エラー時も送信状態解除
                     }
                 }
             },
