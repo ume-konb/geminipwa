@@ -42,6 +42,12 @@
             --bg-header: #4a90e2;
             --bg-message-actions: rgba(255, 255, 255, 0.8);
             --bg-overlay-light: rgba(255, 255, 255, 0.65); /* ライトモード用オーバーレイ */
+            /* カスケードコントロール用 */
+            --bg-cascade-button: var(--bg-button-action);
+            --bg-cascade-button-hover: var(--bg-button-action-hover);
+            --bg-cascade-delete-button: var(--bg-button-delete);
+            --bg-cascade-delete-button-hover: var(--bg-button-delete-hover);
+            --text-cascade-indicator: var(--text-secondary);
 
             --text-primary: #333333;
             --text-secondary: #777777;
@@ -102,6 +108,12 @@
             --bg-header: #007aff;
             --bg-message-actions: rgba(50, 50, 50, 0.8);
             --bg-overlay-dark: rgba(30, 30, 30, 0.55); /* ダークモード用オーバーレイ */
+            /* カスケードコントロール用 (ダーク) */
+            --bg-cascade-button: var(--bg-button-action);
+            --bg-cascade-button-hover: var(--bg-button-action-hover);
+            --bg-cascade-delete-button: var(--bg-button-delete);
+            --bg-cascade-delete-button-hover: var(--bg-button-delete-hover);
+            --text-cascade-indicator: var(--text-secondary);
 
             --text-primary: #e0e0e0;
             --text-secondary: #aaaaaa;
@@ -474,7 +486,7 @@
         .message-container {
             display: flex;
             flex-direction: column;
-            gap: 35px; /* アクションボタン用のギャップ */
+            /* gap: 35px; */ /* gapを削除し、messageのmarginで調整 */
             position: relative;
             z-index: 1; /* メッセージをオーバーレイより手前に */
         }
@@ -486,11 +498,17 @@
             min-height: 40px;
             position: relative;
             word-wrap: break-word;
-            margin-bottom: 35px; /* アクションボタン用のスペース */
+            /* margin-bottom: 35px; */ /* 下ボタン用スペース */
+            margin-top: 35px; /* 上ボタン用スペース */
+            margin-bottom: 35px; /* 下ボタン用スペース */
             color: var(--text-primary);
             transition: background-color 0.3s ease, color 0.3s ease;
             z-index: 1; /* メッセージバブル自体を手前に */
             box-shadow: 0 1px 2px var(--shadow-primary); /* 視認性向上のための影 */
+        }
+        /* 最初のメッセージの上マージンは不要 */
+        .message:first-child {
+            margin-top: 0;
         }
         .message pre {
             white-space: pre-wrap;
@@ -519,18 +537,20 @@
             color: var(--text-error);
             align-self: flex-start;
             border-bottom-left-radius: 5px;
-            margin-bottom: 10px; /* エラーメッセージのマージンを減らす */
+            margin-top: 10px; /* エラーメッセージのマージン調整 */
+            margin-bottom: 10px;
         }
 
-        /* メッセージアクション (ホバーボタン) */
+        /* メッセージアクション (ホバーボタン - 下) */
         .message-actions {
             position: absolute;
-            bottom: -35px;
+            bottom: -35px; /* 下に配置 */
             display: none; /* ホバーで表示 */
             flex-wrap: nowrap;
             gap: 5px;
             background: var(--bg-message-actions);
-            padding: 5px 8px;
+            /* padding: 5px 8px; */ /* 元のpadding */
+            padding: 10px 8px 5px 8px; /* 上方向のホバー領域を増やす (top, right, bottom, left) */
             border-radius: 5px;
             box-shadow: 0 1px 3px var(--shadow-primary);
             z-index: 2; /* アクションをメッセージバブルより手前に */
@@ -568,6 +588,58 @@
         .message-actions .js-retry-btn { background-color: var(--bg-button-retry); }
         .message-actions .js-retry-btn:hover { background-color: var(--bg-button-retry-hover); }
 
+        /* カスケードコントロール (ホバーボタン - 上) */
+        .message-cascade-controls {
+            position: absolute;
+            top: -35px; /* 上に配置 */
+            left: 0;
+            display: none; /* ホバーで表示 */
+            align-items: center;
+            flex-wrap: nowrap;
+            gap: 5px;
+            background: var(--bg-message-actions);
+            /* padding: 5px 8px; */ /* 元のpadding */
+            padding: 5px 8px 10px 8px; /* 下方向のホバー領域を増やす (top, right, bottom, left) */
+            border-radius: 5px;
+            box-shadow: 0 -1px 3px var(--shadow-primary); /* 上方向の影 */
+            z-index: 2;
+            transition: opacity 0.2s ease, background-color 0.3s ease;
+        }
+        .message.model:hover .message-cascade-controls {
+            display: flex;
+        }
+        .message-cascade-controls button {
+            background-color: var(--bg-cascade-button);
+            color: var(--text-light);
+            padding: 4px 8px; /* 少し小さめ */
+            font-size: 14px; /* アイコン想定 */
+            border-radius: 4px;
+            line-height: 1;
+            min-width: 25px;
+        }
+        .message-cascade-controls button:hover:not(:disabled) {
+            background-color: var(--bg-cascade-button-hover);
+        }
+        .message-cascade-controls button:disabled {
+            background-color: var(--bg-button-disabled);
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        .message-cascade-controls .cascade-indicator {
+            font-size: 11px;
+            color: var(--text-cascade-indicator);
+            padding: 0 5px;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+        .message-cascade-controls .cascade-delete-btn {
+            background-color: var(--bg-cascade-delete-button);
+            margin-left: 5px; /* 削除ボタンを少し離す */
+        }
+        .message-cascade-controls .cascade-delete-btn:hover {
+            background-color: var(--bg-cascade-delete-button-hover);
+        }
+
         /* インライン編集スタイル */
         .message.editing pre {
             opacity: 0;
@@ -575,9 +647,11 @@
             overflow: hidden;
             pointer-events: none;
         }
-        .message.editing .message-actions {
+        .message.editing .message-actions,
+        .message.editing .message-cascade-controls { /* 編集中は上下のコントロールも非表示 */
              opacity: 0;
              pointer-events: none;
+             display: none !important; /* 確実に非表示 */
         }
         .message-edit-area {
             margin-top: 5px;
@@ -947,6 +1021,12 @@
             --bg-header: #007aff;
             --bg-message-actions: rgba(50, 50, 50, 0.8);
             /* --bg-overlay-dark は body.dark-mode で定義済み */
+            /* カスケードコントロール用 (ダーク) */
+            --bg-cascade-button: var(--bg-button-action);
+            --bg-cascade-button-hover: var(--bg-button-action-hover);
+            --bg-cascade-delete-button: var(--bg-button-delete);
+            --bg-cascade-delete-button-hover: var(--bg-button-delete-hover);
+            --text-cascade-indicator: var(--text-secondary);
 
             --text-primary: #e0e0e0;
             --text-secondary: #aaaaaa;
@@ -1079,6 +1159,24 @@
             margin: 1.5em 0;
         }
 
+        /* :hover または .show-actions クラスで操作ボックスを表示 */
+        .message:hover .message-actions,
+        .message.show-actions .message-actions,
+        .message:hover .message-cascade-controls,
+        .message.show-actions .message-cascade-controls {
+            display: flex; /* または block など、元の表示プロパティに合わせる */
+            /* 必要であれば他のスタイルも調整 */
+        }
+
+        /* 編集中はクリックによる表示も抑制する (既存ルールと合わせる) */
+        .message.editing.show-actions .message-actions,
+        .message.editing.show-actions .message-cascade-controls {
+            display: none !important; /* 編集時は確実に非表示 */
+        }
+        /* リトライ中の非表示スタイル */
+        .message.retrying-hidden {
+            display: none !important;
+        }
         /* ダークモードでのMarkdown調整 */
         body.dark-mode .message-content pre {
             background-color: var(--bg-tertiary);
@@ -1445,10 +1543,10 @@
         </div>
     </dialog>
 
-        <script>
+    <script>
         // --- 定数 ---
         const DB_NAME = 'GeminiPWA_DB';
-        const DB_VERSION = 8; // スキーマ変更 (chatsにsystemPrompt追加想定) のためバージョンアップ
+        const DB_VERSION = 8; // スキーマ変更なしのため据え置き
         const SETTINGS_STORE = 'settings';
         const CHATS_STORE = 'chats';
         const CHAT_UPDATEDAT_INDEX = 'updatedAtIndex';
@@ -1467,7 +1565,7 @@
         const IMPORT_PREFIX = '(取込) ';
         const LIGHT_THEME_COLOR = '#4a90e2';
         const DARK_THEME_COLOR = '#007aff';
-        const APP_VERSION = "0.14"; // ラグ問題、ピンチズーム、戻るボタン対応、
+        const APP_VERSION = "0.15"; // 応答候補切り替え機能追加
         const SWIPE_THRESHOLD = 50; // スワイプ判定の閾値 (px)
         const ZOOM_THRESHOLD = 1.01; // ズーム状態と判定するスケールの閾値 (誤差考慮)
 
@@ -1550,7 +1648,7 @@
         const state = {
             db: null,
             currentChatId: null,
-            currentMessages: [],
+            currentMessages: [], // メッセージオブジェクトには isCascaded, isSelected, siblingGroupId が含まれる可能性がある
             currentSystemPrompt: '', // 現在のチャットのシステムプロンプト
             settings: { // デフォルト値
                 apiKey: '',
@@ -1672,7 +1770,7 @@
                             console.log(`オブジェクトストア ${SETTINGS_STORE} 作成`);
                         }
 
-                        // チャットストア & インデックス (変更なし、systemPromptは動的に追加される)
+                        // チャットストア & インデックス (変更なし、新しいフラグは動的に追加される)
                         let chatStore;
                         if (!db.objectStoreNames.contains(CHATS_STORE)) {
                             chatStore = db.createObjectStore(CHATS_STORE, { keyPath: 'id', autoIncrement: true });
@@ -1693,11 +1791,11 @@
                             console.log(`インデックス ${CHAT_CREATEDAT_INDEX} を ${CHATS_STORE} に作成`);
                         }
 
-                        // V8での変更: 既存のチャットデータに systemPrompt フィールドを追加する必要はない
-                        // IndexedDBはスキーマレスなので、新しいフィールドは保存時に自動的に追加される
-                        // 読み込み時に存在しない場合はデフォルト値を使用する
-                        if (event.oldVersion < 8) {
-                            console.log("V8へのアップグレード: chatsストアにsystemPromptフィールドが動的に追加されます。");
+                        // V8以降: 新しいフラグ (isCascaded, isSelected, siblingGroupId) は
+                        // スキーマレスなIndexedDBの特性により、保存時に自動的に追加される。
+                        // 読み込み時に存在しない場合はデフォルト値として扱う。
+                        if (event.oldVersion < 8) { // 以前のバージョンからのアップグレードの場合
+                            console.log("DBアップグレード: 新しいメッセージフラグは動的に処理されます。");
                         }
                     };
                 });
@@ -1839,12 +1937,18 @@
                 return new Promise((resolve, reject) => {
                     const store = this._getStore(CHATS_STORE, 'readwrite');
                     const now = Date.now();
-                    // 保存するメッセージデータを作成 (必要なプロパティのみ)
+                    // 保存するメッセージデータを作成 (必要なプロパティのみ + 新しいフラグ)
                     const messagesToSave = state.currentMessages.map(msg => ({
-                        role: msg.role, content: msg.content, timestamp: msg.timestamp,
+                        role: msg.role,
+                        content: msg.content,
+                        timestamp: msg.timestamp,
                         ...(msg.finishReason && { finishReason: msg.finishReason }),
                         ...(msg.safetyRatings && { safetyRatings: msg.safetyRatings }),
                         ...(msg.error && { error: msg.error }),
+                        // 新しいフラグを追加 (存在すれば)
+                        ...(msg.isCascaded !== undefined && { isCascaded: msg.isCascaded }),
+                        ...(msg.isSelected !== undefined && { isSelected: msg.isSelected }),
+                        ...(msg.siblingGroupId !== undefined && { siblingGroupId: msg.siblingGroupId }),
                     }));
 
                     // タイトルを決定して保存を実行する内部関数
@@ -2043,17 +2147,63 @@
                     else state.editingMessageIndex = null; // 要素が見つからない場合もインデックスをリセット
                 }
                 elements.messageContainer.innerHTML = ''; // コンテナをクリア
-                state.currentMessages.forEach((msg, index) => {
-                    this.appendMessage(msg.role, msg.content, index);
-                });
-                this.scrollToBottom(); // 最下部へスクロール
+
+                // メッセージをループして表示
+                let currentSiblingGroupId = null;
+                let siblingsInGroup = [];
+                let siblingIndex = 0;
+
+                for (let i = 0; i < state.currentMessages.length; i++) {
+                    const msg = state.currentMessages[i];
+
+                    if (msg.role === 'model' && msg.isCascaded && msg.siblingGroupId) {
+                        // カスケード応答グループの開始または継続
+                        if (msg.siblingGroupId !== currentSiblingGroupId) {
+                            // 新しいグループの開始
+                            currentSiblingGroupId = msg.siblingGroupId;
+                            // このグループに属するすべてのメッセージを取得
+                            siblingsInGroup = state.currentMessages.filter(m => m.role === 'model' && m.isCascaded && m.siblingGroupId === currentSiblingGroupId);
+                            siblingIndex = 0; // グループ内のインデックスをリセット
+                        }
+
+                        // グループ内の現在のメッセージのインデックスを見つける
+                        const currentIndexInGroup = siblingsInGroup.findIndex(m => m === msg);
+                        if (currentIndexInGroup !== -1) {
+                            siblingIndex = currentIndexInGroup + 1; // 1ベースのインデックス
+                        }
+
+                        // isSelected が true のメッセージのみ表示
+                        if (msg.isSelected) {
+                            this.appendMessage(msg.role, msg.content, i, false, {
+                                currentIndex: siblingIndex,
+                                total: siblingsInGroup.length,
+                                siblingGroupId: currentSiblingGroupId
+                            });
+                        } else {
+                            // isSelected でないカスケードメッセージはDOMに追加しないか、hiddenクラスを付与
+                            // ここではDOMに追加しない方針とする
+                            console.log(`Skipping render for non-selected cascaded message index ${i}`);
+                        }
+                    } else {
+                        // 通常のメッセージ (user, error, または非カスケード model)
+                        currentSiblingGroupId = null; // グループをリセット
+                        siblingsInGroup = [];
+                        this.appendMessage(msg.role, msg.content, i);
+                    }
+                }
+                //this.scrollToBottom(); // 最下部へスクロールは削除、呼び出し元の責任で行う
             },
 
             // メッセージをコンテナに追加
-            appendMessage(role, content, index, isStreamingPlaceholder = false) {
+            appendMessage(role, content, index, isStreamingPlaceholder = false, cascadeInfo = null) {
                 const messageDiv = document.createElement('div');
                 messageDiv.classList.add('message', role);
-                messageDiv.dataset.index = index; // インデックスをデータ属性として保持
+                messageDiv.dataset.index = index; // state.currentMessages 内のインデックス
+
+                // isSelected: false のカスケードメッセージは非表示 (renderChatMessagesでDOMに追加しない方針にしたため、このチェックは不要かも)
+                // if (role === 'model' && state.currentMessages[index]?.isCascaded && !state.currentMessages[index]?.isSelected) {
+                //     messageDiv.classList.add('hidden');
+                // }
 
                 const contentDiv = document.createElement('div');
                 contentDiv.classList.add('message-content');
@@ -2083,7 +2233,48 @@
                 editArea.classList.add('message-edit-area', 'hidden');
                 messageDiv.appendChild(editArea);
 
-                // エラーメッセージ以外にはアクションボタンを追加
+                // --- カスケードコントロール (上部) ---
+                if (role === 'model' && cascadeInfo && cascadeInfo.total > 1) {
+                    const cascadeControlsDiv = document.createElement('div');
+                    cascadeControlsDiv.classList.add('message-cascade-controls');
+
+                    // 前へボタン
+                    const prevButton = document.createElement('button');
+                    prevButton.textContent = '＜';
+                    prevButton.title = '前の応答';
+                    prevButton.classList.add('cascade-prev-btn');
+                    prevButton.disabled = cascadeInfo.currentIndex <= 1;
+                    prevButton.onclick = () => appLogic.navigateCascade(index, 'prev');
+                    cascadeControlsDiv.appendChild(prevButton);
+
+                    // インジケーター (例: 1/3)
+                    const indicatorSpan = document.createElement('span');
+                    indicatorSpan.classList.add('cascade-indicator');
+                    indicatorSpan.textContent = `${cascadeInfo.currentIndex}/${cascadeInfo.total}`;
+                    cascadeControlsDiv.appendChild(indicatorSpan);
+
+                    // 次へボタン
+                    const nextButton = document.createElement('button');
+                    nextButton.textContent = '＞';
+                    nextButton.title = '次の応答';
+                    nextButton.classList.add('cascade-next-btn');
+                    nextButton.disabled = cascadeInfo.currentIndex >= cascadeInfo.total;
+                    nextButton.onclick = () => appLogic.navigateCascade(index, 'next');
+                    cascadeControlsDiv.appendChild(nextButton);
+
+                    // この応答を削除ボタン
+                    const deleteCascadeButton = document.createElement('button');
+                    deleteCascadeButton.textContent = '✕'; // または '削除'
+                    deleteCascadeButton.title = 'この応答を削除';
+                    deleteCascadeButton.classList.add('cascade-delete-btn');
+                    deleteCascadeButton.onclick = () => appLogic.confirmDeleteCascadeResponse(index);
+                    cascadeControlsDiv.appendChild(deleteCascadeButton);
+
+                    messageDiv.appendChild(cascadeControlsDiv); // メッセージ要素に追加
+                }
+                // --- カスケードコントロールここまで ---
+
+                // エラーメッセージ以外にはアクションボタンを追加 (下部)
                 if (role !== 'error') {
                     const actionsDiv = document.createElement('div');
                     actionsDiv.classList.add('message-actions');
@@ -2094,10 +2285,10 @@
                     editButton.onclick = () => appLogic.startEditMessage(index, messageDiv);
                     actionsDiv.appendChild(editButton);
 
-                    // 削除ボタン
+                    // 削除ボタン (メッセージペア全体削除)
                     const deleteButton = document.createElement('button');
-                    deleteButton.textContent = '削除'; deleteButton.title = 'メッセージを削除'; deleteButton.classList.add('js-delete-btn');
-                    deleteButton.onclick = () => appLogic.deleteMessage(index);
+                    deleteButton.textContent = '削除'; deleteButton.title = 'この会話ターンを削除'; deleteButton.classList.add('js-delete-btn');
+                    deleteButton.onclick = () => appLogic.deleteMessage(index); // 既存の全体削除関数
                     actionsDiv.appendChild(deleteButton);
 
                     // ユーザーメッセージにはリトライボタンも追加
@@ -2115,11 +2306,6 @@
                     messageDiv.id = `streaming-message-${index}`;
                 }
                 elements.messageContainer.appendChild(messageDiv);
-
-                // ストリーミング開始時はスクロールしない (更新時にスクロール)
-                if (!isStreamingPlaceholder) {
-                    this.scrollToBottom();
-                }
             },
 
             // ストリーミング中のメッセージを更新
@@ -2159,6 +2345,18 @@
                         contentDiv.textContent = finalRawContent; // markedがない場合のフォールバック
                     }
                     messageDiv.removeAttribute('id'); // IDを削除
+
+                    // ストリーミング完了後、カスケードコントロールが必要かチェックして再描画
+                    // (リトライ直後など、応答候補が増えた場合に必要)
+                    const msgData = state.currentMessages[index];
+                    if (msgData && msgData.role === 'model' && msgData.isCascaded) {
+                        const siblings = appLogic.getCascadedSiblings(index);
+                        if (siblings.length > 1) {
+                            // コントロールを再生成または更新
+                            // 一旦、renderChatMessagesを呼び出すのが簡単かもしれない
+                            this.renderChatMessages(); // UI全体を再描画
+                        }
+                    }
                 }
                 this.scrollToBottom(); // 最後にスクロール
             },
@@ -3023,6 +3221,52 @@
                     uiUtils.toggleSystemPromptVisibility(); // UIを即時更新
                     // 注意: DBへの保存は「設定を保存」ボタンで行われる
                 });
+                
+                // --- メッセージクリックで操作ボックス表示/非表示 ---
+                elements.messageContainer.addEventListener('click', (event) => {
+                    const clickedMessage = event.target.closest('.message');
+
+                    // 操作ボックス内のボタンがクリックされた場合は何もしない
+                    if (event.target.closest('.message-actions button, .message-cascade-controls button')) {
+                        return;
+                    }
+
+                    // クリックされたのがメッセージ要素の場合
+                    if (clickedMessage) {
+                        // すでに表示されている他のメッセージがあれば非表示にする
+                        const currentlyShown = elements.messageContainer.querySelector('.message.show-actions');
+                        if (currentlyShown && currentlyShown !== clickedMessage) {
+                            currentlyShown.classList.remove('show-actions');
+                        }
+
+                        // クリックされたメッセージの表示状態をトグル
+                        // (編集中はトグルしないようにする)
+                        if (!clickedMessage.classList.contains('editing')) {
+                            clickedMessage.classList.toggle('show-actions');
+                        }
+                    } else {
+                        // メッセージコンテナ内だがメッセージ要素以外がクリックされた場合
+                        // (メッセージ間の余白など)
+                        // 表示中の操作ボックスがあれば非表示にする
+                        const currentlyShown = elements.messageContainer.querySelector('.message.show-actions');
+                        if (currentlyShown) {
+                            currentlyShown.classList.remove('show-actions');
+                        }
+                    }
+                });
+
+                // --- メッセージコンテナ外クリックで操作ボックスを非表示 ---
+                document.body.addEventListener('click', (event) => {
+                    // クリックがメッセージコンテナの外で発生した場合
+                    if (!elements.messageContainer.contains(event.target)) {
+                        // 表示中の操作ボックスがあれば非表示にする
+                        const currentlyShown = elements.messageContainer.querySelector('.message.show-actions');
+                        if (currentlyShown) {
+                            currentlyShown.classList.remove('show-actions');
+                        }
+                    }
+                    // メッセージコンテナ内のクリックは上記のリスナーで処理される
+                }, true); 
 
                 // スワイプイベントリスナー (チャット画面のみ)
                 // passive: false にして preventDefault を呼べるようにする (必要に応じて)
@@ -3203,12 +3447,6 @@
                 elements.userInput.value = ''; // 入力欄クリア
                 uiUtils.adjustTextareaHeight(); // 高さ調整
                 uiUtils.setSendingState(false); // 送信状態リセット
-                
-                // 削除：画面遷移は呼び出し元の責任で実行する
-                // 履歴状態をチャット画面にリセット (新規開始時は常にチャット画面のはず)
-                //history.replaceState({ screen: 'chat' }, '', '#chat');
-                //state.currentScreen = 'chat'; // stateも更新
-                //console.log("新規チャット開始、履歴状態を #chat にリセット");
             },
 
             // 指定IDのチャットを読み込む
@@ -3238,14 +3476,40 @@
                     if (chat) {
                         state.currentChatId = chat.id;
                         state.currentMessages = chat.messages || []; // メッセージをstateに設定
+
+                        // --- カスケード応答の isSelected を正規化 ---
+                        let needsSave = false;
+                        const groupIds = new Set(state.currentMessages.filter(m => m.siblingGroupId).map(m => m.siblingGroupId));
+                        groupIds.forEach(gid => {
+                            const siblings = state.currentMessages.filter(m => m.siblingGroupId === gid);
+                            const selected = siblings.filter(m => m.isSelected);
+                            if (selected.length === 0 && siblings.length > 0) {
+                                // 選択されているものがない -> 最後のものを選択状態にする
+                                siblings[siblings.length - 1].isSelected = true;
+                                needsSave = true;
+                            } else if (selected.length > 1) {
+                                // 複数選択されている -> 最後のもの以外を解除
+                                selected.slice(0, -1).forEach(m => m.isSelected = false);
+                                needsSave = true;
+                            }
+                        });
+                        // -----------------------------------------
+
                         // システムプロンプトを読み込み (存在しなければデフォルトを使用)
                         state.currentSystemPrompt = chat.systemPrompt !== undefined ? chat.systemPrompt : state.settings.systemPrompt;
                         uiUtils.updateSystemPromptUI(); // システムプロンプトUI更新
-                        uiUtils.renderChatMessages(); // メッセージ表示更新
+                        uiUtils.renderChatMessages(); // メッセージ表示更新 (正規化された isSelected を反映)
                         uiUtils.updateChatTitle(chat.title); // タイトル更新
                         elements.userInput.value = ''; // 入力欄クリア
                         uiUtils.adjustTextareaHeight();
                         uiUtils.setSendingState(false);
+
+                        // isSelected の正規化で変更があった場合、DBに保存
+                        if (needsSave) {
+                            console.log("読み込み時に isSelected を正規化しました。DBに保存します。");
+                            await dbUtils.saveChat();
+                        }
+
                         // 読み込み成功後、履歴状態をチャット画面に設定 (戻るでアプリ終了を期待)
                         // 既にチャット画面が表示されているはずなので replaceState でよい
                         history.replaceState({ screen: 'chat' }, '', '#chat');
@@ -3278,12 +3542,35 @@
                         // 新しいタイトルを作成 (末尾のコピーサフィックスを除去して再度付与)
                         const originalTitle = chat.title || "無題のチャット";
                         const newTitle = originalTitle.replace(new RegExp(DUPLICATE_SUFFIX.replace(/([().])/g, '\\$1') + '$'), '').trim() + DUPLICATE_SUFFIX;
-                        // メッセージをディープコピー (参照を切る)
-                        const duplicatedMessages = JSON.parse(JSON.stringify(chat.messages || [])).map(msg => ({
-                            role: msg.role,
-                            content: msg.content,
-                            timestamp: msg.timestamp // タイムスタンプは維持
-                        }));
+
+                        // メッセージをディープコピーし、新しい siblingGroupId を生成
+                        const duplicatedMessages = [];
+                        const groupIdMap = new Map(); // 古いGroupId -> 新しいGroupId
+                        (chat.messages || []).forEach(msg => {
+                            const newMsg = JSON.parse(JSON.stringify(msg)); // ディープコピー
+                            // 新しいフラグもコピー (isSelected は後で調整)
+                            newMsg.isCascaded = msg.isCascaded ?? false;
+                            newMsg.isSelected = msg.isSelected ?? false;
+                            if (msg.siblingGroupId) {
+                                if (!groupIdMap.has(msg.siblingGroupId)) {
+                                    groupIdMap.set(msg.siblingGroupId, `dup-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`);
+                                }
+                                newMsg.siblingGroupId = groupIdMap.get(msg.siblingGroupId);
+                            } else {
+                                delete newMsg.siblingGroupId; // 元々なければ削除
+                            }
+                            duplicatedMessages.push(newMsg);
+                        });
+
+                        // 複製後の isSelected を正規化 (各グループの最後のものを選択)
+                        const newGroupIds = new Set(duplicatedMessages.filter(m => m.siblingGroupId).map(m => m.siblingGroupId));
+                        newGroupIds.forEach(gid => {
+                            const siblings = duplicatedMessages.filter(m => m.siblingGroupId === gid);
+                            siblings.forEach((m, idx) => {
+                                m.isSelected = (idx === siblings.length - 1); // 最後のものだけ true
+                            });
+                        });
+
                         // 新しいチャットデータを作成
                         const newChatData = {
                             messages: duplicatedMessages,
@@ -3336,7 +3623,13 @@
                          chat.messages.forEach(msg => {
                              // userとmodelのメッセージのみ出力
                              if (msg.role === 'user' || msg.role === 'model') {
-                                 exportText += `<|#|${msg.role}|#|>\n${msg.content}\n<|#|/${msg.role}|#|>\n\n`;
+                                 let attributes = '';
+                                 if (msg.role === 'model') {
+                                     if (msg.isCascaded) attributes += ' isCascaded';
+                                     if (msg.isSelected) attributes += ' isSelected';
+                                     // siblingGroupId はエクスポートしない方針
+                                 }
+                                 exportText += `<|#|${msg.role}|#|${attributes}>\n${msg.content}\n<|#|/${msg.role}|#|>\n\n`;
                              }
                          });
                      }
@@ -3358,7 +3651,7 @@
                  }
             },
 
-            // チャット削除の確認と実行
+            // チャット削除の確認と実行 (メッセージペア全体)
             async confirmDeleteChat(id, title) {
                  const confirmed = await uiUtils.showCustomConfirm(`「${title || 'この履歴'}」を削除しますか？`);
                  if (confirmed) {
@@ -3469,7 +3762,7 @@
             },
 
             // 送信処理 (リトライ時も使用)
-            async handleSend(isRetry = false, retryMessages = null) {
+            async handleSend(isRetry = false, retryMessagesForApi = null) { // 引数名変更
                 // 編集中は送信不可
                 if (state.editingMessageIndex !== null) {
                     await uiUtils.showCustomAlert("他のメッセージを編集中です。");
@@ -3481,7 +3774,7 @@
                     return;
                 }
                 // 送信するテキストを取得 (リトライ時は最後のメッセージ、通常は入力欄)
-                const text = isRetry ? retryMessages[retryMessages.length - 1].content : elements.userInput.value.trim();
+                const text = isRetry ? retryMessagesForApi[retryMessagesForApi.length - 1].content : elements.userInput.value.trim();
 
                 // 送信中、またはテキストが空の場合は何もしない (リトライ時は空でもOK)
                 if (state.isSending || (!text && !isRetry)) {
@@ -3498,20 +3791,66 @@
                 uiUtils.setSendingState(true); // 送信状態開始
                 state.partialStreamContent = ''; // 部分コンテンツリセット
 
+                let userMessageIndex = -1; // リトライ時に使うユーザーメッセージのインデックス
+                let existingSiblingGroupId = null; // リトライ時に引き継ぐグループID
+                let firstResponseIndexForRetry = -1; // リトライ時に最初の応答のインデックスを保持
+
                 // 通常送信の場合、ユーザーメッセージをリストとUIに追加
                 if (!isRetry) {
                     const userMessage = { role: 'user', content: text, timestamp: Date.now() };
                     state.currentMessages.push(userMessage);
-                    uiUtils.appendMessage(userMessage.role, userMessage.content, state.currentMessages.length - 1);
+                    userMessageIndex = state.currentMessages.length - 1;
+                    uiUtils.appendMessage(userMessage.role, userMessage.content, userMessageIndex);
                     elements.userInput.value = ''; // 入力欄クリア
                     uiUtils.adjustTextareaHeight();
                     uiUtils.scrollToBottom();
                 } else {
-                    console.log("リトライ開始:", retryMessages[retryMessages.length - 1]);
+                    // リトライの場合
+                    // API送信用履歴の最後のメッセージがリトライ対象のユーザーメッセージ
+                    // state.currentMessages 内でのインデックスを探す
+                    userMessageIndex = state.currentMessages.findIndex(msg => msg === retryMessagesForApi[retryMessagesForApi.length - 1]);
+                    if (userMessageIndex === -1) {
+                        console.error("リトライ対象のユーザーメッセージが state.currentMessages に見つかりません。");
+                        uiUtils.setSendingState(false);
+                        return; // エラー処理
+                    }
+                    console.log("リトライ開始:", state.currentMessages[userMessageIndex]);
+
+                    // 既存のカスケード応答を探し、isSelected を false にし、siblingGroupId を取得
+                    // ユーザーメッセージの *直後* から始まるモデル応答を探す
+                    let siblingStartIndex = userMessageIndex + 1;
+                    while (siblingStartIndex < state.currentMessages.length && state.currentMessages[siblingStartIndex].role !== 'model') {
+                        siblingStartIndex++; // ユーザーの次にモデル以外があればスキップ (通常はないはず)
+                    }
+
+                    if (siblingStartIndex < state.currentMessages.length && state.currentMessages[siblingStartIndex].role === 'model') {
+                         // 最初の応答が見つかった
+                         firstResponseIndexForRetry = siblingStartIndex;
+                         const firstResponse = state.currentMessages[firstResponseIndexForRetry];
+                         if (firstResponse.isCascaded && firstResponse.siblingGroupId) {
+                             // 既存のグループが見つかった
+                             existingSiblingGroupId = firstResponse.siblingGroupId;
+                             // 同じ siblingGroupId を持つすべてのメッセージの isSelected を false に設定
+                             state.currentMessages.forEach(msg => {
+                                 if (msg.siblingGroupId === existingSiblingGroupId) {
+                                     msg.isSelected = false;
+                                 }
+                             });
+                             console.log(`リトライ: 既存の応答グループ (${existingSiblingGroupId}) の isSelected を false に設定.`);
+                         } else {
+                             // 最初の応答だが、まだグループ化されていない場合
+                             console.log("リトライ: 最初の応答を新しいカスケードグループに含めます。");
+                             // existingSiblingGroupId は null のまま -> 新規生成される
+                         }
+                    } else {
+                        // ユーザーメッセージの後にモデル応答がない場合 (通常はリトライボタンが出ないはず)
+                        console.warn("リトライ対象のユーザーメッセージの後にモデル応答が見つかりません。");
+                    }
                 }
 
-                // APIに送信するメッセージリストを準備 (リトライ時は指定されたもの、通常は現在の全メッセージ)
-                const messagesToProcess = isRetry ? [...retryMessages] : [...state.currentMessages];
+                // APIに送信するメッセージリストを準備
+                // リトライ時は渡されたもの、通常は現在の全メッセージから生成
+                const messagesToProcess = isRetry ? [...retryMessagesForApi] : [...state.currentMessages];
 
                 // 送信する前に現在のチャット状態を保存 (タイトルも推測して保存)
                 try {
@@ -3527,19 +3866,28 @@
                         if(firstUserMsg) {
                             titleToSave = firstUserMsg.content.substring(0, 50);
                         }
-                        // ユーザーメッセージがない場合は "無題のチャット" のまま (saveChat内で処理)
                     }
-                    await dbUtils.saveChat(titleToSave); // タイトルを指定して保存 (systemPromptも保存される)
+                    await dbUtils.saveChat(titleToSave); // タイトルを指定して保存 (systemPrompt, isSelectedなども保存される)
                 } catch (error) {
                     console.error("送信前のチャット保存失敗:", error);
-                    // 保存失敗しても送信は試みる (エラー表示)
                     uiUtils.displayError("チャットの保存に失敗しましたが、送信を試みます。", false);
                 }
 
-                // APIリクエスト用の形式に変換 (user/modelのみ)
+                // APIリクエスト用の形式に変換 (userは常に、modelは条件付き)
                 const apiMessages = messagesToProcess
-                    .filter(msg => msg.role === 'user' || msg.role === 'model')
-                    .map(msg => ({ role: msg.role, parts: [{ text: msg.content }] }));
+                    .filter(msg => {
+                        if (msg.role === 'user') {
+                            return true; // ユーザーメッセージは常に含める
+                        }
+                        if (msg.role === 'model') {
+                            // モデルメッセージの場合:
+                            // isCascaded でない (通常の応答) か、
+                            // isCascaded であり、かつ isSelected である (選択中のカスケード応答) 場合に true を返す
+                            return !msg.isCascaded || (msg.isCascaded && msg.isSelected);
+                        }
+                        return false; // その他のロールは含めない (エラーメッセージなど)
+                    })
+                    .map(msg => ({ role: msg.role, parts: [{ text: msg.content }] })); // API形式に変換
 
                 // ダミープロンプトを追加 (設定されていれば)
                 const dummyUserText = state.settings.dummyUser?.trim();
@@ -3561,7 +3909,7 @@
 
                 let modelResponseRawContent = ''; // モデル応答の生テキスト
                 let modelResponseMetadata = {}; // 応答メタデータ (finishReasonなど)
-                const modelMessageIndex = state.currentMessages.length; // モデル応答メッセージのインデックス
+                const modelMessageIndex = state.currentMessages.length; // 新しいモデル応答メッセージのインデックス
 
                 try {
                     // API呼び出し
@@ -3572,17 +3920,22 @@
 
                     // ストリーミング処理
                     if (state.settings.streamingOutput) {
-                        // プレースホルダーを追加
-                        uiUtils.appendMessage('model', '', modelMessageIndex, true);
+                        // プレースホルダーを追加 (一時的なもの)
+                        const tempPlaceholderIndex = state.currentMessages.length; // 実際の追加前にインデックス確保
+                        uiUtils.appendMessage('model', '', tempPlaceholderIndex, true);
                         // ストリームを処理
                         const streamResult = await apiUtils.handleStreamingResponse(response);
                         modelResponseMetadata = { finishReason: streamResult.finishReason, safetyRatings: streamResult.safetyRatings };
                         // テキストチャンクをタイプ表示 (プレフィックスを渡す)
-                        modelResponseRawContent = await this.typeCharacterByCharacter(streamResult.textChunks, modelMessageIndex, state.abortController.signal, dummyModelPrefix);
+                        modelResponseRawContent = await this.typeCharacterByCharacter(streamResult.textChunks, tempPlaceholderIndex, state.abortController.signal, dummyModelPrefix);
                         // 中断された場合はエラーを投げる
                         if (modelResponseMetadata.finishReason === 'ABORTED' || state.abortController?.signal.aborted) {
                             throw new Error("リクエストがキャンセルされました。");
                         }
+                        // 完了後、一時プレースホルダーを削除 (renderChatMessagesで再描画するため)
+                        const placeholderElement = document.getElementById(`streaming-message-${tempPlaceholderIndex}`);
+                        if (placeholderElement) placeholderElement.remove();
+
                     } else { // 非ストリーミング処理
                         const data = await response.json();
                         console.log("API応答 (非ストリーミング):", data);
@@ -3591,18 +3944,15 @@
                         if (candidate) {
                             modelResponseMetadata = { finishReason: candidate.finishReason, safetyRatings: candidate.safetyRatings };
                             rawContentFromApi = candidate.content?.parts?.[0]?.text || "";
-                            // 停止理由がSTOP/MAX_TOKENS以外なら理由を追記
                             if (candidate.finishReason && candidate.finishReason !== "STOP" && candidate.finishReason !== "MAX_TOKENS") {
                                 rawContentFromApi += `\n\n(理由: ${candidate.finishReason})`;
                             }
-                            // 応答が空で理由がSTOPの場合
                             if (!rawContentFromApi && candidate.finishReason === "STOP") {
                                 rawContentFromApi = "(応答が空です)";
                             }
                         } else {
-                            // 候補がない場合 (ブロックなど)
                             rawContentFromApi = "応答候補がありません";
-                            if(data.promptFeedback) { // ブロック理由などがあれば追記
+                            if(data.promptFeedback) {
                                 rawContentFromApi += ` (理由: ${data.promptFeedback.blockReason || '不明'})`;
                                 modelResponseMetadata.promptFeedback = data.promptFeedback;
                                 modelResponseMetadata.finishReason = data.promptFeedback.blockReason || 'ERROR';
@@ -3610,35 +3960,68 @@
                                 modelResponseMetadata.finishReason = 'ERROR';
                             }
                         }
-                        // 非ストリーミング応答にプレフィックスを連結
                         modelResponseRawContent = dummyModelPrefix + rawContentFromApi;
-                        // メッセージをUIに追加
-                        uiUtils.appendMessage('model', modelResponseRawContent, modelMessageIndex);
                     }
 
                     // モデル応答があればメッセージリストに追加して保存
                     if (modelResponseRawContent || modelResponseMetadata.finishReason) {
-                         const modelMessage = {
+                         const newModelMessage = {
                              role: 'model',
-                             content: modelResponseRawContent, // 連結後のコンテンツ
+                             content: modelResponseRawContent,
                              timestamp: Date.now(),
-                             ...modelResponseMetadata // finishReason, safetyRatingsなど
+                             ...modelResponseMetadata
                          };
-                         state.currentMessages.push(modelMessage);
-                         // ストリーミングならプレースホルダーを最終化
-                         if (state.settings.streamingOutput) {
-                             uiUtils.finalizeStreamingMessage(modelMessageIndex);
+
+                         // --- カスケード関連フラグの設定 ---
+                         // リトライ時、または最初の応答の場合に設定
+                         let targetUserIndexForCascade = -1;
+                         if (isRetry) {
+                             targetUserIndexForCascade = userMessageIndex;
+                         } else {
+                             // 通常送信の場合、最後のユーザーメッセージを探す
+                             for(let i = state.currentMessages.length - 1; i >= 0; i--) {
+                                 if (state.currentMessages[i].role === 'user') {
+                                     targetUserIndexForCascade = i;
+                                     break;
+                                 }
+                             }
                          }
+
+                         if (targetUserIndexForCascade !== -1) {
+                             // siblingGroupId を決定 (既存があればそれ、なければ新規生成)
+                             const siblingGroupIdToUse = existingSiblingGroupId || `gid-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
+
+                             newModelMessage.isCascaded = true;
+                             newModelMessage.isSelected = true; // 新しい応答を選択状態に
+                             newModelMessage.siblingGroupId = siblingGroupIdToUse;
+
+                             // 最初の応答にもフラグとIDを設定 (まだ設定されていなければ)
+                             if (isRetry && firstResponseIndexForRetry !== -1 && !state.currentMessages[firstResponseIndexForRetry].isCascaded) {
+                                 state.currentMessages[firstResponseIndexForRetry].isCascaded = true;
+                                 state.currentMessages[firstResponseIndexForRetry].siblingGroupId = siblingGroupIdToUse;
+                                 // 最初の応答は isSelected = false のまま
+                                 console.log(`最初の応答 (index ${firstResponseIndexForRetry}) にフラグ設定: isCascaded=true, siblingGroupId=${siblingGroupIdToUse}`);
+                             }
+
+                             console.log(`応答にフラグ設定: isCascaded=true, isSelected=true, siblingGroupId=${newModelMessage.siblingGroupId}`);
+                         }
+                         // ---------------------------------
+
+                         state.currentMessages.push(newModelMessage);
+
+                         // UIを再描画して新しいメッセージとカスケードコントロールを表示
+                         uiUtils.renderChatMessages();
+
                          await dbUtils.saveChat(); // チャットを保存
                          console.log("モデル応答保存完了");
                     } else {
                         // 応答コンテンツがない場合は保存しない
                         console.log("モデル応答コンテンツがないため保存しません。");
-                        // ストリーミングプレースホルダーがあれば削除
-                        if (state.settings.streamingOutput) {
-                            const placeholder = document.getElementById(`streaming-message-${modelMessageIndex}`);
-                            if(placeholder) placeholder.remove();
-                        }
+                        // ストリーミングプレースホルダーがあれば削除 (非ストリーミング時はない)
+                        // if (state.settings.streamingOutput) {
+                        //     const placeholder = document.getElementById(`streaming-message-${modelMessageIndex}`);
+                        //     if(placeholder) placeholder.remove();
+                        // }
                     }
                 } catch (error) { // API呼び出し、ストリーミング、中断エラーのハンドリング
                     console.error("Gemini呼び出し/処理中のエラー:", error);
@@ -3646,7 +4029,6 @@
                     const displayErrorMessage = isAbort ? error.message : (error.message || "不明なエラーが発生しました");
 
                     // ストリーミングエラー時の部分コンテンツにもプレフィックスを考慮
-                    // typeCharacterByCharacterが中断した場合、state.partialStreamContentには既にプレフィックスが含まれているはず
                     const partialRawContent = state.partialStreamContent || error.cause?.partialChunks?.join('');
 
                     if (partialRawContent && state.settings.streamingOutput) {
@@ -3654,31 +4036,31 @@
                          const finalPartialContent = partialRawContent + `\n\n(${isAbort ? '中断されました' : 'エラーが発生しました'})`;
                          const partialMessage = {
                              role: 'model',
-                             content: finalPartialContent, // プレフィックスが含まれた部分コンテンツ
+                             content: finalPartialContent,
                              timestamp: Date.now(),
                              error: true, // エラーフラグ
                              finishReason: isAbort ? 'ABORTED' : (modelResponseMetadata.finishReason || 'ERROR'),
                              ...(modelResponseMetadata.safetyRatings && { safetyRatings: modelResponseMetadata.safetyRatings })
                          };
+                         // エラー時もカスケードフラグを引き継ぐか？ -> 一旦引き継がない
                          state.currentMessages.push(partialMessage);
                          try {
                              await dbUtils.saveChat(); // 部分的な状態を保存
                              console.log("部分的なメッセージ状態を保存しました。");
-                             uiUtils.finalizeStreamingMessage(modelMessageIndex); // UIを最終化
+                             // UIを再描画してエラーメッセージを表示
+                             uiUtils.renderChatMessages();
                          } catch (saveError) {
-                             // 保存失敗時はエラー表示のみ
                              console.error("部分メッセージの保存失敗:", saveError);
                              uiUtils.displayError(displayErrorMessage, !isAbort);
-                             uiUtils.finalizeStreamingMessage(modelMessageIndex); // UIは最終化しておく
                          }
                     } else {
                         // 部分コンテンツがない、または非ストリーミング時のエラー
                         uiUtils.displayError(displayErrorMessage, !isAbort);
-                        // ストリーミングプレースホルダーがあれば削除
-                        if (state.settings.streamingOutput) {
-                            const placeholder = document.getElementById(`streaming-message-${modelMessageIndex}`);
-                            if(placeholder) placeholder.remove();
-                        }
+                        // ストリーミングプレースホルダーがあれば削除 (非ストリーミング時はない)
+                        // if (state.settings.streamingOutput) {
+                        //     const placeholder = document.getElementById(`streaming-message-${modelMessageIndex}`);
+                        //     if(placeholder) placeholder.remove();
+                        // }
                     }
                 } finally {
                     // 最終処理
@@ -3720,6 +4102,40 @@
                             await uiUtils.showCustomAlert("ファイルから有効なメッセージまたはシステムプロンプトを読み込めませんでした。形式を確認してください。");
                             return;
                         }
+
+                        // --- インポート後の siblingGroupId 割り当て ---
+                        let currentGroupId = null;
+                        let lastUserIndex = -1;
+                        for (let i = 0; i < importedMessages.length; i++) {
+                            const msg = importedMessages[i];
+                            if (msg.role === 'user') {
+                                lastUserIndex = i;
+                                currentGroupId = null; // ユーザーメッセージでグループリセット
+                            } else if (msg.role === 'model' && msg.isCascaded) {
+                                if (currentGroupId === null && lastUserIndex !== -1) {
+                                    // 新しいグループIDを生成
+                                    currentGroupId = `imp-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
+                                }
+                                if (currentGroupId) {
+                                    msg.siblingGroupId = currentGroupId;
+                                }
+                            } else {
+                                currentGroupId = null; // 非カスケードモデルでグループリセット
+                            }
+                        }
+                        // --- isSelected の正規化 (各グループの最後のものを選択) ---
+                        const groupIds = new Set(importedMessages.filter(m => m.siblingGroupId).map(m => m.siblingGroupId));
+                        groupIds.forEach(gid => {
+                            const siblings = importedMessages.filter(m => m.siblingGroupId === gid);
+                            const selected = siblings.filter(m => m.isSelected);
+                            if (selected.length === 0 && siblings.length > 0) {
+                                siblings[siblings.length - 1].isSelected = true;
+                            } else if (selected.length > 1) {
+                                selected.slice(0, -1).forEach(m => m.isSelected = false);
+                                // 最後の isSelected は true のまま
+                            }
+                        });
+                        // -----------------------------------------
 
                         // ファイル名から拡張子を除去してタイトル生成
                         const fileNameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
@@ -3764,23 +4180,30 @@
             parseImportedHistory(text) {
                 const messages = [];
                 let systemPrompt = '';
-                // 正規表現でブロックを抽出: <|#|role|#|>\ncontent\n<|#|/role|#|> (system, user, model)
-                const blockRegex = /<\|#\|(system|user|model)\|#\|>([\s\S]*?)<\|#\|\/\1\|#\|>/g;
+                // 正規表現を修正: <|#|role|#| [attributes]>\ncontent\n<|#|/role|#|>
+                const blockRegex = /<\|#\|(system|user|model)\|#\|([^>]*)>([\s\S]*?)<\|#\|\/\1\|#\|>/g;
                 let match;
 
                 while ((match = blockRegex.exec(text)) !== null) {
                     const role = match[1];
-                    // contentの前後の改行や空白を除去
-                    const content = match[2].trim();
+                    const attributesString = match[2].trim(); // 属性文字列 (例: "isCascaded isSelected")
+                    const content = match[3].trim(); // コンテンツ
 
                     if (role === 'system' && content) {
                         systemPrompt = content; // システムプロンプトを抽出
                     } else if ((role === 'user' || role === 'model') && content) {
-                        messages.push({
+                        const messageData = {
                             role: role,
-                            content: content, // 無害化は表示時に行われるため、ここではそのまま格納
+                            content: content,
                             timestamp: Date.now() // インポート時のタイムスタンプ
-                        });
+                        };
+                        // 属性をパースしてフラグを設定
+                        if (role === 'model') {
+                            messageData.isCascaded = attributesString.includes('isCascaded');
+                            messageData.isSelected = attributesString.includes('isSelected');
+                            // siblingGroupId はインポート後に割り当てる
+                        }
+                        messages.push(messageData);
                     }
                 }
                 console.log(`インポートテキストから ${messages.length} 件のメッセージとシステムプロンプト(${systemPrompt ? 'あり' : 'なし'})をパースしました。`);
@@ -4057,8 +4480,9 @@
 
                  const contentDiv = messageElement.querySelector('.message-content');
                  const editArea = messageElement.querySelector('.message-edit-area');
+                 const cascadeControls = messageElement.querySelector('.message-cascade-controls'); // 上部コントロール
                  editArea.innerHTML = ''; // 編集エリアをクリア
-                 
+
                  let horizontalPadding = 0;
                  try {// パディング計算
                      const computedStyle = window.getComputedStyle(messageElement);
@@ -4101,6 +4525,7 @@
                  // UI切り替え
                  messageElement.classList.add('editing'); // 編集中クラス追加
                  if(contentDiv) contentDiv.classList.add('hidden'); // 元のコンテンツ非表示
+                 if(cascadeControls) cascadeControls.classList.add('hidden'); // 上部コントロール非表示
                  editArea.classList.remove('hidden'); // 編集エリア表示
 
                  // 初期高さ調整とフォーカス
@@ -4187,12 +4612,14 @@
                 if (!messageElement) return;
                 const editArea = messageElement.querySelector('.message-edit-area');
                 const contentDiv = messageElement.querySelector('.message-content');
+                const cascadeControls = messageElement.querySelector('.message-cascade-controls'); // 上部コントロール
                 const textarea = messageElement.querySelector('.edit-textarea');
-                
+
                 messageElement.style.removeProperty('width');
 
                 messageElement.classList.remove('editing'); // 編集中クラス削除
                 if(contentDiv) contentDiv.classList.remove('hidden'); // 元のコンテンツ表示
+                if(cascadeControls) cascadeControls.classList.remove('hidden'); // 上部コントロール再表示
                 if(editArea) { // 編集エリアを非表示にして内容クリア
                     editArea.classList.add('hidden');
                     editArea.innerHTML = '';
@@ -4206,98 +4633,379 @@
                 }
             },
 
-            // メッセージを削除
+            // メッセージを削除 (会話ターン全体)
             async deleteMessage(index) {
-                  // 編集中ならキャンセル
-                  if (state.editingMessageIndex === index) {
-                      this.cancelEditMessage(index);
-                  }
-                  // 送信中は削除不可
-                  if (state.isSending) {
-                      await uiUtils.showCustomAlert("送信中は削除できません。");
-                      return;
-                  }
-                  // システムプロンプト編集中は不可
-                  if (state.isEditingSystemPrompt) {
-                      await uiUtils.showCustomAlert("システムプロンプト編集中は削除できません。");
-                      return;
-                  }
-                  // インデックス範囲チェック
-                  if (index < 0 || index >= state.currentMessages.length) return;
+                // 編集中、送信中、システムプロンプト編集中は削除不可 (既存のチェック)
+                if (state.editingMessageIndex === index) {
+                    this.cancelEditMessage(index);
+                }
+                if (state.isSending) {
+                    await uiUtils.showCustomAlert("送信中は削除できません。");
+                    return;
+                }
+                if (state.isEditingSystemPrompt) {
+                    await uiUtils.showCustomAlert("システムプロンプト編集中は削除できません。");
+                    return;
+                }
+                if (index < 0 || index >= state.currentMessages.length) {
+                     console.error("削除対象のインデックスが無効:", index);
+                     return;
+                }
 
-                 // 削除確認
-                 const messageContentPreview = state.currentMessages[index].content.substring(0, 30) + "...";
-                 const confirmed = await uiUtils.showCustomConfirm(`メッセージ「${messageContentPreview}」を削除しますか？`);
-                 if (confirmed) {
-                    // 削除前の最初のユーザーメッセージのインデックスを記録
+                const messageToDelete = state.currentMessages[index];
+                const messageContentPreview = messageToDelete.content.substring(0, 30) + "...";
+                let confirmMessage = "";
+                let deleteTargetDescription = ""; // 削除対象の説明（ログ用）
+                let indicesToDelete = []; // 削除対象のインデックスリスト
+
+                // --- 削除範囲と確認メッセージを決定 ---
+                if (messageToDelete.role === 'model' && messageToDelete.isCascaded && messageToDelete.siblingGroupId) {
+                    // **ケース1: カスケードモデル応答グループ全体**
+                    const groupId = messageToDelete.siblingGroupId;
+                    const siblings = state.currentMessages.filter(msg => msg.role === 'model' && msg.isCascaded && msg.siblingGroupId === groupId);
+                    indicesToDelete = state.currentMessages
+                        .map((msg, i) => (msg.role === 'model' && msg.isCascaded && msg.siblingGroupId === groupId) ? i : -1)
+                        .filter(i => i !== -1);
+
+                    confirmMessage = `「${messageContentPreview}」を含む応答グループ全体 (${siblings.length}件) を削除しますか？`;
+                    deleteTargetDescription = `カスケードグループ (gid: ${groupId}, ${indicesToDelete.length}件)`;
+                } else {
+                    // **ケース2: 単一メッセージ (ユーザー入力 or 非カスケードモデル応答)**
+                    indicesToDelete.push(index);
+                    confirmMessage = `メッセージ「${messageContentPreview}」(${messageToDelete.role}) を削除しますか？`;
+                    deleteTargetDescription = `単一メッセージ (index: ${index}, role: ${messageToDelete.role})`;
+                }
+
+                // --- 削除実行 ---
+                const confirmed = await uiUtils.showCustomConfirm(confirmMessage);
+                if (confirmed) {
+                    console.log(`削除実行: ${deleteTargetDescription}`);
                     const originalFirstUserMsgIndex = state.currentMessages.findIndex(m => m.role === 'user');
-                    // stateからメッセージを削除
-                    state.currentMessages.splice(index, 1);
-                    // UIを再描画
+
+                    // stateからメッセージを削除 (インデックスが大きい方から削除してズレを防ぐ)
+                    indicesToDelete.sort((a, b) => b - a).forEach(idx => {
+                        state.currentMessages.splice(idx, 1);
+                    });
+                    console.log(`メッセージ削除完了 (state)。削除件数: ${indicesToDelete.length}`);
+
+                    // --- UI再描画 ---
                     uiUtils.renderChatMessages();
-                    // 削除後の最初のユーザーメッセージのインデックスを取得
+                    // カスケードグループ削除後は操作ボックスの再表示は不要
+
+                    // --- タイトル更新とDB保存 ---
                     const newFirstUserMsgIndex = state.currentMessages.findIndex(m => m.role === 'user');
-                    // タイトル更新が必要か判断 (削除したのが最初のユーザーメッセージ、またはユーザーメッセージがなくなった場合)
-                    let requiresTitleUpdate = (index === originalFirstUserMsgIndex || newFirstUserMsgIndex === -1);
+                    // タイトル更新が必要か判断 (元の最初のユーザーメッセージが削除範囲に含まれていた場合)
+                    let requiresTitleUpdate = indicesToDelete.includes(originalFirstUserMsgIndex);
+
                     try {
                         let newTitleForSave = null;
-                        if (requiresTitleUpdate) { // タイトル更新が必要な場合
-                            const newFirstUserMessage = newFirstUserMsgIndex !== -1 ? state.currentMessages[newFirstUserMsgIndex] : null;
-                            newTitleForSave = newFirstUserMessage ? newFirstUserMessage.content.substring(0, 50) : "無題のチャット"; // SPは参照しない
-                        }
-                        await dbUtils.saveChat(newTitleForSave); // チャット保存 (タイトルも更新される可能性あり)
+                        const currentChatData = state.currentChatId ? await dbUtils.getChat(state.currentChatId) : null;
+
                         if (requiresTitleUpdate) {
-                            uiUtils.updateChatTitle(newTitleForSave); // UIタイトル更新
+                            const newFirstUserMessage = newFirstUserMsgIndex !== -1 ? state.currentMessages[newFirstUserMsgIndex] : null;
+                            newTitleForSave = newFirstUserMessage ? newFirstUserMessage.content.substring(0, 50) : "無題のチャット";
+                        } else if (currentChatData) {
+                            newTitleForSave = currentChatData.title;
                         }
-                        // メッセージが空になり、システムプロンプトもない場合、新規チャット状態にする
+
+                        await dbUtils.saveChat(newTitleForSave);
+
+                        if (requiresTitleUpdate) {
+                            uiUtils.updateChatTitle(newTitleForSave);
+                        }
+
                         if (state.currentMessages.length === 0 && !state.currentSystemPrompt && state.currentChatId) {
                             console.log("チャットが空になったためリセットします。");
                             this.startNewChat();
                         }
                     } catch (error) {
+                        console.error("メッセージ削除後のチャット保存/取得エラー:", error);
                         await uiUtils.showCustomAlert("メッセージ削除後のチャット保存に失敗しました。");
+                    }
+                } else {
+                     console.log("削除キャンセル");
+                }
+            },
+
+            
+            // 指定メッセージからリトライ
+            async retryFromMessage(index) {
+                // 編集中は不可
+                if (state.editingMessageIndex !== null) {
+                    await uiUtils.showCustomAlert("編集中はリトライできません。");
+                    return;
+                }
+                // 送信中は不可
+                if (state.isSending) {
+                    await uiUtils.showCustomAlert("送信中です。");
+                    return;
+                }
+                // システムプロンプト編集中は不可
+                if (state.isEditingSystemPrompt) {
+                    await uiUtils.showCustomAlert("システムプロンプト編集中はリトライできません。");
+                    return;
+                }
+                const userMessage = state.currentMessages[index];
+                // ユーザーメッセージ以外からはリトライ不可
+                if (!userMessage || userMessage.role !== 'user') return;
+
+                // リトライ確認 (メッセージ修正)
+                const messageContentPreview = userMessage.content.substring(0, 30) + "...";
+                const confirmed = await uiUtils.showCustomConfirm(`「${messageContentPreview}」から再生成しますか？\n(この入力に対する既存の応答は保持されますが、**これより未来の会話履歴は削除されます**)`);
+
+                if (confirmed) {
+                    console.log(`リトライ開始: index=${index}`);
+
+                    // --- 後続の不要な履歴を削除する処理 ---
+                    let deleteStartIndex = -1;
+                    let scanIndex = index + 1; // リトライ対象ユーザーメッセージの次から開始
+
+                    // 保持すべきモデル応答群の siblingGroupId を特定
+                    let targetSiblingGroupId = null;
+                    if (scanIndex < state.currentMessages.length && state.currentMessages[scanIndex].role === 'model') {
+                        // 最初のモデル応答が存在する場合、その siblingGroupId を取得
+                        targetSiblingGroupId = state.currentMessages[scanIndex].siblingGroupId || null; // groupId がない場合は null
+                        console.log(`保持対象の siblingGroupId: ${targetSiblingGroupId}`);
+                    }
+
+                    // targetSiblingGroupId に一致するモデル応答群をスキップ
+                    if (targetSiblingGroupId !== null) { // siblingGroupId がある場合
+                        while (
+                            scanIndex < state.currentMessages.length &&
+                            state.currentMessages[scanIndex].role === 'model' &&
+                            state.currentMessages[scanIndex].siblingGroupId === targetSiblingGroupId
+                        ) {
+                            scanIndex++;
+                        }
+                    } else { // 最初のモデル応答に siblingGroupId がない場合 (isCascaded=false など)
+                         if (scanIndex < state.currentMessages.length && state.currentMessages[scanIndex].role === 'model') {
+                            // 最初のモデル応答のみスキップ (グループ化されていない)
+                            scanIndex++;
+                        }
+                         // それ以降は siblingGroupId が一致しないのでループに入らない
+                    }
+                    // scanIndex は、保持すべきモデル応答群の次のインデックス、または配列の終端を指す
+
+                    // 削除開始インデックスを決定
+                    if (scanIndex < state.currentMessages.length) {
+                        // 配列の終端でなければ、scanIndex が削除開始位置
+                        deleteStartIndex = scanIndex;
+                    }
+                    // scanIndex が配列の終端なら deleteStartIndex は -1 のまま (削除不要)
+
+                    if (deleteStartIndex !== -1) {
+                        const deletedCount = state.currentMessages.length - deleteStartIndex;
+                        console.log(`インデックス ${deleteStartIndex} 以降の ${deletedCount} 件の履歴を削除します。`);
+                        state.currentMessages.splice(deleteStartIndex); // deleteStartIndex 以降をすべて削除
+                    } else {
+                        console.log("削除対象となる未来の会話履歴はありませんでした。");
+                    }
+                    // --- 削除処理ここまで ---
+
+                    // UIを更新 (削除された状態を表示)
+                    uiUtils.renderChatMessages();
+                    uiUtils.scrollToBottom(); // 削除後の表示位置にスクロール
+                    
+                    // --- 既存の応答を一時的に非表示にする処理 ---
+                    const elementsToHide = []; // 非表示にしたDOM要素を保持する配列
+                    const messageContainer = elements.messageContainer; // パフォーマンスのためキャッシュ
+
+                    // targetSiblingGroupId が存在する場合、そのグループ全体を非表示
+                    if (targetSiblingGroupId) {
+                        messageContainer.querySelectorAll(`.message.model[data-index]`).forEach(el => {
+                            const msgIndex = parseInt(el.dataset.index, 10);
+                            const potentialMsg = state.currentMessages[msgIndex]; // 削除後のインデックスでアクセス試行
+                            if (potentialMsg && potentialMsg.role === 'model' && potentialMsg.siblingGroupId === targetSiblingGroupId) {
+                                 el.classList.add('retrying-hidden');
+                                 elementsToHide.push(el);
+                            }
+                        });
+                         console.log(`${elementsToHide.length}件の既存応答 (グループ ${targetSiblingGroupId}) を一時的に非表示にしました。`);
+                    } else if (index + 1 < state.currentMessages.length && state.currentMessages[index + 1]?.role === 'model') {
+                        // 非カスケードの単一応答を非表示（削除後のインデックス index + 1 がモデル応答の場合）
+                        const element = messageContainer.querySelector(`.message.model[data-index="${index + 1}"]`);
+                        if (element) {
+                            element.classList.add('retrying-hidden');
+                            elementsToHide.push(element);
+                            console.log(`1件の既存応答 (非カスケード, 削除後のindex: ${index + 1}) を一時的に非表示にしました。`);
+                        }
+                    }
+                    // ---------------------------------------------
+
+                    // APIに送信するメッセージリストを作成 (削除後の state から)
+                    // リトライ対象のユーザーメッセージ (index) までを含める
+                    const messagesForApi = state.currentMessages.slice(0, index + 1);
+
+                    // handleSend をリトライモードで呼び出す
+                    await this.handleSend(true, messagesForApi);
+                }
+            },
+
+            // --- カスケード応答操作 ---
+            // 指定インデックスのメッセージの兄弟カスケード応答を取得
+            getCascadedSiblings(index, includeSelf = false) {
+                const targetMsg = state.currentMessages[index];
+                if (!targetMsg || !targetMsg.isCascaded || !targetMsg.siblingGroupId) {
+                    return [];
+                }
+                const groupId = targetMsg.siblingGroupId;
+                const siblings = state.currentMessages.filter((msg, i) =>
+                    msg.role === 'model' &&
+                    msg.isCascaded &&
+                    msg.siblingGroupId === groupId &&
+                    (includeSelf || i !== index) // includeSelfがtrueなら自分自身も含む
+                );
+                return siblings;
+            },
+
+            // カスケード応答をナビゲート (前へ/次へ)
+            async navigateCascade(currentIndex, direction) {
+                const currentMsg = state.currentMessages[currentIndex];
+                if (!currentMsg || !currentMsg.isCascaded || !currentMsg.siblingGroupId) return;
+
+                const groupId = currentMsg.siblingGroupId;
+                // 同じグループの兄弟を state.currentMessages 内の元の順序で取得
+                const siblingsWithIndices = state.currentMessages
+                    .map((msg, i) => ({ msg, originalIndex: i })) // 元のインデックスを保持
+                    .filter(item => item.msg.role === 'model' && item.msg.isCascaded && item.msg.siblingGroupId === groupId);
+
+                // 現在表示中のメッセージが兄弟リストの何番目か特定
+                const currentSiblingIndex = siblingsWithIndices.findIndex(item => item.originalIndex === currentIndex);
+                if (currentSiblingIndex === -1) return; // 見つからない場合は中断
+
+                let targetSiblingIndex = -1;
+                if (direction === 'prev' && currentSiblingIndex > 0) {
+                    targetSiblingIndex = currentSiblingIndex - 1;
+                } else if (direction === 'next' && currentSiblingIndex < siblingsWithIndices.length - 1) {
+                    targetSiblingIndex = currentSiblingIndex + 1;
+                }
+
+                if (targetSiblingIndex !== -1) {
+                    // isSelected フラグを更新
+                    currentMsg.isSelected = false;
+                    const newlySelectedMessage = siblingsWithIndices[targetSiblingIndex].msg; // 新しく選択されたメッセージオブジェクト
+                    newlySelectedMessage.isSelected = true;
+                    const newlySelectedIndex = siblingsWithIndices[targetSiblingIndex].originalIndex; // 新しく選択されたメッセージの元のインデックス
+
+                    console.log(`カスケードナビゲーション: ${currentSiblingIndex + 1}/${siblingsWithIndices.length} -> ${targetSiblingIndex + 1}/${siblingsWithIndices.length}`);
+
+                    // UIを再描画
+                    uiUtils.renderChatMessages();
+
+                    // 再描画後に .show-actions クラスを再付与
+                    requestAnimationFrame(() => { // DOM更新が完了するのを待つ
+                        const newlySelectedElement = elements.messageContainer.querySelector(`.message[data-index="${newlySelectedIndex}"]`);
+                        if (newlySelectedElement && !newlySelectedElement.classList.contains('editing')) {
+                             // 他に表示されているものがあれば消す
+                             const currentlyShown = elements.messageContainer.querySelector('.message.show-actions');
+                             if (currentlyShown && currentlyShown !== newlySelectedElement) {
+                                 currentlyShown.classList.remove('show-actions');
+                             }
+                             // 新しい要素にクラスを付与
+                             newlySelectedElement.classList.add('show-actions');
+                             console.log(`.show-actions を再付与: index=${newlySelectedIndex}`);
+                        }
+                    });
+
+                    // DBに保存
+                    try {
+                        await dbUtils.saveChat();
+                    } catch (error) {
+                        console.error("カスケードナビゲーション後の保存失敗:", error);
+                        await uiUtils.showCustomAlert("応答の切り替え状態の保存に失敗しました。");
                     }
                 }
             },
-            // 指定メッセージからリトライ
-            async retryFromMessage(index) {
-                  // 編集中は不可
-                  if (state.editingMessageIndex !== null) {
-                      await uiUtils.showCustomAlert("編集中はリトライできません。");
-                      return;
-                  }
-                  // 送信中は不可
-                  if (state.isSending) {
-                      await uiUtils.showCustomAlert("送信中です。");
-                      return;
-                  }
-                  // システムプロンプト編集中は不可
-                  if (state.isEditingSystemPrompt) {
-                      await uiUtils.showCustomAlert("システムプロンプト編集中はリトライできません。");
-                      return;
-                  }
-                  const userMessage = state.currentMessages[index];
-                  // ユーザーメッセージ以外からはリトライ不可
-                  if (!userMessage || userMessage.role !== 'user') return;
 
-                  // リトライ確認
-                  const messageContentPreview = userMessage.content.substring(0, 30) + "...";
-                  const confirmed = await uiUtils.showCustomConfirm(`「${messageContentPreview}」から再生成しますか？\n(このメッセージ以降の履歴は削除されます)`);
-                  if (confirmed) {
-                      // リトライするメッセージまでの履歴を保持
-                      const messagesToRetry = state.currentMessages.slice(0, index + 1);
-                      state.currentMessages = messagesToRetry; // stateを更新
-                      uiUtils.renderChatMessages(); // UIを更新
-                      uiUtils.scrollToBottom();
-                      // handleSendをリトライモードで呼び出す
-                      await this.handleSend(true, messagesToRetry);
-                  }
+            // 特定のカスケード応答削除の確認
+            async confirmDeleteCascadeResponse(indexToDelete) {
+                const msgToDelete = state.currentMessages[indexToDelete];
+                // 対象がカスケード応答でない場合は処理しない
+                if (!msgToDelete || msgToDelete.role !== 'model' || !msgToDelete.isCascaded || !msgToDelete.siblingGroupId) {
+                    console.warn("confirmDeleteCascadeResponse: 対象はカスケード応答ではありません。", indexToDelete);
+                    return;
+                }
+                // 編集中、送信中、SP編集中は不可
+                if (state.editingMessageIndex !== null) { await uiUtils.showCustomAlert("編集中は削除できません。"); return; }
+                if (state.isSending) { await uiUtils.showCustomAlert("送信中は削除できません。"); return; }
+                if (state.isEditingSystemPrompt) { await uiUtils.showCustomAlert("システムプロンプト編集中は削除できません。"); return; }
+
+                // 削除確認
+                const siblings = this.getCascadedSiblings(indexToDelete, true); // 自分自身を含む
+                const currentIndexInGroup = siblings.findIndex(m => m === msgToDelete) + 1;
+                const totalSiblings = siblings.length;
+                const contentPreview = msgToDelete.content.substring(0, 30) + "...";
+                const confirmMsg = `この応答 (${currentIndexInGroup}/${totalSiblings})「${contentPreview}」を削除しますか？\n(この応答のみが削除されます)`;
+
+                const confirmed = await uiUtils.showCustomConfirm(confirmMsg);
+                if (confirmed) {
+                    const wasSelected = msgToDelete.isSelected;
+                    const groupId = msgToDelete.siblingGroupId;
+
+                    // --- stateから単一メッセージ削除 ---
+                    state.currentMessages.splice(indexToDelete, 1);
+                    console.log(`カスケード応答削除 (単一): index=${indexToDelete}, groupId=${groupId}`);
+
+                    // --- isSelected 調整 ---
+                    let newlySelectedIndex = -1; // 削除後に選択状態になるべきメッセージのインデックス
+                    const remainingSiblingsWithIndices = state.currentMessages
+                        .map((msg, i) => ({ msg, originalIndex: i }))
+                        .filter(item => item.msg.role === 'model' && item.msg.isCascaded && item.msg.siblingGroupId === groupId);
+
+                    if (remainingSiblingsWithIndices.length > 0) {
+                        if (wasSelected) {
+                            // 削除されたのが選択中だった場合、残りの最後のものを選択状態にする
+                            const lastSiblingItem = remainingSiblingsWithIndices[remainingSiblingsWithIndices.length - 1];
+                            if (!lastSiblingItem.msg.isSelected) {
+                                lastSiblingItem.msg.isSelected = true;
+                                newlySelectedIndex = lastSiblingItem.originalIndex;
+                                console.log(`削除後、新しい選択応答を設定 (単一カスケード): newIndex=${newlySelectedIndex}`);
+                            } else {
+                                newlySelectedIndex = lastSiblingItem.originalIndex; // すでに選択済みだった場合もインデックス記録
+                            }
+                        } else {
+                             // 削除されたのが非選択だった場合、依然として選択中のものを探す
+                             const stillSelectedItem = remainingSiblingsWithIndices.find(item => item.msg.isSelected);
+                             if (stillSelectedItem) {
+                                 newlySelectedIndex = stillSelectedItem.originalIndex;
+                             }
+                        }
+                    } else {
+                        console.log(`グループ ${groupId} の最後の応答が削除されました。`);
+                    }
+
+                    // --- UI再描画 & 操作ボックス再表示 ---
+                    uiUtils.renderChatMessages();
+                    requestAnimationFrame(() => {
+                         if (newlySelectedIndex !== -1) {
+                             const elementToShowActions = elements.messageContainer.querySelector(`.message[data-index="${newlySelectedIndex}"]`);
+                             if (elementToShowActions && !elementToShowActions.classList.contains('editing')) {
+                                  const currentlyShown = elements.messageContainer.querySelector('.message.show-actions');
+                                  if (currentlyShown && currentlyShown !== elementToShowActions) {
+                                      currentlyShown.classList.remove('show-actions');
+                                  }
+                                  elementToShowActions.classList.add('show-actions');
+                                  console.log(`.show-actions を再付与 (単一カスケード削除後): index=${newlySelectedIndex}`);
+                             }
+                         }
+                    });
+
+                    // --- DB保存 ---
+                    try {
+                        await dbUtils.saveChat(); // isSelectedの変更などを保存
+                    } catch (error) {
+                        console.error("単一カスケード応答削除後の保存失敗:", error);
+                        await uiUtils.showCustomAlert("応答削除後のチャット状態の保存に失敗しました。");
+                    }
+                } else {
+                     console.log("単一カスケード応答の削除キャンセル");
+                }
             }
+
         }; // appLogic終了
 
         // --- 初期化処理 ---
         appLogic.initializeApp();
-
     </script>
 </body>
 </html>
