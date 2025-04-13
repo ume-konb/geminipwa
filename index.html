@@ -1565,7 +1565,7 @@
         const IMPORT_PREFIX = '(取込) ';
         const LIGHT_THEME_COLOR = '#4a90e2';
         const DARK_THEME_COLOR = '#007aff';
-        const APP_VERSION = "0.15"; // 応答候補切り替え機能追加
+        const APP_VERSION = "0.16"; // 応答候補切り替え機能追加
         const SWIPE_THRESHOLD = 50; // スワイプ判定の閾値 (px)
         const ZOOM_THRESHOLD = 1.01; // ズーム状態と判定するスケールの閾値 (誤差考慮)
 
@@ -3792,8 +3792,9 @@
                 state.partialStreamContent = ''; // 部分コンテンツリセット
 
                 let userMessageIndex = -1; // リトライ時に使うユーザーメッセージのインデックス
-                let existingSiblingGroupId = null; // リトライ時に引き継ぐグループID
+                let existingSiblingGroupId = null; // catchブロックからも参照するためここで宣言
                 let firstResponseIndexForRetry = -1; // リトライ時に最初の応答のインデックスを保持
+                let siblingGroupIdToUse = null; // try/catch 両方から参照できるようここで宣言＆初期化
 
                 // 通常送信の場合、ユーザーメッセージをリストとUIに追加
                 if (!isRetry) {
@@ -3816,11 +3817,10 @@
                     }
                     console.log("リトライ開始:", state.currentMessages[userMessageIndex]);
 
-                    // 既存のカスケード応答を探し、isSelected を false にし、siblingGroupId を取得
-                    // ユーザーメッセージの *直後* から始まるモデル応答を探す
+                    // siblingGroupIdの決定を try ブロックに入る前に行う
                     let siblingStartIndex = userMessageIndex + 1;
                     while (siblingStartIndex < state.currentMessages.length && state.currentMessages[siblingStartIndex].role !== 'model') {
-                        siblingStartIndex++; // ユーザーの次にモデル以外があればスキップ (通常はないはず)
+                        siblingStartIndex++; // ユーザーの次にモデル以外があればスキップ
                     }
 
                     if (siblingStartIndex < state.currentMessages.length && state.currentMessages[siblingStartIndex].role === 'model') {
@@ -3829,7 +3829,7 @@
                          const firstResponse = state.currentMessages[firstResponseIndexForRetry];
                          if (firstResponse.isCascaded && firstResponse.siblingGroupId) {
                              // 既存のグループが見つかった
-                             existingSiblingGroupId = firstResponse.siblingGroupId;
+                             existingSiblingGroupId = firstResponse.siblingGroupId; // 既存IDを取得
                              // 同じ siblingGroupId を持つすべてのメッセージの isSelected を false に設定
                              state.currentMessages.forEach(msg => {
                                  if (msg.siblingGroupId === existingSiblingGroupId) {
@@ -3837,14 +3837,16 @@
                                  }
                              });
                              console.log(`リトライ: 既存の応答グループ (${existingSiblingGroupId}) の isSelected を false に設定.`);
+                             siblingGroupIdToUse = existingSiblingGroupId; // 確定したIDを代入
                          } else {
                              // 最初の応答だが、まだグループ化されていない場合
                              console.log("リトライ: 最初の応答を新しいカスケードグループに含めます。");
-                             // existingSiblingGroupId は null のまま -> 新規生成される
+                             // siblingGroupIdToUse は null のまま -> try または catch ブロック内で生成される
                          }
                     } else {
-                        // ユーザーメッセージの後にモデル応答がない場合 (通常はリトライボタンが出ないはず)
+                        // ユーザーメッセージの後にモデル応答がない場合
                         console.warn("リトライ対象のユーザーメッセージの後にモデル応答が見つかりません。");
+                        // siblingGroupIdToUse は null のまま
                     }
                 }
 
@@ -3988,17 +3990,20 @@
                          }
 
                          if (targetUserIndexForCascade !== -1) {
-                             // siblingGroupId を決定 (既存があればそれ、なければ新規生成)
-                             const siblingGroupIdToUse = existingSiblingGroupId || `gid-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
+                             // siblingGroupId を決定 (リトライ開始時に決定できなかった場合のみ新規生成)
+                             if (siblingGroupIdToUse === null) {
+                                 siblingGroupIdToUse = `gid-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
+                                 console.log("カスケードフラグ設定: 新規 siblingGroupId を生成:", siblingGroupIdToUse);
+                             }
 
                              newModelMessage.isCascaded = true;
                              newModelMessage.isSelected = true; // 新しい応答を選択状態に
-                             newModelMessage.siblingGroupId = siblingGroupIdToUse;
+                             newModelMessage.siblingGroupId = siblingGroupIdToUse; // 確定した or 新規生成したIDを使用
 
                              // 最初の応答にもフラグとIDを設定 (まだ設定されていなければ)
-                             if (isRetry && firstResponseIndexForRetry !== -1 && !state.currentMessages[firstResponseIndexForRetry].isCascaded) {
+                             if (isRetry && firstResponseIndexForRetry !== -1 && state.currentMessages[firstResponseIndexForRetry] && !state.currentMessages[firstResponseIndexForRetry].isCascaded) {
                                  state.currentMessages[firstResponseIndexForRetry].isCascaded = true;
-                                 state.currentMessages[firstResponseIndexForRetry].siblingGroupId = siblingGroupIdToUse;
+                                 state.currentMessages[firstResponseIndexForRetry].siblingGroupId = siblingGroupIdToUse; // 同じIDを使用
                                  // 最初の応答は isSelected = false のまま
                                  console.log(`最初の応答 (index ${firstResponseIndexForRetry}) にフラグ設定: isCascaded=true, siblingGroupId=${siblingGroupIdToUse}`);
                              }
@@ -4017,11 +4022,6 @@
                     } else {
                         // 応答コンテンツがない場合は保存しない
                         console.log("モデル応答コンテンツがないため保存しません。");
-                        // ストリーミングプレースホルダーがあれば削除 (非ストリーミング時はない)
-                        // if (state.settings.streamingOutput) {
-                        //     const placeholder = document.getElementById(`streaming-message-${modelMessageIndex}`);
-                        //     if(placeholder) placeholder.remove();
-                        // }
                     }
                 } catch (error) { // API呼び出し、ストリーミング、中断エラーのハンドリング
                     console.error("Gemini呼び出し/処理中のエラー:", error);
@@ -4042,7 +4042,31 @@
                              finishReason: isAbort ? 'ABORTED' : (modelResponseMetadata.finishReason || 'ERROR'),
                              ...(modelResponseMetadata.safetyRatings && { safetyRatings: modelResponseMetadata.safetyRatings })
                          };
-                         // エラー時もカスケードフラグを引き継ぐか？ -> 一旦引き継がない
+
+                         // リトライ中の中断エラーの場合、カスケードフラグを設定
+                         if (isRetry && isAbort) {
+                             // siblingGroupIdToUse が null の場合のみ新規生成（リトライ開始時に既存IDがなかった場合）
+                             if (siblingGroupIdToUse === null) {
+                                 siblingGroupIdToUse = `gid-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
+                                 // このログは通常表示されなくなるはず
+                                 console.log("リトライ中断エラー: 新規 siblingGroupId を生成:", siblingGroupIdToUse);
+                             } else {
+                                 console.log("リトライ中断エラー: 既存の siblingGroupId を使用:", siblingGroupIdToUse); // 確認用ログ
+                             }
+                             partialMessage.isCascaded = true;
+                             partialMessage.siblingGroupId = siblingGroupIdToUse; // リトライ開始時に決定したIDを使用
+                             partialMessage.isSelected = true; // 中断されたものを選択状態にする
+                             console.log(`リトライ中断エラー: 部分メッセージにカスケードフラグ設定 (gid: ${siblingGroupIdToUse})`);
+
+                             // 最初の応答のカスケード化 (tryブロック内のロジックと同様)
+                             // state.currentMessages は partialMessage を push する前なので、元のインデックスでアクセス可能
+                             if (firstResponseIndexForRetry !== -1 && state.currentMessages[firstResponseIndexForRetry] && !state.currentMessages[firstResponseIndexForRetry].isCascaded) {
+                                 state.currentMessages[firstResponseIndexForRetry].isCascaded = true;
+                                 state.currentMessages[firstResponseIndexForRetry].siblingGroupId = siblingGroupIdToUse; // 同じIDを使用
+                                 console.log(`リトライ中断エラー: 最初の応答 (index ${firstResponseIndexForRetry}) にもフラグ設定: isCascaded=true, siblingGroupId=${siblingGroupIdToUse}`);
+                             }
+                         }
+
                          state.currentMessages.push(partialMessage);
                          try {
                              await dbUtils.saveChat(); // 部分的な状態を保存
@@ -4056,11 +4080,6 @@
                     } else {
                         // 部分コンテンツがない、または非ストリーミング時のエラー
                         uiUtils.displayError(displayErrorMessage, !isAbort);
-                        // ストリーミングプレースホルダーがあれば削除 (非ストリーミング時はない)
-                        // if (state.settings.streamingOutput) {
-                        //     const placeholder = document.getElementById(`streaming-message-${modelMessageIndex}`);
-                        //     if(placeholder) placeholder.remove();
-                        // }
                     }
                 } finally {
                     // 最終処理
