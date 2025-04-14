@@ -385,8 +385,8 @@
             /*padding-bottom: 80px;/* /* 入力エリアのスペース */
             z-index: 1; /* チャットコンテンツをオーバーレイより手前に */
             background-color: transparent; /* オーバーレイ/背景画像が見えるように */
-            /* overflow-y: auto; を overflow: auto; に変更して水平スクロールも可能に */
-            overflow: auto;
+            overflow-y: scroll; /* 縦スクロールバーを常に表示 */
+            overflow-x: auto;
             touch-action: pan-x pan-y pinch-zoom; /* 水平・垂直パン・ピンチズームを許可 */
             flex-grow: 1;
         }
@@ -1285,6 +1285,55 @@
         .custom-dialog .dialog-cancel-btn:hover:not(:disabled) {
             background-color: var(--bg-button-action-hover);
         }
+        /* --- 引用元表示スタイル --- */
+        .citation-details {
+            margin-top: 15px; /* メッセージ本文との間隔 */
+            font-size: 12px;
+            border-top: 1px dashed var(--border-secondary); /* 区切り線 */
+            padding-top: 8px;
+        }
+        .citation-details summary {
+            cursor: pointer;
+            font-weight: normal;
+            color: var(--text-secondary);
+            list-style: none; /* マーカーを消す */
+            display: inline-block; /* summaryの幅を内容に合わせる */
+            outline: none; /* フォーカス時のアウトラインを消す */
+            -webkit-tap-highlight-color: transparent; /* モバイルタップ時のハイライトを消す */
+        }
+        .citation-details summary::-webkit-details-marker { display: none; } /* Chrome/Safari */
+        .citation-details summary::marker { display: none; } /* Firefox */
+        .citation-details summary:hover {
+            text-decoration: underline;
+        }
+        .citation-list {
+            list-style: none;
+            padding-left: 0; /* 左のパディングを削除 */
+            margin-top: 8px;
+            margin-bottom: 0;
+        }
+        .citation-list li {
+            margin-bottom: 5px;
+            overflow-wrap: break-word; /* 長いURLやタイトルを折り返す */
+        }
+        .citation-list li a {
+            color: var(--text-link);
+            text-decoration: none; /* 下線はホバー時のみなど、お好みで */
+            display: block; /* リンク領域を広げる */
+        }
+        .citation-list li a:hover {
+            text-decoration: underline;
+        }
+        /* ダークモード用 */
+        body.dark-mode .citation-details {
+            border-top-color: var(--border-primary);
+        }
+        body.dark-mode .citation-details summary {
+            color: var(--text-secondary);
+        }
+        body.dark-mode .citation-list li a {
+            color: var(--text-link);
+        }
     </style>
     <script src="marked.js"></script>
 </head>
@@ -1445,7 +1494,18 @@
                        普通のストリーミングより生成待ち時間は長くなる。
                    </p>
                 </div>
-
+                <div class="settings-group">
+                    <h3>検索</h3>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="enable-grounding-toggle">
+                        ネットから情報を取得させる (Google Search)
+                    </label>
+                    <p style="font-size: 11px; color: var(--text-secondary); margin-top: -5px; margin-bottom: 10px;">
+                        ※ チェック時、モデルは回答生成のためにWeb検索を行う。<br>
+                        ※ 2.0以降でのみ対応(1.5以前は互換なし。エラーになる)<br>
+                        ※ 推論モデルは推論内で検索する場合があり、引用データが帰らない場合がある。
+                    </p>
+                </div>
                 <div class="settings-group">
                     <h3>イメージ画像</h3>
                     <label>チャット画面の背景画像:</label>
@@ -1566,7 +1626,7 @@
         const IMPORT_PREFIX = '(取込) ';
         const LIGHT_THEME_COLOR = '#4a90e2';
         const DARK_THEME_COLOR = '#007aff';
-        const APP_VERSION = "0.17"; // 起動時のスクロール処理とレイアウト調整
+        const APP_VERSION = "0.18"; // 検索機能の追加とレイアウト微調整
         const SWIPE_THRESHOLD = 50; // スワイプ判定の閾値 (px)
         const ZOOM_THRESHOLD = 1.01; // ズーム状態と判定するスケールの閾値 (誤差考慮)
 
@@ -1613,6 +1673,7 @@
             darkModeToggle: document.getElementById('dark-mode-toggle'),
             fontFamilyInput: document.getElementById('font-family-input'), // フォント指定入力
             hideSystemPromptToggle: document.getElementById('hide-system-prompt-toggle'), // SP非表示トグル
+            enableGroundingToggle: document.getElementById('enable-grounding-toggle'), // ネット検索トグル
             appVersionSpan: document.getElementById('app-version'),
             // 背景画像設定要素
             backgroundImageInput: document.getElementById('background-image-input'),
@@ -1672,6 +1733,7 @@
                 backgroundImageBlob: null, // デフォルト背景はnull
                 fontFamily: '', // デフォルトフォントは空 (CSS変数で定義)
                 hideSystemPromptInChat: false, // SP非表示設定 (デフォルトfalse)
+                enableGrounding: false, //ネット検索設定 (デフォルトfalse)
             },
             backgroundImageUrl: null, // 生成されたオブジェクトURL (DBには保存しない)
             isSending: false,
@@ -1868,6 +1930,8 @@
                                     }
                                 } else if (key === 'hideSystemPromptInChat') { // SP非表示設定
                                     state.settings[key] = loadedValue === true;
+                                } else if (key === 'enableGrounding') { // ネット検索設定
+                                    state.settings[key] = loadedValue === true;
                                 } else if (key === 'darkMode' || key === 'streamingOutput' || key === 'pseudoStreaming' || key === 'enterToSend' || key === 'concatDummyModel') {
                                      // その他の真偽値: 厳密にtrueかチェック
                                      state.settings[key] = loadedValue === true;
@@ -1950,6 +2014,7 @@
                         ...(msg.isCascaded !== undefined && { isCascaded: msg.isCascaded }),
                         ...(msg.isSelected !== undefined && { isSelected: msg.isSelected }),
                         ...(msg.siblingGroupId !== undefined && { siblingGroupId: msg.siblingGroupId }),
+                        ...(msg.groundingMetadata && { groundingMetadata: msg.groundingMetadata }),
                     }));
 
                     // タイトルを決定して保存を実行する内部関数
@@ -2208,7 +2273,7 @@
 
                 const contentDiv = document.createElement('div');
                 contentDiv.classList.add('message-content');
-
+                
                 try {
                     // モデルのメッセージで、ストリーミングプレースホルダーでなければMarkdownをパース
                     if (role === 'model' && !isStreamingPlaceholder && typeof marked !== 'undefined') {
@@ -2228,6 +2293,137 @@
                      const pre = document.createElement('pre'); pre.textContent = content; contentDiv.innerHTML = ''; contentDiv.appendChild(pre);
                 }
                 messageDiv.appendChild(contentDiv);
+                
+                const messageData = state.currentMessages[index]; // messageData をここで取得
+                if (role === 'model' && messageData && messageData.groundingMetadata &&
+                    ( (messageData.groundingMetadata.groundingChunks && messageData.groundingMetadata.groundingChunks.length > 0) ||
+                      (messageData.groundingMetadata.webSearchQueries && messageData.groundingMetadata.webSearchQueries.length > 0) )
+                   )
+                {
+                    try {
+                        const details = document.createElement('details');
+                        details.classList.add('citation-details'); // 既存のクラスを使用
+
+                        const summary = document.createElement('summary');
+                        // summary.textContent = '引用元と検索クエリを表示'; // テキスト変更も検討
+                        summary.textContent = '引用元/検索クエリ'; // より短く
+                        details.appendChild(summary);
+
+                        let detailsHasContent = false; // detailsに何か追加されたか追跡
+
+                        // --- 引用元リストの生成---
+                        if (messageData.groundingMetadata.groundingChunks && messageData.groundingMetadata.groundingChunks.length > 0) {
+                            const citationList = document.createElement('ul');
+                            citationList.classList.add('citation-list'); // 既存のクラス
+
+                            const citationMap = new Map();
+                            let displayIndexCounter = 1;
+                            if (messageData.groundingMetadata.groundingSupports) {
+                                messageData.groundingMetadata.groundingSupports.forEach(support => {
+                                    if (support.groundingChunkIndices) {
+                                        support.groundingChunkIndices.forEach(chunkIndex => {
+                                            if (!citationMap.has(chunkIndex) && chunkIndex >= 0 && chunkIndex < messageData.groundingMetadata.groundingChunks.length) {
+                                                const chunk = messageData.groundingMetadata.groundingChunks[chunkIndex];
+                                                if (chunk?.web?.uri) {
+                                                    citationMap.set(chunkIndex, {
+                                                        uri: chunk.web.uri,
+                                                        title: chunk.web.title || 'タイトル不明',
+                                                        displayIndex: displayIndexCounter++
+                                                    });
+                                                }
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+
+                            const sortedCitations = Array.from(citationMap.entries())
+                                                        .sort(([, a], [, b]) => a.displayIndex - b.displayIndex);
+
+                            sortedCitations.forEach(([chunkIndex, citationInfo]) => {
+                                const listItem = document.createElement('li');
+                                const link = document.createElement('a');
+                                link.href = citationInfo.uri;
+                                link.textContent = `[${citationInfo.displayIndex}] ${citationInfo.title}`;
+                                link.title = citationInfo.title;
+                                link.target = '_blank';
+                                link.rel = 'noopener noreferrer';
+                                listItem.appendChild(link);
+                                citationList.appendChild(listItem);
+                            });
+
+                            // フォールバック
+                            if (sortedCitations.length === 0) {
+                                 messageData.groundingMetadata.groundingChunks.forEach((chunk, idx) => {
+                                     if (chunk?.web?.uri) {
+                                         const listItem = document.createElement('li');
+                                         const link = document.createElement('a');
+                                         link.href = chunk.web.uri;
+                                         link.textContent = chunk.web.title || `ソース ${idx + 1}`;
+                                         link.title = chunk.web.title || 'タイトル不明';
+                                         link.target = '_blank';
+                                         link.rel = 'noopener noreferrer';
+                                         listItem.appendChild(link);
+                                         citationList.appendChild(listItem);
+                                     }
+                                 });
+                            }
+
+                            if (citationList.hasChildNodes()) {
+                                details.appendChild(citationList);
+                                detailsHasContent = true;
+                            }
+                        }
+                        // --- 引用元リストここまで ---
+
+                        // 検索クエリリストの生成
+                        if (messageData.groundingMetadata.webSearchQueries && messageData.groundingMetadata.webSearchQueries.length > 0) {
+                            // 引用元リストとクエリリストの間に区切り線を追加 (引用元がある場合のみ)
+                            if (detailsHasContent) {
+                                const separator = document.createElement('hr');
+                                separator.style.marginTop = '10px';
+                                separator.style.marginBottom = '8px';
+                                separator.style.border = 'none'; // デフォルトの線を消す
+                                separator.style.borderTop = '1px dashed var(--border-tertiary)'; // 破線に変更
+                                details.appendChild(separator);
+                            }
+
+                            const queryHeader = document.createElement('div');
+                            queryHeader.textContent = '検索に使用されたクエリ:';
+                            queryHeader.style.fontWeight = '500'; // 少し太く
+                            queryHeader.style.marginTop = detailsHasContent ? '0' : '8px'; // 上マージン調整
+                            queryHeader.style.marginBottom = '4px';
+                            queryHeader.style.fontSize = '11px';
+                            queryHeader.style.color = 'var(--text-secondary)';
+                            details.appendChild(queryHeader);
+
+                            const queryList = document.createElement('ul');
+                            queryList.classList.add('search-query-list'); // スタイル用クラス
+                            queryList.style.listStyle = 'none'; // リストマーカーなし
+                            queryList.style.paddingLeft = '0'; // パディングなし
+                            queryList.style.margin = '0'; // マージンなし
+                            queryList.style.fontSize = '11px';
+                            queryList.style.color = 'var(--text-secondary)';
+
+                            messageData.groundingMetadata.webSearchQueries.forEach(query => {
+                                const queryItem = document.createElement('li');
+                                queryItem.textContent = `• ${query}`; // ビュレットを手動で追加
+                                queryItem.style.marginBottom = '3px';
+                                queryList.appendChild(queryItem);
+                            });
+                            details.appendChild(queryList);
+                            detailsHasContent = true; // クエリが追加された
+                        }
+
+                        // details に内容が追加されていれば、メッセージ要素に追加
+                        if (detailsHasContent) {
+                            contentDiv.appendChild(details);
+                        }
+
+                    } catch (e) {
+                        console.error(`引用元/検索クエリ表示の生成中にエラーが発生しました (index: ${index}):`, e);
+                    }
+                }
 
                 // 編集用エリア (初期非表示)
                 const editArea = document.createElement('div');
@@ -2541,6 +2737,7 @@
                 elements.darkModeToggle.checked = state.settings.darkMode; // ダークモードチェックボックスに状態を適用
                 elements.fontFamilyInput.value = state.settings.fontFamily || ''; // フォント設定を適用
                 elements.hideSystemPromptToggle.checked = state.settings.hideSystemPromptInChat; // SP非表示設定
+                elements.enableGroundingToggle.checked = state.settings.enableGrounding; // ネット検索設定を適用
 
                 // ユーザー指定モデルをコンボボックスに追加
                 this.updateUserModelOptions();
@@ -2867,6 +3064,13 @@
                      ],
                 };
 
+                if (state.settings.enableGrounding) {
+                    requestBody.tools = [
+                        { "google_search": {} }
+                    ];
+                    console.log("グラウンディング (Google Search) を有効にしてAPIを呼び出します。");
+                }
+
                 console.log("Geminiへの送信データ:", JSON.stringify(requestBody, null, 2));
                 console.log("ターゲットエンドポイント:", endpoint);
 
@@ -2915,8 +3119,10 @@
                  const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
                  let buffer = ''; // 未処理のチャンクを保持するバッファ
                  let lastCandidateInfo = null; // 最後の候補者情報 (finishReasonなど)
-                 const textChunks = []; // 受信したテキストチャンクの配列
+                 const processedChunks = [];
                  let isCancelled = false; // キャンセルされたかどうかのフラグ
+                 let groundingMetadata = null; // groundingMetadata を保持する変数を追加
+                 let currentPartIndex = -1; // 現在処理中の part のインデックスを追跡
 
                  try {
                      while (true) {
@@ -2964,24 +3170,26 @@
                      // 最終的なメタデータを取得
                      const finishReason = lastCandidateInfo?.finishReason;
                      const safetyRatings = lastCandidateInfo?.safetyRatings;
+                     const finalGroundingMetadata = groundingMetadata;
 
                      // コンテンツなしで終了した場合の警告
-                     if (!isCancelled && textChunks.length === 0 && (!finishReason || finishReason === "STOP")) {
+                     if (!isCancelled && processedChunks.length === 0 && (!finishReason || finishReason === "STOP")) {
                          console.warn("ストリーミングがコンテンツなしで終了しました。");
                      }
 
                      console.log(`ストリーム処理終了。キャンセル: ${isCancelled}, 終了理由: ${finishReason}`);
                      // 結果オブジェクトを返す
                      return {
-                         textChunks,
+                         processedChunks: processedChunks,
                          finishReason: isCancelled ? 'ABORTED' : finishReason, // キャンセルされた場合は理由をABORTEDに
-                         safetyRatings
+                         safetyRatings,
+                         groundingMetadata: finalGroundingMetadata
                      };
                  } catch (error) {
                      // ストリーム処理中のエラー
                      console.error("ストリームの読み取り/処理エラー:", error);
                      // エラー発生時でも部分的なチャンクがあれば保持
-                     const partialChunksOnError = (error.message !== "リクエストがキャンセルされました.") ? textChunks : [];
+                     const partialChunksOnError = (error.message !== "リクエストがキャンセルされました.") ? processedChunks : [];
                      throw new Error(`ストリーミング処理エラー: ${error.message || error}`, { cause: { originalError: error, partialChunks: partialChunksOnError } });
                  } finally {
                      // ループ終了後、リーダーがまだ閉じておらず、キャンセルもされていない場合、クリーンアップのためにキャンセルを試みる
@@ -3032,11 +3240,30 @@
                          // 候補者データが含まれている場合
                          if (chunkData.candidates && chunkData.candidates.length > 0) {
                              lastCandidateInfo = chunkData.candidates[0]; // 最後の候補者情報を更新
-                             const textChunk = lastCandidateInfo?.content?.parts?.[0]?.text;
-                             if (typeof textChunk === 'string') {
-                                 textChunks.push(textChunk); // テキストチャンクを配列に追加
-                             } else {
-                                 console.log("テキストなしのストリームチャンク候補:", chunkData);
+                             
+                             // partsごとに解析
+                             if (lastCandidateInfo?.content?.parts) {
+                                 lastCandidateInfo.content.parts.forEach((part, partIndex) => {
+                                     const textChunk = part.text;
+                                     if (typeof textChunk === 'string') {
+                                         // 新しい part に移ったら、区切りマーカー (null) を追加
+                                         // (ただし、最初の part の前には追加しない)
+                                         if (partIndex > currentPartIndex && currentPartIndex !== -1) {
+                                             processedChunks.push(null); // null を区切りとして挿入
+                                             console.log("Part 区切りマーカー挿入"); // デバッグ用
+                                         }
+                                         processedChunks.push(textChunk); // テキストチャンクを追加
+                                         currentPartIndex = partIndex; // 現在の part インデックスを更新
+                                     }
+                                 });
+                             }
+                             
+                             // groundingMetadata を抽出・更新
+                             if (lastCandidateInfo.groundingMetadata) {
+                                 // ストリーミングでメタデータが部分的に来る場合、結合が必要かもしれない
+                                 // ここでは単純に最新のもので上書きする例 (要検証)
+                                 groundingMetadata = lastCandidateInfo.groundingMetadata;
+                                 // console.log("ストリームチャンクから groundingMetadata を取得:", groundingMetadata); // デバッグ用
                              }
                          } else if (chunkData.promptFeedback) { // プロンプトフィードバックの場合 (ブロックなど)
                              console.warn("ストリーム内のプロンプトフィードバック:", chunkData.promptFeedback);
@@ -3725,7 +3952,7 @@
             },
 
             // テキストを1文字ずつタイプ表示 (ストリーミング風)
-            async typeCharacterByCharacter(textChunks, messageIndex, signal, prefix = '') {
+            async typeCharacterByCharacter(processedChunks, messageIndex, signal, prefix = '') {
                 const speed = state.settings.streamingSpeed;
                 let accumulatedRawContent = prefix; // 初期値をprefixに
                 state.partialStreamContent = prefix; // 初期値をprefixに
@@ -3737,7 +3964,7 @@
 
                 // 速度設定が無効なら一括表示 (プレフィックス含む)
                 if (!speed || speed <= 0) {
-                    accumulatedRawContent = prefix + textChunks.join(''); // prefixを連結
+                    accumulatedRawContent = prefix + processedChunks.map(chunk => chunk === null ? '\n\n' : chunk).join('');
                     state.partialStreamContent = accumulatedRawContent;
                     uiUtils.updateStreamingMessage(messageIndex, ''); // 一括でUI更新
                     return accumulatedRawContent;
@@ -3745,18 +3972,32 @@
 
                 console.log(`タイピングエフェクト速度: ${speed}ms`);
                 // チャンクと文字をループ
-                for (const chunk of textChunks) {
-                    if(typeof chunk !== 'string') continue; // 文字列でないチャンクはスキップ
-                    for (const char of chunk) {
-                        // 中断シグナルをチェック
-                        if (signal.aborted) {
-                            console.log("タイピング中断");
-                            return accumulatedRawContent; // 中断時点のテキストを返す
+                for (const chunk of processedChunks) { // processedChunks をループ
+                    if (signal.aborted) {
+                        console.log("タイピング中断");
+                        return accumulatedRawContent;
+                    }
+
+                    // チャンクが区切りマーカー (null) かチェック
+                    if (chunk === null) {
+                        const separator = '\n\n';
+                        accumulatedRawContent += separator;
+                        state.partialStreamContent = accumulatedRawContent;
+                        // 区切り文字自体は表示しないが、UI更新はトリガーする
+                        uiUtils.updateStreamingMessage(messageIndex, '');
+                        // 区切り文字のための待機は不要かもしれない (お好みで await sleep(speed) を追加)
+                        console.log("タイピング: 区切り (\\n\\n) 追加"); // デバッグ用
+                    } else if (typeof chunk === 'string') { // 文字列チャンクの場合
+                        for (const char of chunk) {
+                            if (signal.aborted) {
+                                console.log("タイピング中断");
+                                return accumulatedRawContent;
+                            }
+                            accumulatedRawContent += char;
+                            state.partialStreamContent = accumulatedRawContent;
+                            uiUtils.updateStreamingMessage(messageIndex, char);
+                            await sleep(speed);
                         }
-                        accumulatedRawContent += char; // 生テキストに追加
-                        state.partialStreamContent = accumulatedRawContent; // 部分表示用コンテンツ更新
-                        uiUtils.updateStreamingMessage(messageIndex, char); // UI更新
-                        await sleep(speed); // 指定時間待機
                     }
                 }
                 console.log("タイピングエフェクト完了");
@@ -3913,6 +4154,7 @@
 
                 let modelResponseRawContent = ''; // モデル応答の生テキスト
                 let modelResponseMetadata = {}; // 応答メタデータ (finishReasonなど)
+                let groundingMetadata = null;
                 const modelMessageIndex = state.currentMessages.length; // 新しいモデル応答メッセージのインデックス
 
                 try {
@@ -3930,8 +4172,9 @@
                         // ストリームを処理
                         const streamResult = await apiUtils.handleStreamingResponse(response);
                         modelResponseMetadata = { finishReason: streamResult.finishReason, safetyRatings: streamResult.safetyRatings };
+                        groundingMetadata = streamResult.groundingMetadata;
                         // テキストチャンクをタイプ表示 (プレフィックスを渡す)
-                        modelResponseRawContent = await this.typeCharacterByCharacter(streamResult.textChunks, tempPlaceholderIndex, state.abortController.signal, dummyModelPrefix);
+                        modelResponseRawContent = await this.typeCharacterByCharacter(streamResult.processedChunks, tempPlaceholderIndex, state.abortController.signal, dummyModelPrefix);
                         // 中断された場合はエラーを投げる
                         if (modelResponseMetadata.finishReason === 'ABORTED' || state.abortController?.signal.aborted) {
                             throw new Error("リクエストがキャンセルされました。");
@@ -3947,7 +4190,8 @@
                         let rawContentFromApi = ""; // APIからの生コンテンツ
                         if (candidate) {
                             modelResponseMetadata = { finishReason: candidate.finishReason, safetyRatings: candidate.safetyRatings };
-                            rawContentFromApi = candidate.content?.parts?.[0]?.text || "";
+                            rawContentFromApi = candidate.content?.parts?.map(p => p.text || "").join('\n\n') || "";
+                            groundingMetadata = candidate.groundingMetadata || null;
                             if (candidate.finishReason && candidate.finishReason !== "STOP" && candidate.finishReason !== "MAX_TOKENS") {
                                 rawContentFromApi += `\n\n(理由: ${candidate.finishReason})`;
                             }
@@ -3973,7 +4217,8 @@
                              role: 'model',
                              content: modelResponseRawContent,
                              timestamp: Date.now(),
-                             ...modelResponseMetadata
+                             ...modelResponseMetadata,
+                             groundingMetadata: groundingMetadata
                          };
 
                          // --- カスケード関連フラグの設定 ---
@@ -4316,6 +4561,7 @@
                      darkMode: elements.darkModeToggle.checked,
                      fontFamily: elements.fontFamilyInput.value.trim(), // フォント設定を取得
                      hideSystemPromptInChat: elements.hideSystemPromptToggle.checked, // SP非表示設定
+                     enableGrounding: elements.enableGroundingToggle.checked, // ネット検索設定を取得
                  };
 
                  // --- 数値入力のバリデーション ---
