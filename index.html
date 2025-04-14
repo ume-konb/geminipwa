@@ -382,12 +382,13 @@
         }
 
         #chat-screen .main-content {
-            padding-bottom: 80px; /* 入力エリアのスペース */
+            /*padding-bottom: 80px;/* /* 入力エリアのスペース */
             z-index: 1; /* チャットコンテンツをオーバーレイより手前に */
             background-color: transparent; /* オーバーレイ/背景画像が見えるように */
             /* overflow-y: auto; を overflow: auto; に変更して水平スクロールも可能に */
             overflow: auto;
             touch-action: pan-x pan-y pinch-zoom; /* 水平・垂直パン・ピンチズームを許可 */
+            flex-grow: 1;
         }
         /* ヘッダーとフッターはオーバーレイより手前 */
         #chat-screen .app-header { z-index: 2; }
@@ -684,12 +685,12 @@
             border-top: 1px solid var(--border-primary);
             /* background-color は #chat-screen セレクタで指定 */
             flex-shrink: 0;
-            position: fixed; /* 画面下部に固定 */
-            bottom: 0;
-            left: 0;
-            right: 0;
-            max-width: 800px; /* app-container と同じ幅 */
-            margin: 0 auto;
+            /* position: fixed; */ /* ← 削除 */
+            /* bottom: 0; */ /* ← 削除 */
+            /* left: 0; */ /* ← 削除 */
+            /* right: 0; */ /* ← 削除 */
+            /* max-width: 800px; */ /* ← .app-container で制御されるため不要かも */
+            /* margin: 0 auto; */ /* ← 削除 */
             box-sizing: border-box;
             /* z-index は #chat-screen セレクタで指定 */
             transition: background-color 0.3s ease, border-color 0.3s ease;
@@ -1565,7 +1566,7 @@
         const IMPORT_PREFIX = '(取込) ';
         const LIGHT_THEME_COLOR = '#4a90e2';
         const DARK_THEME_COLOR = '#007aff';
-        const APP_VERSION = "0.16"; // 応答候補切り替え機能追加
+        const APP_VERSION = "0.17"; // 起動時のスクロール処理とレイアウト調整
         const SWIPE_THRESHOLD = 50; // スワイプ判定の閾値 (px)
         const ZOOM_THRESHOLD = 1.01; // ズーム状態と判定するスケールの閾値 (誤差考慮)
 
@@ -3137,6 +3138,7 @@
                     // UI調整
                     uiUtils.adjustTextareaHeight();
                     uiUtils.setSendingState(false); // 送信状態をリセット
+                    uiUtils.scrollToBottom();
                 }
             },
 
