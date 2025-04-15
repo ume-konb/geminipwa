@@ -1531,11 +1531,19 @@
                        <input type="checkbox" id="enter-to-send">
                        Enterキーで送信する
                    </label>
+                   <p style="height:10px"></p>
+                   <!-- ジェスチャー遷移ON/OFF -->
+                   <label class="checkbox-label">
+                       <input type="checkbox" id="swipe-navigation-toggle">
+                       チャット画面から左右スワイプで画面移動
+                   </label>
+                   <p style="height:10px"></p>
                    <!-- ダークモード切り替え -->
                    <label class="checkbox-label">
                        <input type="checkbox" id="dark-mode-toggle">
                        ダークモードを使用する
                    </label>
+                   <p style="height:10px"></p>
                    <!-- システムプロンプト非表示設定 -->
                    <label class="checkbox-label">
                        <input type="checkbox" id="hide-system-prompt-toggle">
@@ -1626,7 +1634,7 @@
         const IMPORT_PREFIX = '(取込) ';
         const LIGHT_THEME_COLOR = '#4a90e2';
         const DARK_THEME_COLOR = '#007aff';
-        const APP_VERSION = "0.18"; // 検索機能の追加とレイアウト微調整
+        const APP_VERSION = "0.19"; // 画面遷移ジェスチャーのON/OFF設定項目
         const SWIPE_THRESHOLD = 50; // スワイプ判定の閾値 (px)
         const ZOOM_THRESHOLD = 1.01; // ズーム状態と判定するスケールの閾値 (誤差考慮)
 
@@ -1704,6 +1712,7 @@
             promptInput: document.getElementById('promptDialog').querySelector('.dialog-input'),
             promptOkBtn: document.getElementById('promptDialog').querySelector('.dialog-ok-btn'),
             promptCancelBtn: document.getElementById('promptDialog').querySelector('.dialog-cancel-btn'),
+            swipeNavigationToggle: document.getElementById('swipe-navigation-toggle'),
         };
 
         // --- アプリ状態 ---
@@ -1734,6 +1743,7 @@
                 fontFamily: '', // デフォルトフォントは空 (CSS変数で定義)
                 hideSystemPromptInChat: false, // SP非表示設定 (デフォルトfalse)
                 enableGrounding: false, //ネット検索設定 (デフォルトfalse)
+                enableSwipeNavigation: true,
             },
             backgroundImageUrl: null, // 生成されたオブジェクトURL (DBには保存しない)
             isSending: false,
@@ -1931,6 +1941,8 @@
                                 } else if (key === 'hideSystemPromptInChat') { // SP非表示設定
                                     state.settings[key] = loadedValue === true;
                                 } else if (key === 'enableGrounding') { // ネット検索設定
+                                    state.settings[key] = loadedValue === true;
+                                } else if (key === 'enableSwipeNavigation') { // スワイプナビゲーション設定
                                     state.settings[key] = loadedValue === true;
                                 } else if (key === 'darkMode' || key === 'streamingOutput' || key === 'pseudoStreaming' || key === 'enterToSend' || key === 'concatDummyModel') {
                                      // その他の真偽値: 厳密にtrueかチェック
@@ -2738,6 +2750,7 @@
                 elements.fontFamilyInput.value = state.settings.fontFamily || ''; // フォント設定を適用
                 elements.hideSystemPromptToggle.checked = state.settings.hideSystemPromptInChat; // SP非表示設定
                 elements.enableGroundingToggle.checked = state.settings.enableGrounding; // ネット検索設定を適用
+                elements.swipeNavigationToggle.checked = state.settings.enableSwipeNavigation;
 
                 // ユーザー指定モデルをコンボボックスに追加
                 this.updateUserModelOptions();
@@ -3543,6 +3556,8 @@
 
             // --- スワイプ処理 (ズーム対応) ---
             handleTouchStart(event) {
+                if (!state.settings.enableSwipeNavigation) return;
+                
                 // マルチタッチ(ピンチ操作など)やズーム中はスワイプ開始点を記録しない
                 if (event.touches.length > 1 || state.isZoomed) {
                     state.touchStartX = 0; // 開始点をリセットしてスワイプ判定を無効化
@@ -3558,6 +3573,8 @@
             },
 
             handleTouchMove(event) {
+                if (!state.settings.enableSwipeNavigation) return;
+                
                 // 開始点がない、マルチタッチ、ズーム中は処理しない
                 if (!state.touchStartX || event.touches.length > 1 || state.isZoomed) {
                     return;
@@ -3585,6 +3602,11 @@
             },
 
             handleTouchEnd(event) {
+                 if (!state.settings.enableSwipeNavigation) {
+                     this.resetSwipeState(); // 状態はリセットしておく
+                     return;
+                 }
+
                  // ズーム状態を最終確認 (touchendまでに変わる可能性もあるため)
                  this.updateZoomState();
                  if (state.isZoomed) {
@@ -4562,6 +4584,7 @@
                      fontFamily: elements.fontFamilyInput.value.trim(), // フォント設定を取得
                      hideSystemPromptInChat: elements.hideSystemPromptToggle.checked, // SP非表示設定
                      enableGrounding: elements.enableGroundingToggle.checked, // ネット検索設定を取得
+                     enableSwipeNavigation: elements.swipeNavigationToggle.checked,//スワイプナビゲーション設定を取得
                  };
 
                  // --- 数値入力のバリデーション ---
@@ -4668,6 +4691,7 @@
                             backgroundImageBlob: null,
                             fontFamily: '', // フォントもリセット
                             hideSystemPromptInChat: false, // SP非表示もリセット
+                            enableSwipeNavigation: true, // スワイプナビゲーションのデフォルト値
                         };
                         state.backgroundImageUrl = null;
 
