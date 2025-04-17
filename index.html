@@ -72,6 +72,27 @@
             --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 
             --chat-background-image: none; /* チャット背景画像 (デフォルトなし) */
+            
+            /* ファイルアップロードダイアログ用 */
+            --bg-dialog-file-item: var(--bg-tertiary);
+            --border-dialog-file-item: var(--border-secondary);
+            --text-dialog-file-name: var(--text-primary);
+            --text-dialog-file-size: var(--text-secondary);
+            --bg-dialog-button-select: var(--bg-button-action);
+            --bg-dialog-button-select-hover: var(--bg-button-action-hover);
+            --bg-dialog-button-confirm: var(--bg-button-save);
+            --bg-dialog-button-confirm-hover: var(--bg-button-save-hover);
+            --bg-dialog-button-cancel: var(--bg-button-cancel);
+            --bg-dialog-button-cancel-hover: var(--bg-button-cancel-hover);
+
+            /* 添付ファイル表示用 */
+            --bg-attachment-details: rgba(0, 0, 0, 0.03);
+            --border-attachment-details: var(--border-tertiary);
+            --text-attachment-summary: var(--text-secondary);
+            --text-attachment-filename: var(--text-primary);
+            
+            --badge-color: #ffcc00; /* バッジの色 (黄色系) */
+            --badge-size: 12px;      /* バッジのサイズ */
         }
 
         body.dark-mode {
@@ -132,6 +153,24 @@
 
             --shadow-primary: rgba(255, 255, 255, 0.1);
             --shadow-secondary: rgba(0, 0, 0, 0.5);
+            
+            /* ファイルアップロードダイアログ用 (ダーク) */
+            --bg-dialog-file-item: var(--bg-secondary);
+            --border-dialog-file-item: var(--border-primary);
+            --text-dialog-file-name: var(--text-primary);
+            --text-dialog-file-size: var(--text-secondary);
+            --bg-dialog-button-select: var(--bg-button-action);
+            --bg-dialog-button-select-hover: var(--bg-button-action-hover);
+            --bg-dialog-button-confirm: var(--bg-button-save);
+            --bg-dialog-button-confirm-hover: var(--bg-button-save-hover);
+            --bg-dialog-button-cancel: var(--bg-button-cancel);
+            --bg-dialog-button-cancel-hover: var(--bg-button-cancel-hover);
+
+            /* 添付ファイル表示用 (ダーク) */
+            --bg-attachment-details: rgba(255, 255, 255, 0.05);
+            --border-attachment-details: var(--border-primary);
+            --text-attachment-summary: var(--text-secondary);
+            --text-attachment-filename: var(--text-primary);
         }
 
         /* --- リセットと基本スタイル --- */
@@ -694,6 +733,38 @@
             box-sizing: border-box;
             /* z-index は #chat-screen セレクタで指定 */
             transition: background-color 0.3s ease, border-color 0.3s ease;
+            gap: 10px; /* ボタン間のスペース */
+        }
+        /* 添付ファイルボタン */
+        .chat-input-area button#attach-file-btn {
+            height: 40px;
+            width: 40px;
+            padding: 0;
+            font-size: 20px;
+            font-weight: bold;
+            flex-shrink: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--bg-button-action); /* アクションボタンの色を使用 */
+            position: relative; /* バッジを配置するため */
+        }
+        /* 添付ファイルバッジのスタイル */
+        .attachment-badge {
+            position: absolute;
+            top: -4px; /* 上からの位置 */
+            right: -4px; /* 右からの位置 */
+            width: var(--badge-size);
+            height: var(--badge-size);
+            background-color: var(--badge-color);
+            border-radius: 50%;
+            border: 1px solid var(--bg-primary); /* 背景色で縁取り */
+            display: none; /* 初期状態は非表示 */
+            pointer-events: none; /* クリックを透過 */
+        }
+        /* 添付ファイルがある場合にバッジを表示 */
+        .chat-input-area button#attach-file-btn.has-attachments .attachment-badge {
+            display: block;
         }
         .chat-input-area textarea {
             flex-grow: 1;
@@ -701,7 +772,7 @@
             max-height: 120px;
             height: 40px;
             resize: none;
-            margin-right: 10px;
+            /* margin-right: 10px; gapで管理するため削除 */
             margin-bottom: 0;
             padding: 8px 10px;
             overflow-y: auto;
@@ -1334,6 +1405,159 @@
         body.dark-mode .citation-list li a {
             color: var(--text-link);
         }
+        /* --- 添付ファイル表示スタイル (ユーザーメッセージ内) --- */
+        .attachment-details {
+            margin-top: 10px;
+            font-size: 12px;
+            border: 1px solid var(--border-attachment-details);
+            border-radius: 5px;
+            background-color: var(--bg-attachment-details);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .attachment-details summary {
+            cursor: pointer;
+            font-weight: normal;
+            color: var(--text-attachment-summary);
+            list-style: none;
+            padding: 5px 10px;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+            display: flex; /* アイコン表示用 */
+            align-items: center; /* アイコン垂直中央揃え */
+            gap: 5px; /* アイコンとテキストの間隔 */
+        }
+        .attachment-details summary::-webkit-details-marker { display: none; }
+        .attachment-details summary::marker { display: none; }
+        .attachment-details summary::before { /* アイコン追加 */
+            content: '📎'; /* クリップアイコン */
+            font-size: 14px;
+            display: inline-block;
+        }
+        .attachment-details[open] summary {
+            border-bottom: 1px solid var(--border-attachment-details);
+        }
+        .attachment-list {
+            list-style: none;
+            padding: 8px 10px 5px 10px; /* 内側のパディング */
+            margin: 0;
+        }
+        .attachment-list li {
+            margin-bottom: 4px;
+            font-size: 10px;
+            color: var(--text-attachment-filename);
+            overflow-wrap: break-word;
+            white-space: nowrap; /* ファイル名は折り返さない */
+            overflow: hidden; /* はみ出した部分は隠す */
+            text-overflow: ellipsis; /* 省略記号 */
+            line-height: 1.4;
+        }
+
+        /* ファイルアップロードダイアログ固有スタイル */
+        #fileUploadDialog {
+            min-width: 320px;
+            max-width: 600px; /* 少し広め */
+            width: 90%;
+        }
+        .dialog-content { /* ダイアログ内の主要コンテンツエリア */
+            margin-bottom: 20px;
+        }
+        .file-upload-area {
+            margin-bottom: 15px;
+            text-align: center; /* ボタンを中央寄せ */
+        }
+        .file-upload-area .dialog-button { /* ダイアログ内のボタン共通スタイル */
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+        .file-upload-area #select-files-btn {
+            background-color: var(--bg-dialog-button-select);
+        }
+        .file-upload-area #select-files-btn:hover {
+            background-color: var(--bg-dialog-button-select-hover);
+        }
+        #selected-files-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 200px; /* スクロール可能にする */
+            overflow-y: auto;
+            border: 1px solid var(--border-secondary);
+            border-radius: 5px;
+            background-color: var(--bg-secondary); /* リスト背景 */
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .selected-file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border-dialog-file-item);
+            background-color: var(--bg-dialog-file-item);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .selected-file-item:last-child {
+            border-bottom: none;
+        }
+        .selected-file-info {
+            flex-grow: 1;
+            overflow: hidden; /* ファイル名が長い場合のため */
+            margin-right: 10px;
+        }
+        .selected-file-name {
+            display: block;
+            font-size: 14px;
+            color: var(--text-dialog-file-name);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .selected-file-size {
+            display: block;
+            font-size: 11px;
+            color: var(--text-dialog-file-size);
+        }
+        .remove-file-btn {
+            background-color: var(--bg-button-delete);
+            color: var(--text-light);
+            border: none;
+            border-radius: 15%; /* 丸ボタン */
+            width: 22px;
+            height: 22px;
+            min-width: 0 !important;
+            font-size: 14px;
+            line-height: 1;
+            padding: 0;
+            cursor: pointer;
+            flex-shrink: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .remove-file-btn:hover {
+            background-color: var(--bg-button-delete-hover);
+        }
+        #file-upload-notice {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 10px;
+            text-align: center;
+        }
+        /* ダイアログのアクションボタン */
+        #fileUploadDialog .dialog-actions {
+            margin-top: 20px; /* コンテンツとの間隔 */
+        }
+        #fileUploadDialog .dialog-actions #confirm-attach-btn {
+            background-color: var(--bg-dialog-button-confirm);
+        }
+        #fileUploadDialog .dialog-actions #confirm-attach-btn:hover:not(:disabled) {
+            background-color: var(--bg-dialog-button-confirm-hover);
+        }
+        #fileUploadDialog .dialog-actions #cancel-attach-btn {
+            background-color: var(--bg-dialog-button-cancel);
+        }
+        #fileUploadDialog .dialog-actions #cancel-attach-btn:hover:not(:disabled) {
+            background-color: var(--bg-dialog-button-cancel-hover);
+        }
     </style>
     <script src="marked.js"></script>
 </head>
@@ -1370,6 +1594,8 @@
             </main>
             <footer class="chat-input-area">
                 <textarea id="user-input" placeholder="メッセージを入力..." rows="1" aria-label="メッセージ入力"></textarea>
+                <!-- 添付ファイルボタンを追加 -->
+                <button id="attach-file-btn" title="ファイルを添付">+<span class="attachment-badge"></span></button>
                 <button id="send-button" title="送信">送</button>
             </footer>
         </div>
@@ -1426,6 +1652,7 @@
                     <select id="model-name" aria-label="モデル名">
                         <optgroup label="無料">
                             <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+                            <!--<option value="gemini-2.5-flash-preview-04-09">gemini-2.5-flash-preview-04-09</option>-->
                             <option value="gemini-2.5-pro-exp-03-25">gemini-2.5-pro-exp-03-25</option>
                         </optgroup>
                         <optgroup label="有料">
@@ -1467,6 +1694,23 @@
                             <input type="number" id="top-p" step="0.01" min="0" max="1" placeholder="例:0.95(0.0 - 1.0)" aria-label="Top P">
                         </div>
                     </div>
+                    
+                    <details style="margin-top: 15px;">
+                        <summary style="cursor: pointer; font-weight: normal; font-size: 14px; color: var(--text-link); margin-bottom: 10px;">その他パラメータ</summary>
+                        <div class="param-grid">
+                             <div>
+                                <label for="presence-penalty">Presence Penalty:</label>
+                                <input type="number" id="presence-penalty" step="0.1" min="-2.0" max="1.9" placeholder="例:0.0 (-2.0～2.0未満)" aria-label="Presence Penalty">
+                             </div>
+                             <div>
+                                <label for="frequency-penalty">Frequency Penalty:</label>
+                                <input type="number" id="frequency-penalty" step="0.1" min="-2.0" max="1.9" placeholder="例:0.0 (-2.0～2.0未満)" aria-label="Frequency Penalty">
+                            </div>
+                        </div>
+                        <p style="font-size: 11px; color: var(--text-secondary); margin-top: 8px;">
+                            ※ Presence/Frequency Penaltyは一部モデルでは非対応、APIエラーとなる場合あり
+                        </p>
+                    </details>
                 </div>
 
                 <div class="settings-group">
@@ -1612,6 +1856,33 @@
         </div>
     </dialog>
 
+    <!-- ファイルアップロードダイアログ -->
+    <dialog id="fileUploadDialog" class="custom-dialog">
+        <div class="dialog-content">
+            <div class="file-upload-area">
+                <input type="file" id="file-input" multiple accept="image/*,text/*,application/pdf,video/*,audio/*" class="hidden">
+                <button id="select-files-btn" class="dialog-button">ファイルを選択</button>
+            </div>
+            <ul id="selected-files-list">
+                <!-- 選択されたファイルがここに表示される -->
+                <!-- 例:
+                <li class="selected-file-item" data-file-index="0">
+                    <div class="selected-file-info">
+                        <span class="selected-file-name">example.jpg</span>
+                        <span class="selected-file-size">1.2 MB</span>
+                    </div>
+                    <button class="remove-file-btn" title="削除">×</button>
+                </li>
+                -->
+            </ul>
+            <p id="file-upload-notice">画像、テキスト、PDF、動画、音声などを添付可能</p>
+        </div>
+        <div class="dialog-actions">
+            <button id="cancel-attach-btn" value="cancel" class="dialog-cancel-btn">キャンセル</button>
+            <button id="confirm-attach-btn" value="ok" class="dialog-ok-btn" disabled>添付して閉じる</button>
+        </div>
+    </dialog>
+
     <script>
         // --- 定数 ---
         const DB_NAME = 'GeminiPWA_DB';
@@ -1634,9 +1905,11 @@
         const IMPORT_PREFIX = '(取込) ';
         const LIGHT_THEME_COLOR = '#4a90e2';
         const DARK_THEME_COLOR = '#007aff';
-        const APP_VERSION = "0.19"; // 画面遷移ジェスチャーのON/OFF設定項目
+        const APP_VERSION = "0.20"; // ファイルアップ機能、その他パラメータ追加
         const SWIPE_THRESHOLD = 50; // スワイプ判定の閾値 (px)
         const ZOOM_THRESHOLD = 1.01; // ズーム状態と判定するスケールの閾値 (誤差考慮)
+        const MAX_FILE_SIZE = 10 * 1024 * 1024; // 最大ファイルサイズ (例: 10MB)
+        const MAX_TOTAL_ATTACHMENT_SIZE = 50 * 1024 * 1024; // 1メッセージあたりの合計添付ファイルサイズ上限 (例: 50MB) - API制限も考慮
 
         // --- DOM要素 ---
         const elements = {
@@ -1671,6 +1944,8 @@
             maxTokensInput: document.getElementById('max-tokens'),
             topKInput: document.getElementById('top-k'),
             topPInput: document.getElementById('top-p'),
+            presencePenaltyInput: document.getElementById('presence-penalty'),
+            frequencyPenaltyInput: document.getElementById('frequency-penalty'),
             dummyUserInput: document.getElementById('dummy-user'),
             dummyModelInput: document.getElementById('dummy-model'),
             concatDummyModelCheckbox: document.getElementById('concat-dummy-model'), // ダミーモデル連結チェックボックス
@@ -1713,13 +1988,20 @@
             promptOkBtn: document.getElementById('promptDialog').querySelector('.dialog-ok-btn'),
             promptCancelBtn: document.getElementById('promptDialog').querySelector('.dialog-cancel-btn'),
             swipeNavigationToggle: document.getElementById('swipe-navigation-toggle'),
+            attachFileBtn: document.getElementById('attach-file-btn'),
+            fileUploadDialog: document.getElementById('fileUploadDialog'),
+            fileInput: document.getElementById('file-input'),
+            selectFilesBtn: document.getElementById('select-files-btn'),
+            selectedFilesList: document.getElementById('selected-files-list'),
+            confirmAttachBtn: document.getElementById('confirm-attach-btn'),
+            cancelAttachBtn: document.getElementById('cancel-attach-btn'),
         };
 
         // --- アプリ状態 ---
         const state = {
             db: null,
             currentChatId: null,
-            currentMessages: [], // メッセージオブジェクトには isCascaded, isSelected, siblingGroupId が含まれる可能性がある
+            currentMessages: [], // { role: 'user'|'model'|'error', content: string, timestamp: number, attachments?: { name: string, base64Data: string, mimeType: string }[], ... }
             currentSystemPrompt: '', // 現在のチャットのシステムプロンプト
             settings: { // デフォルト値
                 apiKey: '',
@@ -1731,6 +2013,8 @@
                 maxTokens: null,
                 topK: null,
                 topP: null,
+                presencePenalty: null,
+                frequencyPenalty: null,
                 dummyUser: '',
                 dummyModel: '',
                 concatDummyModel: false, // ダミーモデル連結設定
@@ -1758,6 +2042,9 @@
             isSwiping: false, // スワイプ中フラグ
             isZoomed: false, // ズーム状態フラグ
             currentScreen: 'chat', // 現在表示中の画面名 (戻るボタン制御用)
+            // ファイルアップロード用状態
+            selectedFilesForUpload: [], // { file: File, base64Data?: string, error?: string } ダイアログで選択中のファイル
+            pendingAttachments: [], // { name: string, base64Data: string, mimeType: string } 送信時にメッセージに添付されるファイル
         };
 
         function updateMessageMaxWidthVar() {
@@ -1782,6 +2069,29 @@
         // --- ユーティリティ関数 ---
         const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
+        // ファイルサイズを読みやすい形式にフォーマット
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // FileオブジェクトをBase64文字列に変換 (Promise)
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    // result は "data:mime/type;base64,..." の形式なので、ヘッダー部分を除去
+                    const base64String = reader.result.split(',')[1];
+                    resolve(base64String);
+                };
+                reader.onerror = error => reject(error);
+                reader.readAsDataURL(file); // Base64形式で読み込む
+            });
+        }
+        
         // --- Service Worker関連 ---
         function registerServiceWorker() {
             if ('serviceWorker' in navigator) {
@@ -1950,7 +2260,7 @@
                                 } else if (typeof defaultValue === 'number' || defaultValue === null) {
                                      // 数値 (オプションのものはnullを扱う)
                                      let num;
-                                     if (key === 'temperature' || key === 'topP') {
+                                     if (key === 'temperature' || key === 'topP' || key === 'presencePenalty' || key === 'frequencyPenalty') {
                                          num = parseFloat(loadedValue);
                                      } else { // streamingSpeed, maxTokens, topK
                                          num = parseInt(loadedValue, 10);
@@ -1959,7 +2269,7 @@
                                      // パース失敗、またはオプションパラメータがnull/空で読み込まれたかチェック
                                      if (isNaN(num)) {
                                          // パース失敗した場合、オプションパラメータで元々null/空が意図されていたかチェック
-                                         if ((key === 'temperature' || key === 'maxTokens' || key === 'topK' || key === 'topP') && (loadedValue === null || loadedValue === '')) {
+                                         if ((key === 'temperature' || key === 'maxTokens' || key === 'topK' || key === 'topP' || key === 'presencePenalty' || key === 'frequencyPenalty') && (loadedValue === null || loadedValue === '')) {
                                               state.settings[key] = null; // nullのままにする
                                          } else {
                                               state.settings[key] = defaultValue; // 不正な必須数値ならデフォルトにリセット
@@ -1971,6 +2281,7 @@
                                           if (key === 'topK' && num < 1) num = defaultValue;
                                           if (key === 'topP' && (num < 0 || num > 1)) num = defaultValue;
                                           if (key === 'streamingSpeed' && num < 0) num = defaultValue;
+                                          if ((key === 'presencePenalty' || key === 'frequencyPenalty') && (num < -2.0 || num > 2.0)) num = defaultValue;
                                           state.settings[key] = num;
                                      }
                                 } else if (typeof defaultValue === 'string') {
@@ -2027,6 +2338,8 @@
                         ...(msg.isSelected !== undefined && { isSelected: msg.isSelected }),
                         ...(msg.siblingGroupId !== undefined && { siblingGroupId: msg.siblingGroupId }),
                         ...(msg.groundingMetadata && { groundingMetadata: msg.groundingMetadata }),
+                        // 添付ファイル情報を追加 (存在すれば)
+                        ...(msg.attachments && msg.attachments.length > 0 && { attachments: msg.attachments }),
                     }));
 
                     // タイトルを決定して保存を実行する内部関数
@@ -2256,7 +2569,7 @@
                                 currentIndex: siblingIndex,
                                 total: siblingsInGroup.length,
                                 siblingGroupId: currentSiblingGroupId
-                            });
+                            }, msg.attachments); // attachments を渡す
                         } else {
                             // isSelected でないカスケードメッセージはDOMに追加しないか、hiddenクラスを付与
                             // ここではDOMに追加しない方針とする
@@ -2266,14 +2579,14 @@
                         // 通常のメッセージ (user, error, または非カスケード model)
                         currentSiblingGroupId = null; // グループをリセット
                         siblingsInGroup = [];
-                        this.appendMessage(msg.role, msg.content, i);
+                        this.appendMessage(msg.role, msg.content, i, false, null, msg.attachments); // attachments を渡す
                     }
                 }
                 //this.scrollToBottom(); // 最下部へスクロールは削除、呼び出し元の責任で行う
             },
 
             // メッセージをコンテナに追加
-            appendMessage(role, content, index, isStreamingPlaceholder = false, cascadeInfo = null) {
+            appendMessage(role, content, index, isStreamingPlaceholder = false, cascadeInfo = null, attachments = null) {
                 const messageDiv = document.createElement('div');
                 messageDiv.classList.add('message', role);
                 messageDiv.dataset.index = index; // state.currentMessages 内のインデックス
@@ -2286,23 +2599,52 @@
                 const contentDiv = document.createElement('div');
                 contentDiv.classList.add('message-content');
                 
-                try {
-                    // モデルのメッセージで、ストリーミングプレースホルダーでなければMarkdownをパース
-                    if (role === 'model' && !isStreamingPlaceholder && typeof marked !== 'undefined') {
-                        contentDiv.innerHTML = marked.parse(content || ''); // marked.jsでパース
-                    } else if (role === 'user') { // ユーザーメッセージはpreタグでそのまま表示
-                        const pre = document.createElement('pre'); pre.textContent = content; contentDiv.appendChild(pre);
-                    } else if (role === 'error') { // エラーメッセージ
-                         const p = document.createElement('p'); p.textContent = content; contentDiv.appendChild(p);
-                    } else if (isStreamingPlaceholder) { // ストリーミング中のプレースホルダー
-                        contentDiv.innerHTML = ''; // 最初は空
-                    } else { // その他の場合 (予期しないロールなど) はpreタグで表示
-                        const pre = document.createElement('pre'); pre.textContent = content; contentDiv.appendChild(pre);
+                // ユーザーメッセージで添付ファイルがある場合の処理
+                if (role === 'user' && attachments && attachments.length > 0) {
+                    const details = document.createElement('details');
+                    details.classList.add('attachment-details');
+
+                    const summary = document.createElement('summary');
+                    summary.textContent = `添付ファイル (${attachments.length}件)`;
+                    details.appendChild(summary);
+
+                    const list = document.createElement('ul');
+                    list.classList.add('attachment-list');
+                    attachments.forEach(att => {
+                        const listItem = document.createElement('li');
+                        listItem.textContent = att.name;
+                        listItem.title = `${att.name} (${att.mimeType})`; // ホバーで詳細表示
+                        list.appendChild(listItem);
+                    });
+                    details.appendChild(list);
+                    contentDiv.appendChild(details); // 最初に添付ファイル情報を追加
+
+                    // テキストコンテンツがあれば <pre> で追加
+                    if (content && content.trim() !== '') {
+                        const pre = document.createElement('pre');
+                        pre.textContent = content;
+                        // 添付ファイル情報とテキストの間に少しマージンを追加
+                        pre.style.marginTop = '8px';
+                        contentDiv.appendChild(pre);
                     }
-                } catch (e) {
-                     // Markdownパースエラー時
-                     console.error("Markdownパースエラー:", e);
-                     const pre = document.createElement('pre'); pre.textContent = content; contentDiv.innerHTML = ''; contentDiv.appendChild(pre);
+                } else {
+                    // 通常のコンテンツ処理 (既存ロジック)
+                    try {
+                        if (role === 'model' && !isStreamingPlaceholder && typeof marked !== 'undefined') {
+                            contentDiv.innerHTML = marked.parse(content || '');
+                        } else if (role === 'user') { // 添付ファイルがないユーザーメッセージ
+                            const pre = document.createElement('pre'); pre.textContent = content; contentDiv.appendChild(pre);
+                        } else if (role === 'error') {
+                             const p = document.createElement('p'); p.textContent = content; contentDiv.appendChild(p);
+                        } else if (isStreamingPlaceholder) {
+                            contentDiv.innerHTML = '';
+                        } else {
+                            const pre = document.createElement('pre'); pre.textContent = content; contentDiv.appendChild(pre);
+                        }
+                    } catch (e) {
+                         console.error("Markdownパースエラー:", e);
+                         const pre = document.createElement('pre'); pre.textContent = content; contentDiv.innerHTML = ''; contentDiv.appendChild(pre);
+                    }
                 }
                 messageDiv.appendChild(contentDiv);
                 
@@ -2739,6 +3081,8 @@
                 elements.maxTokensInput.value = state.settings.maxTokens === null ? '' : state.settings.maxTokens;
                 elements.topKInput.value = state.settings.topK === null ? '' : state.settings.topK;
                 elements.topPInput.value = state.settings.topP === null ? '' : state.settings.topP;
+                elements.presencePenaltyInput.value = state.settings.presencePenalty === null ? '' : state.settings.presencePenalty;
+                elements.frequencyPenaltyInput.value = state.settings.frequencyPenalty === null ? '' : state.settings.frequencyPenalty;
                 elements.dummyUserInput.value = state.settings.dummyUser || '';
                 elements.dummyModelInput.value = state.settings.dummyModel || '';
                 elements.concatDummyModelCheckbox.checked = state.settings.concatDummyModel;
@@ -2924,6 +3268,7 @@
                     elements.sendButton.title = "停止";
                     elements.sendButton.disabled = false; // 停止ボタンは常に有効
                     elements.userInput.disabled = true; // 入力欄無効化
+                    elements.attachFileBtn.disabled = true; // 添付ボタンも無効化
                     elements.loadingIndicator.classList.remove('hidden'); // ローディング表示
                     elements.loadingIndicator.setAttribute('aria-live', 'polite'); // スクリーンリーダー用
                     // システムプロンプト編集も不可にする
@@ -2936,6 +3281,7 @@
                     // 入力が空なら送信ボタン無効化
                     elements.sendButton.disabled = elements.userInput.value.trim() === '';
                     elements.userInput.disabled = false; // 入力欄有効化
+                    elements.attachFileBtn.disabled = false; // 添付ボタン有効化
                     elements.loadingIndicator.classList.add('hidden'); // ローディング非表示
                     elements.loadingIndicator.removeAttribute('aria-live');
                     // システムプロンプト編集を可能にする
@@ -3034,7 +3380,83 @@
 
                 const result = await this.showCustomDialog(elements.promptDialog, elements.promptInput);
                 return result; // 入力値またはnullを返す
-            }
+            },
+
+            // 添付ファイルバッジの表示/非表示を更新する関数
+            updateAttachmentBadgeVisibility() {
+                const hasAttachments = state.pendingAttachments.length > 0;
+                elements.attachFileBtn.classList.toggle('has-attachments', hasAttachments);
+                // console.log(`Attachment badge visibility updated: ${hasAttachments}`); // デバッグ用
+            },
+
+            // ファイルアップロードダイアログ表示
+            showFileUploadDialog() {
+                // state.pendingAttachments に基づいて selectedFilesForUpload を初期化
+                if (state.pendingAttachments.length > 0) {
+                    // pendingAttachments には { file: File, name: ..., mimeType: ..., base64Data: ... } が入っている
+                    // selectedFilesForUpload には { file: File } を格納する
+                    state.selectedFilesForUpload = state.pendingAttachments.map(att => ({ file: att.file }));
+                    console.log("送信待ちの添付ファイルをダイアログに復元:", state.selectedFilesForUpload.map(item => item.file.name));
+                } else {
+                    // 送信待ちファイルがなければクリア
+                    state.selectedFilesForUpload = [];
+                }
+
+                // UI更新は初期化後に行う
+                this.updateSelectedFilesUI();
+                elements.fileUploadDialog.showModal();
+                // ダイアログ表示時にもバッジ状態を更新 (キャンセルで戻った場合など)
+                this.updateAttachmentBadgeVisibility();
+            },
+
+            // 選択されたファイルリストのUIを更新 (変更なし、呼び出しタイミングが重要)
+            updateSelectedFilesUI() {
+                elements.selectedFilesList.innerHTML = ''; // リストをクリア
+                let totalSize = 0;
+                // selectedFilesForUpload には { file: File } が入っている
+                state.selectedFilesForUpload.forEach((item, index) => {
+                    const li = document.createElement('li');
+                    li.classList.add('selected-file-item');
+                    li.dataset.fileIndex = index;
+
+                    const infoDiv = document.createElement('div');
+                    infoDiv.classList.add('selected-file-info');
+
+                    const nameSpan = document.createElement('span');
+                    nameSpan.classList.add('selected-file-name');
+                    nameSpan.textContent = item.file.name;
+                    nameSpan.title = item.file.name;
+
+                    const sizeSpan = document.createElement('span');
+                    sizeSpan.classList.add('selected-file-size');
+                    sizeSpan.textContent = formatFileSize(item.file.size); // File オブジェクトからサイズ取得
+
+                    infoDiv.appendChild(nameSpan);
+                    infoDiv.appendChild(sizeSpan);
+
+                    const removeBtn = document.createElement('button');
+                    removeBtn.classList.add('remove-file-btn');
+                    removeBtn.title = '削除';
+                    removeBtn.textContent = '×';
+                    removeBtn.onclick = () => appLogic.removeSelectedFile(index);
+
+                    li.appendChild(infoDiv);
+                    li.appendChild(removeBtn);
+                    elements.selectedFilesList.appendChild(li);
+
+                    totalSize += item.file.size;
+                });
+
+                // 合計サイズチェック
+                if (totalSize > MAX_TOTAL_ATTACHMENT_SIZE) {
+                    elements.confirmAttachBtn.disabled = true;
+                    // アラートはファイル追加時に行う方が親切かもしれない
+                    // uiUtils.showCustomAlert(`合計ファイルサイズが大きすぎます (${formatFileSize(MAX_TOTAL_ATTACHMENT_SIZE)}以下にしてください)。`);
+                } else {
+                    // サイズが問題なければ常に有効化
+                    elements.confirmAttachBtn.disabled = false;
+                }
+            },
         };
 
         // --- APIユーティリティ (apiUtils) ---
@@ -3060,12 +3482,16 @@
                 console.log(`使用モード: ${useStreaming ? (usePseudo ? '疑似ストリーミング' : 'リアルタイムストリーミング') : '非ストリーミング'}`);
 
                 const endpoint = `${GEMINI_API_BASE_URL}${model}:${endpointMethod}key=${apiKey}`;
+                
+                const finalGenerationConfig = { ...generationConfig }; // コピーを作成
+                if (state.settings.presencePenalty !== null) finalGenerationConfig.presencePenalty = state.settings.presencePenalty;
+                if (state.settings.frequencyPenalty !== null) finalGenerationConfig.frequencyPenalty = state.settings.frequencyPenalty;
 
                 // リクエストボディを作成
                 const requestBody = {
                     contents: messagesForApi,
                     // generationConfigが空でない場合のみ追加
-                    ...(Object.keys(generationConfig).length > 0 && { generationConfig }),
+                    ...(Object.keys(finalGenerationConfig).length > 0 && { generationConfig: finalGenerationConfig }),
                     // systemInstructionが存在する場合のみ追加 (systemInstructionはオブジェクト形式)
                     ...(systemInstruction && systemInstruction.parts && systemInstruction.parts.length > 0 && systemInstruction.parts[0].text && { systemInstruction }),
                     // 安全性設定 (全てブロック解除)
@@ -3084,7 +3510,13 @@
                     console.log("グラウンディング (Google Search) を有効にしてAPIを呼び出します。");
                 }
 
-                console.log("Geminiへの送信データ:", JSON.stringify(requestBody, null, 2));
+                console.log("Geminiへの送信データ:", JSON.stringify(requestBody, (key, value) => {
+                    // Base64データはログで見やすく省略
+                    if (key === 'data' && typeof value === 'string' && value.length > 100) {
+                        return value.substring(0, 50) + '...[省略]...' + value.substring(value.length - 20);
+                    }
+                    return value;
+                }, 2));
                 console.log("ターゲットエンドポイント:", endpoint);
 
                 try {
@@ -3528,6 +3960,24 @@
                 // popstate イベントリスナー (戻るボタン/ジェスチャー対応)
                 window.addEventListener('popstate', this.handlePopState.bind(this));
                 console.log("popstate listener added.");
+                
+                // ファイルアップロード関連のイベントリスナー
+                elements.attachFileBtn.addEventListener('click', () => uiUtils.showFileUploadDialog());
+                elements.selectFilesBtn.addEventListener('click', () => elements.fileInput.click());
+                 // fileInput の change イベントリスナー
+                elements.fileInput.addEventListener('change', (event) => {
+                    this.handleFileSelection(event.target.files);
+                    // 処理が終わったら input の値をリセットする
+                    event.target.value = null;
+                });
+                elements.confirmAttachBtn.addEventListener('click', () => this.confirmAttachment());
+                elements.cancelAttachBtn.addEventListener('click', () => this.cancelAttachment());
+                // ダイアログ自体を閉じた時もキャンセル扱い
+                elements.fileUploadDialog.addEventListener('close', () => {
+                    if (elements.fileUploadDialog.returnValue !== 'ok') {
+                        this.cancelAttachment(); // OK以外で閉じたらキャンセル
+                    }
+                });
             },
 
             // popstateイベントハンドラ (戻るボタン/ジェスチャー)
@@ -3672,6 +4122,15 @@
                     if (!confirmed) return;
                     this.cancelEditSystemPrompt();
                 }
+                
+                // 保留中の添付ファイルがあれば破棄確認
+                if (state.pendingAttachments.length > 0) {
+                    const confirmedAttach = await uiUtils.showCustomConfirm("添付準備中のファイルがあります。破棄して新規チャットを開始しますか？");
+                    if (!confirmedAttach) return;
+                    state.pendingAttachments = []; // 破棄
+                    uiUtils.updateAttachmentBadgeVisibility(); // バッジ状態更新
+                }
+                
                 // 現在のチャットにメッセージまたはシステムプロンプトがあり、IDもあれば保存を試みる
                 if ((state.currentMessages.length > 0 || state.currentSystemPrompt) && state.currentChatId) {
                     try {
@@ -3692,6 +4151,7 @@
                 state.currentChatId = null; // IDリセット
                 state.currentMessages = []; // メッセージクリア
                 state.currentSystemPrompt = state.settings.systemPrompt; // デフォルトのシステムプロンプトを適用
+                state.pendingAttachments = []; // 保留中の添付ファイルをクリア
                 uiUtils.updateSystemPromptUI(); // システムプロンプトUI更新
                 uiUtils.renderChatMessages(); // 表示クリア
                 uiUtils.updateChatTitle(); // タイトルを「新規チャット」に
@@ -3702,31 +4162,42 @@
 
             // 指定IDのチャットを読み込む
             async loadChat(id) {
-                 // 送信中なら中断確認
-                 if (state.isSending) {
-                     const confirmed = await uiUtils.showCustomConfirm("送信中です。中断して別のチャットを読み込みますか？");
-                     if (!confirmed) return;
-                     this.abortRequest();
-                 }
-                 // 編集中なら破棄確認
-                 if (state.editingMessageIndex !== null) {
-                     const confirmed = await uiUtils.showCustomConfirm("編集中です。変更を破棄して別のチャットを読み込みますか？");
-                     if (!confirmed) return;
-                     const msgEl = elements.messageContainer.querySelector(`.message[data-index="${state.editingMessageIndex}"]`);
-                     this.cancelEditMessage(state.editingMessageIndex, msgEl);
-                 }
-                 // システムプロンプト編集中なら破棄確認
-                 if (state.isEditingSystemPrompt) {
-                     const confirmed = await uiUtils.showCustomConfirm("システムプロンプト編集中です。変更を破棄して別のチャットを読み込みますか？");
-                     if (!confirmed) return;
-                     this.cancelEditSystemPrompt();
-                 }
+                // 送信中なら中断確認
+                if (state.isSending) {
+                    const confirmed = await uiUtils.showCustomConfirm("送信中です。中断して別のチャットを読み込みますか？");
+                    if (!confirmed) return;
+                    this.abortRequest();
+                }
+                // 編集中なら破棄確認
+                if (state.editingMessageIndex !== null) {
+                    const confirmed = await uiUtils.showCustomConfirm("編集中です。変更を破棄して別のチャットを読み込みますか？");
+                    if (!confirmed) return;
+                    const msgEl = elements.messageContainer.querySelector(`.message[data-index="${state.editingMessageIndex}"]`);
+                    this.cancelEditMessage(state.editingMessageIndex, msgEl);
+                }
+                // システムプロンプト編集中なら破棄確認
+                if (state.isEditingSystemPrompt) {
+                    const confirmed = await uiUtils.showCustomConfirm("システムプロンプト編集中です。変更を破棄して別のチャットを読み込みますか？");
+                    if (!confirmed) return;
+                    this.cancelEditSystemPrompt();
+                }
+                // 保留中の添付ファイルがあれば破棄確認
+                if (state.pendingAttachments.length > 0) {
+                    const confirmedAttach = await uiUtils.showCustomConfirm("添付準備中のファイルがあります。破棄して別のチャットを読み込みますか？");
+                    if (!confirmedAttach) return;
+                    state.pendingAttachments = []; // 破棄
+                    uiUtils.updateAttachmentBadgeVisibility(); // バッジ状態更新
+                }
 
                 try {
                     const chat = await dbUtils.getChat(id); // DBからチャット取得
                     if (chat) {
                         state.currentChatId = chat.id;
-                        state.currentMessages = chat.messages || []; // メッセージをstateに設定
+                        // attachments も含めて読み込む (DBに保存されていれば)
+                        state.currentMessages = chat.messages?.map(msg => ({
+                            ...msg,
+                            attachments: msg.attachments || [] // attachmentsがなければ空配列
+                        })) || [];
 
                         // --- カスケード応答の isSelected を正規化 ---
                         let needsSave = false;
@@ -3748,6 +4219,7 @@
 
                         // システムプロンプトを読み込み (存在しなければデフォルトを使用)
                         state.currentSystemPrompt = chat.systemPrompt !== undefined ? chat.systemPrompt : state.settings.systemPrompt;
+                        state.pendingAttachments = []; // 保留中の添付ファイルをクリア
                         uiUtils.updateSystemPromptUI(); // システムプロンプトUI更新
                         uiUtils.renderChatMessages(); // メッセージ表示更新 (正規化された isSelected を反映)
                         uiUtils.updateChatTitle(chat.title); // タイトル更新
@@ -3786,6 +4258,12 @@
                 if (state.editingMessageIndex !== null) { const conf = await uiUtils.showCustomConfirm("編集中です。変更を破棄してチャットを複製しますか？"); if (!conf) return; const msgEl = elements.messageContainer.querySelector(`.message[data-index="${state.editingMessageIndex}"]`); this.cancelEditMessage(state.editingMessageIndex, msgEl); }
                 if (state.isEditingSystemPrompt) { const conf = await uiUtils.showCustomConfirm("システムプロンプト編集中です。変更を破棄してチャットを複製しますか？"); if (!conf) return; this.cancelEditSystemPrompt(); }
                 if ((state.currentMessages.length > 0 || state.currentSystemPrompt) && state.currentChatId && state.currentChatId !== id) { try { await dbUtils.saveChat(); } catch (error) { console.error("複製前の現チャット保存失敗:", error); const conf = await uiUtils.showCustomConfirm("現在のチャット保存に失敗しました。複製を続行しますか？"); if (!conf) return; } }
+                // 保留中の添付ファイルがあれば破棄確認
+                if (state.pendingAttachments.length > 0) {
+                    const confirmedAttach = await uiUtils.showCustomConfirm("添付準備中のファイルがあります。破棄してチャットを複製しますか？");
+                    if (!confirmedAttach) return;
+                    state.pendingAttachments = []; // 破棄
+                }
 
                 try {
                     const chat = await dbUtils.getChat(id); // 複製元を取得
@@ -3799,6 +4277,8 @@
                         const groupIdMap = new Map(); // 古いGroupId -> 新しいGroupId
                         (chat.messages || []).forEach(msg => {
                             const newMsg = JSON.parse(JSON.stringify(msg)); // ディープコピー
+                            // attachments もコピー (Base64データも含まれる)
+                            newMsg.attachments = msg.attachments ? JSON.parse(JSON.stringify(msg.attachments)) : [];
                             // 新しいフラグもコピー (isSelected は後で調整)
                             newMsg.isCascaded = msg.isCascaded ?? false;
                             newMsg.isSelected = msg.isSelected ?? false;
@@ -3880,6 +4360,11 @@
                                      if (msg.isSelected) attributes += ' isSelected';
                                      // siblingGroupId はエクスポートしない方針
                                  }
+                                 // 添付ファイル情報を属性として追加 (ファイル名のみ)
+                                 if (msg.role === 'user' && msg.attachments && msg.attachments.length > 0) {
+                                     const fileNames = msg.attachments.map(a => a.name).join(';'); // ファイル名をセミコロン区切りで
+                                     attributes += ` attachments="${fileNames.replace(/"/g, '&quot;')}"`; // 属性値としてエンコード
+                                 }
                                  exportText += `<|#|${msg.role}|#|${attributes}>\n${msg.content}\n<|#|/${msg.role}|#|>\n\n`;
                              }
                          });
@@ -3917,7 +4402,7 @@
                         // 2. 表示中チャット削除なら内部状態リセット
                         if (isDeletingCurrent) {
                             console.log("表示中のチャットが削除されたため、内部状態を新規チャットにリセット。");
-                            this.startNewChat(); // 状態リセットのみ
+                            this.startNewChat(); // pendingAttachments もクリアされる
                         }
 
                         // 3. 履歴画面での操作ならリストUI更新 & 状態リセット判定
@@ -4027,189 +4512,178 @@
             },
 
             // 送信処理 (リトライ時も使用)
-            async handleSend(isRetry = false, retryMessagesForApi = null) { // 引数名変更
-                // 編集中は送信不可
-                if (state.editingMessageIndex !== null) {
-                    await uiUtils.showCustomAlert("他のメッセージを編集中です。");
-                    return;
-                }
-                // システムプロンプト編集中は送信不可
-                if (state.isEditingSystemPrompt) {
-                    await uiUtils.showCustomAlert("システムプロンプトを編集中です。");
-                    return;
-                }
-                // 送信するテキストを取得 (リトライ時は最後のメッセージ、通常は入力欄)
-                const text = isRetry ? retryMessagesForApi[retryMessagesForApi.length - 1].content : elements.userInput.value.trim();
+            async handleSend(isRetry = false, retryUserMessageIndex = -1) {
+                // (既存の編集/送信中/SP編集チェックは省略)
+                if (state.editingMessageIndex !== null) { await uiUtils.showCustomAlert("他のメッセージを編集中です。"); return; }
+                if (state.isEditingSystemPrompt) { await uiUtils.showCustomAlert("システムプロンプトを編集中です。"); return; }
 
-                // 送信中、またはテキストが空の場合は何もしない (リトライ時は空でもOK)
-                if (state.isSending || (!text && !isRetry)) {
-                    if(!text && !isRetry) console.log("入力が空です。");
-                    return;
-                }
-                // APIキーチェック
-                if (!state.settings.apiKey) {
-                    await uiUtils.showCustomAlert("APIキーが設定されていません。設定画面を開きます。");
-                    uiUtils.showScreen('settings');
-                    return;
+                // 送信するテキストと添付ファイルを取得
+                let text = '';
+                let attachmentsToSend = [];
+                if (isRetry) {
+                    // リトライ時は retryUserMessageIndex を使って state.currentMessages から取得
+                    const retryUserMessage = state.currentMessages[retryUserMessageIndex];
+                    if (!retryUserMessage || retryUserMessage.role !== 'user') {
+                        console.error("リトライ対象のユーザーメッセージが見つかりません。", retryUserMessageIndex);
+                        uiUtils.setSendingState(false); // 送信状態を解除
+                        return;
+                    }
+                    text = retryUserMessage.content || '';
+                    attachmentsToSend = retryUserMessage.attachments ? [...retryUserMessage.attachments] : []; // コピーして使用
+                } else {
+                    // 通常送信時
+                    text = elements.userInput.value.trim();
+                    attachmentsToSend = [...state.pendingAttachments]; // 保留中のファイルを使用
                 }
 
-                uiUtils.setSendingState(true); // 送信状態開始
-                state.partialStreamContent = ''; // 部分コンテンツリセット
+                // 送信中、またはテキストも添付ファイルもない場合は何もしない
+                if (state.isSending || (!text && attachmentsToSend.length === 0)) {
+                    if(!text && attachmentsToSend.length === 0) console.log("入力も添付ファイルもありません。");
+                    return;
+                }
+                if (!state.settings.apiKey) { await uiUtils.showCustomAlert("APIキーが設定されていません。設定画面を開きます。"); uiUtils.showScreen('settings'); return; }
 
-                let userMessageIndex = -1; // リトライ時に使うユーザーメッセージのインデックス
-                let existingSiblingGroupId = null; // catchブロックからも参照するためここで宣言
-                let firstResponseIndexForRetry = -1; // リトライ時に最初の応答のインデックスを保持
-                let siblingGroupIdToUse = null; // try/catch 両方から参照できるようここで宣言＆初期化
+                uiUtils.setSendingState(true);
+                state.partialStreamContent = '';
+
+                // userMessageIndex はリトライ時は引数から、通常送信時は追加後に決定
+                let userMessageIndex = isRetry ? retryUserMessageIndex : -1;
+                let existingSiblingGroupId = null;
+                let firstResponseIndexForRetry = -1;
+                let siblingGroupIdToUse = null;
 
                 // 通常送信の場合、ユーザーメッセージをリストとUIに追加
                 if (!isRetry) {
-                    const userMessage = { role: 'user', content: text, timestamp: Date.now() };
+                    const userMessage = {
+                        role: 'user',
+                        content: text,
+                        timestamp: Date.now(),
+                        attachments: attachmentsToSend // 添付ファイルを追加
+                    };
                     state.currentMessages.push(userMessage);
-                    userMessageIndex = state.currentMessages.length - 1;
-                    uiUtils.appendMessage(userMessage.role, userMessage.content, userMessageIndex);
-                    elements.userInput.value = ''; // 入力欄クリア
+                    userMessageIndex = state.currentMessages.length - 1; // ここでインデックス確定
+                    uiUtils.appendMessage(userMessage.role, userMessage.content, userMessageIndex, false, null, userMessage.attachments);
+                    elements.userInput.value = '';
+                    state.pendingAttachments = []; // 保留中の添付ファイルをクリア
                     uiUtils.adjustTextareaHeight();
                     uiUtils.scrollToBottom();
                 } else {
-                    // リトライの場合
-                    // API送信用履歴の最後のメッセージがリトライ対象のユーザーメッセージ
-                    // state.currentMessages 内でのインデックスを探す
-                    userMessageIndex = state.currentMessages.findIndex(msg => msg === retryMessagesForApi[retryMessagesForApi.length - 1]);
-                    if (userMessageIndex === -1) {
-                        console.error("リトライ対象のユーザーメッセージが state.currentMessages に見つかりません。");
-                        uiUtils.setSendingState(false);
-                        return; // エラー処理
-                    }
-                    console.log("リトライ開始:", state.currentMessages[userMessageIndex]);
-
-                    // siblingGroupIdの決定を try ブロックに入る前に行う
+                    // リトライの場合の siblingGroupId 決定ロジック (変更なし、userMessageIndex を使用)
+                    console.log("リトライ処理開始 (handleSend内):", state.currentMessages[userMessageIndex]);
                     let siblingStartIndex = userMessageIndex + 1;
                     while (siblingStartIndex < state.currentMessages.length && state.currentMessages[siblingStartIndex].role !== 'model') {
-                        siblingStartIndex++; // ユーザーの次にモデル以外があればスキップ
+                        siblingStartIndex++;
                     }
-
                     if (siblingStartIndex < state.currentMessages.length && state.currentMessages[siblingStartIndex].role === 'model') {
-                         // 最初の応答が見つかった
                          firstResponseIndexForRetry = siblingStartIndex;
                          const firstResponse = state.currentMessages[firstResponseIndexForRetry];
                          if (firstResponse.isCascaded && firstResponse.siblingGroupId) {
-                             // 既存のグループが見つかった
-                             existingSiblingGroupId = firstResponse.siblingGroupId; // 既存IDを取得
-                             // 同じ siblingGroupId を持つすべてのメッセージの isSelected を false に設定
+                             existingSiblingGroupId = firstResponse.siblingGroupId;
                              state.currentMessages.forEach(msg => {
                                  if (msg.siblingGroupId === existingSiblingGroupId) {
                                      msg.isSelected = false;
                                  }
                              });
                              console.log(`リトライ: 既存の応答グループ (${existingSiblingGroupId}) の isSelected を false に設定.`);
-                             siblingGroupIdToUse = existingSiblingGroupId; // 確定したIDを代入
+                             siblingGroupIdToUse = existingSiblingGroupId;
                          } else {
-                             // 最初の応答だが、まだグループ化されていない場合
                              console.log("リトライ: 最初の応答を新しいカスケードグループに含めます。");
-                             // siblingGroupIdToUse は null のまま -> try または catch ブロック内で生成される
                          }
                     } else {
-                        // ユーザーメッセージの後にモデル応答がない場合
                         console.warn("リトライ対象のユーザーメッセージの後にモデル応答が見つかりません。");
-                        // siblingGroupIdToUse は null のまま
                     }
                 }
 
-                // APIに送信するメッセージリストを準備
-                // リトライ時は渡されたもの、通常は現在の全メッセージから生成
-                const messagesToProcess = isRetry ? [...retryMessagesForApi] : [...state.currentMessages];
+                // APIに送信するメッセージリストを準備 (state.currentMessages を使用)
+                //    リトライ時は userMessageIndex まで、通常時は全体
+                const messagesToProcess = isRetry
+                    ? state.currentMessages.slice(0, userMessageIndex + 1)
+                    : [...state.currentMessages];
 
-                // 送信する前に現在のチャット状態を保存 (タイトルも推測して保存)
+                // (既存の送信前チャット保存ロジックは省略)
                 try {
                     let titleToSave = null;
-                    // 既存チャットならタイトルを取得
                     if(state.currentChatId) {
                         const currentChat = await dbUtils.getChat(state.currentChatId);
                         if(currentChat) titleToSave = currentChat.title;
                     }
-                    // タイトルがなければ最初のユーザーメッセージから推測
                     if (!titleToSave) {
                         const firstUserMsg = state.currentMessages.find(m => m.role === 'user');
                         if(firstUserMsg) {
                             titleToSave = firstUserMsg.content.substring(0, 50);
                         }
                     }
-                    await dbUtils.saveChat(titleToSave); // タイトルを指定して保存 (systemPrompt, isSelectedなども保存される)
+                    await dbUtils.saveChat(titleToSave);
                 } catch (error) {
                     console.error("送信前のチャット保存失敗:", error);
                     uiUtils.displayError("チャットの保存に失敗しましたが、送信を試みます。", false);
                 }
 
-                // APIリクエスト用の形式に変換 (userは常に、modelは条件付き)
+                // APIリクエスト用の形式に変換 (messagesToProcess を使用)
                 const apiMessages = messagesToProcess
                     .filter(msg => {
-                        if (msg.role === 'user') {
-                            return true; // ユーザーメッセージは常に含める
-                        }
-                        if (msg.role === 'model') {
-                            // モデルメッセージの場合:
-                            // isCascaded でない (通常の応答) か、
-                            // isCascaded であり、かつ isSelected である (選択中のカスケード応答) 場合に true を返す
-                            return !msg.isCascaded || (msg.isCascaded && msg.isSelected);
-                        }
-                        return false; // その他のロールは含めない (エラーメッセージなど)
+                        if (msg.role === 'user') return true;
+                        if (msg.role === 'model') return !msg.isCascaded || (msg.isCascaded && msg.isSelected);
+                        return false;
                     })
-                    .map(msg => ({ role: msg.role, parts: [{ text: msg.content }] })); // API形式に変換
+                    .map(msg => {
+                        const parts = [];
+                        if (msg.content && msg.content.trim() !== '') {
+                            parts.push({ text: msg.content });
+                        }
+                        if (msg.role === 'user' && msg.attachments && msg.attachments.length > 0) {
+                            msg.attachments.forEach(att => {
+                                parts.push({
+                                    inlineData: {
+                                        mimeType: att.mimeType,
+                                        data: att.base64Data
+                                    }
+                                });
+                            });
+                        }
+                        return { role: msg.role, parts: parts };
+                    });
 
-                // ダミープロンプトを追加 (設定されていれば)
+                // (既存のダミープロンプト、generationConfig、systemInstruction生成ロジックは省略)
                 const dummyUserText = state.settings.dummyUser?.trim();
                 const dummyModelText = state.settings.dummyModel?.trim();
                 if (dummyUserText) apiMessages.push({ role: 'user', parts: [{ text: dummyUserText }] });
                 if (dummyModelText) apiMessages.push({ role: 'model', parts: [{ text: dummyModelText }] });
-
-                // 生成設定 (generationConfig) を作成
                 const generationConfig = {};
                 if (state.settings.temperature !== null) generationConfig.temperature = state.settings.temperature;
                 if (state.settings.maxTokens !== null) generationConfig.maxOutputTokens = state.settings.maxTokens;
                 if (state.settings.topK !== null) generationConfig.topK = state.settings.topK;
                 if (state.settings.topP !== null) generationConfig.topP = state.settings.topP;
-
-                // システムプロンプト (systemInstruction) を作成 (現在のチャットのものを使用)
                 const systemInstruction = state.currentSystemPrompt?.trim()
                     ? { role: "system", parts: [{ text: state.currentSystemPrompt.trim() }] }
                     : null;
 
-                let modelResponseRawContent = ''; // モデル応答の生テキスト
-                let modelResponseMetadata = {}; // 応答メタデータ (finishReasonなど)
+                let modelResponseRawContent = '';
+                let modelResponseMetadata = {};
                 let groundingMetadata = null;
-                const modelMessageIndex = state.currentMessages.length; // 新しいモデル応答メッセージのインデックス
+                // modelMessageIndex の決定は不要になった (応答は常に末尾に追加される)
 
                 try {
-                    // API呼び出し
+                    // (既存のAPI呼び出し、ストリーミング/非ストリーミング処理は省略)
                     const response = await apiUtils.callGeminiApi(apiMessages, generationConfig, systemInstruction);
-
-                    // プレフィックスを決定 (ダミーモデル連結用)
                     const dummyModelPrefix = (state.settings.concatDummyModel && state.settings.dummyModel) ? state.settings.dummyModel : '';
-
-                    // ストリーミング処理
                     if (state.settings.streamingOutput) {
-                        // プレースホルダーを追加 (一時的なもの)
-                        const tempPlaceholderIndex = state.currentMessages.length; // 実際の追加前にインデックス確保
+                        const tempPlaceholderIndex = state.currentMessages.length;
                         uiUtils.appendMessage('model', '', tempPlaceholderIndex, true);
-                        // ストリームを処理
                         const streamResult = await apiUtils.handleStreamingResponse(response);
                         modelResponseMetadata = { finishReason: streamResult.finishReason, safetyRatings: streamResult.safetyRatings };
                         groundingMetadata = streamResult.groundingMetadata;
-                        // テキストチャンクをタイプ表示 (プレフィックスを渡す)
                         modelResponseRawContent = await this.typeCharacterByCharacter(streamResult.processedChunks, tempPlaceholderIndex, state.abortController.signal, dummyModelPrefix);
-                        // 中断された場合はエラーを投げる
                         if (modelResponseMetadata.finishReason === 'ABORTED' || state.abortController?.signal.aborted) {
                             throw new Error("リクエストがキャンセルされました。");
                         }
-                        // 完了後、一時プレースホルダーを削除 (renderChatMessagesで再描画するため)
                         const placeholderElement = document.getElementById(`streaming-message-${tempPlaceholderIndex}`);
                         if (placeholderElement) placeholderElement.remove();
-
-                    } else { // 非ストリーミング処理
+                    } else {
                         const data = await response.json();
                         console.log("API応答 (非ストリーミング):", data);
                         const candidate = data.candidates?.[0];
-                        let rawContentFromApi = ""; // APIからの生コンテンツ
+                        let rawContentFromApi = "";
                         if (candidate) {
                             modelResponseMetadata = { finishReason: candidate.finishReason, safetyRatings: candidate.safetyRatings };
                             rawContentFromApi = candidate.content?.parts?.map(p => p.text || "").join('\n\n') || "";
@@ -4233,7 +4707,7 @@
                         modelResponseRawContent = dummyModelPrefix + rawContentFromApi;
                     }
 
-                    // モデル応答があればメッセージリストに追加して保存
+
                     if (modelResponseRawContent || modelResponseMetadata.finishReason) {
                          const newModelMessage = {
                              role: 'model',
@@ -4243,119 +4717,86 @@
                              groundingMetadata: groundingMetadata
                          };
 
-                         // --- カスケード関連フラグの設定 ---
-                         // リトライ時、または最初の応答の場合に設定
-                         let targetUserIndexForCascade = -1;
-                         if (isRetry) {
-                             targetUserIndexForCascade = userMessageIndex;
-                         } else {
-                             // 通常送信の場合、最後のユーザーメッセージを探す
-                             for(let i = state.currentMessages.length - 1; i >= 0; i--) {
-                                 if (state.currentMessages[i].role === 'user') {
-                                     targetUserIndexForCascade = i;
-                                     break;
-                                 }
-                             }
-                         }
+                         // カスケード関連フラグの設定 (userMessageIndex を使用)
+                         const targetUserIndexForCascade = userMessageIndex; // リトライ時も通常時もこれでOK
 
                          if (targetUserIndexForCascade !== -1) {
-                             // siblingGroupId を決定 (リトライ開始時に決定できなかった場合のみ新規生成)
                              if (siblingGroupIdToUse === null) {
                                  siblingGroupIdToUse = `gid-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
                                  console.log("カスケードフラグ設定: 新規 siblingGroupId を生成:", siblingGroupIdToUse);
                              }
-
                              newModelMessage.isCascaded = true;
-                             newModelMessage.isSelected = true; // 新しい応答を選択状態に
-                             newModelMessage.siblingGroupId = siblingGroupIdToUse; // 確定した or 新規生成したIDを使用
+                             newModelMessage.isSelected = true;
+                             newModelMessage.siblingGroupId = siblingGroupIdToUse;
 
-                             // 最初の応答にもフラグとIDを設定 (まだ設定されていなければ)
                              if (isRetry && firstResponseIndexForRetry !== -1 && state.currentMessages[firstResponseIndexForRetry] && !state.currentMessages[firstResponseIndexForRetry].isCascaded) {
                                  state.currentMessages[firstResponseIndexForRetry].isCascaded = true;
-                                 state.currentMessages[firstResponseIndexForRetry].siblingGroupId = siblingGroupIdToUse; // 同じIDを使用
-                                 // 最初の応答は isSelected = false のまま
+                                 state.currentMessages[firstResponseIndexForRetry].siblingGroupId = siblingGroupIdToUse;
                                  console.log(`最初の応答 (index ${firstResponseIndexForRetry}) にフラグ設定: isCascaded=true, siblingGroupId=${siblingGroupIdToUse}`);
                              }
-
                              console.log(`応答にフラグ設定: isCascaded=true, isSelected=true, siblingGroupId=${newModelMessage.siblingGroupId}`);
                          }
                          // ---------------------------------
 
                          state.currentMessages.push(newModelMessage);
-
-                         // UIを再描画して新しいメッセージとカスケードコントロールを表示
                          uiUtils.renderChatMessages();
-
-                         await dbUtils.saveChat(); // チャットを保存
+                         await dbUtils.saveChat();
                          console.log("モデル応答保存完了");
                     } else {
-                        // 応答コンテンツがない場合は保存しない
                         console.log("モデル応答コンテンツがないため保存しません。");
                     }
-                } catch (error) { // API呼び出し、ストリーミング、中断エラーのハンドリング
+                } catch (error) { // APIエラーハンドリング
+                    // (既存のエラー処理、部分コンテンツ保存、カスケードフラグ設定は省略)
                     console.error("Gemini呼び出し/処理中のエラー:", error);
                     const isAbort = error.message === "リクエストがキャンセルされました。";
                     const displayErrorMessage = isAbort ? error.message : (error.message || "不明なエラーが発生しました");
-
-                    // ストリーミングエラー時の部分コンテンツにもプレフィックスを考慮
                     const partialRawContent = state.partialStreamContent || error.cause?.partialChunks?.join('');
-
                     if (partialRawContent && state.settings.streamingOutput) {
-                         // 部分的なコンテンツにエラー/中断情報を追記して保存
                          const finalPartialContent = partialRawContent + `\n\n(${isAbort ? '中断されました' : 'エラーが発生しました'})`;
                          const partialMessage = {
                              role: 'model',
                              content: finalPartialContent,
                              timestamp: Date.now(),
-                             error: true, // エラーフラグ
+                             error: true,
                              finishReason: isAbort ? 'ABORTED' : (modelResponseMetadata.finishReason || 'ERROR'),
                              ...(modelResponseMetadata.safetyRatings && { safetyRatings: modelResponseMetadata.safetyRatings })
                          };
-
-                         // リトライ中の中断エラーの場合、カスケードフラグを設定
                          if (isRetry && isAbort) {
-                             // siblingGroupIdToUse が null の場合のみ新規生成（リトライ開始時に既存IDがなかった場合）
                              if (siblingGroupIdToUse === null) {
                                  siblingGroupIdToUse = `gid-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
-                                 // このログは通常表示されなくなるはず
                                  console.log("リトライ中断エラー: 新規 siblingGroupId を生成:", siblingGroupIdToUse);
                              } else {
-                                 console.log("リトライ中断エラー: 既存の siblingGroupId を使用:", siblingGroupIdToUse); // 確認用ログ
+                                 console.log("リトライ中断エラー: 既存の siblingGroupId を使用:", siblingGroupIdToUse);
                              }
                              partialMessage.isCascaded = true;
-                             partialMessage.siblingGroupId = siblingGroupIdToUse; // リトライ開始時に決定したIDを使用
-                             partialMessage.isSelected = true; // 中断されたものを選択状態にする
+                             partialMessage.siblingGroupId = siblingGroupIdToUse;
+                             partialMessage.isSelected = true;
                              console.log(`リトライ中断エラー: 部分メッセージにカスケードフラグ設定 (gid: ${siblingGroupIdToUse})`);
-
-                             // 最初の応答のカスケード化 (tryブロック内のロジックと同様)
-                             // state.currentMessages は partialMessage を push する前なので、元のインデックスでアクセス可能
                              if (firstResponseIndexForRetry !== -1 && state.currentMessages[firstResponseIndexForRetry] && !state.currentMessages[firstResponseIndexForRetry].isCascaded) {
                                  state.currentMessages[firstResponseIndexForRetry].isCascaded = true;
-                                 state.currentMessages[firstResponseIndexForRetry].siblingGroupId = siblingGroupIdToUse; // 同じIDを使用
+                                 state.currentMessages[firstResponseIndexForRetry].siblingGroupId = siblingGroupIdToUse;
                                  console.log(`リトライ中断エラー: 最初の応答 (index ${firstResponseIndexForRetry}) にもフラグ設定: isCascaded=true, siblingGroupId=${siblingGroupIdToUse}`);
                              }
                          }
-
                          state.currentMessages.push(partialMessage);
                          try {
-                             await dbUtils.saveChat(); // 部分的な状態を保存
+                             await dbUtils.saveChat();
                              console.log("部分的なメッセージ状態を保存しました。");
-                             // UIを再描画してエラーメッセージを表示
                              uiUtils.renderChatMessages();
                          } catch (saveError) {
                              console.error("部分メッセージの保存失敗:", saveError);
                              uiUtils.displayError(displayErrorMessage, !isAbort);
                          }
                     } else {
-                        // 部分コンテンツがない、または非ストリーミング時のエラー
                         uiUtils.displayError(displayErrorMessage, !isAbort);
                     }
                 } finally {
-                    // 最終処理
-                    uiUtils.setSendingState(false); // 送信状態解除
-                    state.abortController = null; // AbortControllerリセット
-                    state.partialStreamContent = ''; // 部分コンテンツリセット
-                    uiUtils.scrollToBottom(); // 最下部へスクロール
+                    uiUtils.setSendingState(false);
+                    state.abortController = null;
+                    state.partialStreamContent = '';
+                    uiUtils.scrollToBottom();
+                    // 送信完了後にも念のためバッジ状態を更新
+                    uiUtils.updateAttachmentBadgeVisibility();
                 }
             },
 
@@ -4479,18 +4920,44 @@
 
                     if (role === 'system' && content) {
                         systemPrompt = content; // システムプロンプトを抽出
-                    } else if ((role === 'user' || role === 'model') && content) {
+                    } else if ((role === 'user' || role === 'model') && (content || attributesString.includes('attachments'))) { // コンテンツが空でも attachments があれば処理
                         const messageData = {
                             role: role,
                             content: content,
-                            timestamp: Date.now() // インポート時のタイムスタンプ
+                            timestamp: Date.now(),
+                            attachments: [] // 初期化
                         };
-                        // 属性をパースしてフラグを設定
+                        // 属性をパース
+                        const attributes = {};
+                        attributesString.split(/\s+/).forEach(attr => {
+                            const eqIndex = attr.indexOf('=');
+                            if (eqIndex > 0) {
+                                const key = attr.substring(0, eqIndex);
+                                let value = attr.substring(eqIndex + 1);
+                                // クォートを除去
+                                if (value.startsWith('"') && value.endsWith('"')) {
+                                    value = value.substring(1, value.length - 1);
+                                }
+                                attributes[key] = value.replace(/&quot;/g, '"'); // デコード
+                            } else if (attr) {
+                                attributes[attr] = true; // isCascaded, isSelected
+                            }
+                        });
+
                         if (role === 'model') {
-                            messageData.isCascaded = attributesString.includes('isCascaded');
-                            messageData.isSelected = attributesString.includes('isSelected');
-                            // siblingGroupId はインポート後に割り当てる
+                            messageData.isCascaded = attributes['isCascaded'] === true;
+                            messageData.isSelected = attributes['isSelected'] === true;
                         }
+                        // attachments 属性をパース
+                        if (role === 'user' && attributes['attachments']) {
+                            const fileNames = attributes['attachments'].split(';');
+                            messageData.attachments = fileNames.map(name => ({
+                                name: name,
+                                mimeType: 'unknown/unknown', // インポート時は不明
+                                base64Data: '' // Base64データはインポートしない
+                            }));
+                        }
+                        
                         messages.push(messageData);
                     }
                 }
@@ -4573,6 +5040,8 @@
                      maxTokens: elements.maxTokensInput.value === '' ? null : parseInt(elements.maxTokensInput.value),
                      topK: elements.topKInput.value === '' ? null : parseInt(elements.topKInput.value),
                      topP: elements.topPInput.value === '' ? null : parseFloat(elements.topPInput.value),
+                     presencePenalty: elements.presencePenaltyInput.value === '' ? null : parseFloat(elements.presencePenaltyInput.value),
+                     frequencyPenalty: elements.frequencyPenaltyInput.value === '' ? null : parseFloat(elements.frequencyPenaltyInput.value),
                      dummyUser: elements.dummyUserInput.value.trim(),
                      dummyModel: elements.dummyModelInput.value.trim(),
                      concatDummyModel: elements.concatDummyModelCheckbox.checked,
@@ -4602,6 +5071,12 @@
                  }
                  if (newSettings.topP !== null && (isNaN(newSettings.topP) || newSettings.topP < 0 || newSettings.topP > 1)) {
                      newSettings.topP = null;
+                 }
+                 if (newSettings.presencePenalty !== null && (isNaN(newSettings.presencePenalty) || newSettings.presencePenalty < -2.0 || newSettings.presencePenalty >= 2.0)) {
+                     newSettings.presencePenalty = null; // 不正値は null (APIデフォルト) に
+                 }
+                 if (newSettings.frequencyPenalty !== null && (isNaN(newSettings.frequencyPenalty) || newSettings.frequencyPenalty < -2.0 || newSettings.frequencyPenalty >= 2.0)) {
+                     newSettings.frequencyPenalty = null; // 不正値は null (APIデフォルト) に
                  }
                  // --- バリデーション終了 ---
 
@@ -4669,6 +5144,7 @@
                         state.currentChatId = null;
                         state.currentMessages = [];
                         state.currentSystemPrompt = ''; // システムプロンプトもリセット
+                        state.pendingAttachments = [];
                         state.settings = { // 初期デフォルト値に戻す
                             apiKey: '',
                             modelName: DEFAULT_MODEL,
@@ -4679,6 +5155,8 @@
                             maxTokens: null,
                             topK: null,
                             topP: null,
+                            presencePenalty: null,
+                            frequencyPenalty: null,
                             dummyUser: '',
                             dummyModel: '',
                             concatDummyModel: false,
@@ -4698,6 +5176,7 @@
                         // リセットされた状態をUIに適用
                         document.documentElement.style.setProperty('--chat-background-image', 'none'); // 背景スタイルリセット
                         uiUtils.applySettingsToUI(); // 設定UIをリセット (ダークモード、背景UI、フォント、SP表示含む)
+                        uiUtils.updateAttachmentBadgeVisibility(); // バッジ状態更新
                         this.startNewChat(); // 新規チャット状態にする (履歴状態もリセットされる)
                         uiUtils.showScreen('chat', true); // popstate経由ではないが履歴操作はstartNewChatに任せる
                     } catch (error) {
@@ -5042,6 +5521,10 @@
 
                 // リトライ確認 (メッセージ修正)
                 const messageContentPreview = userMessage.content.substring(0, 30) + "...";
+                // 添付ファイルがある場合、確認メッセージに追加
+                const attachmentInfo = (userMessage.attachments && userMessage.attachments.length > 0)
+                    ? ` (${userMessage.attachments.length}件の添付ファイル含む)`
+                    : '';
                 const confirmed = await uiUtils.showCustomConfirm(`「${messageContentPreview}」から再生成しますか？\n(この入力に対する既存の応答は保持されますが、**これより未来の会話履歴は削除されます**)`);
 
                 if (confirmed) {
@@ -5121,14 +5604,9 @@
                             console.log(`1件の既存応答 (非カスケード, 削除後のindex: ${index + 1}) を一時的に非表示にしました。`);
                         }
                     }
-                    // ---------------------------------------------
-
-                    // APIに送信するメッセージリストを作成 (削除後の state から)
-                    // リトライ対象のユーザーメッセージ (index) までを含める
-                    const messagesForApi = state.currentMessages.slice(0, index + 1);
 
                     // handleSend をリトライモードで呼び出す
-                    await this.handleSend(true, messagesForApi);
+                    await this.handleSend(true, index);
                 }
             },
 
@@ -5291,7 +5769,128 @@
                 } else {
                      console.log("単一カスケード応答の削除キャンセル");
                 }
-            }
+            },
+            
+            // --- ファイルアップロード関連ロジック ---
+            // ファイル選択ハンドラ
+            async handleFileSelection(fileList) {
+                if (!fileList || fileList.length === 0) return;
+
+                const newFiles = Array.from(fileList);
+                let currentTotalSize = state.selectedFilesForUpload.reduce((sum, item) => sum + item.file.size, 0);
+                let addedCount = 0;
+                let skippedCount = 0;
+                let sizeError = false;
+
+                elements.selectFilesBtn.disabled = true; // 処理中はボタン無効化
+                elements.selectFilesBtn.textContent = '処理中...';
+
+                for (const file of newFiles) {
+                    if (file.size > MAX_FILE_SIZE) {
+                        await uiUtils.showCustomAlert(`ファイル "${file.name}" はサイズが大きすぎます (${formatFileSize(MAX_FILE_SIZE)}以下)。`);
+                        skippedCount++;
+                        continue;
+                    }
+                    if (currentTotalSize + file.size > MAX_TOTAL_ATTACHMENT_SIZE) {
+                        sizeError = true; // 合計サイズオーバーフラグ
+                        skippedCount++;
+                        continue; // このファイル以降は追加しない
+                    }
+
+                    // 既存リストに同じファイル名がないかチェック (任意)
+                    if (state.selectedFilesForUpload.some(item => item.file.name === file.name)) {
+                        console.log(`ファイル "${file.name}" は既に追加されています。スキップします。`);
+                        skippedCount++;
+                        continue;
+                    }
+
+                    state.selectedFilesForUpload.push({ file: file });
+                    currentTotalSize += file.size;
+                    addedCount++;
+                }
+
+                elements.selectFilesBtn.disabled = false;
+                elements.selectFilesBtn.textContent = 'ファイルを選択';
+
+                if (sizeError) {
+                    await uiUtils.showCustomAlert(`合計ファイルサイズの上限 (${formatFileSize(MAX_TOTAL_ATTACHMENT_SIZE)}) を超えるため、一部のファイルは追加されませんでした。`);
+                }
+                if (skippedCount > 0) {
+                    console.log(`${skippedCount}個のファイルがスキップされました（サイズ超過または重複）。`);
+                }
+
+                uiUtils.updateSelectedFilesUI(); // UI更新
+                console.log(`${addedCount}個のファイルが選択リストに追加されました。`);
+            },
+
+            // 選択されたファイルをリストから削除
+            removeSelectedFile(indexToRemove) {
+                if (indexToRemove >= 0 && indexToRemove < state.selectedFilesForUpload.length) {
+                    const removedFile = state.selectedFilesForUpload.splice(indexToRemove, 1)[0];
+                    console.log(`ファイル "${removedFile.file.name}" をリストから削除しました。`);
+                    uiUtils.updateSelectedFilesUI(); // UI更新
+                }
+            },
+
+            // 添付を確定する処理
+            // 添付を確定する処理
+            async confirmAttachment() {
+                // リストが空の場合の処理
+                if (state.selectedFilesForUpload.length === 0) {
+                    state.pendingAttachments = []; // 送信待ちリストを空にする
+                    console.log("添付ファイルリストが空の状態で確定されました。送信待ちリストをクリアします。");
+                    elements.fileUploadDialog.close('ok'); // ダイアログを閉じる
+                    uiUtils.adjustTextareaHeight(); // 送信ボタンの状態更新
+                    uiUtils.updateAttachmentBadgeVisibility(); // バッジ状態更新
+                    return; // 以降の処理は不要
+                }
+
+                elements.confirmAttachBtn.disabled = true;
+                elements.confirmAttachBtn.textContent = '処理中...';
+
+                const attachmentsToAdd = [];
+                let encodingError = false;
+
+                // selectedFilesForUpload には { file: File } が入っている前提
+                for (const item of state.selectedFilesForUpload) {
+                    try {
+                        const base64Data = await fileToBase64(item.file);
+                        attachmentsToAdd.push({
+                            // 元の File オブジェクトも保持する
+                            file: item.file,
+                            name: item.file.name,
+                            mimeType: item.file.type || 'application/octet-stream',
+                            base64Data: base64Data
+                        });
+                    } catch (error) {
+                        console.error(`ファイル "${item.file.name}" のBase64エンコード中にエラー:`, error);
+                        encodingError = true;
+                        await uiUtils.showCustomAlert(`ファイル "${item.file.name}" の処理中にエラーが発生しました。`);
+                        break;
+                    }
+                }
+
+                elements.confirmAttachBtn.disabled = false;
+                elements.confirmAttachBtn.textContent = '添付して閉じる';
+
+                if (!encodingError) {
+                    state.pendingAttachments = attachmentsToAdd; // File オブジェクトを含むリストを格納
+                    console.log(`${state.pendingAttachments.length}件のファイルを添付準備完了:`, state.pendingAttachments.map(a => a.name));
+                    elements.fileUploadDialog.close('ok');
+                    uiUtils.adjustTextareaHeight(); // 送信ボタンの状態更新
+                    uiUtils.updateAttachmentBadgeVisibility(); // バッジ状態更新
+                }
+                // エラー時はダイアログを閉じない
+            },
+
+            // 添付をキャンセルする処理
+            cancelAttachment() {
+                state.selectedFilesForUpload = []; // 選択リストをクリア
+                // pendingAttachments はここではクリアしない（送信前にキャンセルされる可能性があるため）
+                console.log("ファイル添付をキャンセルしました。");
+                elements.fileUploadDialog.close('cancel'); // ダイアログを閉じる
+                uiUtils.updateAttachmentBadgeVisibility();
+            },
 
         }; // appLogic終了
 
