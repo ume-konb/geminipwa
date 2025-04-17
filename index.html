@@ -3512,7 +3512,6 @@
                 if (state.settings.thinkingBudget !== null && Number.isInteger(state.settings.thinkingBudget) && state.settings.thinkingBudget >= 0) {
                     finalGenerationConfig.thinkingConfig = {
                         "thinkingBudget": state.settings.thinkingBudget,
-                        "includeThoughts": true,
                     };
                     console.log(`Thinking Budget (${state.settings.thinkingBudget}) を有効にしてAPIを呼び出します。`);
                 }
