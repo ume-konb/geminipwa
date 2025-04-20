@@ -1922,6 +1922,50 @@
         const MAX_FILE_SIZE = 10 * 1024 * 1024; // 最大ファイルサイズ (例: 10MB)
         const MAX_TOTAL_ATTACHMENT_SIZE = 50 * 1024 * 1024; // 1メッセージあたりの合計添付ファイルサイズ上限 (例: 50MB) - API制限も考慮
 
+        // 添付を確定する処理
+        const extensionToMimeTypeMap = {
+            // Text Data
+            'pdf': 'application/pdf',
+            'js': 'text/javascript',   // 一般的な方を選択
+            'py': 'text/x-python',     // 一般的な方を選択
+            'txt': 'text/plain',
+            'html': 'text/html',
+            'htm': 'text/html',        // .htm も考慮
+            'css': 'text/css',
+            'md': 'text/md',
+            'csv': 'text/csv',
+            'xml': 'text/xml',
+            'rtf': 'text/rtf',
+
+            // Image Data
+            'png': 'image/png',
+            'jpg': 'image/jpeg',
+            'jpeg': 'image/jpeg',
+            'webp': 'image/webp',
+            'heic': 'image/heic',
+            'heif': 'image/heif',
+
+            // Video Data
+            'mp4': 'video/mp4',
+            'mpeg': 'video/mpeg',
+            'mov': 'video/mov',
+            'avi': 'video/avi',
+            'flv': 'video/x-flv',
+            'mpg': 'video/mpg',
+            'webm': 'video/webm',
+            'wmv': 'video/wmv',
+            '3gp': 'video/3gpp',
+            '3gpp': 'video/3gpp',
+
+            // Audio Data
+            'wav': 'audio/wav',
+            'mp3': 'audio/mp3',
+            'aiff': 'audio/aiff',
+            'aac': 'audio/aac',
+            'ogg': 'audio/ogg',        // OGG Vorbis
+            'flac': 'audio/flac',
+        };
+        
         // --- DOM要素 ---
         const elements = {
             appContainer: document.querySelector('.app-container'),
@@ -5873,7 +5917,6 @@
             },
 
             // 添付を確定する処理
-            // 添付を確定する処理
             async confirmAttachment() {
                 // リストが空の場合の処理
                 if (state.selectedFilesForUpload.length === 0) {
@@ -5891,15 +5934,45 @@
                 const attachmentsToAdd = [];
                 let encodingError = false;
 
-                // selectedFilesForUpload には { file: File } が入っている前提
                 for (const item of state.selectedFilesForUpload) {
                     try {
                         const base64Data = await fileToBase64(item.file);
+
+                        // --- MIMEタイプ推測ロジック ---
+                        let browserMimeType = item.file.type || ''; // ブラウザが提供するMIMEタイプ
+                        const fileName = item.file.name;
+                        // ファイル名から拡張子を取得 (最後のドット以降、小文字に変換)
+                        const fileExtension = fileName.slice(((fileName.lastIndexOf(".") - 1) >>> 0) + 2).toLowerCase();
+
+                        let guessedMimeType = null;
+                        // マッピングオブジェクトに拡張子が存在するか確認
+                        if (fileExtension && extensionToMimeTypeMap[fileExtension]) {
+                            guessedMimeType = extensionToMimeTypeMap[fileExtension];
+                        }
+
+                        let finalMimeType;
+                        // 拡張子からの推測結果を最優先
+                        if (guessedMimeType) {
+                            finalMimeType = guessedMimeType;
+                            // ブラウザ提供のタイプと異なる場合はログ出力
+                            if (finalMimeType !== browserMimeType) {
+                                console.log(`ファイル "${fileName}": 拡張子(.${fileExtension})からMIMEタイプを "${finalMimeType}" に設定 (ブラウザ提供: ${browserMimeType || '空'})`);
+                            }
+                        } else if (browserMimeType) {
+                            // 拡張子から推測できず、ブラウザが提供している場合はそれを使用
+                            finalMimeType = browserMimeType;
+                            console.log(`ファイル "${fileName}": ブラウザ提供のMIMEタイプ "${finalMimeType}" を使用します。(拡張子からの推測なし)`);
+                        } else {
+                            // 拡張子からもブラウザからも不明な場合はフォールバック
+                            finalMimeType = 'application/octet-stream';
+                            console.warn(`ファイル "${fileName}": MIMEタイプ不明。拡張子(.${fileExtension})にもマッピングなし。'application/octet-stream' を使用します。`);
+                        }
+                        // --- MIMEタイプ推測ロジックここまで ---
+
                         attachmentsToAdd.push({
-                            // 元の File オブジェクトも保持する
-                            file: item.file,
-                            name: item.file.name,
-                            mimeType: item.file.type || 'application/octet-stream',
+                            file: item.file, // 元の File オブジェクトも保持
+                            name: fileName,
+                            mimeType: finalMimeType, // 決定したMIMEタイプを使用
                             base64Data: base64Data
                         });
                     } catch (error) {
@@ -5915,7 +5988,8 @@
 
                 if (!encodingError) {
                     state.pendingAttachments = attachmentsToAdd; // File オブジェクトを含むリストを格納
-                    console.log(`${state.pendingAttachments.length}件のファイルを添付準備完了:`, state.pendingAttachments.map(a => a.name));
+                    // ログでファイル名と決定されたMIMEタイプを確認
+                    console.log(`${state.pendingAttachments.length}件のファイルを添付準備完了:`, state.pendingAttachments.map(a => `${a.name} (${a.mimeType})`));
                     elements.fileUploadDialog.close('ok');
                     uiUtils.adjustTextareaHeight(); // 送信ボタンの状態更新
                     uiUtils.updateAttachmentBadgeVisibility(); // バッジ状態更新
