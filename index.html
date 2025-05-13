@@ -109,6 +109,13 @@
 
             --message-bubble-opacity: 1;
             --header-footer-opacity: 1;
+
+            --bg-button-gold: #FFD700;
+            --bg-button-gold-hover: #FFC700;
+            --text-button-gold: #333333;
+            --bg-button-purple: #800080;
+            --bg-button-purple-hover: #6A006A;
+            --text-button-purple: var(--text-light);
         }
 
         body.dark-mode {
@@ -173,6 +180,13 @@
             --bg-toggle-button: var(--bg-button-action);
             --bg-toggle-button-hover: var(--bg-button-action-hover);
             --text-toggle-button: var(--text-light);
+
+            --bg-button-gold: #DAA520;
+            --bg-button-gold-hover: #B8860B;
+            --text-button-gold: #f0f0f0;
+            --bg-button-purple: #9370DB;
+            --bg-button-purple-hover: #8A2BE2;
+            --text-button-purple: #111111;
         }
 
         * {
@@ -284,25 +298,65 @@
             min-width: 30px;
             flex-shrink: 0;
         }
+
         #history-screen .app-header {
-            flex-direction: row-reverse;
-            justify-content: flex-start;
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            background-color: rgba(var(--bg-header-rgb, 74, 144, 226), var(--header-footer-opacity, 1));
+            color: var(--text-light);
+            flex-shrink: 0;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            transition: background-color 0.3s ease;
+            gap: 10px; /* ボタン間のスペース */
+            flex-direction: row-reverse; /* 右から左へ要素を配置 */
+            justify-content: flex-start; /* 右端から配置開始 */
         }
         #history-screen .app-header h1#history-title {
-            margin-right: 0;
-            margin-left: auto;
-            text-align: right;
+            font-size: 18px;
+            font-weight: bold;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            text-align: right; /* タイトルを右寄せ */
+            margin: 0;
+            margin-left: auto; /* 左側の要素を押し出す */
+            order: 2; /* 配置順序 */
         }
         #history-screen .app-header #back-to-chat-from-history {
-            order: 1;
+            order: 1; /* 一番右 */
         }
-        #history-screen .app-header #history-title {
-            order: 2;
+        
+        /* 新しいボタンの order 設定 */
+        #history-screen .app-header #export-all-sessions-btn {
+            order: 3; 
         }
+        #history-screen .app-header #import-all-sessions-btn {
+            order: 4;
+        }
+        /* 既存の単一インポートボタンの order 設定 */
         #history-screen .app-header #import-history-btn {
-            order: 3;
-            margin-right: 0;
+            order: 5; 
+            margin-right: 0; /* 既存のスタイルを維持 */
         }
+
+        .history-action-button.gold {
+            background-color: var(--bg-button-gold);
+            color: var(--text-button-gold);
+        }
+        .history-action-button.gold:hover:not(:disabled) {
+            background-color: var(--bg-button-gold-hover);
+        }
+        .history-action-button.purple {
+            background-color: var(--bg-button-purple);
+            color: var(--text-button-purple);
+        }
+        .history-action-button.purple:hover:not(:disabled) {
+            background-color: var(--bg-button-purple-hover);
+        }
+
 
         .header-save-button {
             padding: 4px 12px;
@@ -1756,7 +1810,16 @@
             <header class="app-header">
                 <button id="back-to-chat-from-history" class="header-button" aria-label="チャットへ戻る">＞</button>
                 <h1 id="history-title">履歴一覧</h1>
-                <button id="import-history-btn" class="header-save-button" title="履歴をインポート">インポート</button>
+                
+                <!-- 新しいボタン (全セッション出力) -->
+                <button id="export-all-sessions-btn" class="header-save-button history-action-button gold" title="全セッションをJSON形式で出力">全出力</button>
+                
+                <!-- 新しいボタン (全セッション取込) -->
+                <button id="import-all-sessions-btn" class="header-save-button history-action-button purple" title="全セッションをJSON形式で取込">全取込</button>
+                <input type="file" id="import-all-sessions-input" accept=".json" class="hidden">
+
+                <!-- 既存のインポートボタン (単一セッション用) -->
+                <button id="import-history-btn" class="header-save-button" title="単一履歴をテキスト形式でインポート">単一取込</button>
                 <input type="file" id="import-history-input" accept=".txt" class="hidden">
             </header>
             <main class="main-content">
@@ -2186,6 +2249,9 @@
             clearDataBtn: document.getElementById('clear-data-btn'),
             importHistoryBtn: document.getElementById('import-history-btn'),
             importHistoryInput: document.getElementById('import-history-input'),
+            exportAllSessionsBtn: document.getElementById('export-all-sessions-btn'), // New
+            importAllSessionsBtn: document.getElementById('import-all-sessions-btn'), // New
+            importAllSessionsInput: document.getElementById('import-all-sessions-input'), // New
             alertDialog: document.getElementById('alertDialog'),
             alertMessage: document.getElementById('alertDialog').querySelector('.dialog-message'),
             alertOkBtn: document.getElementById('alertDialog').querySelector('.dialog-ok-btn'),
@@ -3550,6 +3616,13 @@
                     if (file) this.handleHistoryImport(file);
                     event.target.value = null;
                 });
+                elements.exportAllSessionsBtn.addEventListener('click', () => this.exportAllSessions()); // New
+                elements.importAllSessionsBtn.addEventListener('click', () => elements.importAllSessionsInput.click()); // New
+                elements.importAllSessionsInput.addEventListener('change', (event) => { // New
+                    const file = event.target.files[0];
+                    if (file) this.handleAllSessionsImport(file);
+                    event.target.value = null;
+                });
                 elements.saveSettingsBtns.forEach(button => {
                     button.addEventListener('click', () => this.saveSettings());
                 });
@@ -4618,6 +4691,171 @@ if (msg.role === 'user') return true;
                 }
                 return { messages, systemPrompt };
             },
+            async exportAllSessions() { // New method
+                const confirmed = await uiUtils.showCustomConfirm("全てのセッションを1つのJSONファイルとしてエクスポートしますか？");
+                if (!confirmed) return;
+
+                try {
+                    const chats = await dbUtils.getAllChats();
+                    if (!chats || chats.length === 0) {
+                        await uiUtils.showCustomAlert("エクスポートするセッションがありません。");
+                        return;
+                    }
+
+                    const exportableChats = chats.map(chat => ({
+                        title: chat.title,
+                        systemPrompt: chat.systemPrompt,
+                        messages: chat.messages.map(msg => {
+                            const messageExport = {
+                                role: msg.role,
+                                content: msg.content,
+                                timestamp: msg.timestamp,
+                            };
+                            if (msg.isCascaded !== undefined) messageExport.isCascaded = msg.isCascaded;
+                            if (msg.isSelected !== undefined) messageExport.isSelected = msg.isSelected;
+                            if (msg.siblingGroupId !== undefined) messageExport.siblingGroupId = msg.siblingGroupId;
+                            if (msg.groundingMetadata) messageExport.groundingMetadata = msg.groundingMetadata;
+                            if (msg.usageMetadata) messageExport.usageMetadata = msg.usageMetadata;
+                            if (msg.attachments && msg.attachments.length > 0) {
+                                messageExport.attachments = msg.attachments.map(att => ({ name: att.name, mimeType: att.mimeType }));
+                            }
+                            return messageExport;
+                        }),
+                        createdAt: chat.createdAt,
+                        updatedAt: chat.updatedAt
+                    }));
+
+                    const jsonString = JSON.stringify(exportableChats, null, 2);
+                    const blob = new Blob([jsonString], { type: 'application/json;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    const timestamp = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+                    a.href = url;
+                    a.download = `gemini_pwa_all_sessions_${timestamp}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    await uiUtils.showCustomAlert(`${chats.length}件のセッションをエクスポートしました。`);
+                } catch (error) {
+                    await uiUtils.showCustomAlert(`全セッションのエクスポート中にエラーが発生しました: ${error.message || error}`);
+                    console.error("Error exporting all sessions:", error);
+                }
+            },
+            async handleAllSessionsImport(file) { // New method
+                if (!file || file.type !== 'application/json') {
+                    await uiUtils.showCustomAlert("JSONファイル (.json) を選択してください。");
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = async (event) => {
+                    const textContent = event.target.result;
+                    if (!textContent) {
+                        await uiUtils.showCustomAlert("ファイルの内容が空です。");
+                        return;
+                    }
+                    try {
+                        const importedData = JSON.parse(textContent);
+                        if (!Array.isArray(importedData)) {
+                            await uiUtils.showCustomAlert("無効なファイル形式です。チャットデータの配列ではありません。");
+                            return;
+                        }
+
+                        if (importedData.length === 0) {
+                            await uiUtils.showCustomAlert("ファイルにインポート対象のセッションデータが含まれていません。");
+                            return;
+                        }
+
+                        const confirmed = await uiUtils.showCustomConfirm(
+                            `${importedData.length}件のセッションをインポートしますか？\n(既存の履歴とタイトルが重複する場合、別履歴として追加されます)`
+                        );
+                        if (!confirmed) return;
+
+                        let importedCount = 0;
+                        let skippedCount = 0;
+                        const importTimestamp = Date.now();
+
+                        for (const chatData of importedData) {
+                            if (typeof chatData.title !== 'string' || !Array.isArray(chatData.messages)) {
+                                skippedCount++;
+                                continue;
+                            }
+
+                            const newChat = {
+                                title: `${IMPORT_PREFIX}(全) ${chatData.title}`.substring(0,100),
+                                systemPrompt: chatData.systemPrompt || '',
+                                messages: (chatData.messages || []).map(msg => ({
+                                    role: msg.role,
+                                    content: msg.content || '',
+                                    timestamp: typeof msg.timestamp === 'number' ? msg.timestamp : importTimestamp,
+                                    isCascaded: msg.isCascaded === true,
+                                    isSelected: msg.isSelected === true,
+                                    siblingGroupId: msg.siblingGroupId || undefined,
+                                    attachments: (msg.attachments || []).map(att => ({
+                                        name: att.name || 'imported_file',
+                                        mimeType: att.mimeType || 'application/octet-stream',
+                                        base64Data: ''
+                                    })),
+                                    groundingMetadata: msg.groundingMetadata || undefined,
+                                    usageMetadata: msg.usageMetadata || undefined,
+                                    error: msg.error || undefined,
+                                })),
+                                createdAt: typeof chatData.createdAt === 'number' ? chatData.createdAt : importTimestamp,
+                                updatedAt: typeof chatData.updatedAt === 'number' ? chatData.updatedAt : importTimestamp,
+                            };
+
+                            const groupIds = new Set(newChat.messages.filter(m => m.siblingGroupId).map(m => m.siblingGroupId));
+                            groupIds.forEach(gid => {
+                                const siblings = newChat.messages.filter(m => m.siblingGroupId === gid);
+                                const selectedSiblings = siblings.filter(m => m.isSelected);
+                                if (selectedSiblings.length === 0 && siblings.length > 0) {
+                                    siblings[siblings.length - 1].isSelected = true;
+                                } else if (selectedSiblings.length > 1) {
+                                    for (let i = 0; i < selectedSiblings.length - 1; i++) {
+                                        selectedSiblings[i].isSelected = false;
+                                    }
+                                }
+                            });
+
+                            try {
+                                await new Promise((resolve, reject) => {
+                                    const store = dbUtils._getStore(CHATS_STORE, 'readwrite');
+                                    const request = store.add(newChat);
+                                    request.onsuccess = () => {
+                                        importedCount++;
+                                        resolve();
+                                    };
+                                    request.onerror = (e) => {
+                                        console.error("Failed to import session:", chatData.title, e.target.error);
+                                        skippedCount++;
+                                        resolve(); 
+                                    };
+                                });
+                            } catch (e) {
+                                console.error("Error during DB operation for session:", chatData.title, e);
+                                skippedCount++;
+                            }
+                        }
+
+                        let message = `${importedCount}件のセッションをインポートしました。`;
+                        if (skippedCount > 0) {
+                            message += ` ${skippedCount}件は形式エラー等でスキップされました。`;
+                        }
+                        await uiUtils.showCustomAlert(message);
+                        if (importedCount > 0) {
+                            uiUtils.renderHistoryList();
+                        }
+
+                    } catch (error) {
+                        await uiUtils.showCustomAlert(`全セッションのインポート中にエラーが発生しました: ${error.message || error}`);
+                        console.error("Error importing all sessions:", error);
+                    }
+                };
+                reader.onerror = async () => {
+                    await uiUtils.showCustomAlert("ファイルの読み込みに失敗しました。");
+                };
+                reader.readAsText(file);
+            },
              async handleBackgroundImageUpload(file) {
                  const maxSize = 5 * 1024 * 1024;
                  if (file.size > maxSize) {
@@ -5222,9 +5460,8 @@ if (msg.role === 'user') return true;
                     const groupId = msgToDelete.siblingGroupId;
                     state.currentMessages.splice(indexToDelete, 1);
                     let newlySelectedIndex = -1;
-                    const remainingSiblingsWithIndices = state.currentMessages
-                        .map((msg, i) => ({ msg, originalIndex: i }))
-                        .filter(item => item.msg.role === 'model' && item.msg.isCascaded && item.msg.siblingGroupId === groupId);
+                    const remainingSiblingsWithIndices = state.currentMessages.map((msg, i) => ({ msg, originalIndex: i }))
+                    .filter(item => item.msg.role === 'model' && item.msg.isCascaded && item.msg.siblingGroupId === groupId);
                     if (remainingSiblingsWithIndices.length > 0) {
                         if (wasSelected) {
                             const lastSiblingItem = remainingSiblingsWithIndices[remainingSiblingsWithIndices.length - 1];
@@ -5407,6 +5644,137 @@ if (msg.role === 'user') return true;
                 uiUtils.renderChatMessages();
             }
         };
+
+        const apiUtils = {
+            async callGeminiApi(messages, generationConfig, systemInstruction) {
+                state.abortController = new AbortController();
+                const apiKey = state.settings.apiKey;
+                const modelName = state.settings.modelName;
+                const streamParam = (state.settings.streamingOutput && !state.settings.pseudoStreaming) ? 'streamGenerateContent' : 'generateContent';
+                const url = `${GEMINI_API_BASE_URL}${modelName}:${streamParam}?key=${apiKey}`;
+
+                const tools = [];
+                if (state.settings.enableGrounding) {
+                    tools.push({ "googleSearchRetrieval": {} });
+                }
+
+                const body = {
+                    contents: messages,
+                    generationConfig: generationConfig,
+                    ...(tools.length > 0 && { tools: tools }),
+                    ...(systemInstruction && { systemInstruction: systemInstruction }),
+                };
+                
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(body),
+                        signal: state.abortController.signal
+                    });
+                    if (!response.ok) {
+                        let errorData;
+                        try { errorData = await response.json(); } catch (e) {}
+                        const errorMessage = errorData?.error?.message || `HTTPエラー: ${response.status}`;
+                        const errorDetails = errorData?.error?.details ? ` 詳細: ${JSON.stringify(errorData.error.details)}` : '';
+                        throw new Error(errorMessage + errorDetails);
+                    }
+                    return response;
+                } catch (error) {
+                    if (error.name === 'AbortError') {
+                         throw new Error("リクエストがキャンセルされました。");
+                    }
+                    throw error;
+                }
+            },
+            async handleStreamingResponse(response) {
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+                let processedChunks = [];
+                let finalFinishReason = null;
+                let finalSafetyRatings = null;
+                let finalGroundingMetadata = null;
+                let finalUsageMetadata = null;
+                let firstChunk = true;
+
+                try {
+                    while (true) {
+                        const { value, done } = await reader.read();
+                        if (done || state.abortController?.signal.aborted) {
+                            if (state.abortController?.signal.aborted && !finalFinishReason) {
+                                finalFinishReason = 'ABORTED';
+                            }
+                            break;
+                        }
+                        buffer += decoder.decode(value, { stream: true });
+                        let boundary = buffer.indexOf('\n');
+                        while (boundary !== -1) {
+                            const chunkString = buffer.substring(0, boundary).trim();
+                            buffer = buffer.substring(boundary + 1);
+                            if (chunkString.startsWith("data: ")) {
+                                try {
+                                    const jsonData = JSON.parse(chunkString.substring(6));
+                                    if (jsonData.candidates && jsonData.candidates.length > 0) {
+                                        const candidate = jsonData.candidates[0];
+                                        if (candidate.content && candidate.content.parts) {
+                                            candidate.content.parts.forEach(part => {
+                                                if (part.text) {
+                                                    processedChunks.push(part.text);
+                                                }
+                                            });
+                                        }
+                                        if (candidate.finishReason) finalFinishReason = candidate.finishReason;
+                                        if (candidate.safetyRatings) finalSafetyRatings = candidate.safetyRatings;
+                                        if (candidate.groundingMetadata) finalGroundingMetadata = candidate.groundingMetadata;
+                                    }
+                                    if (jsonData.usageMetadata) finalUsageMetadata = jsonData.usageMetadata;
+                                     if (firstChunk && jsonData.promptFeedback && jsonData.promptFeedback.blockReason) {
+                                        throw new Error(`ストリーミング開始エラー (ブロック理由: ${jsonData.promptFeedback.blockReason})`);
+                                    }
+                                } catch (e) {
+                                    console.error("ストリーミングJSONパースエラー:", e, "Chunk:", chunkString);
+                                    processedChunks.push(` [パースエラー: ${e.message}] `);
+                                }
+                            }
+                             firstChunk = false;
+                            boundary = buffer.indexOf('\n');
+                        }
+                    }
+                } catch (error) {
+                    if (state.abortController?.signal.aborted) {
+                         finalFinishReason = 'ABORTED';
+                    } else {
+                        throw error;
+                    }
+                } finally {
+                    if (buffer.trim().startsWith("data: ")) { // Handle any remaining buffer
+                        try {
+                            const jsonData = JSON.parse(buffer.trim().substring(6));
+                            if (jsonData.candidates && jsonData.candidates.length > 0) {
+                                const candidate = jsonData.candidates[0];
+                                if (candidate.content && candidate.content.parts) {
+                                    candidate.content.parts.forEach(part => {
+                                        if (part.text) processedChunks.push(part.text);
+                                    });
+                                }
+                                if (candidate.finishReason) finalFinishReason = candidate.finishReason;
+                                if (candidate.safetyRatings) finalSafetyRatings = candidate.safetyRatings;
+                                if (candidate.groundingMetadata) finalGroundingMetadata = candidate.groundingMetadata;
+                            }
+                            if (jsonData.usageMetadata) finalUsageMetadata = jsonData.usageMetadata;
+                        } catch (e) {
+                            // ignore parse error for the final incomplete chunk
+                        }
+                    }
+                    if (state.abortController?.signal.aborted && !finalFinishReason) {
+                        finalFinishReason = 'ABORTED';
+                    }
+                }
+                return { processedChunks, finishReason: finalFinishReason, safetyRatings: finalSafetyRatings, groundingMetadata: finalGroundingMetadata, usageMetadata: finalUsageMetadata };
+            }
+        };
+
         appLogic.initializeApp();
     </script>
 </body>
