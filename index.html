@@ -44,9 +44,7 @@
             --bg-button-update-hover: #115293;
             --bg-header: #4a90e2;
             --bg-message-actions: rgba(255, 255, 255, 0.8);
-            /* --bg-overlay-light: rgba(255, 255, 255, 0.65); -- JSで制御するため削除またはコメントアウト */
-            /* --bg-overlay-dark: rgba(30, 30, 30, 0.55); -- JSで制御するため削除またはコメントアウト */
-            --chat-overlay-background: rgba(255, 255, 255, 0.65); /* デフォルトのオーバーレイ背景 */
+            --bg-overlay-light: rgba(255, 255, 255, 0.65);
             --bg-cascade-button: var(--bg-button-action);
             --bg-cascade-button-hover: var(--bg-button-action-hover);
             --bg-cascade-delete-button: var(--bg-button-delete);
@@ -145,8 +143,7 @@
             --bg-button-update-hover: #0069d1;
             --bg-header: #007aff;
             --bg-message-actions: rgba(50, 50, 50, 0.8);
-            /* --bg-overlay-dark: rgba(30, 30, 30, 0.55); -- JSで制御するため削除またはコメントアウト */
-            --chat-overlay-background: rgba(30, 30, 30, 0.55); /* デフォルトのオーバーレイ背景 (ダーク) */
+            --bg-overlay-dark: rgba(30, 30, 30, 0.55);
             --bg-cascade-button: var(--bg-button-action);
             --bg-cascade-button-hover: var(--bg-button-action-hover);
             --bg-cascade-delete-button: var(--bg-button-delete);
@@ -440,13 +437,14 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: var(--chat-overlay-background); /* CSS変数で制御 */
+            background-color: var(--bg-overlay-light);
             z-index: 0;
             transition: background-color 0.3s ease;
             pointer-events: none;
         }
-        /* body.dark-mode #chat-screen::before は不要。--chat-overlay-background で制御 */
-
+        body.dark-mode #chat-screen::before {
+            background-color: var(--bg-overlay-dark);
+        }
 
         #chat-screen .main-content {
             z-index: 1;
@@ -1703,7 +1701,7 @@
             background-color: var(--bg-dialog-button-cancel);
         }
         #fileUploadDialog .dialog-actions #cancel-attach-btn:hover:not(:disabled) {
-            background-color: var(--bg-button-cancel-hover);
+            background-color: var(--bg-dialog-button-cancel-hover);
         }
     </style>
     <script src="marked.js"></script>
@@ -1924,8 +1922,6 @@
                        ※ 画像はブラウザ内のデータベースに保存。<br>
                        ※ 可読性のため画像の上に半透明のレイヤーを表示。
                      </p>
-                     <label for="chat-overlay-opacity">背景オーバーレイの不透明度 (0.0-1.0):</label>
-                     <input type="number" id="chat-overlay-opacity" min="0" max="1" step="0.01" placeholder="例: 0.65" aria-label="背景オーバーレイの不透明度">
                 </div>
 
                 <div class="settings-group">
@@ -2108,8 +2104,6 @@
         const COLLAPSED_HEIGHT = 50;
         const DEFAULT_MESSAGE_BUBBLE_OPACITY = 1.0;
         const DEFAULT_HEADER_FOOTER_OPACITY = 1.0;
-        const DEFAULT_CHAT_OVERLAY_OPACITY = 0.65;
-
 
         const extensionToMimeTypeMap = {
             'pdf': 'application/pdf', 'js': 'text/javascript', 'py': 'text/x-python',
@@ -2174,7 +2168,6 @@
             showToggleAllContentButtonToggle: document.getElementById('show-toggle-all-content-button-toggle'),
             messageBubbleOpacityInput: document.getElementById('message-bubble-opacity'),
             headerFooterOpacityInput: document.getElementById('header-footer-opacity'),
-            chatOverlayOpacityInput: document.getElementById('chat-overlay-opacity'),
             appVersionSpan: document.getElementById('app-version'),
             backgroundImageInput: document.getElementById('background-image-input'),
             uploadBackgroundBtn: document.getElementById('upload-background-btn'),
@@ -2264,7 +2257,6 @@
                 showCollapseButtons: true,
                 messageBubbleOpacity: DEFAULT_MESSAGE_BUBBLE_OPACITY,
                 headerFooterOpacity: DEFAULT_HEADER_FOOTER_OPACITY,
-                chatOverlayOpacity: DEFAULT_CHAT_OVERLAY_OPACITY,
             },
             backgroundImageUrl: null,
             isSending: false,
@@ -2425,13 +2417,13 @@
                                      state.settings[key] = loadedValue === true;
                                 } else if (typeof defaultValue === 'number' || defaultValue === null) {
                                      let num;
-                                     if (key === 'temperature' || key === 'topP' || key === 'presencePenalty' || key === 'frequencyPenalty' || key === 'messageBubbleOpacity' || key === 'headerFooterOpacity' || key === 'chatOverlayOpacity') {
+                                     if (key === 'temperature' || key === 'topP' || key === 'presencePenalty' || key === 'frequencyPenalty' || key === 'messageBubbleOpacity' || key === 'headerFooterOpacity') {
                                          num = parseFloat(loadedValue);
                                      } else {
                                          num = parseInt(loadedValue, 10);
                                      }
                                      if (isNaN(num)) {
-                                         if ((key === 'temperature' || key === 'maxTokens' || key === 'topK' || key === 'topP' || key === 'presencePenalty' || key === 'frequencyPenalty' || key === 'thinkingBudget' || key === 'messageBubbleOpacity' || key === 'headerFooterOpacity' || key === 'chatOverlayOpacity') && (loadedValue === null || loadedValue === '')) {
+                                         if ((key === 'temperature' || key === 'maxTokens' || key === 'topK' || key === 'topP' || key === 'presencePenalty' || key === 'frequencyPenalty' || key === 'thinkingBudget' || key === 'messageBubbleOpacity' || key === 'headerFooterOpacity') && (loadedValue === null || loadedValue === '')) {
                                               state.settings[key] = null;
                                          } else {
                                               state.settings[key] = defaultValue;
@@ -2444,7 +2436,7 @@
                                           if (key === 'streamingSpeed' && num < 0) num = defaultValue;
                                           if ((key === 'presencePenalty' || key === 'frequencyPenalty') && (num < -2.0 || num >= 2.0)) num = defaultValue;
                                           if (key === 'thinkingBudget' && (num < 0 || !Number.isInteger(num))) num = defaultValue;
-                                          if ((key === 'messageBubbleOpacity' || key === 'headerFooterOpacity' || key === 'chatOverlayOpacity') && (num < 0 || num > 1)) num = defaultValue;
+                                          if ((key === 'messageBubbleOpacity' || key === 'headerFooterOpacity') && (num < 0 || num > 1)) num = defaultValue;
                                           state.settings[key] = num;
                                      }
                                 } else if (typeof defaultValue === 'string') {
@@ -2532,7 +2524,6 @@
                     } else {
                         determineTitleAndSave(null);
                     }
-```javascript
                     store.transaction.onerror = (event) => reject(`チャット保存トランザクション失敗: ${event.target.error.name} - ${event.target.error.message}`);
                 });
             },
@@ -2723,22 +2714,6 @@
                          const pre = document.createElement('pre'); pre.textContent = content; contentDiv.innerHTML = ''; contentDiv.appendChild(pre);
                     }
                 }
-                if ((role === 'user' || role === 'model') && state.settings.showCollapseButtons && contentDiv.scrollHeight > COLLAPSED_HEIGHT && !isStreamingPlaceholder) {
-                    // This logic might need adjustment if the "all messages hidden" state also implies individual collapse
-                    // For now, individual collapse state is independent of the "all messages hidden" state
-                    // If !state.areAllMessagesHidden, then apply individual collapse if needed
-                    if (!state.areAllMessagesHidden && !contentDiv.classList.contains('collapsed')) {
-                         // Default to collapsed if content is long enough and not already explicitly uncollapsed
-                         // This might be too aggressive, consider a separate state for individual collapse preference
-                    }
-                }
-                if (contentDiv.classList.contains('collapsed') && state.areAllMessagesHidden) {
-                    // If both are true, ensure only one effective hiding mechanism is active.
-                    // Prioritize the global hide if active.
-                    contentDiv.classList.remove('collapsed'); // Remove individual collapse if globally hidden
-                }
-
-
                 messageDiv.appendChild(contentDiv);
                 const messageData = state.currentMessages[index];
                 if (role === 'model' && messageData && messageData.groundingMetadata &&
@@ -3111,43 +3086,22 @@
             applyOpacitySettings() {
                 document.documentElement.style.setProperty('--message-bubble-opacity', state.settings.messageBubbleOpacity);
                 document.documentElement.style.setProperty('--header-footer-opacity', state.settings.headerFooterOpacity);
-
                 const headerRgb = state.settings.darkMode ? this.hexToRgb(DARK_THEME_COLOR) : this.hexToRgb(LIGHT_THEME_COLOR);
                 if (headerRgb) {
                     document.documentElement.style.setProperty('--bg-header-rgb', `${headerRgb.r}, ${headerRgb.g}, ${headerRgb.b}`);
                 }
-
-                const secondaryBgHex = getComputedStyle(document.documentElement).getPropertyValue('--bg-secondary').trim();
-                const secondaryBgRgb = this.hexToRgb(secondaryBgHex);
+                const secondaryBgRgb = state.settings.darkMode ? this.hexToRgb("#101010") : this.hexToRgb("#f0f2f5");
                  if (secondaryBgRgb) {
                     document.documentElement.style.setProperty('--bg-secondary-rgb', `${secondaryBgRgb.r}, ${secondaryBgRgb.g}, ${secondaryBgRgb.b}`);
                 }
-
-                const userMessageBgHex = getComputedStyle(document.documentElement).getPropertyValue('--bg-user-message').trim();
-                const userMessageBgRgb = this.hexToRgb(userMessageBgHex);
+                const userMessageBgRgb = state.settings.darkMode ? this.hexToRgb("#056162") : this.hexToRgb("#dcf8c6");
                 if (userMessageBgRgb) {
                     document.documentElement.style.setProperty('--bg-user-message-rgb', `${userMessageBgRgb.r}, ${userMessageBgRgb.g}, ${userMessageBgRgb.b}`);
                 }
-
-                const modelMessageBgHex = getComputedStyle(document.documentElement).getPropertyValue('--bg-model-message').trim();
-                const modelMessageBgRgb = this.hexToRgb(modelMessageBgHex);
+                const modelMessageBgRgb = state.settings.darkMode ? this.hexToRgb("#3a3a3c") : this.hexToRgb("#e5e5ea");
                 if (modelMessageBgRgb) {
                     document.documentElement.style.setProperty('--bg-model-message-rgb', `${modelMessageBgRgb.r}, ${modelMessageBgRgb.g}, ${modelMessageBgRgb.b}`);
                 }
-                this.applyChatOverlayOpacity();
-            },
-            applyChatOverlayOpacity() {
-                const opacity = state.settings.chatOverlayOpacity;
-                let baseOverlayColorRgb;
-                if (state.settings.darkMode) {
-                    baseOverlayColorRgb = { r: 30, g: 30, b: 30 }; // ダークモード時の基準オーバーレイRGB
-                } else {
-                    baseOverlayColorRgb = { r: 255, g: 255, b: 255 }; // ライトモード時の基準オーバーレイRGB
-                }
-                document.documentElement.style.setProperty(
-                    '--chat-overlay-background',
-                    `rgba(${baseOverlayColorRgb.r}, ${baseOverlayColorRgb.g}, ${baseOverlayColorRgb.b}, ${opacity})`
-                );
             },
             hexToRgb(hex) {
                 const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -3187,7 +3141,6 @@
                 elements.showToggleAllContentButtonToggle.checked = state.settings.showToggleAllContentButton;
                 elements.messageBubbleOpacityInput.value = state.settings.messageBubbleOpacity ?? DEFAULT_MESSAGE_BUBBLE_OPACITY;
                 elements.headerFooterOpacityInput.value = state.settings.headerFooterOpacity ?? DEFAULT_HEADER_FOOTER_OPACITY;
-                elements.chatOverlayOpacityInput.value = state.settings.chatOverlayOpacity ?? DEFAULT_CHAT_OVERLAY_OPACITY;
                 elements.showMemoButtonToggle.checked = state.settings.showMemoButton;
                 elements.memoWidthInput.value = state.settings.memoWidth || '';
                 elements.memoHeightInput.value = state.settings.memoHeight || '';
@@ -3244,7 +3197,6 @@
                 document.body.classList.toggle('light-mode-forced', !isDark);
                 elements.themeColorMeta.content = isDark ? DARK_THEME_COLOR : LIGHT_THEME_COLOR;
                 this.applyOpacitySettings();
-                this.applyChatOverlayOpacity();
             },
             applyFontFamily() {
                 const customFont = state.settings.fontFamily?.trim();
@@ -3662,16 +3614,6 @@
                         document.documentElement.style.setProperty('--header-footer-opacity', opacity);
                     } else if (elements.headerFooterOpacityInput.value === '') {
                         document.documentElement.style.setProperty('--header-footer-opacity', DEFAULT_HEADER_FOOTER_OPACITY);
-                    }
-                });
-                 elements.chatOverlayOpacityInput.addEventListener('input', () => {
-                    const opacityValue = parseFloat(elements.chatOverlayOpacityInput.value);
-                    if (!isNaN(opacityValue) && opacityValue >= 0 && opacityValue <= 1) {
-                        state.settings.chatOverlayOpacity = opacityValue; // stateに保存（DB保存は別途）
-                        uiUtils.applyChatOverlayOpacity(); // 即時反映
-                    } else if (elements.chatOverlayOpacityInput.value === '') {
-                        state.settings.chatOverlayOpacity = DEFAULT_CHAT_OVERLAY_OPACITY;
-                        uiUtils.applyChatOverlayOpacity();
                     }
                 });
                 elements.showCollapseButtonsToggle.addEventListener('change', () => {
@@ -4742,7 +4684,7 @@ if (msg.role === 'user') return true;
                      historySortOrder: elements.historySortOrderSelect.value,
                      darkMode: elements.darkModeToggle.checked,
                      fontFamily: elements.fontFamilyInput.value.trim(),
-                     hideSystemPromptInChat: elements.hideSystemPromptToggle.checked,
+                                          hideSystemPromptInChat: elements.hideSystemPromptToggle.checked,
                      enableGrounding: elements.enableGroundingToggle.checked,
                      enableSwipeNavigation: elements.swipeNavigationToggle.checked,
                      showDeleteSessionButton: elements.showDeleteSessionButtonToggle.checked,
@@ -4754,7 +4696,6 @@ if (msg.role === 'user') return true;
                      showCollapseButtons: elements.showCollapseButtonsToggle.checked,
                      messageBubbleOpacity: elements.messageBubbleOpacityInput.value === '' ? DEFAULT_MESSAGE_BUBBLE_OPACITY : parseFloat(elements.messageBubbleOpacityInput.value),
                      headerFooterOpacity: elements.headerFooterOpacityInput.value === '' ? DEFAULT_HEADER_FOOTER_OPACITY : parseFloat(elements.headerFooterOpacityInput.value),
-                     chatOverlayOpacity: elements.chatOverlayOpacityInput.value === '' ? DEFAULT_CHAT_OVERLAY_OPACITY : parseFloat(elements.chatOverlayOpacityInput.value),
                  };
 
                  if (isNaN(newSettings.streamingSpeed) || newSettings.streamingSpeed < 0) {
@@ -4786,9 +4727,6 @@ if (msg.role === 'user') return true;
                  }
                  if (newSettings.headerFooterOpacity !== null && (isNaN(newSettings.headerFooterOpacity) || newSettings.headerFooterOpacity < 0 || newSettings.headerFooterOpacity > 1)) {
                     newSettings.headerFooterOpacity = DEFAULT_HEADER_FOOTER_OPACITY;
-                 }
-                 if (newSettings.chatOverlayOpacity !== null && (isNaN(newSettings.chatOverlayOpacity) || newSettings.chatOverlayOpacity < 0 || newSettings.chatOverlayOpacity > 1)) {
-                    newSettings.chatOverlayOpacity = DEFAULT_CHAT_OVERLAY_OPACITY;
                  }
 
                  try {
@@ -4857,7 +4795,6 @@ if (msg.role === 'user') return true;
                             showCollapseButtons: true,
                             messageBubbleOpacity: DEFAULT_MESSAGE_BUBBLE_OPACITY,
                             headerFooterOpacity: DEFAULT_HEADER_FOOTER_OPACITY,
-                            chatOverlayOpacity: DEFAULT_CHAT_OVERLAY_OPACITY,
                         };
                         state.backgroundImageUrl = null;
                         state.areAllMessagesHidden = false;
