@@ -4311,8 +4311,7 @@
                      const originalText = elements.deleteMemoBtn.textContent;
                      elements.deleteMemoBtn.textContent = "空です";
                      elements.deleteMemoBtn.disabled = true;
-                     setTimeout(()
-                      (() => {
+                     setTimeout(() (() => {
                          elements.deleteMemoBtn.textContent = originalText;
                          elements.deleteMemoBtn.disabled = false;
                      }, 1500);
@@ -6257,4 +6256,3 @@ if (msg.role === 'user') return true;
     </script>
 </body>
 </html>
-```
