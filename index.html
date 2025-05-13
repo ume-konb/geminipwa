@@ -4480,6 +4480,7 @@ sessionText += `あなた:\n`;
                                      msg.isSelected = false;
                                  }
                              });
+
                              siblingGroupIdToUse = existingSiblingGroupId;
                          }
                     }
@@ -4686,7 +4687,6 @@ if (msg.role === 'user') return true;
                                 lastUserIndex = i;
                                 currentGroupId = null;
                             } else if (msg.role === 'model' && msg.isCascaded) {
-
                                 if (currentGroupId === null && lastUserIndex !== -1) {
                                     currentGroupId = `imp-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
                                 }
@@ -5777,9 +5777,6 @@ if (msg.role === 'user') return true;
                 state.areAllMessagesHidden = !state.areAllMessagesHidden;
                 uiUtils.updateToggleAllContentButton();
                 
-                if (state.areAllMessagesHidden) {
-                    state.messageCollapsedStates.clear();
-                }
                 uiUtils.renderChatMessages(true);
             }
         };
