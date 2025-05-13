@@ -2702,7 +2702,10 @@
         };
 
         const uiUtils = {
-            renderChatMessages() {
+            renderChatMessages(maintainScroll = false) {
+                const mainContent = elements.chatScreen.querySelector('.main-content');
+                const oldScrollTop = maintainScroll ? mainContent.scrollTop : null;
+
                 if (state.editingMessageIndex !== null) {
                     const messageElement = elements.messageContainer.querySelector(`.message[data-index="${state.editingMessageIndex}"]`);
                     if(messageElement) appLogic.cancelEditMessage(state.editingMessageIndex, messageElement);
@@ -2737,6 +2740,11 @@
                         this.appendMessage(msg.role, msg.content, i, false, null, msg.attachments);
                     }
                 }
+                if (maintainScroll && oldScrollTop !== null) {
+                    requestAnimationFrame(() => {
+                        mainContent.scrollTop = oldScrollTop;
+                    });
+                }
             },
             appendMessage(role, content, index, isStreamingPlaceholder = false, cascadeInfo = null, attachments = null) {
                 const messageDiv = document.createElement('div');
@@ -2762,12 +2770,12 @@
 
                 if (state.messageCollapsedStates.get(index)) {
                     contentDiv.classList.add('collapsed');
-                    const toggleButtons = messageDiv.querySelectorAll('.message-toggle-button[data-action="toggle-collapse"]');
-                    toggleButtons.forEach(btn => {
-                        btn.textContent = '□︎';
-                        btn.title = 'メッセージを展開';
-                        btn.setAttribute('aria-label', 'メッセージを展開');
-                    });
+                    const toggleButtonsTop = messageDiv.querySelector('.message-toggle-button.top');
+                    if (toggleButtonsTop) {
+                        toggleButtonsTop.textContent = '□︎';
+                        toggleButtonsTop.title = 'メッセージを展開';
+                        toggleButtonsTop.setAttribute('aria-label', 'メッセージを展開');
+                    }
                 }
 
                 if (role === 'user' && attachments && attachments.length > 0) {
@@ -2968,6 +2976,12 @@
                     editButton.textContent = '編集'; editButton.title = 'メッセージを編集'; editButton.classList.add('js-edit-btn');
                     editButton.onclick = () => appLogic.startEditMessage(index, messageDiv);
                     actionsDiv.appendChild(editButton);
+
+                    const deleteButton = document.createElement('button');
+                    deleteButton.textContent = '削除'; deleteButton.title = 'この会話ターンを削除'; deleteButton.classList.add('js-delete-btn');
+                    deleteButton.onclick = () => appLogic.deleteMessage(index);
+                    actionsDiv.appendChild(deleteButton);
+                    
                     const copyButton = document.createElement('button');
                     copyButton.textContent = 'コピー';
                     copyButton.title = 'テキストをコピー';
@@ -2989,11 +3003,6 @@
                         };
                         actionsDiv.appendChild(retryButton);
                     }
-
-                    const deleteButton = document.createElement('button');
-                    deleteButton.textContent = '削除'; deleteButton.title = 'この会話ターンを削除'; deleteButton.classList.add('js-delete-btn');
-                    deleteButton.onclick = () => appLogic.deleteMessage(index);
-                    actionsDiv.appendChild(deleteButton);
                     
                     if (role === 'model' && messageData?.usageMetadata &&
                         typeof messageData.usageMetadata.candidatesTokenCount === 'number' &&
@@ -4703,7 +4712,6 @@ if (msg.role === 'user') return true;
                             title: newTitle.substring(0, 100)
                         };
                         const newChatId = await new Promise((resolve, reject) => {
-
                             const store = dbUtils._getStore(CHATS_STORE, 'readwrite');
                             const request = store.add(newChatData);
                             request.onsuccess = (event) => resolve(event.target.result);
@@ -4753,6 +4761,7 @@ if (msg.role === 'user') return true;
                             messageData.isCascaded = attributes['isCascaded'] === true;
                             messageData.isSelected = attributes['isSelected'] === true;
                         }
+
                         if (role === 'user' && attributes['attachments']) {
                             const fileNames = attributes['attachments'].split(';');
                             messageData.attachments = fileNames.map(name => ({
@@ -5760,10 +5769,12 @@ if (msg.role === 'user') return true;
                      uiUtils.showCustomAlert("メモが開いています。閉じてから操作してください。");
                      return;
                  }
+                const mainContent = elements.chatScreen.querySelector('.main-content');
+                const oldScrollTop = mainContent.scrollTop;
                 state.areAllMessagesHidden = !state.areAllMessagesHidden;
                 uiUtils.updateToggleAllContentButton();
                 state.messageCollapsedStates.clear();
-                uiUtils.renderChatMessages();
+                uiUtils.renderChatMessages(true);
             }
         };
 
