@@ -44,8 +44,8 @@
             --bg-button-update-hover: #115293;
             --bg-header: #4a90e2;
             --bg-message-actions: rgba(255, 255, 255, 0.8);
-            --overlay-base-rgb: 255, 255, 255; /* ライトモードの --bg-primary のRGB */
-            --chat-overlay-alpha: 0.65; /* これは全テーマ共通の初期値 */
+            --overlay-base-rgb: 255, 255, 255;
+            --chat-overlay-alpha: 0.65;
             --bg-cascade-button: var(--bg-button-action);
             --bg-cascade-button-hover: var(--bg-button-action-hover);
             --bg-cascade-delete-button: var(--bg-button-delete);
@@ -61,7 +61,7 @@
             --text-primary: #333333;
             --text-secondary: #777777;
             --text-light: #ffffff;
-            --text-disabled: #e0e0e0; /* ライトモード時のボタン無効時テキスト */
+            --text-disabled: #e0e0e0;
             --text-error: #c62828;
             --text-link: #4a90e2;
             --text-placeholder: #999999;
@@ -80,6 +80,8 @@
             --message-max-width: 85%;
             --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             --chat-background-image: none;
+            --history-background-image: none; /* 追加 */
+            --settings-background-image: none; /* 追加 */
             
             --bg-dialog-file-item: var(--bg-tertiary);
             --border-dialog-file-item: var(--border-secondary);
@@ -108,8 +110,8 @@
             --bg-toggle-button-hover: var(--bg-button-action-hover);
             --text-toggle-button: var(--text-light);
 
-            --message-bubble-opacity: 1; /* これは全テーマ共通の初期値 */
-            --header-footer-opacity: 1; /* これは全テーマ共通の初期値 */
+            --message-bubble-opacity: 1;
+            --header-footer-opacity: 1;
 
             --bg-button-gold: #FFD700;
             --bg-button-gold-hover: #FFC700;
@@ -121,11 +123,11 @@
 
         body.dark-mode {
             --bg-primary: #1a1a1a;
-            --bg-secondary: #101010; /* チャット入力エリア(フッター)のベース */
+            --bg-secondary: #101010;
             --bg-tertiary: #252525;
             --bg-input: #303030;
-            --bg-user-message: #056162; /* ダークモードのユーザーメッセージ */
-            --bg-model-message: #3a3a3c; /* ダークモードのモデルメッセージ */
+            --bg-user-message: #056162;
+            --bg-model-message: #3a3a3c;
             --bg-system-message: #2a3a4a;
             --bg-error-message: #5c1c1c;
             --bg-button: #007aff;
@@ -140,8 +142,8 @@
             --bg-button-edit: #ff9500;
             --bg-button-edit-hover: #d17d00;
             --bg-button-copy: #e91e63;
-            --bg-button-copy-hover: #c2185b; /* ダークモードでもピンク系で良いか確認 */
-            --bg-button-paste: #00bcd4; /* ダークモードでもシアン系で良いか確認 */
+            --bg-button-copy-hover: #c2185b;
+            --bg-button-paste: #00bcd4;
             --bg-button-paste-hover: #0097a7;
             --bg-button-duplicate: #8e8e93;
             --bg-button-duplicate-hover: #6b6b70;
@@ -153,30 +155,26 @@
             --bg-button-cancel-hover: #d1332b;
             --bg-button-update: #0a84ff;
             --bg-button-update-hover: #0069d1;
-            --bg-header: #007aff; /* ダークモードのヘッダー */
+            --bg-header: #007aff;
             --bg-message-actions: rgba(50, 50, 50, 0.8);
-            --overlay-base-rgb: 30, 30, 30; /* ダークモードのチャットオーバーレイベース (--bg-primaryのRGB) */
+            --overlay-base-rgb: 30, 30, 30;
             --bg-cascade-button: var(--bg-button-action);
             --bg-cascade-button-hover: var(--bg-button-action-hover);
             --bg-cascade-delete-button: var(--bg-button-delete);
             --bg-cascade-delete-button-hover: var(--bg-button-delete-hover);
             --text-cascade-indicator: var(--text-secondary);
-            --bg-button-header-delete: var(--bg-button-delete); /* ダークモードでのヘッダー削除ボタン */
-            --bg-button-header-delete-hover: var(--bg-button-delete-hover);
-            --bg-button-header-copy: var(--bg-button-copy); /* ダークモードでのヘッダーコピーボタン */
-            --bg-button-header-copy-hover: var(--bg-button-copy-hover);
             --bg-button-header-toggle-content: var(--bg-button-action);
             --bg-button-header-toggle-content-hover: var(--bg-button-action-hover);
 
             --text-primary: #e0e0e0;
             --text-secondary: #aaaaaa;
             --text-light: #ffffff;
-            --text-disabled: #666666; /* ダークモード時のボタン無効時テキスト */
+            --text-disabled: #666666;
             --text-error: #ff8a80;
             --text-link: #00aaff;
             --text-placeholder: #777777;
             --text-system: #ccc;
-            --text-memo: #e0e0e0; /* ダークモードのメモテキスト */
+            --text-memo: #e0e0e0;
 
             --border-primary: #444444;
             --border-secondary: #555555;
@@ -191,53 +189,51 @@
             --bg-toggle-button-hover: var(--bg-button-action-hover);
             --text-toggle-button: var(--text-light);
 
-            /* ダークモードでの金銀ボタンの色を明確に指定 */
-            --bg-button-gold: #c0a062; /* 落ち着いたゴールド */
+            --bg-button-gold: #c0a062;
             --bg-button-gold-hover: #ad8f50;
             --text-button-gold: #ffffff;
-            --bg-button-purple: #7c5295; /* 落ち着いたパープル */
+            --bg-button-purple: #7c5295;
             --bg-button-purple-hover: #6a4283;
             --text-button-purple: #ffffff;
         }
 
-        /* パステルモード🩷 (ピンク基調) */
         body.pastel-pink-mode {
-            --bg-primary: #fff5f8; /* 淡いピンクの背景 */
-            --bg-secondary: #ffe6ea; /* やや濃いピンクのセカンダリ背景 */
-            --bg-tertiary: #fff0f3; /* カードなどの背景 */
-            --bg-input: #ffffff; /* 入力欄は白 */
-            --bg-user-message: #ffddee; /* ユーザーメッセージ: ピーチピンク */
-            --bg-model-message: #f3e8ff; /* モデルメッセージ: 淡いラベンダー */
-            --bg-system-message: #ffeef2; /* システムメッセージ背景 */
-            --bg-error-message: #ffccd5; /* エラーメッセージ背景 */
-            --bg-button: #ff8fab; /* ボタン: ローズピンク */
-            --bg-button-hover: #ff7096; /* ボタンホバー */
-            --bg-button-disabled: #fcc2d7; /* ボタン無効 */
-            --bg-button-action: #ffb3c1; /* アクションボタン: ソフトピンク */
+            --bg-primary: #fff5f8;
+            --bg-secondary: #ffe6ea;
+            --bg-tertiary: #fff0f3;
+            --bg-input: #ffffff;
+            --bg-user-message: #ffddee;
+            --bg-model-message: #f3e8ff;
+            --bg-system-message: #ffeef2;
+            --bg-error-message: #ffccd5;
+            --bg-button: #ff8fab;
+            --bg-button-hover: #ff7096;
+            --bg-button-disabled: #fcc2d7;
+            --bg-button-action: #ffb3c1;
             --bg-button-action-hover: #ffa8b9;
-            --bg-button-delete: #ff6b6b; /* 削除ボタン: やや彩度高めの赤系ピンク */
+            --bg-button-delete: #ff6b6b;
             --bg-button-delete-hover: #f06060;
-            --bg-button-retry: #a0eade; /* リトライ: パステルミント (アクセント) */
+            --bg-button-retry: #a0eade;
             --bg-button-retry-hover: #88d8c0;
-            --bg-button-edit: #ffc974; /* 編集: パステルオレンジ (アクセント) */
+            --bg-button-edit: #ffc974;
             --bg-button-edit-hover: #ffbd59;
-            --bg-button-copy: #e5a9f0; /* コピー: パステルパープル */
+            --bg-button-copy: #e5a9f0;
             --bg-button-copy-hover: #d998e3;
-            --bg-button-paste: #b2e0ff; /* 貼り付け: パステルスカイブルー */
+            --bg-button-paste: #b2e0ff;
             --bg-button-paste-hover: #a1d5f7;
-            --bg-button-duplicate: #ffdaab; /* 複製: パステルアプリコット */
+            --bg-button-duplicate: #ffdaab;
             --bg-button-duplicate-hover: #ffce96;
-            --bg-button-export: #c8a2c8; /* 出力: パステルライラック */
+            --bg-button-export: #c8a2c8;
             --bg-button-export-hover: #b991b9;
-            --bg-button-save: #90ee90; /* 保存: パステルグリーン */
+            --bg-button-save: #90ee90;
             --bg-button-save-hover: #78dd78;
-            --bg-button-cancel: #ff9aa2; /* キャンセル: やや濃いパステルレッド */
+            --bg-button-cancel: #ff9aa2;
             --bg-button-cancel-hover: #ff868e;
-            --bg-button-update: #ff9a8b; /* 更新: パステルコーラル */
+            --bg-button-update: #ff9a8b;
             --bg-button-update-hover: #ff8773;
-            --bg-header: #ff8fab; /* ヘッダー: ボタンと同色 */
-            --bg-message-actions: rgba(255, 230, 234, 0.85); /* メッセージアクション背景 */
-            --overlay-base-rgb: 255, 245, 248; /* チャット背景オーバーレイ (--bg-primaryのRGB) */
+            --bg-header: #ff8fab;
+            --bg-message-actions: rgba(255, 230, 234, 0.85);
+            --overlay-base-rgb: 255, 245, 248;
             --bg-cascade-button: var(--bg-button-action);
             --bg-cascade-button-hover: var(--bg-button-action-hover);
             --bg-cascade-delete-button: var(--bg-button-delete);
@@ -250,17 +246,17 @@
             --bg-button-header-toggle-content: var(--bg-button-action);
             --bg-button-header-toggle-content-hover: var(--bg-button-action-hover);
 
-            --text-primary: #5c3c45; /* テキスト: ダークローズ */
-            --text-secondary: #8c6b74; /* セカンダリテキスト */
-            --text-light: #ffffff; /* 明るいテキスト */
-            --text-disabled: #d8b8c0; /* パステルピンクの無効テキスト */
-            --text-error: #c5002f; /* エラーテキスト */
-            --text-link: #ff69b4; /* リンク: ホットピンク */
-            --text-placeholder: #b28a94; /* プレースホルダー */
-            --text-system: #7d5a65; /* システムメッセージテキスト */
+            --text-primary: #5c3c45;
+            --text-secondary: #8c6b74;
+            --text-light: #ffffff;
+            --text-disabled: #d8b8c0;
+            --text-error: #c5002f;
+            --text-link: #ff69b4;
+            --text-placeholder: #b28a94;
+            --text-system: #7d5a65;
             --text-memo: #5c3c45;
 
-            --border-primary: #ffc2d7; /* 境界線 */
+            --border-primary: #ffc2d7;
             --border-secondary: #ffe0e7;
             --border-tertiary: #fff0f3;
             --border-danger: #ffb3c1;
@@ -289,52 +285,51 @@
             --bg-toggle-button-hover: var(--bg-button-action-hover);
             --text-toggle-button: var(--text-light);
 
-            --bg-button-gold: #ffdd77; /* パステルゴールド */
+            --bg-button-gold: #ffdd77;
             --bg-button-gold-hover: #ffcc55;
             --text-button-gold: #816200;
-            --bg-button-purple: #d9a7e0; /* パステルパープル */
+            --bg-button-purple: #d9a7e0;
             --bg-button-purple-hover: #c790d0;
             --text-button-purple: #ffffff;
         }
 
-        /* パステルモード🩵 (ライトブルー基調) */
         body.pastel-blue-mode {
-            --bg-primary: #f0f8ff; /* アリスブルーの背景 */
-            --bg-secondary: #e0f0ff; /* やや濃い水色のセカンダリ背景 */
-            --bg-tertiary: #eaf5ff; /* カードなどの背景 */
-            --bg-input: #ffffff; /* 入力欄は白 */
-            --bg-user-message: #cff1ef; /* ユーザーメッセージ: パステルミント */
-            --bg-model-message: #e0e8ff; /* モデルメッセージ: 淡いペリウィンクル */
-            --bg-system-message: #e6f2ff; /* システムメッセージ背景 */
-            --bg-error-message: #d1e9ff; /* エラーメッセージ背景 */
-            --bg-button: #87cefa; /* ボタン: ライトスカイブルー */
-            --bg-button-hover: #70b8e8; /* ボタンホバー */
-            --bg-button-disabled: #b0dfff; /* ボタン無効 */
-            --bg-button-action: #add8e6; /* アクションボタン: ライトブルー */
+            --bg-primary: #f0f8ff;
+            --bg-secondary: #e0f0ff;
+            --bg-tertiary: #eaf5ff;
+            --bg-input: #ffffff;
+            --bg-user-message: #cff1ef;
+            --bg-model-message: #e0e8ff;
+            --bg-system-message: #e6f2ff;
+            --bg-error-message: #d1e9ff;
+            --bg-button: #87cefa;
+            --bg-button-hover: #70b8e8;
+            --bg-button-disabled: #b0dfff;
+            --bg-button-action: #add8e6;
             --bg-button-action-hover: #9ccce0;
-            --bg-button-delete: #ff7f7f; /* 削除ボタン: パステルコーラルレッド */
+            --bg-button-delete: #ff7f7f;
             --bg-button-delete-hover: #ff6a6a;
-            --bg-button-retry: #98fb98; /* リトライ: ペールグリーン (アクセント) */
+            --bg-button-retry: #98fb98;
             --bg-button-retry-hover: #82f082;
-            --bg-button-edit: #ffe082; /* 編集: パステルイエロー (アクセント) */
+            --bg-button-edit: #ffe082;
             --bg-button-edit-hover: #ffda6b;
-            --bg-button-copy: #bca0dc; /* コピー: パステルラベンダー */
+            --bg-button-copy: #bca0dc;
             --bg-button-copy-hover: #ae8fcf;
-            --bg-button-paste: #a0cfd8; /* 貼り付け: パステルターコイズ */
+            --bg-button-paste: #a0cfd8;
             --bg-button-paste-hover: #8ebfc9;
-            --bg-button-duplicate: #c1e1c1; /* 複製: パステルモスグリーン */
+            --bg-button-duplicate: #c1e1c1;
             --bg-button-duplicate-hover: #add6ad;
-            --bg-button-export: #b0c4de; /* 出力: ライトスチールブルー */
+            --bg-button-export: #b0c4de;
             --bg-button-export-hover: #a0b7d3;
-            --bg-button-save: #90ee90; /* 保存: パステルグリーン */
+            --bg-button-save: #90ee90;
             --bg-button-save-hover: #78dd78;
-            --bg-button-cancel: #ff94a0; /* キャンセル: ソフトな赤 */
+            --bg-button-cancel: #ff94a0;
             --bg-button-cancel-hover: #ff808c;
-            --bg-button-update: #89cff0; /* 更新: ベビーブルー */
+            --bg-button-update: #89cff0;
             --bg-button-update-hover: #70c0e0;
-            --bg-header: #87cefa; /* ヘッダー: ボタンと同色 */
-            --bg-message-actions: rgba(224, 240, 255, 0.85); /* メッセージアクション背景 */
-            --overlay-base-rgb: 240, 248, 255; /* チャット背景オーバーレイ (--bg-primaryのRGB) */
+            --bg-header: #87cefa;
+            --bg-message-actions: rgba(224, 240, 255, 0.85);
+            --overlay-base-rgb: 240, 248, 255;
             --bg-cascade-button: var(--bg-button-action);
             --bg-cascade-button-hover: var(--bg-button-action-hover);
             --bg-cascade-delete-button: var(--bg-button-delete);
@@ -347,17 +342,17 @@
             --bg-button-header-toggle-content: var(--bg-button-action);
             --bg-button-header-toggle-content-hover: var(--bg-button-action-hover);
 
-            --text-primary: #3a5679; /* テキスト: ダークブルーグレー */
-            --text-secondary: #6b87a9; /* セカンダリテキスト */
-            --text-light: #ffffff; /* 明るいテキスト */
-            --text-disabled: #aec8e1; /* パステルブルーの無効テキスト */
-            --text-error: #a52a2a; /* エラーテキスト */
-            --text-link: #5f9ea0; /* リンク: カデットブルー */
-            --text-placeholder: #9ab0c9; /* プレースホルダー */
-            --text-system: #5a7698; /* システムメッセージテキスト */
+            --text-primary: #3a5679;
+            --text-secondary: #6b87a9;
+            --text-light: #ffffff;
+            --text-disabled: #aec8e1;
+            --text-error: #a52a2a;
+            --text-link: #5f9ea0;
+            --text-placeholder: #9ab0c9;
+            --text-system: #5a7698;
             --text-memo: #3a5679;
 
-            --border-primary: #b0dfff; /* 境界線 */
+            --border-primary: #b0dfff;
             --border-secondary: #d5eaff;
             --border-tertiary: #eaf5ff;
             --border-danger: #add8e6;
@@ -386,10 +381,10 @@
             --bg-toggle-button-hover: var(--bg-button-action-hover);
             --text-toggle-button: var(--text-light);
 
-            --bg-button-gold: #ffe48c; /* パステルイエローゴールド */
+            --bg-button-gold: #ffe48c;
             --bg-button-gold-hover: #ffda70;
             --text-button-gold: #7a6200;
-            --bg-button-purple: #c1b2d7; /* パステルラベンダーブルー */
+            --bg-button-purple: #c1b2d7;
             --bg-button-purple-hover: #b0a0cb;
             --text-button-purple: #ffffff;
         }
@@ -615,7 +610,7 @@
         .header-notice {
             font-size: 11px;
             font-weight: normal;
-            color: rgba(255, 255, 255, 0.8);
+            color: rgba(255, 255, 255, 0.8); /* ライトモードデフォルト */
             text-align: right;
             white-space: nowrap;
             flex-shrink: 0;
@@ -623,10 +618,9 @@
         body.dark-mode .header-notice {
             color: rgba(255, 255, 255, 0.7);
         }
-        /* パステルモードのヘッダー通知文字色調整 */
         body.pastel-pink-mode .header-notice,
         body.pastel-blue-mode .header-notice {
-            color: var(--text-light); /* 背景が明るいパステルなので白文字に */
+            color: var(--text-light); 
             opacity: 0.9;
         }
 
@@ -751,10 +745,49 @@
             z-index: 2;
             background-color: rgba(var(--bg-secondary-rgb, 240, 242, 245), var(--header-footer-opacity, 1));
         }
+        
+        #history-screen,
+        #settings-screen {
+            position: relative; 
+            z-index: 0; 
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            transition: background-image 0.3s ease, transform 0.3s ease-in-out;
+        }
+
+        #history-screen {
+            background-image: var(--history-background-image, none);
+        }
+        #settings-screen {
+            background-image: var(--settings-background-image, none);
+        }
+
+        #history-screen::before,
+        #settings-screen::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(var(--overlay-base-rgb), var(--chat-overlay-alpha));
+            z-index: 0; 
+            transition: background-color 0.3s ease;
+            pointer-events: none;
+        }
+
         #history-screen .main-content,
         #settings-screen .main-content {
+            z-index: 1; 
+            background-color: transparent; 
             touch-action: pan-y;
         }
+        #history-screen .app-header,
+        #settings-screen .app-header {
+            z-index: 2; 
+        }
+
 
         #memo-area {
             position: absolute;
@@ -980,37 +1013,31 @@
             left: 0;
             right: 0;
             height: 20px;
-            /* 各テーマの --bg-user-message の RGB 値を動的に取得するのは難しいため、
-               テーマごとに ::after の背景を上書きする */
             pointer-events: none;
         }
-        /* ライトモードのグラデーション (デフォルト) */
         body:not(.dark-mode):not(.pastel-pink-mode):not(.pastel-blue-mode) .message.user .message-content.collapsed::after {
              background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, var(--bg-user-message) 100%);
         }
         body:not(.dark-mode):not(.pastel-pink-mode):not(.pastel-blue-mode) .message.model .message-content.collapsed::after {
              background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, var(--bg-model-message) 100%);
         }
-        /* ダークモードのグラデーション */
         body.dark-mode .message.user .message-content.collapsed::after {
-             background: linear-gradient(to bottom, rgba(30,30,30,0) 0%, var(--bg-user-message) 100%); /* --overlay-base-rgb (dark) の透明から */
+             background: linear-gradient(to bottom, rgba(var(--overlay-base-rgb),0) 0%, var(--bg-user-message) 100%);
         }
         body.dark-mode .message.model .message-content.collapsed::after {
-             background: linear-gradient(to bottom, rgba(30,30,30,0) 0%, var(--bg-model-message) 100%); /* --overlay-base-rgb (dark) の透明から */
+             background: linear-gradient(to bottom, rgba(var(--overlay-base-rgb),0) 0%, var(--bg-model-message) 100%);
         }
-        /* パステルピンクモードのグラデーション */
         body.pastel-pink-mode .message.user .message-content.collapsed::after {
-            background: linear-gradient(to bottom, rgba(255,245,248,0) 0%, var(--bg-user-message) 100%); /* --overlay-base-rgb (pastel-pink) の透明から */
+            background: linear-gradient(to bottom, rgba(var(--overlay-base-rgb),0) 0%, var(--bg-user-message) 100%);
         }
         body.pastel-pink-mode .message.model .message-content.collapsed::after {
-            background: linear-gradient(to bottom, rgba(255,245,248,0) 0%, var(--bg-model-message) 100%); /* --overlay-base-rgb (pastel-pink) の透明から */
+            background: linear-gradient(to bottom, rgba(var(--overlay-base-rgb),0) 0%, var(--bg-model-message) 100%);
         }
-        /* パステルブルーモードのグラデーション */
         body.pastel-blue-mode .message.user .message-content.collapsed::after {
-            background: linear-gradient(to bottom, rgba(240,248,255,0) 0%, var(--bg-user-message) 100%); /* --overlay-base-rgb (pastel-blue) の透明から */
+            background: linear-gradient(to bottom, rgba(var(--overlay-base-rgb),0) 0%, var(--bg-user-message) 100%);
         }
         body.pastel-blue-mode .message.model .message-content.collapsed::after {
-            background: linear-gradient(to bottom, rgba(240,248,255,0) 0%, var(--bg-model-message) 100%); /* --overlay-base-rgb (pastel-blue) の透明から */
+            background: linear-gradient(to bottom, rgba(var(--overlay-base-rgb),0) 0%, var(--bg-model-message) 100%);
         }
 
 
@@ -1262,10 +1289,9 @@
         body.dark-mode .chat-input-area button#send-button.sending:hover {
             background-color: #ffca28;
         }
-        /* パステルモードでの送信中ボタンの色 */
         body.pastel-pink-mode .chat-input-area button#send-button.sending,
         body.pastel-blue-mode .chat-input-area button#send-button.sending {
-            background-color: #ffee88; /* パステルイエロー */
+            background-color: #ffee88; 
             color: #554400;
         }
         body.pastel-pink-mode .chat-input-area button#send-button.sending:hover,
@@ -1305,13 +1331,9 @@
             box-shadow: 0 2px 6px var(--shadow-secondary);
         }
 
-        #history-screen {
-             background-color: var(--bg-primary);
-             transition: transform 0.3s ease-in-out;
-        }
-        #history-screen .main-content {
-             background-color: transparent;
-        }
+        /* #history-screen の背景はCSS変数 --history-background-image で設定 */
+        /* #settings-screen の背景はCSS変数 --settings-background-image で設定 */
+        /* ::before 擬似要素によるオーバーレイは各スクリーンに適用済み */
 
         .history-list {
             list-style: none;
@@ -1392,14 +1414,6 @@
             text-align: center;
             color: var(--text-secondary);
             margin-top: 20px;
-        }
-
-        #settings-screen {
-             background-color: var(--bg-primary);
-             transition: transform 0.3s ease-in-out;
-        }
-         #settings-screen .main-content {
-             background-color: transparent;
         }
 
         .settings-group {
@@ -1514,16 +1528,10 @@
             vertical-align: middle;
         }
 
-        /* @media (prefers-color-scheme: dark) のセレクタを修正 */
         @media (prefers-color-scheme: dark) {
-          body:not(.light-mode-forced):not(.pastel-pink-mode):not(.pastel-blue-mode) { /* JSでテーマが明示されていない場合のみ適用 */
-            /* ダークモードのデフォルト変数は body.dark-mode で指定されているので、ここでは重複を避けるか、
-               OS設定のみに依存する初期状態のための最小限の指定に留める。
-               今回は body.dark-mode で詳細指定しているため、ここでは空でも良い。
-               もしくは、JSが読み込まれる前のフォールバックとして基本的な色を指定。*/
+          body:not(.light-mode-forced):not(.pastel-pink-mode):not(.pastel-blue-mode) {
             --bg-primary: #1a1a1a;
             --text-primary: #e0e0e0;
-            /* ...など、主要な色のみ */
           }
         }
 
@@ -1685,10 +1693,9 @@
         body.dark-mode .message-content hr {
             border-top-color: var(--border-primary);
         }
-        /* パステルモードのMarkdown要素の色調整もここに追加可能 (必要に応じて) */
         body.pastel-pink-mode .message-content pre,
         body.pastel-blue-mode .message-content pre {
-            background-color: var(--bg-tertiary); /* より明るい背景のpre */
+            background-color: var(--bg-tertiary);
             border-color: var(--border-secondary);
             color: var(--text-secondary);
         }
@@ -1705,10 +1712,9 @@
         }
         body.pastel-pink-mode .message-content th,
         body.pastel-blue-mode .message-content th {
-            background-color: var(--bg-secondary); /* 表のヘッダーも調整 */
+            background-color: var(--bg-secondary);
         }
-
-
+        
         .message-actions .token-count-display {
             font-size: 0.8rem;
             color: var(--text-secondary);
@@ -1746,7 +1752,7 @@
         }
         body.pastel-pink-mode .custom-dialog::backdrop,
         body.pastel-blue-mode .custom-dialog::backdrop {
-            background-color: rgba(var(--overlay-base-rgb), 0.4); /* パステル調の薄い背景 */
+            background-color: rgba(var(--overlay-base-rgb), 0.4);
         }
 
         .custom-dialog[open] {
@@ -2004,7 +2010,7 @@
             background-color: var(--bg-dialog-button-cancel);
         }
         #fileUploadDialog .dialog-actions #cancel-attach-btn:hover:not(:disabled) {
-            background-color: var(--bg-button-cancel-hover);
+            background-color: var(--bg-dialog-button-cancel-hover);
         }
     </style>
     <script src="marked.js"></script>
@@ -2227,10 +2233,32 @@
                         <img id="background-thumbnail" src="" alt="背景画像プレビュー" class="background-thumbnail hidden">
                         <button id="delete-background-btn" class="settings-delete-button hidden" type="button">画像を削除</button>
                     </div>
-                     <p style="font-size: 11px; color: var(--text-secondary); margin-top: 8px;">
+                    <p style="font-size: 11px; color: var(--text-secondary); margin-top: 8px; margin-bottom: 15px;">
                        ※ 画像はブラウザ内のデータベースに保存。<br>
                        ※ 可読性のため画像の上に半透明のレイヤーを表示。
-                     </p>
+                    </p>
+
+                    <label>履歴画面の背景画像:</label>
+                    <div class="image-upload-controls">
+                        <input type="file" id="history-background-image-input" accept="image/jpeg, image/png, image/gif, image/webp" class="hidden">
+                        <button id="upload-history-background-btn" class="settings-action-button" type="button">画像を選択...</button>
+                        <img id="history-background-thumbnail" src="" alt="履歴画面 背景プレビュー" class="background-thumbnail hidden">
+                        <button id="delete-history-background-btn" class="settings-delete-button hidden" type="button">画像を削除</button>
+                    </div>
+                    <p style="font-size: 11px; color: var(--text-secondary); margin-top: 8px; margin-bottom: 15px;">
+                       ※ 設定内容は上記チャット画面と同様です。
+                    </p>
+
+                    <label>設定画面の背景画像:</label>
+                    <div class="image-upload-controls">
+                        <input type="file" id="settings-background-image-input" accept="image/jpeg, image/png, image/gif, image/webp" class="hidden">
+                        <button id="upload-settings-background-btn" class="settings-action-button" type="button">画像を選択...</button>
+                        <img id="settings-background-thumbnail" src="" alt="設定画面 背景プレビュー" class="background-thumbnail hidden">
+                        <button id="delete-settings-background-btn" class="settings-delete-button hidden" type="button">画像を削除</button>
+                    </div>
+                    <p style="font-size: 11px; color: var(--text-secondary); margin-top: 8px;">
+                       ※ 設定内容は上記チャット画面と同様です。
+                    </p>
                 </div>
 
                 <div class="settings-group">
@@ -2420,29 +2448,30 @@
 
         const DARK_MODE_USER_MESSAGE_COLOR = '#056162';
         const DARK_MODE_MODEL_MESSAGE_COLOR = '#3a3a3c';
-        const DARK_MODE_SECONDARY_COLOR = '#101010';
-        const DARK_MODE_PRIMARY_COLOR = '#1a1a1a'; // overlay-base-rgb用
+        const DARK_MODE_SECONDARY_COLOR = '#101010'; 
+        const DARK_MODE_HEADER_COLOR = '#007aff';
+        const DARK_MODE_PRIMARY_COLOR = '#1a1a1a'; 
 
         const PASTEL_PINK_USER_MESSAGE_COLOR = '#ffddee';
         const PASTEL_PINK_MODEL_MESSAGE_COLOR = '#f3e8ff';
         const PASTEL_PINK_SECONDARY_COLOR = '#ffe6ea';
         const PASTEL_PINK_HEADER_COLOR = '#ff8fab';
-        const PASTEL_PINK_PRIMARY_COLOR = '#fff5f8'; // overlay-base-rgb用
+        const PASTEL_PINK_PRIMARY_COLOR = '#fff5f8';
 
         const PASTEL_BLUE_USER_MESSAGE_COLOR = '#cff1ef';
         const PASTEL_BLUE_MODEL_MESSAGE_COLOR = '#e0e8ff';
         const PASTEL_BLUE_SECONDARY_COLOR = '#e0f0ff';
         const PASTEL_BLUE_HEADER_COLOR = '#87cefa';
-        const PASTEL_BLUE_PRIMARY_COLOR = '#f0f8ff'; // overlay-base-rgb用
+        const PASTEL_BLUE_PRIMARY_COLOR = '#f0f8ff';
 
         const LIGHT_MODE_USER_MESSAGE_COLOR = '#dcf8c6';
         const LIGHT_MODE_MODEL_MESSAGE_COLOR = '#e5e5ea';
         const LIGHT_MODE_SECONDARY_COLOR = '#f0f2f5';
         const LIGHT_MODE_HEADER_COLOR = '#4a90e2';
-        const LIGHT_MODE_PRIMARY_COLOR = '#ffffff'; // overlay-base-rgb用
+        const LIGHT_MODE_PRIMARY_COLOR = '#ffffff';
 
 
-        const APP_VERSION = "0.26"; // バージョン更新
+        const APP_VERSION = "0.27"; // バージョン更新
         const SWIPE_THRESHOLD = 50;
         const ZOOM_THRESHOLD = 1.01;
         const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -2522,6 +2551,14 @@
             uploadBackgroundBtn: document.getElementById('upload-background-btn'),
             backgroundThumbnail: document.getElementById('background-thumbnail'),
             deleteBackgroundBtn: document.getElementById('delete-background-btn'),
+            historyBackgroundImageInput: document.getElementById('history-background-image-input'),
+            uploadHistoryBackgroundBtn: document.getElementById('upload-history-background-btn'),
+            historyBackgroundThumbnail: document.getElementById('history-background-thumbnail'),
+            deleteHistoryBackgroundBtn: document.getElementById('delete-history-background-btn'),
+            settingsBackgroundImageInput: document.getElementById('settings-background-image-input'),
+            uploadSettingsBackgroundBtn: document.getElementById('upload-settings-background-btn'),
+            settingsBackgroundThumbnail: document.getElementById('settings-background-thumbnail'),
+            deleteSettingsBackgroundBtn: document.getElementById('delete-settings-background-btn'),
             gotoHistoryBtn: document.getElementById('goto-history-btn'),
             gotoSettingsBtn: document.getElementById('goto-settings-btn'),
             backToChatFromHistoryBtn: document.getElementById('back-to-chat-from-history'),
@@ -2596,6 +2633,8 @@
                 historySortOrder: 'updatedAt',
                 theme: 'light', 
                 backgroundImageBlob: null,
+                historyBackgroundImageBlob: null, 
+                settingsBackgroundImageBlob: null, 
                 fontFamily: '',
                 hideSystemPromptInChat: false,
                 enableGrounding: false,
@@ -2613,6 +2652,8 @@
                 headerFooterOpacity: DEFAULT_HEADER_FOOTER_OPACITY,
             },
             backgroundImageUrl: null,
+            historyBackgroundImageUrl: null, 
+            settingsBackgroundImageUrl: null, 
             isSending: false,
             abortController: null,
             partialStreamContent: '',
@@ -2770,7 +2811,7 @@
                                 const loadedValue = loadedSettings[key];
                                 const defaultValue = defaultSettings[key]; 
 
-                                if (key === 'backgroundImageBlob') {
+                                if (key === 'backgroundImageBlob' || key === 'historyBackgroundImageBlob' || key === 'settingsBackgroundImageBlob') {
                                     if (loadedValue instanceof Blob) {
                                          state.settings[key] = loadedValue;
                                     } else {
@@ -3460,36 +3501,59 @@
                     elements.historyTitle.textContent = '履歴一覧';
                 }
             },
-            revokeExistingObjectUrl() {
-                if (state.backgroundImageUrl) {
-                    try {
-                        URL.revokeObjectURL(state.backgroundImageUrl);
-                    } catch (e) {
-                        console.warn("Error revoking object URL:", e);
+            revokeExistingObjectUrl(target = 'all') {
+                if (target === 'all' || target === 'chat') {
+                    if (state.backgroundImageUrl) {
+                        try { URL.revokeObjectURL(state.backgroundImageUrl); } catch (e) { console.warn("Error revoking chat bg URL:", e); }
+                        state.backgroundImageUrl = null;
                     }
-                    state.backgroundImageUrl = null;
+                }
+                if (target === 'all' || target === 'history') {
+                    if (state.historyBackgroundImageUrl) {
+                        try { URL.revokeObjectURL(state.historyBackgroundImageUrl); } catch (e) { console.warn("Error revoking history bg URL:", e); }
+                        state.historyBackgroundImageUrl = null;
+                    }
+                }
+                if (target === 'all' || target === 'settings') {
+                    if (state.settingsBackgroundImageUrl) {
+                        try { URL.revokeObjectURL(state.settingsBackgroundImageUrl); } catch (e) { console.warn("Error revoking settings bg URL:", e); }
+                        state.settingsBackgroundImageUrl = null;
+                    }
                 }
             },
             updateBackgroundSettingsUI() {
-                if (!elements.backgroundThumbnail || !elements.deleteBackgroundBtn) return;
-                if (state.backgroundImageUrl) {
-                    elements.backgroundThumbnail.src = state.backgroundImageUrl;
-                    elements.backgroundThumbnail.classList.remove('hidden');
-                    elements.deleteBackgroundBtn.classList.remove('hidden');
-                } else {
-                    elements.backgroundThumbnail.src = '';
-                    elements.backgroundThumbnail.classList.add('hidden');
-                    elements.deleteBackgroundBtn.classList.add('hidden');
+                if (elements.backgroundThumbnail && elements.deleteBackgroundBtn) {
+                    if (state.backgroundImageUrl) {
+                        elements.backgroundThumbnail.src = state.backgroundImageUrl;
+                        elements.backgroundThumbnail.classList.remove('hidden');
+                        elements.deleteBackgroundBtn.classList.remove('hidden');
+                    } else {
+                        elements.backgroundThumbnail.src = '';
+                        elements.backgroundThumbnail.classList.add('hidden');
+                        elements.deleteBackgroundBtn.classList.add('hidden');
+                    }
                 }
-            },
-            applyMemoSettingsToUI() {
-                if (elements.toggleMemoBtn) {
-                    elements.toggleMemoBtn.classList.toggle('hidden', !state.settings.showMemoButton);
+                if (elements.historyBackgroundThumbnail && elements.deleteHistoryBackgroundBtn) {
+                    if (state.historyBackgroundImageUrl) {
+                        elements.historyBackgroundThumbnail.src = state.historyBackgroundImageUrl;
+                        elements.historyBackgroundThumbnail.classList.remove('hidden');
+                        elements.deleteHistoryBackgroundBtn.classList.remove('hidden');
+                    } else {
+                        elements.historyBackgroundThumbnail.src = '';
+                        elements.historyBackgroundThumbnail.classList.add('hidden');
+                        elements.deleteHistoryBackgroundBtn.classList.add('hidden');
+                    }
                 }
-                document.documentElement.style.setProperty('--memo-width', state.settings.memoWidth || DEFAULT_MEMO_WIDTH);
-                document.documentElement.style.setProperty('--memo-height', state.settings.memoHeight || DEFAULT_MEMO_HEIGHT);
-                if (elements.memoArea && !elements.memoArea.classList.contains('hidden')) {
-                    uiUtils.adjustTextareaHeight(elements.memoEditor, elements.memoArea.clientHeight - 20 - (elements.memoArea.querySelector('.memo-actions-container')?.offsetHeight || 0) );
+                if (elements.settingsBackgroundThumbnail && elements.deleteSettingsBackgroundBtn) {
+                    if (state.settingsBackgroundImageUrl) {
+                        elements.settingsBackgroundThumbnail.src = state.settingsBackgroundImageUrl;
+                        elements.settingsBackgroundThumbnail.classList.remove('hidden');
+                        elements.deleteSettingsBackgroundBtn.classList.remove('hidden');
+                    } else {
+                        elements.settingsBackgroundThumbnail.src = '';
+                        elements.settingsBackgroundThumbnail.classList.add('hidden');
+                        elements.deleteSettingsBackgroundBtn.classList.add('hidden');
+                    }
                 }
             },
             applyOpacitySettings() {
@@ -3501,7 +3565,7 @@
 
                 switch (state.settings.theme) {
                     case 'dark':
-                        headerColor = DARK_THEME_COLOR;
+                        headerColor = DARK_MODE_HEADER_COLOR;
                         secondaryColor = DARK_MODE_SECONDARY_COLOR;
                         userMessageColor = DARK_MODE_USER_MESSAGE_COLOR;
                         modelMessageColor = DARK_MODE_MODEL_MESSAGE_COLOR;
@@ -3523,7 +3587,7 @@
                         break;
                     case 'light':
                     default:
-                        headerColor = LIGHT_THEME_COLOR;
+                        headerColor = LIGHT_MODE_HEADER_COLOR;
                         secondaryColor = LIGHT_MODE_SECONDARY_COLOR;
                         userMessageColor = LIGHT_MODE_USER_MESSAGE_COLOR;
                         modelMessageColor = LIGHT_MODE_MODEL_MESSAGE_COLOR;
@@ -3553,6 +3617,7 @@
                 }
             },
             hexToRgb(hex) {
+                if (typeof hex !== 'string') return null;
                 const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
                 return result ? {
                     r: parseInt(result[1], 16),
@@ -3562,7 +3627,7 @@
             },
             parseRgbCss(rgbString) {
                 if (typeof rgbString !== 'string') return null;
-                const match = rgbString.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+                const match = rgbString.match(/^rgb\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3})\)$/);
                 if (match) {
                     return { r: parseInt(match[1]), g: parseInt(match[2]), b: parseInt(match[3]) };
                 }
@@ -3642,6 +3707,10 @@
                 this.applyFontFamily();
                 this.toggleSystemPromptVisibility();
                 this.applyMemoSettingsToUI();
+                
+                document.documentElement.style.setProperty('--chat-background-image', state.backgroundImageUrl ? `url(${state.backgroundImageUrl})` : 'none');
+                document.documentElement.style.setProperty('--history-background-image', state.historyBackgroundImageUrl ? `url(${state.historyBackgroundImageUrl})` : 'none');
+                document.documentElement.style.setProperty('--settings-background-image', state.settingsBackgroundImageUrl ? `url(${state.settingsBackgroundImageUrl})` : 'none');
             },
             updateChatScreenHeaderButtonVisibility() {
                 if (elements.deleteSessionBtn) {
@@ -3960,19 +4029,27 @@
                     uiUtils.applyTheme(); 
                     uiUtils.applyFontFamily();
                     uiUtils.applyMemoSettingsToUI();
+
                     if (state.settings.backgroundImageBlob instanceof Blob) {
-                        uiUtils.revokeExistingObjectUrl();
+                        uiUtils.revokeExistingObjectUrl('chat');
                         try {
                              state.backgroundImageUrl = URL.createObjectURL(state.settings.backgroundImageBlob);
-                             document.documentElement.style.setProperty('--chat-background-image', `url(${state.backgroundImageUrl})`);
-                        } catch (e) {
-                             console.error("Error creating object URL for background:", e);
-                             document.documentElement.style.setProperty('--chat-background-image', 'none');
-                        }
-                    } else {
-                        document.documentElement.style.setProperty('--chat-background-image', 'none');
+                        } catch (e) { console.error("Error creating object URL for chat background:", e); state.backgroundImageUrl = null; }
                     }
-                    uiUtils.applySettingsToUI(); // applyThemeもこの中で呼ばれる
+                    if (state.settings.historyBackgroundImageBlob instanceof Blob) {
+                        uiUtils.revokeExistingObjectUrl('history');
+                        try {
+                             state.historyBackgroundImageUrl = URL.createObjectURL(state.settings.historyBackgroundImageBlob);
+                        } catch (e) { console.error("Error creating object URL for history background:", e); state.historyBackgroundImageUrl = null; }
+                    }
+                    if (state.settings.settingsBackgroundImageBlob instanceof Blob) {
+                        uiUtils.revokeExistingObjectUrl('settings');
+                        try {
+                             state.settingsBackgroundImageUrl = URL.createObjectURL(state.settings.settingsBackgroundImageBlob);
+                        } catch (e) { console.error("Error creating object URL for settings background:", e); state.settingsBackgroundImageUrl = null; }
+                    }
+                    
+                    uiUtils.applySettingsToUI(); 
                     const chats = await dbUtils.getAllChats(state.settings.historySortOrder);
                     if (chats && chats.length > 0) {
                         await this.loadChat(chats[0].id);
@@ -4065,10 +4142,28 @@
                 elements.uploadBackgroundBtn.addEventListener('click', () => elements.backgroundImageInput.click());
                 elements.backgroundImageInput.addEventListener('change', (event) => {
                     const file = event.target.files[0];
-                    if (file) this.handleBackgroundImageUpload(file);
+                    if (file) this.handleBackgroundImageUpload(file, 'chat');
                     event.target.value = null;
                 });
-                elements.deleteBackgroundBtn.addEventListener('click', () => this.confirmDeleteBackgroundImage());
+                elements.deleteBackgroundBtn.addEventListener('click', () => this.confirmDeleteBackgroundImage('chat'));
+
+                elements.uploadHistoryBackgroundBtn.addEventListener('click', () => elements.historyBackgroundImageInput.click());
+                elements.historyBackgroundImageInput.addEventListener('change', (event) => {
+                    const file = event.target.files[0];
+                    if (file) this.handleBackgroundImageUpload(file, 'history');
+                    event.target.value = null;
+                });
+                elements.deleteHistoryBackgroundBtn.addEventListener('click', () => this.confirmDeleteBackgroundImage('history'));
+
+                elements.uploadSettingsBackgroundBtn.addEventListener('click', () => elements.settingsBackgroundImageInput.click());
+                elements.settingsBackgroundImageInput.addEventListener('change', (event) => {
+                    const file = event.target.files[0];
+                    if (file) this.handleBackgroundImageUpload(file, 'settings');
+                    event.target.value = null;
+                });
+                elements.deleteSettingsBackgroundBtn.addEventListener('click', () => this.confirmDeleteBackgroundImage('settings'));
+
+
                 elements.hideSystemPromptToggle.addEventListener('change', () => {
                     state.settings.hideSystemPromptInChat = elements.hideSystemPromptToggle.checked;
                     uiUtils.toggleSystemPromptVisibility();
@@ -5002,13 +5097,13 @@ if (msg.role === 'user') return true;
                              finishReason: isAbort ? 'ABORTED' : (modelResponseMetadata.finishReason || 'ERROR'),
                              ...(modelResponseMetadata.safetyRatings && { safetyRatings: modelResponseMetadata.safetyRatings })
                          };
-                         if (isRetry && isAbort) { // エラーで中断された場合でも、リトライ時はカスケード情報を付与
+                         if (isRetry && isAbort) { 
                              if (siblingGroupIdToUse === null) {
                                  siblingGroupIdToUse = `gid-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
                              }
                              partialMessage.isCascaded = true;
                              partialMessage.siblingGroupId = siblingGroupIdToUse;
-                             partialMessage.isSelected = true; // エラーメッセージを選択状態にする
+                             partialMessage.isSelected = true; 
                              if (firstResponseIndexForRetry !== -1 && state.currentMessages[firstResponseIndexForRetry] && !state.currentMessages[firstResponseIndexForRetry].isCascaded) {
                                  state.currentMessages[firstResponseIndexForRetry].isCascaded = true;
                                  state.currentMessages[firstResponseIndexForRetry].siblingGroupId = siblingGroupIdToUse;
@@ -5148,7 +5243,7 @@ if (msg.role === 'user') return true;
                         if (role === 'user' && attributes['attachments']) {
                             const fileNames = attributes['attachments'].split(';');
                             messageData.attachments = fileNames.map(name => ({
-                                name: name, mimeType: 'unknown/unknown', base64Data: '' // インポート時はBase64データなし
+                                name: name, mimeType: 'unknown/unknown', base64Data: '' 
                             }));
                         }
                         messages.push(messageData);
@@ -5182,7 +5277,6 @@ if (msg.role === 'user') return true;
                             if (msg.groundingMetadata) messageExport.groundingMetadata = msg.groundingMetadata;
                             if (msg.usageMetadata) messageExport.usageMetadata = msg.usageMetadata;
                             if (msg.attachments && msg.attachments.length > 0) {
-                                // エクスポート時にはBase64データは含めない（ファイルサイズとプライバシーのため）
                                 messageExport.attachments = msg.attachments.map(att => ({ name: att.name, mimeType: att.mimeType }));
                             }
                             return messageExport;
@@ -5260,7 +5354,7 @@ if (msg.role === 'user') return true;
                                     attachments: (msg.attachments || []).map(att => ({
                                         name: att.name || 'imported_file',
                                         mimeType: att.mimeType || 'application/octet-stream',
-                                        base64Data: '' // インポート時はBase64データは復元しない
+                                        base64Data: '' 
                                     })),
                                     groundingMetadata: msg.groundingMetadata || undefined,
                                     usageMetadata: msg.usageMetadata || undefined,
@@ -5322,7 +5416,7 @@ if (msg.role === 'user') return true;
                 };
                 reader.readAsText(file);
             },
-             async handleBackgroundImageUpload(file) {
+             async handleBackgroundImageUpload(file, target = 'chat') { 
                  const maxSize = 5 * 1024 * 1024;
                  if (file.size > maxSize) {
                      await uiUtils.showCustomAlert(`画像サイズが大きすぎます (${(maxSize / 1024 / 1024).toFixed(1)}MB以下にしてください)`);
@@ -5333,37 +5427,66 @@ if (msg.role === 'user') return true;
                      return;
                  }
                  try {
-                     uiUtils.revokeExistingObjectUrl();
+                     uiUtils.revokeExistingObjectUrl(target); 
                      const blob = file;
-                     await dbUtils.saveSetting('backgroundImageBlob', blob);
-                     state.settings.backgroundImageBlob = blob;
-                     state.backgroundImageUrl = URL.createObjectURL(blob);
-                     document.documentElement.style.setProperty('--chat-background-image', `url(${state.backgroundImageUrl})`);
-                     uiUtils.updateBackgroundSettingsUI();
+                     let settingKey, stateUrlKey, cssVarKey;
+
+                     if (target === 'history') {
+                         settingKey = 'historyBackgroundImageBlob';
+                         stateUrlKey = 'historyBackgroundImageUrl';
+                         cssVarKey = '--history-background-image';
+                     } else if (target === 'settings') {
+                         settingKey = 'settingsBackgroundImageBlob';
+                         stateUrlKey = 'settingsBackgroundImageUrl';
+                         cssVarKey = '--settings-background-image';
+                     } else { 
+                         settingKey = 'backgroundImageBlob';
+                         stateUrlKey = 'backgroundImageUrl';
+                         cssVarKey = '--chat-background-image';
+                     }
+
+                     await dbUtils.saveSetting(settingKey, blob);
+                     state.settings[settingKey] = blob;
+                     state[stateUrlKey] = URL.createObjectURL(blob);
+                     document.documentElement.style.setProperty(cssVarKey, `url(${state[stateUrlKey]})`);
+                     uiUtils.updateBackgroundSettingsUI(); 
                  } catch (error) {
-                     console.error("Background image upload error:", error);
+                     console.error(`Background image upload error for ${target}:`, error);
                      await uiUtils.showCustomAlert(`背景画像の処理中にエラーが発生しました: ${error}`);
-                     uiUtils.revokeExistingObjectUrl();
-                     document.documentElement.style.setProperty('--chat-background-image', 'none');
-                     state.settings.backgroundImageBlob = null;
+                     uiUtils.revokeExistingObjectUrl(target);
+                     if(cssVarKey) document.documentElement.style.setProperty(cssVarKey, 'none'); // cssVarKeyが未定義の場合を避ける
+                     if(settingKey) state.settings[settingKey] = null;
                      uiUtils.updateBackgroundSettingsUI();
                  }
              },
-             async confirmDeleteBackgroundImage() {
-                 const confirmed = await uiUtils.showCustomConfirm("背景画像を削除しますか？");
+             async confirmDeleteBackgroundImage(target = 'chat') { 
+                 const targetName = target === 'chat' ? 'チャット' : target === 'history' ? '履歴' : '設定';
+                 const confirmed = await uiUtils.showCustomConfirm(`${targetName}画面の背景画像を削除しますか？`);
                  if (confirmed) {
-                     await this.handleBackgroundImageDelete();
+                     await this.handleBackgroundImageDelete(target);
                  }
              },
-             async handleBackgroundImageDelete() {
+             async handleBackgroundImageDelete(target = 'chat') { 
                  try {
-                     uiUtils.revokeExistingObjectUrl();
-                     await dbUtils.saveSetting('backgroundImageBlob', null);
-                     state.settings.backgroundImageBlob = null;
-                     document.documentElement.style.setProperty('--chat-background-image', 'none');
+                     uiUtils.revokeExistingObjectUrl(target);
+                     let settingKey, cssVarKey;
+                     if (target === 'history') {
+                         settingKey = 'historyBackgroundImageBlob';
+                         cssVarKey = '--history-background-image';
+                     } else if (target === 'settings') {
+                         settingKey = 'settingsBackgroundImageBlob';
+                         cssVarKey = '--settings-background-image';
+                     } else {
+                         settingKey = 'backgroundImageBlob';
+                         cssVarKey = '--chat-background-image';
+                     }
+
+                     await dbUtils.saveSetting(settingKey, null);
+                     state.settings[settingKey] = null;
+                     document.documentElement.style.setProperty(cssVarKey, 'none');
                      uiUtils.updateBackgroundSettingsUI();
                  } catch (error) {
-                     console.error("Background image delete error:", error);
+                     console.error(`Background image delete error for ${target}:`, error);
                      await uiUtils.showCustomAlert(`背景画像の削除中にエラーが発生しました: ${error}`);
                  }
              },
@@ -5445,14 +5568,18 @@ if (msg.role === 'user') return true;
                      const promises = Object.entries(newSettings).map(([key, value]) =>
                          dbUtils.saveSetting(key, value)
                      );
+                     // Blobは直接保存されるので、ここでは除外してもよいが、state.settingsには入っているので問題ない
                      await Promise.all(promises);
-                     state.settings = { ...state.settings, ...newSettings };
+                     state.settings = { 
+                        ...state.settings, // 既存の Blob を維持
+                        ...newSettings // 新しい値をマージ
+                    };
                      uiUtils.applySettingsToUI();
                      await uiUtils.showCustomAlert("設定を保存しました。");
                      if (newSettings.historySortOrder !== oldSortOrder && state.currentScreen === 'history') {
                          uiUtils.renderHistoryList();
                      }
-                     uiUtils.renderChatMessages(); // テーマ変更による再描画も兼ねる
+                     uiUtils.renderChatMessages(); 
                  } catch (error) {
                      console.error("Save settings error:", error);
                      await uiUtils.showCustomAlert(`設定の保存中にエラーが発生しました: ${error}`);
@@ -5481,7 +5608,7 @@ if (msg.role === 'user') return true;
                 const confirmed = await uiUtils.showCustomConfirm("本当にすべてのデータ（チャット履歴と設定）を削除しますか？この操作は元に戻せません。");
                 if (confirmed) {
                     try {
-                        uiUtils.revokeExistingObjectUrl();
+                        uiUtils.revokeExistingObjectUrl('all'); // 全ての背景画像URLを破棄
                         await dbUtils.clearAllData();
                         await uiUtils.showCustomAlert("すべてのデータが削除されました。アプリをリセットします。");
                         state.currentChatId = null;
@@ -5500,7 +5627,10 @@ if (msg.role === 'user') return true;
                             additionalModels: '', pseudoStreaming: false, enterToSend: true,
                             historySortOrder: 'updatedAt',
                             theme: window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light', 
-                            backgroundImageBlob: null, fontFamily: '',
+                            backgroundImageBlob: null, 
+                            historyBackgroundImageBlob: null,
+                            settingsBackgroundImageBlob: null,
+                            fontFamily: '',
                             hideSystemPromptInChat: false, enableSwipeNavigation: true,
                             showDeleteSessionButton: true, showCopySessionButton: true,
                             showToggleAllContentButton: true, showBulkHistoryActions: true,
@@ -5512,9 +5642,13 @@ if (msg.role === 'user') return true;
                             headerFooterOpacity: DEFAULT_HEADER_FOOTER_OPACITY,
                         };
                         state.backgroundImageUrl = null;
+                        state.historyBackgroundImageUrl = null;
+                        state.settingsBackgroundImageUrl = null;
                         state.areAllMessagesHidden = false;
                         state.messageCollapsedStates.clear();
                         document.documentElement.style.setProperty('--chat-background-image', 'none');
+                        document.documentElement.style.setProperty('--history-background-image', 'none');
+                        document.documentElement.style.setProperty('--settings-background-image', 'none');
                         uiUtils.applySettingsToUI();
                         uiUtils.updateAttachmentBadgeVisibility();
                         this.startNewChat();
@@ -5774,16 +5908,21 @@ if (msg.role === 'user') return true;
                     const originalFirstUserMsgIndex = state.currentMessages.findIndex(m => m.role === 'user');
                     indicesToDelete.sort((a, b) => b - a).forEach(idx => {
                         state.currentMessages.splice(idx, 1);
-                        state.messageCollapsedStates.delete(idx); // 該当インデックスの折りたたみ状態も削除
+                        state.messageCollapsedStates.delete(idx); 
                     });
-                    // 残ったメッセージのインデックスに合わせて折りたたみ状態のキーを更新
                     const oldCollapsedStates = new Map(state.messageCollapsedStates);
                     state.messageCollapsedStates.clear();
                     state.currentMessages.forEach((msg, newIdx) => {
-                        // 元のメッセージ配列でこのメッセージが何番目だったかを探すのは困難
-                        // そのため、削除されなかったメッセージの折りたたみ状態は維持できない可能性がある
-                        // ここでは、単純に新しいインデックスで再初期化（false: 展開状態）
-                        state.messageCollapsedStates.set(newIdx, false);
+                        let originalCollapsed = false; 
+                        // This logic to find original collapsed state is tricky after multiple deletions.
+                        // For simplicity, we reset to false, or you'd need a more robust mapping.
+                        // A more robust way would be to assign unique IDs to messages if this becomes critical.
+                        const originalMessageReference = oldCollapsedStates.size > newIdx ? Array.from(oldCollapsedStates.keys())[newIdx] : undefined;
+                        if (originalMessageReference !== undefined && oldCollapsedStates.has(originalMessageReference)) {
+                           // This part is problematic if indices shift significantly.
+                           // For now, new messages are uncollapsed.
+                        }
+                        state.messageCollapsedStates.set(newIdx, originalCollapsed);
                     });
 
 
@@ -5865,13 +6004,10 @@ if (msg.role === 'user') return true;
                         deleteStartIndex = scanIndex;
                     }
                     if (deleteStartIndex !== -1) {
-                        // 削除されるメッセージの折りたたみ状態も削除
                         for(let i = deleteStartIndex; i < state.currentMessages.length; i++) {
                             state.messageCollapsedStates.delete(i);
                         }
                         state.currentMessages.splice(deleteStartIndex);
-                        // 残ったメッセージのインデックスに合わせて折りたたみ状態のキーを更新 (必要なら)
-                        // この場合、後ろがごっそり消えるので、前の部分のマップはそのまま使える
                     }
                     uiUtils.renderChatMessages();
                     uiUtils.scrollToBottom();
@@ -5971,16 +6107,15 @@ if (msg.role === 'user') return true;
                     const wasSelected = msgToDelete.isSelected;
                     const groupId = msgToDelete.siblingGroupId;
                     state.currentMessages.splice(indexToDelete, 1);
-                    state.messageCollapsedStates.delete(indexToDelete); // 該当インデックスの折りたたみ状態も削除
-                    // 残ったメッセージのインデックスに合わせて折りたたみ状態のキーを更新
+                    state.messageCollapsedStates.delete(indexToDelete);
                     const oldCollapsedStates = new Map(state.messageCollapsedStates);
                     state.messageCollapsedStates.clear();
                      state.currentMessages.forEach((msg, newIdx) => {
-                        const oldIdxEquivalent = newIdx >= indexToDelete ? newIdx + 1 : newIdx;
+                        const oldIdxEquivalent = newIdx >= indexToDelete ? newIdx + 1 : newIdx; // Simplified logic
                         if (oldCollapsedStates.has(oldIdxEquivalent)) {
                             state.messageCollapsedStates.set(newIdx, oldCollapsedStates.get(oldIdxEquivalent));
                         } else {
-                            state.messageCollapsedStates.set(newIdx, false); // デフォルト
+                            state.messageCollapsedStates.set(newIdx, false);
                         }
                     });
                     
