@@ -2088,7 +2088,7 @@
 
                 <div class="danger-zone">
                      <p style="text-align: center; color: var(--text-secondary); font-size: 12px; margin-bottom: 10px;">
-                         バージョン: <span id="app-version"></span>
+                         バージョン: <span id="app-version"></span>ti
                      </p>
                      <button id="update-app-btn">アプリを更新 (キャッシュクリア)</button>
                      <p style="font-size: 11px; color: var(--text-secondary); margin-top: -5px; margin-bottom: 10px; text-align:center;">
@@ -2177,9 +2177,9 @@
         const MAX_FILE_SIZE = 10 * 1024 * 1024;
         const MAX_TOTAL_ATTACHMENT_SIZE = 50 * 1024 * 1024;
         const COLLAPSED_HEIGHT = 50;
-        const DEFAULT_MESSAGE_BUBBLE_OPACITY = 1.0;
-        const DEFAULT_HEADER_FOOTER_OPACITY = 1.0;
-        const DEFAULT_CHAT_OVERLAY_OPACITY = 0.6;
+        const DEFAULT_MESSAGE_BUBBLE_OPACITY = 0.7;
+        const DEFAULT_HEADER_FOOTER_OPACITY = 0.4;
+        const DEFAULT_CHAT_OVERLAY_OPACITY = 0.2;
 
         const extensionToMimeTypeMap = {
             'pdf': 'application/pdf', 'js': 'text/javascript', 'py': 'text/x-python',
@@ -2329,8 +2329,8 @@
                 hideSystemPromptInChat: false,
                 enableGrounding: false,
                 enableSwipeNavigation: true,
-                showDeleteSessionButton: true,
-                showCopySessionButton: true,
+                showDeleteSessionButton: false,
+                showCopySessionButton: false,
                 showToggleAllContentButton: true,
                 showBulkHistoryActions: true,
                 showMemoButton: true,
