@@ -2705,6 +2705,7 @@
             renderChatMessages(maintainScroll = false) {
                 const mainContent = elements.chatScreen.querySelector('.main-content');
                 const oldScrollTop = maintainScroll ? mainContent.scrollTop : null;
+                const oldScrollHeight = maintainScroll ? mainContent.scrollHeight : null;
 
                 if (state.editingMessageIndex !== null) {
                     const messageElement = elements.messageContainer.querySelector(`.message[data-index="${state.editingMessageIndex}"]`);
@@ -2742,7 +2743,8 @@
                 }
                 if (maintainScroll && oldScrollTop !== null) {
                     requestAnimationFrame(() => {
-                        mainContent.scrollTop = oldScrollTop;
+                        const newScrollHeight = mainContent.scrollHeight;
+                        mainContent.scrollTop = oldScrollTop + (newScrollHeight - oldScrollHeight);
                     });
                 }
             },
@@ -4684,6 +4686,7 @@ if (msg.role === 'user') return true;
                                 lastUserIndex = i;
                                 currentGroupId = null;
                             } else if (msg.role === 'model' && msg.isCascaded) {
+
                                 if (currentGroupId === null && lastUserIndex !== -1) {
                                     currentGroupId = `imp-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
                                 }
@@ -4761,7 +4764,6 @@ if (msg.role === 'user') return true;
                             messageData.isCascaded = attributes['isCascaded'] === true;
                             messageData.isSelected = attributes['isSelected'] === true;
                         }
-
                         if (role === 'user' && attributes['attachments']) {
                             const fileNames = attributes['attachments'].split(';');
                             messageData.attachments = fileNames.map(name => ({
@@ -5771,9 +5773,13 @@ if (msg.role === 'user') return true;
                  }
                 const mainContent = elements.chatScreen.querySelector('.main-content');
                 const oldScrollTop = mainContent.scrollTop;
+
                 state.areAllMessagesHidden = !state.areAllMessagesHidden;
                 uiUtils.updateToggleAllContentButton();
-                state.messageCollapsedStates.clear();
+                
+                if (state.areAllMessagesHidden) {
+                    state.messageCollapsedStates.clear();
+                }
                 uiUtils.renderChatMessages(true);
             }
         };
