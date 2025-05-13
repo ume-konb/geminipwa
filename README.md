@@ -1,11 +1,9 @@
-#titan823によるフォーク版 GeminiPWA の変更点・仕様（2025年5月時点）
+# titan823によるフォーク版 GeminiPWA の変更点・仕様（2025年5月時点）
 
 ## ■ 利用方法（PWA）
 
 本フォークのPWAはブラウザから以下のURLで利用可能です：
 https://titan823.github.io/geminipwa/#chat
-
-⸻
 
 ## ■ 更新履歴
 
