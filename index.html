@@ -44,7 +44,8 @@
             --bg-button-update-hover: #115293;
             --bg-header: #4a90e2;
             --bg-message-actions: rgba(255, 255, 255, 0.8);
-            --bg-overlay-light: rgba(255, 255, 255, 0.65);
+            --overlay-base-rgb: 255, 255, 255;
+            --chat-overlay-alpha: 0.65;
             --bg-cascade-button: var(--bg-button-action);
             --bg-cascade-button-hover: var(--bg-button-action-hover);
             --bg-cascade-delete-button: var(--bg-button-delete);
@@ -112,10 +113,10 @@
 
             --bg-button-gold: #FFD700;
             --bg-button-gold-hover: #FFC700;
-            --text-button-gold: #ffffff; /* 変更: 常に白 */
+            --text-button-gold: #ffffff;
             --bg-button-purple: #800080;
             --bg-button-purple-hover: #6A006A;
-            --text-button-purple: #ffffff; /* 変更: 常に白 */
+            --text-button-purple: #ffffff;
         }
 
         body.dark-mode {
@@ -150,7 +151,7 @@
             --bg-button-update-hover: #0069d1;
             --bg-header: #007aff;
             --bg-message-actions: rgba(50, 50, 50, 0.8);
-            --bg-overlay-dark: rgba(30, 30, 30, 0.55);
+            --overlay-base-rgb: 30, 30, 30;
             --bg-cascade-button: var(--bg-button-action);
             --bg-cascade-button-hover: var(--bg-button-action-hover);
             --bg-cascade-delete-button: var(--bg-button-delete);
@@ -181,13 +182,12 @@
             --bg-toggle-button-hover: var(--bg-button-action-hover);
             --text-toggle-button: var(--text-light);
 
-            /* 変更: ダークモードでもゴールドとパープルボタンの背景色をライトモードと同じにする */
             --bg-button-gold: #FFD700;
             --bg-button-gold-hover: #FFC700;
-            --text-button-gold: #ffffff; /* 変更: 常に白 */
+            --text-button-gold: #ffffff;
             --bg-button-purple: #800080;
             --bg-button-purple-hover: #6A006A;
-            --text-button-purple: #ffffff; /* 変更: 常に白 */
+            --text-button-purple: #ffffff;
         }
 
         * {
@@ -311,9 +311,9 @@
             top: 0;
             z-index: 10;
             transition: background-color 0.3s ease;
-            gap: 10px; /* ボタン間のスペース */
-            flex-direction: row-reverse; /* 右から左へ要素を配置 */
-            justify-content: flex-start; /* 右端から配置開始 */
+            gap: 10px;
+            flex-direction: row-reverse;
+            justify-content: flex-start;
         }
         #history-screen .app-header h1#history-title {
             font-size: 18px;
@@ -321,26 +321,24 @@
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
-            text-align: right; /* タイトルを右寄せ */
+            text-align: right;
             margin: 0;
-            margin-left: auto; /* 左側の要素を押し出す */
-            order: 2; /* 配置順序 */
+            margin-left: auto;
+            order: 2;
         }
         #history-screen .app-header #back-to-chat-from-history {
-            order: 1; /* 一番右 */
+            order: 1;
         }
         
-        /* 新しいボタンの order 設定 */
         #history-screen .app-header #export-all-sessions-btn {
             order: 3; 
         }
         #history-screen .app-header #import-all-sessions-btn {
             order: 4;
         }
-        /* 既存の単一インポートボタンの order 設定 */
         #history-screen .app-header #import-history-btn {
             order: 5; 
-            margin-right: 0; /* 既存のスタイルを維持 */
+            margin-right: 0;
         }
 
         .history-action-button.gold {
@@ -357,7 +355,6 @@
         .history-action-button.purple:hover:not(:disabled) {
             background-color: var(--bg-button-purple-hover);
         }
-        /* 変更: ダークモード時のスタイルを明示的に指定して優先度を上げる */
         body.dark-mode .history-action-button.gold {
             background-color: var(--bg-button-gold);
             color: var(--text-button-gold);
@@ -372,7 +369,6 @@
         body.dark-mode .history-action-button.purple:hover:not(:disabled) {
             background-color: var(--bg-button-purple-hover);
         }
-
 
         .header-save-button {
             padding: 4px 12px;
@@ -507,13 +503,10 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: var(--bg-overlay-light);
+            background-color: rgba(var(--overlay-base-rgb), var(--chat-overlay-alpha));
             z-index: 0;
             transition: background-color 0.3s ease;
             pointer-events: none;
-        }
-        body.dark-mode #chat-screen::before {
-            background-color: var(--bg-overlay-dark);
         }
 
         #chat-screen .main-content {
@@ -1832,7 +1825,6 @@
                 <button id="import-all-sessions-btn" class="header-save-button history-action-button purple" title="全セッションをJSON形式で取込">全取込</button>
                 <input type="file" id="import-all-sessions-input" accept=".json" class="hidden">
 
-                <!-- 変更: ボタンのテキストを「インポート」に -->
                 <button id="import-history-btn" class="header-save-button" title="単一履歴をテキスト形式でインポート">インポート</button>
                 <input type="file" id="import-history-input" accept=".txt" class="hidden">
             </header>
@@ -2052,6 +2044,10 @@
                        <input type="checkbox" id="show-toggle-all-content-button-toggle">
                        ヘッダーに「全表示/非表示(🖼️)」ボタンを表示する
                    </label>
+                   <label class="checkbox-label">
+                        <input type="checkbox" id="show-bulk-history-actions-toggle">
+                        履歴画面に「全出力」「全取込」ボタンを表示する
+                    </label>
                    <p style="height:10px"></p>
                    <label class="checkbox-label">
                        <input type="checkbox" id="hide-system-prompt-toggle">
@@ -2084,6 +2080,8 @@
                    </p>
                    <label for="message-bubble-opacity">メッセージ背景の透明度 (0.0-1.0):</label>
                    <input type="number" id="message-bubble-opacity" min="0" max="1" step="0.05" placeholder="例: 0.8" aria-label="メッセージ背景の透明度">
+                   <label for="chat-overlay-opacity">チャット背景オーバーレイの透明度 (0.0-1.0):</label>
+                   <input type="number" id="chat-overlay-opacity" min="0" max="1" step="0.05" placeholder="例: 0.6" aria-label="チャット背景オーバーレイの透明度">
                    <label for="header-footer-opacity">ヘッダー/フッター背景の透明度 (0.0-1.0):</label>
                    <input type="number" id="header-footer-opacity" min="0" max="1" step="0.05" placeholder="例: 0.9" aria-label="ヘッダー/フッター背景の透明度">
                 </div>
@@ -2181,6 +2179,7 @@
         const COLLAPSED_HEIGHT = 50;
         const DEFAULT_MESSAGE_BUBBLE_OPACITY = 1.0;
         const DEFAULT_HEADER_FOOTER_OPACITY = 1.0;
+        const DEFAULT_CHAT_OVERLAY_OPACITY = 0.6;
 
         const extensionToMimeTypeMap = {
             'pdf': 'application/pdf', 'js': 'text/javascript', 'py': 'text/x-python',
@@ -2243,7 +2242,9 @@
             showDeleteSessionButtonToggle: document.getElementById('show-delete-session-button-toggle'),
             showCopySessionButtonToggle: document.getElementById('show-copy-session-button-toggle'),
             showToggleAllContentButtonToggle: document.getElementById('show-toggle-all-content-button-toggle'),
+            showBulkHistoryActionsToggle: document.getElementById('show-bulk-history-actions-toggle'),
             messageBubbleOpacityInput: document.getElementById('message-bubble-opacity'),
+            chatOverlayOpacityInput: document.getElementById('chat-overlay-opacity'),
             headerFooterOpacityInput: document.getElementById('header-footer-opacity'),
             appVersionSpan: document.getElementById('app-version'),
             backgroundImageInput: document.getElementById('background-image-input'),
@@ -2263,9 +2264,9 @@
             clearDataBtn: document.getElementById('clear-data-btn'),
             importHistoryBtn: document.getElementById('import-history-btn'),
             importHistoryInput: document.getElementById('import-history-input'),
-            exportAllSessionsBtn: document.getElementById('export-all-sessions-btn'), // New
-            importAllSessionsBtn: document.getElementById('import-all-sessions-btn'), // New
-            importAllSessionsInput: document.getElementById('import-all-sessions-input'), // New
+            exportAllSessionsBtn: document.getElementById('export-all-sessions-btn'),
+            importAllSessionsBtn: document.getElementById('import-all-sessions-btn'),
+            importAllSessionsInput: document.getElementById('import-all-sessions-input'),
             alertDialog: document.getElementById('alertDialog'),
             alertMessage: document.getElementById('alertDialog').querySelector('.dialog-message'),
             alertOkBtn: document.getElementById('alertDialog').querySelector('.dialog-ok-btn'),
@@ -2331,11 +2332,13 @@
                 showDeleteSessionButton: true,
                 showCopySessionButton: true,
                 showToggleAllContentButton: true,
+                showBulkHistoryActions: true,
                 showMemoButton: true,
                 memoWidth: DEFAULT_MEMO_WIDTH,
                 memoHeight: DEFAULT_MEMO_HEIGHT,
                 showCollapseButtons: true,
                 messageBubbleOpacity: DEFAULT_MESSAGE_BUBBLE_OPACITY,
+                chatOverlayOpacity: DEFAULT_CHAT_OVERLAY_OPACITY,
                 headerFooterOpacity: DEFAULT_HEADER_FOOTER_OPACITY,
             },
             backgroundImageUrl: null,
@@ -2491,19 +2494,19 @@
                                     } else {
                                          state.settings[key] = null;
                                     }
-                                } else if (key === 'hideSystemPromptInChat' || key === 'enableGrounding' || key === 'enableSwipeNavigation' || key === 'showDeleteSessionButton' || key === 'showCopySessionButton' || key === 'showToggleAllContentButton' || key === 'showMemoButton' || key === 'showCollapseButtons') {
+                                } else if (key === 'hideSystemPromptInChat' || key === 'enableGrounding' || key === 'enableSwipeNavigation' || key === 'showDeleteSessionButton' || key === 'showCopySessionButton' || key === 'showToggleAllContentButton' || key === 'showBulkHistoryActions' || key === 'showMemoButton' || key === 'showCollapseButtons') {
                                     state.settings[key] = loadedValue === true;
                                 } else if (key === 'darkMode' || key === 'streamingOutput' || key === 'pseudoStreaming' || key === 'enterToSend' || key === 'concatDummyModel') {
                                      state.settings[key] = loadedValue === true;
                                 } else if (typeof defaultValue === 'number' || defaultValue === null) {
                                      let num;
-                                     if (key === 'temperature' || key === 'topP' || key === 'presencePenalty' || key === 'frequencyPenalty' || key === 'messageBubbleOpacity' || key === 'headerFooterOpacity') {
+                                     if (key === 'temperature' || key === 'topP' || key === 'presencePenalty' || key === 'frequencyPenalty' || key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity') {
                                          num = parseFloat(loadedValue);
                                      } else {
                                          num = parseInt(loadedValue, 10);
                                      }
                                      if (isNaN(num)) {
-                                         if ((key === 'temperature' || key === 'maxTokens' || key === 'topK' || key === 'topP' || key === 'presencePenalty' || key === 'frequencyPenalty' || key === 'thinkingBudget' || key === 'messageBubbleOpacity' || key === 'headerFooterOpacity') && (loadedValue === null || loadedValue === '')) {
+                                         if ((key === 'temperature' || key === 'maxTokens' || key === 'topK' || key === 'topP' || key === 'presencePenalty' || key === 'frequencyPenalty' || key === 'thinkingBudget' || key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity') && (loadedValue === null || loadedValue === '')) {
                                               state.settings[key] = null;
                                          } else {
                                               state.settings[key] = defaultValue;
@@ -2516,7 +2519,7 @@
                                           if (key === 'streamingSpeed' && num < 0) num = defaultValue;
                                           if ((key === 'presencePenalty' || key === 'frequencyPenalty') && (num < -2.0 || num >= 2.0)) num = defaultValue;
                                           if (key === 'thinkingBudget' && (num < 0 || !Number.isInteger(num))) num = defaultValue;
-                                          if ((key === 'messageBubbleOpacity' || key === 'headerFooterOpacity') && (num < 0 || num > 1)) num = defaultValue;
+                                          if ((key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity') && (num < 0 || num > 1)) num = defaultValue;
                                           state.settings[key] = num;
                                      }
                                 } else if (typeof defaultValue === 'string') {
@@ -3096,6 +3099,7 @@
                 try {
                     const chats = await dbUtils.getAllChats(state.settings.historySortOrder);
                     elements.historyList.querySelectorAll('.history-item:not(.js-history-item-template)').forEach(item => item.remove());
+                    this.updateHistoryHeaderButtonVisibility();
                     if (chats && chats.length > 0) {
                         elements.noHistoryMessage.classList.add('hidden');
                         const sortOrderText = state.settings.historySortOrder === 'createdAt' ? '作成順' : '更新順';
@@ -3166,6 +3170,8 @@
             applyOpacitySettings() {
                 document.documentElement.style.setProperty('--message-bubble-opacity', state.settings.messageBubbleOpacity);
                 document.documentElement.style.setProperty('--header-footer-opacity', state.settings.headerFooterOpacity);
+                document.documentElement.style.setProperty('--chat-overlay-alpha', state.settings.chatOverlayOpacity);
+
                 const headerRgb = state.settings.darkMode ? this.hexToRgb(DARK_THEME_COLOR) : this.hexToRgb(LIGHT_THEME_COLOR);
                 if (headerRgb) {
                     document.documentElement.style.setProperty('--bg-header-rgb', `${headerRgb.r}, ${headerRgb.g}, ${headerRgb.b}`);
@@ -3219,14 +3225,17 @@
                 elements.showDeleteSessionButtonToggle.checked = state.settings.showDeleteSessionButton;
                 elements.showCopySessionButtonToggle.checked = state.settings.showCopySessionButton;
                 elements.showToggleAllContentButtonToggle.checked = state.settings.showToggleAllContentButton;
+                elements.showBulkHistoryActionsToggle.checked = state.settings.showBulkHistoryActions;
                 elements.messageBubbleOpacityInput.value = state.settings.messageBubbleOpacity ?? DEFAULT_MESSAGE_BUBBLE_OPACITY;
+                elements.chatOverlayOpacityInput.value = state.settings.chatOverlayOpacity ?? DEFAULT_CHAT_OVERLAY_OPACITY;
                 elements.headerFooterOpacityInput.value = state.settings.headerFooterOpacity ?? DEFAULT_HEADER_FOOTER_OPACITY;
                 elements.showMemoButtonToggle.checked = state.settings.showMemoButton;
                 elements.memoWidthInput.value = state.settings.memoWidth || '';
                 elements.memoHeightInput.value = state.settings.memoHeight || '';
                 elements.showCollapseButtonsToggle.checked = state.settings.showCollapseButtons;
 
-                this.updateHeaderButtonVisibility();
+                this.updateChatScreenHeaderButtonVisibility();
+                this.updateHistoryHeaderButtonVisibility();
                 this.updateUserModelOptions();
                 this.updateBackgroundSettingsUI();
                 this.applyDarkMode();
@@ -3235,7 +3244,7 @@
                 this.applyMemoSettingsToUI();
                 this.applyOpacitySettings();
             },
-            updateHeaderButtonVisibility() {
+            updateChatScreenHeaderButtonVisibility() {
                 if (elements.deleteSessionBtn) {
                     elements.deleteSessionBtn.classList.toggle('hidden', !state.settings.showDeleteSessionButton);
                 }
@@ -3247,6 +3256,15 @@
                 }
                 if (elements.toggleMemoBtn) {
                     elements.toggleMemoBtn.classList.toggle('hidden', !state.settings.showMemoButton);
+                }
+            },
+            updateHistoryHeaderButtonVisibility() {
+                const showBulkActions = state.settings.showBulkHistoryActions;
+                if (elements.exportAllSessionsBtn) {
+                    elements.exportAllSessionsBtn.classList.toggle('hidden', !showBulkActions);
+                }
+                if (elements.importAllSessionsBtn) {
+                    elements.importAllSessionsBtn.classList.toggle('hidden', !showBulkActions);
                 }
             },
             updateUserModelOptions() {
@@ -3312,6 +3330,7 @@
                      state.isMemoVisible = false;
                 }
                 if (screenName === state.currentScreen) {
+                    if (screenName === 'history') this.updateHistoryHeaderButtonVisibility();
                     return;
                 }
                 const allScreens = [elements.chatScreen, elements.historyScreen, elements.settingsScreen];
@@ -3335,7 +3354,7 @@
                     requestAnimationFrame(() => {
                         this.updateSystemPromptUI();
                         this.adjustTextareaHeight();
-                        this.updateHeaderButtonVisibility();
+                        this.updateChatScreenHeaderButtonVisibility();
                     });
                 } else if (screenName === 'history') {
                     activeScreen = elements.historyScreen;
@@ -3630,9 +3649,9 @@
                     if (file) this.handleHistoryImport(file);
                     event.target.value = null;
                 });
-                elements.exportAllSessionsBtn.addEventListener('click', () => this.exportAllSessions()); // New
-                elements.importAllSessionsBtn.addEventListener('click', () => elements.importAllSessionsInput.click()); // New
-                elements.importAllSessionsInput.addEventListener('change', (event) => { // New
+                elements.exportAllSessionsBtn.addEventListener('click', () => this.exportAllSessions());
+                elements.importAllSessionsBtn.addEventListener('click', () => elements.importAllSessionsInput.click());
+                elements.importAllSessionsInput.addEventListener('change', (event) => {
                     const file = event.target.files[0];
                     if (file) this.handleAllSessionsImport(file);
                     event.target.value = null;
@@ -3659,7 +3678,7 @@
                 });
                 elements.showMemoButtonToggle.addEventListener('change', () => {
                     state.settings.showMemoButton = elements.showMemoButtonToggle.checked;
-                    uiUtils.updateHeaderButtonVisibility();
+                    uiUtils.updateChatScreenHeaderButtonVisibility();
                 });
                 elements.memoWidthInput.addEventListener('input', () => {
                     const newWidth = elements.memoWidthInput.value.trim();
@@ -3685,7 +3704,11 @@
                 });
                 elements.showToggleAllContentButtonToggle.addEventListener('change', () => {
                     state.settings.showToggleAllContentButton = elements.showToggleAllContentButtonToggle.checked;
-                    uiUtils.updateHeaderButtonVisibility();
+                    uiUtils.updateChatScreenHeaderButtonVisibility();
+                });
+                elements.showBulkHistoryActionsToggle.addEventListener('change', () => {
+                    state.settings.showBulkHistoryActions = elements.showBulkHistoryActionsToggle.checked;
+                    uiUtils.updateHistoryHeaderButtonVisibility();
                 });
                 elements.messageBubbleOpacityInput.addEventListener('input', () => {
                     const opacity = parseFloat(elements.messageBubbleOpacityInput.value);
@@ -3693,6 +3716,14 @@
                         document.documentElement.style.setProperty('--message-bubble-opacity', opacity);
                     } else if (elements.messageBubbleOpacityInput.value === '') {
                          document.documentElement.style.setProperty('--message-bubble-opacity', DEFAULT_MESSAGE_BUBBLE_OPACITY);
+                    }
+                });
+                 elements.chatOverlayOpacityInput.addEventListener('input', () => {
+                    const opacity = parseFloat(elements.chatOverlayOpacityInput.value);
+                    if (!isNaN(opacity) && opacity >= 0 && opacity <= 1) {
+                        document.documentElement.style.setProperty('--chat-overlay-alpha', opacity);
+                    } else if (elements.chatOverlayOpacityInput.value === '') {
+                        document.documentElement.style.setProperty('--chat-overlay-alpha', DEFAULT_CHAT_OVERLAY_OPACITY);
                     }
                 });
                 elements.headerFooterOpacityInput.addEventListener('input', () => {
@@ -4461,6 +4492,7 @@ if (msg.role === 'user') return true;
                         }
                         return { role: msg.role, parts: parts };
                     });
+// (前のコードの続き)
                 const dummyUserText = state.settings.dummyUser?.trim();
                 const dummyModelText = state.settings.dummyModel?.trim();
                 if (dummyUserText) apiMessages.push({ role: 'user', parts: [{ text: dummyUserText }] });
@@ -4705,7 +4737,7 @@ if (msg.role === 'user') return true;
                 }
                 return { messages, systemPrompt };
             },
-            async exportAllSessions() { // New method
+            async exportAllSessions() {
                 const confirmed = await uiUtils.showCustomConfirm("全てのセッションを1つのJSONファイルとしてエクスポートしますか？");
                 if (!confirmed) return;
 
@@ -4756,7 +4788,7 @@ if (msg.role === 'user') return true;
                     console.error("Error exporting all sessions:", error);
                 }
             },
-            async handleAllSessionsImport(file) { // New method
+            async handleAllSessionsImport(file) {
                 if (!file || file.type !== 'application/json') {
                     await uiUtils.showCustomAlert("JSONファイル (.json) を選択してください。");
                     return;
@@ -4936,17 +4968,19 @@ if (msg.role === 'user') return true;
                      historySortOrder: elements.historySortOrderSelect.value,
                      darkMode: elements.darkModeToggle.checked,
                      fontFamily: elements.fontFamilyInput.value.trim(),
-                                          hideSystemPromptInChat: elements.hideSystemPromptToggle.checked,
+                     hideSystemPromptInChat: elements.hideSystemPromptToggle.checked,
                      enableGrounding: elements.enableGroundingToggle.checked,
                      enableSwipeNavigation: elements.swipeNavigationToggle.checked,
                      showDeleteSessionButton: elements.showDeleteSessionButtonToggle.checked,
                      showCopySessionButton: elements.showCopySessionButtonToggle.checked,
                      showToggleAllContentButton: elements.showToggleAllContentButtonToggle.checked,
+                     showBulkHistoryActions: elements.showBulkHistoryActionsToggle.checked,
                      showMemoButton: elements.showMemoButtonToggle.checked,
                      memoWidth: elements.memoWidthInput.value.trim() || DEFAULT_MEMO_WIDTH,
                      memoHeight: elements.memoHeightInput.value.trim() || DEFAULT_MEMO_HEIGHT,
                      showCollapseButtons: elements.showCollapseButtonsToggle.checked,
                      messageBubbleOpacity: elements.messageBubbleOpacityInput.value === '' ? DEFAULT_MESSAGE_BUBBLE_OPACITY : parseFloat(elements.messageBubbleOpacityInput.value),
+                     chatOverlayOpacity: elements.chatOverlayOpacityInput.value === '' ? DEFAULT_CHAT_OVERLAY_OPACITY : parseFloat(elements.chatOverlayOpacityInput.value),
                      headerFooterOpacity: elements.headerFooterOpacityInput.value === '' ? DEFAULT_HEADER_FOOTER_OPACITY : parseFloat(elements.headerFooterOpacityInput.value),
                  };
 
@@ -4976,6 +5010,9 @@ if (msg.role === 'user') return true;
                  }
                  if (newSettings.messageBubbleOpacity !== null && (isNaN(newSettings.messageBubbleOpacity) || newSettings.messageBubbleOpacity < 0 || newSettings.messageBubbleOpacity > 1)) {
                     newSettings.messageBubbleOpacity = DEFAULT_MESSAGE_BUBBLE_OPACITY;
+                 }
+                 if (newSettings.chatOverlayOpacity !== null && (isNaN(newSettings.chatOverlayOpacity) || newSettings.chatOverlayOpacity < 0 || newSettings.chatOverlayOpacity > 1)) {
+                    newSettings.chatOverlayOpacity = DEFAULT_CHAT_OVERLAY_OPACITY;
                  }
                  if (newSettings.headerFooterOpacity !== null && (isNaN(newSettings.headerFooterOpacity) || newSettings.headerFooterOpacity < 0 || newSettings.headerFooterOpacity > 1)) {
                     newSettings.headerFooterOpacity = DEFAULT_HEADER_FOOTER_OPACITY;
@@ -5042,10 +5079,12 @@ if (msg.role === 'user') return true;
                             backgroundImageBlob: null, fontFamily: '',
                             hideSystemPromptInChat: false, enableSwipeNavigation: true,
                             showDeleteSessionButton: true, showCopySessionButton: true,
-                            showToggleAllContentButton: true, showMemoButton: true,
+                            showToggleAllContentButton: true, showBulkHistoryActions: true,
+                            showMemoButton: true,
                             memoWidth: DEFAULT_MEMO_WIDTH, memoHeight: DEFAULT_MEMO_HEIGHT,
                             showCollapseButtons: true,
                             messageBubbleOpacity: DEFAULT_MESSAGE_BUBBLE_OPACITY,
+                            chatOverlayOpacity: DEFAULT_CHAT_OVERLAY_OPACITY,
                             headerFooterOpacity: DEFAULT_HEADER_FOOTER_OPACITY,
                         };
                         state.backgroundImageUrl = null;
@@ -5762,7 +5801,7 @@ if (msg.role === 'user') return true;
                         throw error;
                     }
                 } finally {
-                    if (buffer.trim().startsWith("data: ")) { // Handle any remaining buffer
+                    if (buffer.trim().startsWith("data: ")) {
                         try {
                             const jsonData = JSON.parse(buffer.trim().substring(6));
                             if (jsonData.candidates && jsonData.candidates.length > 0) {
@@ -5778,7 +5817,6 @@ if (msg.role === 'user') return true;
                             }
                             if (jsonData.usageMetadata) finalUsageMetadata = jsonData.usageMetadata;
                         } catch (e) {
-                            // ignore parse error for the final incomplete chunk
                         }
                     }
                     if (state.abortController?.signal.aborted && !finalFinishReason) {
