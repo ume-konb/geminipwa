@@ -1075,8 +1075,8 @@
             overflow: auto;
             display: flex;
             flex-direction: column;
-            /* transitionはJSで制御するため、ここでは初期設定のみ */
-            /* transition: opacity 0.3s ease, visibility 0.3s ease, width 0.3s ease, height 0.3s ease, background-color 0.3s ease, top 0.3s ease; */
+            /* transition はJSで制御するため、ここでは初期設定のみ */
+            transition: opacity 0.3s ease, visibility 0.3s ease, background-color 0.3s ease;
             resize: vertical; 
         }
 
@@ -4683,13 +4683,13 @@
                 const mainContent = elements.chatScreen.querySelector('.main-content');
                 const oldScrollTop = mainContent.scrollTop; 
 
-                state.isMemoVisible = !state.isMemoVisible;
+                state.isMemoVisible = !state.isMemoVisible; 
 
                 elements.memoArea.style.transition = 'none'; 
                 elements.memoArea.classList.toggle('hidden', !state.isMemoVisible);
 
                 if (state.isMemoVisible) {
-                    requestAnimationFrame(() => {
+                    requestAnimationFrame(() => { 
                         const headerHeight = elements.chatScreen.querySelector('.app-header').offsetHeight;
                         elements.memoArea.style.top = `${headerHeight + 10}px`; 
                         elements.memoArea.style.left = `15px`; 
@@ -4705,13 +4705,13 @@
                         
                         setTimeout(() => {
                             mainContent.scrollTop = oldScrollTop;
-                            elements.memoArea.style.transition = 'opacity 0.3s ease, visibility 0.3s ease, width 0.3s ease, height 0.3s ease, background-color 0.3s ease, top 0.3s ease';
+                            elements.memoArea.style.transition = 'opacity 0.3s ease, visibility 0.3s ease, background-color 0.3s ease';
                         }, 50); 
                     });
                 } else {
                     mainContent.scrollTop = oldScrollTop; 
                     requestAnimationFrame(() => { 
-                        elements.memoArea.style.transition = 'opacity 0.3s ease, visibility 0.3s ease, width 0.3s ease, height 0.3s ease, background-color 0.3s ease, top 0.3s ease';
+                        elements.memoArea.style.transition = 'opacity 0.3s ease, visibility 0.3s ease, background-color 0.3s ease';
                     });
                 }
             },
@@ -6528,6 +6528,10 @@ if (msg.role === 'user') return true;
                  }
             },
             toggleAllMessagesVisibility() {
+                if (state.isSending) { 
+                    uiUtils.showCustomAlert("送信中は操作できません。");
+                    return;
+                }
                 if (state.editingMessageIndex !== null) {
                      uiUtils.showCustomAlert("メッセージ編集中は操作できません。");
                      return;
@@ -6536,13 +6540,24 @@ if (msg.role === 'user') return true;
                      uiUtils.showCustomAlert("システムプロンプト編集中は操作できません。");
                      return;
                  }
+
                 const mainContent = elements.chatScreen.querySelector('.main-content');
                 const oldScrollTop = mainContent.scrollTop;
 
                 state.areAllMessagesHidden = !state.areAllMessagesHidden;
                 uiUtils.updateToggleAllContentButton();
                 
-                uiUtils.renderChatMessages(true);
+                const messages = elements.messageContainer.querySelectorAll('.message:not(.message-error)');
+                messages.forEach(msgElement => {
+                    if (msgElement.id && msgElement.id.startsWith('streaming-message-')) {
+                        return;
+                    }
+                    msgElement.classList.toggle('message-hidden-by-toggle', state.areAllMessagesHidden);
+                });
+                
+                requestAnimationFrame(() => {
+                    mainContent.scrollTop = oldScrollTop;
+                });
             }
         };
 
