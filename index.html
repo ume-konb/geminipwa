@@ -103,7 +103,7 @@
             --memo-height: 300px; 
             --clipboard-stack-height: 300px;
             --message-icon-size: 28px;
-            --message-icon-offset-y: 0px; /* アイコン垂直オフセットのデフォルト値 */
+            --message-icon-offset-y: 0px;
 
             --bg-toggle-button: var(--bg-button-action);
             --bg-toggle-button-hover: var(--bg-button-action-hover);
@@ -733,7 +733,7 @@
             top: 0;
             z-index: 10;
             transition: background-color 0.3s ease;
-            gap: 8px; /* 修正: 10pxから8pxへ */
+            gap: 8px; 
         }
         body.pastel-rainbow-mode .app-header {
             background: var(--bg-header); 
@@ -747,9 +747,9 @@
             text-overflow: ellipsis;
             text-align: left;
             margin: 0;
-            margin-right: auto; /* 修正: 維持 */
-            flex-shrink: 1;     /* 追加 */
-            min-width: 60px;    /* 追加 (値は調整可能) */
+            margin-right: auto; 
+            flex-shrink: 1;     
+            min-width: 60px;    
         }
         .header-button {
             background: none;
@@ -759,12 +759,11 @@
             padding: 5px;
             line-height: 1;
             min-width: 30px;
-            flex-shrink: 0; /* 修正: 維持 */
+            flex-shrink: 0; 
         }
-        /* 修正: 設定ボタンにorderプロパティを追加 */
         #goto-settings-btn {
             order: 99;
-            margin-left: 5px; /* 任意 */
+            margin-left: 5px; 
         }
 
 
@@ -1340,8 +1339,7 @@
             border-radius: 50%; 
             object-fit: cover; 
             position: absolute;
-            /* 修正前: top: calc(var(--message-icon-size) / -2 + 2px); */
-            top: calc( (var(--message-icon-size) / -2 + 2px) + var(--message-icon-offset-y, 0px) ); /* 修正後 */
+            top: calc( (var(--message-icon-size) / -2 + 2px) + var(--message-icon-offset-y, 0px) );
             border: 1px solid var(--border-secondary);
             background-color: var(--bg-tertiary); 
             box-shadow: 0 1px 2px var(--shadow-primary);
@@ -1353,12 +1351,29 @@
         .message.model .message-icon {
             left: 5px; 
         }
-        /* 修正: このスタイルは不要になるか影響がなくなるためコメントアウト
-        .message.user:hover .message-toggle-button.top + .message-icon,
-        .message.user.show-actions .message-toggle-button.top + .message-icon {
-            right: calc(5px + 20px + 5px); 
+
+        /* 追加: アイコン名表示スタイル */
+        .message-icon-name {
+            position: absolute;
+            font-size: 10px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 80px;
+            text-align: center;
+            z-index: 2;
+            top: calc( (var(--message-icon-size) / 2 + 4px) + var(--message-icon-offset-y, 0px) );
+            transform: translateX(-50%);
         }
-        */
+        .message.user .message-icon-name {
+            right: calc(5px + (var(--message-icon-size) / 2) - (var(--message-icon-size) / 2));
+            left: auto;
+        }
+        .message.model .message-icon-name {
+            left: calc(5px + (var(--message-icon-size) / 2));
+            right: auto;
+        }
 
 
         .message.message-hidden-by-toggle {
@@ -1482,12 +1497,11 @@
             opacity: 1;
         }
 
-        /* 修正: 折りたたみボタンの位置調整 */
         .message-toggle-button.top {
-            top: 5px; /* バブル内上部からの距離 */
-            right: 5px; /* バブル内右部からの距離 */
+            top: 5px; 
+            right: 5px; 
             left: auto;
-            z-index: 3; /* アイコンより手前に表示されるように念のため */
+            z-index: 3; 
         }
 
         .message-toggle-button.bottom {
@@ -2507,7 +2521,7 @@
             background-color: var(--bg-dialog-button-cancel);
         }
         #fileUploadDialog .dialog-actions #cancel-attach-btn:hover:not(:disabled) {
-            background-color: var(--bg-dialog-button-cancel-hover);
+            background-color: var(--bg-button-cancel-hover);
         }
     </style>
     <script src="marked.js"></script>
@@ -2757,28 +2771,42 @@
                         <input type="checkbox" id="show-user-icon-toggle">
                         ユーザーアイコンを表示する
                     </label>
-                    <div class="image-upload-controls" style="margin-bottom: 10px;">
+                    <div class="image-upload-controls" style="margin-bottom: 5px;">
                         <input type="file" id="user-icon-input" accept="image/jpeg, image/png, image/gif, image/webp" class="hidden">
                         <button id="upload-user-icon-btn" class="settings-action-button" type="button">ユーザーアイコン選択...</button>
                         <img id="user-icon-thumbnail" src="" alt="ユーザーアイコンプレビュー" class="icon-thumbnail hidden">
                         <button id="delete-user-icon-btn" class="settings-delete-button hidden" type="button">削除</button>
                     </div>
+                    <label class="checkbox-label" style="margin-top: 5px;">
+                        <input type="checkbox" id="show-user-name-toggle">
+                        ユーザー名を表示する
+                    </label>
+                    <label for="user-name-input">表示するユーザー名:</label>
+                    <input type="text" id="user-name-input" placeholder="例: あなた" aria-label="表示するユーザー名">
 
-                    <label class="checkbox-label" style="margin-top: 15px;">
+
+                    <label class="checkbox-label" style="margin-top: 20px;">
                         <input type="checkbox" id="show-ai-icon-toggle">
                         AIアイコンを表示する
                     </label>
-                    <div class="image-upload-controls">
+                    <div class="image-upload-controls" style="margin-bottom: 5px;">
                         <input type="file" id="ai-icon-input" accept="image/jpeg, image/png, image/gif, image/webp" class="hidden">
                         <button id="upload-ai-icon-btn" class="settings-action-button" type="button">AIアイコン選択...</button>
                         <img id="ai-icon-thumbnail" src="" alt="AIアイコンプレビュー" class="icon-thumbnail hidden">
                         <button id="delete-ai-icon-btn" class="settings-delete-button hidden" type="button">削除</button>
                     </div>
-                    <div style="margin-top: 15px;">
+                    <label class="checkbox-label" style="margin-top: 5px;">
+                        <input type="checkbox" id="show-ai-name-toggle">
+                        AI名を表示する
+                    </label>
+                    <label for="ai-name-input">表示するAI名:</label>
+                    <input type="text" id="ai-name-input" placeholder="例: Gemini" aria-label="表示するAI名">
+
+
+                    <div style="margin-top: 20px;">
                         <label for="message-icon-size">アイコン表示サイズ (px):</label>
                         <input type="number" id="message-icon-size" min="16" max="64" step="1" placeholder="例: 28" aria-label="アイコン表示サイズ">
                     </div>
-                    <!-- 修正: アイコン垂直オフセット設定の追加 -->
                     <div style="margin-top: 15px;">
                         <label for="message-icon-offset-y">アイコン垂直オフセット (px):</label>
                         <input type="number" id="message-icon-offset-y" step="1" placeholder="例: 0 (上下に調整)" aria-label="アイコン垂直オフセット">
@@ -2984,7 +3012,9 @@
         const DEFAULT_MEMO_HEIGHT = '300px';
         const DEFAULT_CLIPBOARD_STACK_HEIGHT = '300px';
         const DEFAULT_MESSAGE_ICON_SIZE = 28;
-        const DEFAULT_MESSAGE_ICON_OFFSET_Y = 0; // 追加
+        const DEFAULT_MESSAGE_ICON_OFFSET_Y = 0;
+        const DEFAULT_USER_NAME = "あなた"; 
+        const DEFAULT_AI_NAME = "AI";     
         const CHAT_TITLE_LENGTH = 15;
         const TEXTAREA_MAX_HEIGHT = 120;
         const GEMINI_API_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models/';
@@ -3186,13 +3216,17 @@
             uploadUserIconBtn: document.getElementById('upload-user-icon-btn'),
             userIconThumbnail: document.getElementById('user-icon-thumbnail'),
             deleteUserIconBtn: document.getElementById('delete-user-icon-btn'),
+            showUserNameToggle: document.getElementById('show-user-name-toggle'), 
+            userNameInput: document.getElementById('user-name-input'),         
             showAiIconToggle: document.getElementById('show-ai-icon-toggle'),
             aiIconInput: document.getElementById('ai-icon-input'),
             uploadAiIconBtn: document.getElementById('upload-ai-icon-btn'),
             aiIconThumbnail: document.getElementById('ai-icon-thumbnail'),
             deleteAiIconBtn: document.getElementById('delete-ai-icon-btn'),
+            showAiNameToggle: document.getElementById('show-ai-name-toggle'),   
+            aiNameInput: document.getElementById('ai-name-input'),           
             messageIconSizeInput: document.getElementById('message-icon-size'),
-            messageIconOffsetYInput: document.getElementById('message-icon-offset-y'), // 追加
+            messageIconOffsetYInput: document.getElementById('message-icon-offset-y'),
         };
 
         const state = {
@@ -3239,11 +3273,15 @@
                 showClipboardStackButton: true, 
                 clipboardStackHeight: DEFAULT_CLIPBOARD_STACK_HEIGHT, 
                 showUserIcon: true, 
-                userIconBlob: null, 
+                userIconBlob: null,
+                showUserName: true,        
+                userName: DEFAULT_USER_NAME, 
                 showAiIcon: true, 
-                aiIconBlob: null, 
+                aiIconBlob: null,
+                showAiName: true,          
+                aiName: DEFAULT_AI_NAME,     
                 messageIconSize: DEFAULT_MESSAGE_ICON_SIZE,
-                messageIconOffsetY: DEFAULT_MESSAGE_ICON_OFFSET_Y, // 追加
+                messageIconOffsetY: DEFAULT_MESSAGE_ICON_OFFSET_Y,
                 showCollapseButtons: true,
                 messageBubbleOpacity: DEFAULT_MESSAGE_BUBBLE_OPACITY,
                 chatOverlayOpacity: DEFAULT_CHAT_OVERLAY_OPACITY,
@@ -3421,19 +3459,20 @@
                                     } else {
                                         state.settings[key] = defaultValue; 
                                     }
-                                } else if (key === 'hideSystemPromptInChat' || key === 'enableGrounding' || key === 'enableSwipeNavigation' || key === 'showNewChatButton' || key === 'showDeleteSessionButton' || key === 'showCopySessionButton' || key === 'showScrollToTopButton' || key === 'showScrollToBottomButton' || key === 'showToggleAllContentButton' || key === 'showBulkHistoryActions' || key === 'showPasteButtonInFooter' || key === 'showMemoButton' || key === 'showClipboardStackButton' || key === 'showUserIcon' || key === 'showAiIcon' || key === 'showCollapseButtons' || key === 'streamingOutput' || key === 'pseudoStreaming' || key === 'enterToSend' || key === 'concatDummyModel') { 
+                                } else if (key === 'hideSystemPromptInChat' || key === 'enableGrounding' || key === 'enableSwipeNavigation' || key === 'showNewChatButton' || key === 'showDeleteSessionButton' || key === 'showCopySessionButton' || key === 'showScrollToTopButton' || key === 'showScrollToBottomButton' || key === 'showToggleAllContentButton' || key === 'showBulkHistoryActions' || key === 'showPasteButtonInFooter' || key === 'showMemoButton' || key === 'showClipboardStackButton' || key === 'showUserIcon' || key === 'showAiIcon' || key === 'showUserName' || key === 'showAiName' || key === 'showCollapseButtons' || key === 'streamingOutput' || key === 'pseudoStreaming' || key === 'enterToSend' || key === 'concatDummyModel') { 
                                      state.settings[key] = loadedValue === true; 
                                 } else if (typeof defaultValue === 'number' || defaultValue === null) {
                                      let num;
-                                     if (key === 'temperature' || key === 'topP' || key === 'presencePenalty' || key === 'frequencyPenalty' || key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity' || key === 'messageIconSize' || key === 'messageIconOffsetY') { // 修正: messageIconOffsetY を追加
+                                     if (key === 'temperature' || key === 'topP' || key === 'presencePenalty' || key === 'frequencyPenalty' || key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity' || key === 'messageIconSize' || key === 'messageIconOffsetY') {
                                          num = parseFloat(loadedValue);
                                      } else {
                                          num = parseInt(loadedValue, 10);
                                      }
                                      if (isNaN(num)) {
-                                         if ((key === 'temperature' || key === 'maxTokens' || key === 'topK' || key === 'topP' || key === 'presencePenalty' || key === 'frequencyPenalty' || key === 'thinkingBudget' || key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity' || key === 'messageIconSize' || key === 'messageIconOffsetY') && (loadedValue === null || loadedValue === '')) { // 修正: messageIconOffsetY を追加
+                                        // 数値キーでnullを許容するものはここで処理
+                                         if ((key === 'temperature' || key === 'maxTokens' || key === 'topK' || key === 'topP' || key === 'presencePenalty' || key === 'frequencyPenalty' || key === 'thinkingBudget' || key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity') && (loadedValue === null || loadedValue === '')) {
                                               state.settings[key] = null;
-                                         } else {
+                                         } else { // それ以外の数値キーはデフォルト値
                                               state.settings[key] = defaultValue;
                                          }
                                      } else {
@@ -3446,7 +3485,7 @@
                                           if (key === 'thinkingBudget' && (num < 0 || !Number.isInteger(num))) num = defaultValue;
                                           if ((key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity') && (num < 0 || num > 1)) num = defaultValue;
                                           if (key === 'messageIconSize' && (num < 16 || num > 64)) num = defaultValue;
-                                          if (key === 'messageIconOffsetY' && (num < -50 || num > 50)) num = defaultValue; // 修正: messageIconOffsetY の範囲チェック
+                                          if (key === 'messageIconOffsetY' && (num < -50 || num > 50)) num = defaultValue;
                                           state.settings[key] = num;
                                      }
                                 } else if (typeof defaultValue === 'string') {
@@ -3681,18 +3720,34 @@
                 messageDiv.classList.add('message', role);
                 messageDiv.dataset.index = index;
 
-                if (role === 'user' && state.settings.showUserIcon && state.userIconUrl) {
-                    const iconImg = document.createElement('img');
-                    iconImg.src = state.userIconUrl;
-                    iconImg.alt = "User Icon";
-                    iconImg.classList.add('message-icon');
-                    messageDiv.appendChild(iconImg);
-                } else if (role === 'model' && state.settings.showAiIcon && state.aiIconUrl) {
-                    const iconImg = document.createElement('img');
-                    iconImg.src = state.aiIconUrl;
-                    iconImg.alt = "AI Icon";
-                    iconImg.classList.add('message-icon');
-                    messageDiv.appendChild(iconImg);
+                if (role === 'user') {
+                    if (state.settings.showUserIcon && state.userIconUrl) {
+                        const iconImg = document.createElement('img');
+                        iconImg.src = state.userIconUrl;
+                        iconImg.alt = "User Icon";
+                        iconImg.classList.add('message-icon');
+                        messageDiv.appendChild(iconImg);
+                    }
+                    if (state.settings.showUserName && state.settings.userName) {
+                        const nameSpan = document.createElement('span');
+                        nameSpan.classList.add('message-icon-name');
+                        nameSpan.textContent = state.settings.userName;
+                        messageDiv.appendChild(nameSpan);
+                    }
+                } else if (role === 'model') {
+                    if (state.settings.showAiIcon && state.aiIconUrl) {
+                        const iconImg = document.createElement('img');
+                        iconImg.src = state.aiIconUrl;
+                        iconImg.alt = "AI Icon";
+                        iconImg.classList.add('message-icon');
+                        messageDiv.appendChild(iconImg);
+                    }
+                    if (state.settings.showAiName && state.settings.aiName) {
+                        const nameSpan = document.createElement('span');
+                        nameSpan.classList.add('message-icon-name');
+                        nameSpan.textContent = state.settings.aiName;
+                        messageDiv.appendChild(nameSpan);
+                    }
                 }
 
                 if (state.areAllMessagesHidden && (role === 'user' || role === 'model') && !isStreamingPlaceholder) {
@@ -4172,7 +4227,7 @@
                 }
                 document.documentElement.style.setProperty('--clipboard-stack-height', state.settings.clipboardStackHeight || DEFAULT_CLIPBOARD_STACK_HEIGHT); 
                 document.documentElement.style.setProperty('--message-icon-size', `${state.settings.messageIconSize || DEFAULT_MESSAGE_ICON_SIZE}px`);
-                document.documentElement.style.setProperty('--message-icon-offset-y', `${state.settings.messageIconOffsetY || DEFAULT_MESSAGE_ICON_OFFSET_Y}px`); // 追加
+                document.documentElement.style.setProperty('--message-icon-offset-y', `${state.settings.messageIconOffsetY || DEFAULT_MESSAGE_ICON_OFFSET_Y}px`);
             },
             applyOpacitySettings() {
                 document.documentElement.style.setProperty('--message-bubble-opacity', state.settings.messageBubbleOpacity);
@@ -4353,10 +4408,14 @@
                 elements.showMemoButtonToggle.checked = state.settings.showMemoButton;
                 elements.memoHeightInput.value = state.settings.memoHeight || '';
                 elements.showClipboardStackButtonToggle.checked = state.settings.showClipboardStackButton; 
-                elements.showUserIconToggle.checked = state.settings.showUserIcon; 
-                elements.showAiIconToggle.checked = state.settings.showAiIcon; 
+                elements.showUserIconToggle.checked = state.settings.showUserIcon;
+                elements.showUserNameToggle.checked = state.settings.showUserName; 
+                elements.userNameInput.value = state.settings.userName || '';        
+                elements.showAiIconToggle.checked = state.settings.showAiIcon;
+                elements.showAiNameToggle.checked = state.settings.showAiName;     
+                elements.aiNameInput.value = state.settings.aiName || '';            
                 elements.messageIconSizeInput.value = state.settings.messageIconSize ?? DEFAULT_MESSAGE_ICON_SIZE;
-                elements.messageIconOffsetYInput.value = state.settings.messageIconOffsetY ?? DEFAULT_MESSAGE_ICON_OFFSET_Y; // 追加
+                elements.messageIconOffsetYInput.value = state.settings.messageIconOffsetY ?? DEFAULT_MESSAGE_ICON_OFFSET_Y;
 
                 elements.showCollapseButtonsToggle.checked = state.settings.showCollapseButtons;
 
@@ -4418,7 +4477,7 @@
                 if (models.length > 0) {
                     group.disabled = false;
                     models.forEach(modelId => {
-                        const option = document.createElement('option');
+                                                const option = document.createElement('option');
                         option.value = modelId;
                         option.textContent = modelId;
                         group.appendChild(option);
@@ -4841,6 +4900,10 @@
                     event.target.value = null;
                 });
                 elements.deleteUserIconBtn.addEventListener('click', () => this.confirmDeleteIcon('user'));
+                elements.showUserNameToggle.addEventListener('change', () => { // 追加
+                    state.settings.showUserName = elements.showUserNameToggle.checked;
+                    uiUtils.renderChatMessages(true);
+                });
 
                 elements.showAiIconToggle.addEventListener('change', () => {
                     state.settings.showAiIcon = elements.showAiIconToggle.checked;
@@ -4853,6 +4916,11 @@
                     event.target.value = null;
                 });
                 elements.deleteAiIconBtn.addEventListener('click', () => this.confirmDeleteIcon('ai'));
+                elements.showAiNameToggle.addEventListener('change', () => { // 追加
+                    state.settings.showAiName = elements.showAiNameToggle.checked;
+                    uiUtils.renderChatMessages(true);
+                });
+
                 elements.messageIconSizeInput.addEventListener('input', () => { 
                     const newSize = parseInt(elements.messageIconSizeInput.value, 10);
                     if (newSize >= 16 && newSize <= 64) {
@@ -4861,7 +4929,7 @@
                         document.documentElement.style.setProperty('--message-icon-size', `${DEFAULT_MESSAGE_ICON_SIZE}px`);
                     }
                 });
-                elements.messageIconOffsetYInput.addEventListener('input', () => { // 追加
+                elements.messageIconOffsetYInput.addEventListener('input', () => { 
                     const newOffsetY = parseInt(elements.messageIconOffsetYInput.value, 10);
                     if (!isNaN(newOffsetY) && newOffsetY >= -50 && newOffsetY <= 50) {
                         document.documentElement.style.setProperty('--message-icon-offset-y', `${newOffsetY}px`);
@@ -5294,7 +5362,7 @@
                     mainContent.scrollTo({ top: mainContent.scrollHeight, behavior: 'smooth' });
                 }
             },
-            async pasteToUserInput() { // 修正: 即時貼り付けとフィードバック
+            async pasteToUserInput() {
                 const button = elements.pasteToInputBtn;
                 const originalTextContent = button.textContent;
                 const originalTitle = button.title;
@@ -5320,7 +5388,7 @@
                         elements.userInput.selectionStart = elements.userInput.selectionEnd = selectionStart + textToPaste.length;
                         elements.userInput.focus();
                         uiUtils.adjustTextareaHeight();
-                        uiUtils.updateAttachmentBadgeVisibility(); // 入力があったので送信ボタンの状態を更新
+                        uiUtils.updateAttachmentBadgeVisibility();
 
                         button.textContent = "✓";
                         button.title = "貼り付け完了";
@@ -6417,10 +6485,14 @@ if (msg.role === 'user') return true;
                      memoHeight: elements.memoHeightInput.value.trim() || DEFAULT_MEMO_HEIGHT,
                      showClipboardStackButton: elements.showClipboardStackButtonToggle.checked, 
                      clipboardStackHeight: state.settings.clipboardStackHeight, 
-                     showUserIcon: elements.showUserIconToggle.checked, 
-                     showAiIcon: elements.showAiIconToggle.checked, 
+                     showUserIcon: elements.showUserIconToggle.checked,
+                     showUserName: elements.showUserNameToggle.checked, 
+                     userName: elements.userNameInput.value.trim() || DEFAULT_USER_NAME, 
+                     showAiIcon: elements.showAiIconToggle.checked,
+                     showAiName: elements.showAiNameToggle.checked,   
+                     aiName: elements.aiNameInput.value.trim() || DEFAULT_AI_NAME,   
                      messageIconSize: parseInt(elements.messageIconSizeInput.value, 10) || DEFAULT_MESSAGE_ICON_SIZE,
-                     messageIconOffsetY: parseInt(elements.messageIconOffsetYInput.value, 10) || DEFAULT_MESSAGE_ICON_OFFSET_Y, // 追加
+                     messageIconOffsetY: parseInt(elements.messageIconOffsetYInput.value, 10) || DEFAULT_MESSAGE_ICON_OFFSET_Y,
                      showCollapseButtons: elements.showCollapseButtonsToggle.checked,
                      messageBubbleOpacity: elements.messageBubbleOpacityInput.value === '' ? DEFAULT_MESSAGE_BUBBLE_OPACITY : parseFloat(elements.messageBubbleOpacityInput.value),
                      chatOverlayOpacity: elements.chatOverlayOpacityInput.value === '' ? DEFAULT_CHAT_OVERLAY_OPACITY : parseFloat(elements.chatOverlayOpacityInput.value),
@@ -6454,7 +6526,7 @@ if (msg.role === 'user') return true;
                  if (newSettings.messageIconSize !== null && (isNaN(newSettings.messageIconSize) || newSettings.messageIconSize < 16 || newSettings.messageIconSize > 64)) {
                      newSettings.messageIconSize = DEFAULT_MESSAGE_ICON_SIZE;
                  }
-                 if (newSettings.messageIconOffsetY !== null && (isNaN(newSettings.messageIconOffsetY) || newSettings.messageIconOffsetY < -50 || newSettings.messageIconOffsetY > 50)) { // 追加
+                 if (newSettings.messageIconOffsetY !== null && (isNaN(newSettings.messageIconOffsetY) || newSettings.messageIconOffsetY < -50 || newSettings.messageIconOffsetY > 50)) {
                      newSettings.messageIconOffsetY = DEFAULT_MESSAGE_ICON_OFFSET_Y;
                  }
                  if (newSettings.messageBubbleOpacity !== null && (isNaN(newSettings.messageBubbleOpacity) || newSettings.messageBubbleOpacity < 0 || newSettings.messageBubbleOpacity > 1)) {
@@ -6569,11 +6641,15 @@ if (msg.role === 'user') return true;
                             showClipboardStackButton: true, 
                             clipboardStackHeight: DEFAULT_CLIPBOARD_STACK_HEIGHT, 
                             showUserIcon: true, 
-                            userIconBlob: null, 
+                            userIconBlob: null,
+                            showUserName: true,        
+                            userName: DEFAULT_USER_NAME, 
                             showAiIcon: true, 
-                            aiIconBlob: null, 
+                            aiIconBlob: null,
+                            showAiName: true,          
+                            aiName: DEFAULT_AI_NAME,     
                             messageIconSize: DEFAULT_MESSAGE_ICON_SIZE,
-                            messageIconOffsetY: DEFAULT_MESSAGE_ICON_OFFSET_Y, // 追加
+                            messageIconOffsetY: DEFAULT_MESSAGE_ICON_OFFSET_Y,
                             showCollapseButtons: true,
                             messageBubbleOpacity: DEFAULT_MESSAGE_BUBBLE_OPACITY,
                             chatOverlayOpacity: DEFAULT_CHAT_OVERLAY_OPACITY,
@@ -6840,7 +6916,7 @@ if (msg.role === 'user') return true;
                         if (oldCollapsedStates.has(oldIdxEquivalent)) {
                             state.messageCollapsedStates.set(newIdx, oldCollapsedStates.get(oldIdxEquivalent));
                         } else {
-                            state.messageCollapsedStates.set(newIdx, false);
+                            state.messageCollapsedStates.set(newIdx, false); 
                         }
                     });
 
