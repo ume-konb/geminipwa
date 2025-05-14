@@ -103,6 +103,7 @@
             --badge-size: 12px;
 
             --memo-height: 300px; 
+            --clipboard-stack-height: 300px; /* クリップボードスタックのデフォルト高さ */
 
             --bg-toggle-button: var(--bg-button-action);
             --bg-toggle-button-hover: var(--bg-button-action-hover);
@@ -975,10 +976,12 @@
             background-color: var(--bg-button-header-copy-hover);
         }
 
-        .app-header #toggle-memo-btn {
+        .app-header #toggle-memo-btn,
+        .app-header #toggle-clipboard-stack-btn { /* 修正 */
             background-color: var(--bg-button-action);
         }
-        .app-header #toggle-memo-btn:hover {
+        .app-header #toggle-memo-btn:hover,
+        .app-header #toggle-clipboard-stack-btn:hover { /* 修正 */
             background-color: var(--bg-button-action-hover);
         }
         .app-header #toggle-all-content-btn {
@@ -1133,6 +1136,83 @@
             min-height: 50px;
             display: block;
         }
+
+        #clipboard-stack-area {
+            position: relative;
+            width: 100%; 
+            min-height: 80px; 
+            max-height: var(--clipboard-stack-height); 
+            background-color: var(--bg-memo); 
+            border-bottom: 1px solid var(--border-secondary);
+            padding: 10px 15px; 
+            z-index: 4; 
+            box-shadow: 0 1px 3px var(--shadow-primary);
+            overflow: auto; 
+            display: flex;
+            flex-direction: column;
+            transition: max-height 0.3s ease-out, padding-top 0.3s ease-out, padding-bottom 0.3s ease-out, opacity 0.3s ease-out, border-width 0.3s ease-out;
+            resize: vertical; 
+            margin-bottom: 0;
+        }
+
+        #clipboard-stack-area.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            max-height: 0 !important;
+            min-height: 0 !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            border-width: 0 !important;
+            overflow: hidden;
+        }
+
+        .clipboard-stack-actions-container {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            padding-bottom: 8px;
+            flex-shrink: 0;
+        }
+        .clipboard-stack-actions-container button {
+            padding: 4px 10px;
+            font-size: 12px;
+        }
+        .clipboard-stack-actions-container .delete-clipboard-stack-btn {
+            background-color: var(--bg-button-delete);
+        }
+        .clipboard-stack-actions-container .delete-clipboard-stack-btn:hover {
+            background-color: var(--bg-button-delete-hover);
+        }
+        .clipboard-stack-actions-container .copy-clipboard-stack-btn {
+            background-color: var(--bg-button-copy);
+        }
+        .clipboard-stack-actions-container .copy-clipboard-stack-btn:hover {
+            background-color: var(--bg-button-copy-hover);
+        }
+        .clipboard-stack-actions-container .paste-clipboard-stack-btn {
+            background-color: var(--bg-button-paste);
+        }
+        .clipboard-stack-actions-container .paste-clipboard-stack-btn:hover {
+            background-color: var(--bg-button-paste-hover);
+        }
+
+        #clipboard-stack-editor {
+            flex-grow: 1;
+            width: 100%;
+            border: none;
+            resize: none; 
+            background-color: transparent;
+            color: var(--text-memo); 
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            padding: 0;
+            margin: 0;
+            min-height: 50px;
+            display: block;
+        }
+
 
         .system-prompt-area {
             padding: 10px 15px;
@@ -2368,6 +2448,7 @@
                 <button id="delete-session-btn" class="action-button-in-header" title="現在のチャットを削除">全削除</button>
                 <button id="copy-session-btn" class="action-button-in-header" title="チャット全体をコピー">全コピー</button>
                 <button id="toggle-all-content-btn" class="header-button" aria-label="全メッセージ表示切替" title="全メッセージの表示/非表示を切り替え">🖼️</button>
+                <button id="toggle-clipboard-stack-btn" class="header-button" aria-label="クリップボードスタックを開閉">🗒️</button>
                 <button id="toggle-memo-btn" class="header-button" aria-label="メモを開閉">📝</button>
                 <button id="goto-settings-btn" class="header-button" aria-label="設定へ">⚙</button>
             </header>
@@ -2379,6 +2460,15 @@
                     <button id="paste-memo-btn" class="paste-memo-btn" title="メモに貼り付け">貼付け</button>
                 </div>
                 <textarea id="memo-editor" aria-label="メモ入力エリア" placeholder="ここに一時的なメモを入力...（保存されません）"></textarea>
+            </div>
+
+            <div id="clipboard-stack-area" class="hidden">
+                <div class="clipboard-stack-actions-container">
+                    <button id="delete-clipboard-stack-btn" class="delete-clipboard-stack-btn" title="スタックの内容を全て削除">全削除</button>
+                    <button id="copy-clipboard-stack-btn" class="copy-clipboard-stack-btn" title="スタック全体をコピー">全コピー</button>
+                    <button id="paste-clipboard-stack-btn" class="paste-clipboard-stack-btn" title="スタックに貼り付け">貼付け</button>
+                </div>
+                <textarea id="clipboard-stack-editor" aria-label="クリップボードスタック入力エリア" placeholder="ここにコピーされたメッセージが蓄積されます...（保存されません）"></textarea>
             </div>
 
             <main class="main-content">
@@ -2584,18 +2674,23 @@
                 </div>
 
                 <div class="settings-group">
-                    <h3>メモ機能</h3>
+                    <h3>メモ・スタック機能</h3>
                     <label class="checkbox-label">
                         <input type="checkbox" id="show-memo-button-toggle">
-                        ヘッダーにメモボタンを表示する
+                        ヘッダーにメモボタン(📝)を表示する
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="show-clipboard-stack-button-toggle">
+                        ヘッダーにクリップボードスタックボタン(🗒️)を表示する
                     </label>
                     <div>
                         <label for="memo-height">メモの初期の高さ (例: 200px, 30vh):</label>
                         <input type="text" id="memo-height" placeholder="例: 200px, 30vh (縦にリサイズ可能)" aria-label="メモの初期の高さ">
                     </div>
+                    <!-- クリップボードスタックの高さ設定も追加する場合はここに -->
                     <p style="font-size: 11px; color: var(--text-secondary); margin-top: 8px;">
                         ※ 高さはピクセル(px)またはビューポート高さ(vh)で指定できます。<br>
-                        ※ デフォルト: 300px。メモエリアは縦方向にリサイズ可能です。
+                        ※ デフォルト: 300px。各エリアは縦方向にリサイズ可能です。
                     </p>
                 </div>
 
@@ -2753,6 +2848,7 @@
         const DEFAULT_TOP_P = 0.95;
         const DEFAULT_FONT_FAMILY = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
         const DEFAULT_MEMO_HEIGHT = '300px';
+        const DEFAULT_CLIPBOARD_STACK_HEIGHT = '300px'; // 追加
         const CHAT_TITLE_LENGTH = 15;
         const TEXTAREA_MAX_HEIGHT = 120;
         const GEMINI_API_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models/';
@@ -2811,7 +2907,7 @@
         const LIGHT_MODE_PRIMARY_COLOR = '#ffffff'; 
 
 
-        const APP_VERSION = "0.25"; 
+        const APP_VERSION = "0.26"; // バージョン更新
         const SWIPE_THRESHOLD = 50;
         const ZOOM_THRESHOLD = 1.01;
         const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -2908,17 +3004,17 @@
             importAllSessionsBtn: document.getElementById('import-all-sessions-btn'),
             importAllSessionsInput: document.getElementById('import-all-sessions-input'),
             alertDialog: document.getElementById('alertDialog'),
-            // alertMessage: document.getElementById('alertDialog').querySelector('.dialog-message'), // showCustomDialog内で取得
-            // alertOkBtn: document.getElementById('alertDialog').querySelector('.dialog-ok-btn'), // showCustomDialog内で取得
+            alertMessage: document.getElementById('alertDialog').querySelector('.dialog-message'),
+            alertOkBtn: document.getElementById('alertDialog').querySelector('.dialog-ok-btn'),
             confirmDialog: document.getElementById('confirmDialog'),
-            // confirmMessage: document.getElementById('confirmDialog').querySelector('.dialog-message'), // showCustomDialog内で取得
-            // confirmOkBtn: document.getElementById('confirmDialog').querySelector('.dialog-ok-btn'), // showCustomDialog内で取得
-            // confirmCancelBtn: document.getElementById('confirmDialog').querySelector('.dialog-cancel-btn'), // showCustomDialog内で取得
+            confirmMessage: document.getElementById('confirmDialog').querySelector('.dialog-message'),
+            confirmOkBtn: document.getElementById('confirmDialog').querySelector('.dialog-ok-btn'),
+            confirmCancelBtn: document.getElementById('confirmDialog').querySelector('.dialog-cancel-btn'),
             promptDialog: document.getElementById('promptDialog'),
-            // promptMessage: document.getElementById('promptDialog').querySelector('.dialog-message'), // showCustomDialog内で取得
-            promptInput: document.getElementById('promptDialog').querySelector('.dialog-input'), // これはdefaultValue設定のために保持
-            // promptOkBtn: document.getElementById('promptDialog').querySelector('.dialog-ok-btn'), // showCustomDialog内で取得
-            // promptCancelBtn: document.getElementById('promptDialog').querySelector('.dialog-cancel-btn'), // showCustomDialog内で取得
+            promptMessage: document.getElementById('promptDialog').querySelector('.dialog-message'),
+            promptInput: document.getElementById('promptDialog').querySelector('.dialog-input'),
+            promptOkBtn: document.getElementById('promptDialog').querySelector('.dialog-ok-btn'),
+            promptCancelBtn: document.getElementById('promptDialog').querySelector('.dialog-cancel-btn'),
             attachFileBtn: document.getElementById('attach-file-btn'),
             fileUploadDialog: document.getElementById('fileUploadDialog'),
             fileInput: document.getElementById('file-input'),
@@ -2935,6 +3031,14 @@
             showMemoButtonToggle: document.getElementById('show-memo-button-toggle'),
             memoHeightInput: document.getElementById('memo-height'),
             showCollapseButtonsToggle: document.getElementById('show-collapse-buttons-toggle'),
+            // クリップボードスタック関連の要素
+            toggleClipboardStackBtn: document.getElementById('toggle-clipboard-stack-btn'),
+            clipboardStackArea: document.getElementById('clipboard-stack-area'),
+            clipboardStackEditor: document.getElementById('clipboard-stack-editor'),
+            deleteClipboardStackBtn: document.getElementById('delete-clipboard-stack-btn'),
+            copyClipboardStackBtn: document.getElementById('copy-clipboard-stack-btn'),
+            pasteClipboardStackBtn: document.getElementById('paste-clipboard-stack-btn'),
+            showClipboardStackButtonToggle: document.getElementById('show-clipboard-stack-button-toggle'),
         };
 
         const state = {
@@ -2974,6 +3078,8 @@
                 showBulkHistoryActions: true,
                 showMemoButton: true,
                 memoHeight: DEFAULT_MEMO_HEIGHT,
+                showClipboardStackButton: true, // 追加
+                clipboardStackHeight: DEFAULT_CLIPBOARD_STACK_HEIGHT, // 追加
                 showCollapseButtons: true,
                 messageBubbleOpacity: DEFAULT_MESSAGE_BUBBLE_OPACITY,
                 chatOverlayOpacity: DEFAULT_CHAT_OVERLAY_OPACITY,
@@ -2995,30 +3101,10 @@
             selectedFilesForUpload: [],
             pendingAttachments: [],
             isMemoVisible: false,
+            isClipboardStackVisible: false, // 追加
+            clipboardStackContent: "", // 追加
             areAllMessagesHidden: false,
             messageCollapsedStates: new Map(),
-        };
-
-        const validationUtils = {
-            parseNumericValue(value, defaultValue, min, max, isFloat = false, allowZero = true) {
-                if (value === '' || value === null || value === undefined) {
-                    return defaultValue;
-                }
-                const num = isFloat ? parseFloat(value) : parseInt(value, 10);
-                if (isNaN(num)) {
-                    return defaultValue;
-                }
-                if (!allowZero && num === 0) { 
-                    return defaultValue;
-                }
-                if (min !== null && num < min) {
-                    return defaultValue;
-                }
-                if (max !== null && num > max) {
-                    return defaultValue;
-                }
-                return num;
-            }
         };
 
         function updateMessageMaxWidthVar() {
@@ -3151,7 +3237,7 @@
 
                         for (const key in loadedSettings) {
                              if (key === 'darkMode') continue; 
-                             if (key === 'memoWidth') continue; 
+                             if (key === 'memoWidth') continue;
 
                              if (key in defaultSettings) { 
                                 const loadedValue = loadedSettings[key];
@@ -3169,7 +3255,7 @@
                                     } else {
                                         state.settings[key] = defaultValue; 
                                     }
-                                } else if (key === 'hideSystemPromptInChat' || key === 'enableGrounding' || key === 'enableSwipeNavigation' || key === 'showDeleteSessionButton' || key === 'showCopySessionButton' || key === 'showToggleAllContentButton' || key === 'showBulkHistoryActions' || key === 'showMemoButton' || key === 'showCollapseButtons' || key === 'streamingOutput' || key === 'pseudoStreaming' || key === 'enterToSend' || key === 'concatDummyModel') {
+                                } else if (key === 'hideSystemPromptInChat' || key === 'enableGrounding' || key === 'enableSwipeNavigation' || key === 'showDeleteSessionButton' || key === 'showCopySessionButton' || key === 'showToggleAllContentButton' || key === 'showBulkHistoryActions' || key === 'showMemoButton' || key === 'showClipboardStackButton' || key === 'showCollapseButtons' || key === 'streamingOutput' || key === 'pseudoStreaming' || key === 'enterToSend' || key === 'concatDummyModel') { // showClipboardStackButton を追加
                                      state.settings[key] = loadedValue === true; 
                                 } else if (typeof defaultValue === 'number' || defaultValue === null) {
                                      let num;
@@ -3869,11 +3955,16 @@
                     elements.deleteBackgroundBtn.classList.add('hidden');
                 }
             },
-            applyMemoSettingsToUI() {
+            applySidePanelSettingsToUI() { // 名前変更
                 if (elements.toggleMemoBtn) {
                     elements.toggleMemoBtn.classList.toggle('hidden', !state.settings.showMemoButton);
                 }
                 document.documentElement.style.setProperty('--memo-height', state.settings.memoHeight || DEFAULT_MEMO_HEIGHT);
+
+                if (elements.toggleClipboardStackBtn) { // 追加
+                    elements.toggleClipboardStackBtn.classList.toggle('hidden', !state.settings.showClipboardStackButton);
+                }
+                document.documentElement.style.setProperty('--clipboard-stack-height', state.settings.clipboardStackHeight || DEFAULT_CLIPBOARD_STACK_HEIGHT); // 追加
             },
             applyOpacitySettings() {
                 document.documentElement.style.setProperty('--message-bubble-opacity', state.settings.messageBubbleOpacity);
@@ -4046,8 +4137,12 @@
                 elements.messageBubbleOpacityInput.value = state.settings.messageBubbleOpacity ?? DEFAULT_MESSAGE_BUBBLE_OPACITY;
                 elements.chatOverlayOpacityInput.value = state.settings.chatOverlayOpacity ?? DEFAULT_CHAT_OVERLAY_OPACITY;
                 elements.headerFooterOpacityInput.value = state.settings.headerFooterOpacity ?? DEFAULT_HEADER_FOOTER_OPACITY;
+                
                 elements.showMemoButtonToggle.checked = state.settings.showMemoButton;
                 elements.memoHeightInput.value = state.settings.memoHeight || '';
+                elements.showClipboardStackButtonToggle.checked = state.settings.showClipboardStackButton; // 追加
+                // elements.clipboardStackHeightInput.value = state.settings.clipboardStackHeight || ''; // HTMLにinput追加後
+
                 elements.showCollapseButtonsToggle.checked = state.settings.showCollapseButtons;
 
                 this.updateChatScreenHeaderButtonVisibility();
@@ -4057,7 +4152,7 @@
                 this.applyTheme();
                 this.applyFontFamily();
                 this.toggleSystemPromptVisibility();
-                this.applyMemoSettingsToUI();
+                this.applySidePanelSettingsToUI(); // 変更
             },
             updateChatScreenHeaderButtonVisibility() {
                 if (elements.deleteSessionBtn) {
@@ -4071,6 +4166,9 @@
                 }
                 if (elements.toggleMemoBtn) {
                     elements.toggleMemoBtn.classList.toggle('hidden', !state.settings.showMemoButton);
+                }
+                if (elements.toggleClipboardStackBtn) { // 追加
+                    elements.toggleClipboardStackBtn.classList.toggle('hidden', !state.settings.showClipboardStackButton);
                 }
             },
             updateHistoryHeaderButtonVisibility() {
@@ -4136,6 +4234,10 @@
                 if (state.isMemoVisible && screenName !== 'chat') {
                      elements.memoArea.classList.add('hidden');
                      state.isMemoVisible = false;
+                }
+                if (state.isClipboardStackVisible && screenName !== 'chat') { // 追加
+                     elements.clipboardStackArea.classList.add('hidden');
+                     state.isClipboardStackVisible = false;
                 }
                 if (screenName === state.currentScreen) {
                     if (screenName === 'history') this.updateHistoryHeaderButtonVisibility();
@@ -4223,103 +4325,68 @@
                     elements.sendButton.disabled = textarea.value.trim() === '' && state.pendingAttachments.length === 0;
                 }
             },
-            showCustomDialog(dialogElement, options = {}) { 
+            showCustomDialog(dialogElement, focusElement) {
                 return new Promise((resolve) => {
-                    const { message, focusElement, okHandler, cancelHandler, inputHandler } = options;
-
-                    if (message && dialogElement.querySelector('.dialog-message')) {
-                        dialogElement.querySelector('.dialog-message').textContent = message;
-                    }
-                    
-                    const okBtn = dialogElement.querySelector('.dialog-ok-btn');
-                    const cancelBtn = dialogElement.querySelector('.dialog-cancel-btn');
-                    const inputField = dialogElement.querySelector('.dialog-input');
-
-                    if (okBtn) okBtn.replaceWith(okBtn.cloneNode(true));
-                    if (cancelBtn) cancelBtn.replaceWith(cancelBtn.cloneNode(true));
-                    if (inputField) inputField.replaceWith(inputField.cloneNode(true));
-                    
-                    const newOkBtn = dialogElement.querySelector('.dialog-ok-btn');
-                    const newCancelBtn = dialogElement.querySelector('.dialog-cancel-btn');
-                    const newInputField = dialogElement.querySelector('.dialog-input');
-
-
-                    if (newOkBtn) {
-                        newOkBtn.onclick = () => {
-                            const value = newInputField ? newInputField.value : 'ok';
-                            if (okHandler) okHandler(value); 
-                            dialogElement.close(value);
-                        };
-                    }
-
-                    if (newCancelBtn) {
-                        newCancelBtn.onclick = () => {
-                            if (cancelHandler) cancelHandler(); 
-                            dialogElement.close(newInputField ? '' : 'cancel'); 
-                        };
-                    }
-                    
-                    if (newInputField && inputHandler) {
-                         newInputField.onkeypress = (event) => {
-                            if (event.key === 'Enter') {
-                                event.preventDefault();
-                                if (newOkBtn) newOkBtn.click();
-                            }
-                        };
-                    }
-
                     const closeListener = () => {
                         dialogElement.removeEventListener('close', closeListener);
                         resolve(dialogElement.returnValue);
                     };
                     dialogElement.addEventListener('close', closeListener);
-
                     dialogElement.showModal();
-
                     if (focusElement) {
-                        requestAnimationFrame(() => {
-                            const elToFocus = dialogElement.querySelector(focusElement); 
-                            if(elToFocus) elToFocus.focus();
-                        });
-                    } else if (newOkBtn) {
-                         requestAnimationFrame(() => newOkBtn.focus());
+                        requestAnimationFrame(() => { focusElement.focus(); });
                     }
                 });
             },
-
             async showCustomAlert(message) {
-                return this.showCustomDialog(elements.alertDialog, {
-                    message: message,
-                    focusElement: '.dialog-ok-btn'
-                });
+                elements.alertMessage.textContent = message;
+                 const newOkBtn = elements.alertOkBtn.cloneNode(true);
+                 elements.alertOkBtn.parentNode.replaceChild(newOkBtn, elements.alertOkBtn);
+                 elements.alertOkBtn = newOkBtn;
+                elements.alertOkBtn.onclick = () => elements.alertDialog.close('ok');
+                await this.showCustomDialog(elements.alertDialog, elements.alertOkBtn);
             },
-
             async showCustomConfirm(message) {
-                const result = await this.showCustomDialog(elements.confirmDialog, {
-                    message: message,
-                    focusElement: '.dialog-ok-btn'
-                });
+                elements.confirmMessage.textContent = message;
+                 const newOkBtn = elements.confirmOkBtn.cloneNode(true);
+                 elements.confirmOkBtn.parentNode.replaceChild(newOkBtn, elements.confirmOkBtn);
+                 elements.confirmOkBtn = newOkBtn;
+                 const newCancelBtn = elements.confirmCancelBtn.cloneNode(true);
+                 elements.confirmCancelBtn.parentNode.replaceChild(newCancelBtn, elements.confirmCancelBtn);
+                 elements.confirmCancelBtn = newCancelBtn;
+                elements.confirmOkBtn.onclick = () => elements.confirmDialog.close('ok');
+                elements.confirmCancelBtn.onclick = () => elements.confirmDialog.close('cancel');
+                const result = await this.showCustomDialog(elements.confirmDialog, elements.confirmOkBtn);
                 return result === 'ok';
             },
-
             async showCustomPrompt(message, defaultValue = '') {
-                if (elements.promptInput) elements.promptInput.value = defaultValue;
-                
-                return this.showCustomDialog(elements.promptDialog, {
-                    message: message,
-                    focusElement: '.dialog-input',
-                    inputHandler: true 
-                });
-            },
-            showTemporaryButtonFeedback(buttonElement, successText, failureText, isSuccess = true, duration = 1500) {
-                const originalText = buttonElement.textContent;
-                const originalDisabled = buttonElement.disabled;
-                buttonElement.textContent = isSuccess ? successText : failureText;
-                buttonElement.disabled = true;
-                setTimeout(() => {
-                    buttonElement.textContent = originalText;
-                    buttonElement.disabled = originalDisabled;
-                }, duration);
+                elements.promptMessage.textContent = message;
+                elements.promptInput.value = defaultValue;
+                 const newOkBtn = elements.promptOkBtn.cloneNode(true);
+                 elements.promptOkBtn.parentNode.replaceChild(newOkBtn, elements.promptOkBtn);
+                 elements.promptOkBtn = newOkBtn;
+                 const newCancelBtn = elements.promptCancelBtn.cloneNode(true);
+                 elements.promptCancelBtn.parentNode.replaceChild(newCancelBtn, elements.promptCancelBtn);
+                 elements.promptCancelBtn = newCancelBtn;
+                 const newPromptInput = elements.promptInput.cloneNode(true);
+                 elements.promptInput.parentNode.replaceChild(newPromptInput, elements.promptInput);
+                 elements.promptInput = newPromptInput;
+                const enterHandler = (event) => {
+                    if (event.key === 'Enter') {
+                        event.preventDefault();
+                        elements.promptOkBtn.click();
+                    }
+                };
+                elements.promptInput.addEventListener('keypress', enterHandler);
+                elements.promptOkBtn.onclick = () => elements.promptDialog.close(elements.promptInput.value);
+                elements.promptCancelBtn.onclick = () => elements.promptDialog.close('');
+                const closeHandler = () => {
+                    elements.promptInput.removeEventListener('keypress', enterHandler);
+                    elements.promptDialog.removeEventListener('close', closeHandler);
+                };
+                 elements.promptDialog.addEventListener('close', closeHandler);
+                const result = await this.showCustomDialog(elements.promptDialog, elements.promptInput);
+                return result;
             },
             updateAttachmentBadgeVisibility() {
                 const hasAttachments = state.pendingAttachments.length > 0;
@@ -4406,7 +4473,7 @@
                     await dbUtils.loadSettings();
                     uiUtils.applyTheme(); 
                     uiUtils.applyFontFamily();
-                    uiUtils.applyMemoSettingsToUI();
+                    uiUtils.applySidePanelSettingsToUI(); // 変更
                     if (state.settings.backgroundImageBlob instanceof Blob) {
                         uiUtils.revokeExistingObjectUrl();
                         try {
@@ -4450,6 +4517,12 @@
                 elements.copyMemoBtn.addEventListener('click', () => this.copyMemoText());
                 elements.pasteMemoBtn.addEventListener('click', () => this.pasteIntoMemo());
                 elements.deleteMemoBtn.addEventListener('click', () => this.confirmClearMemo());
+                
+                elements.toggleClipboardStackBtn.addEventListener('click', () => this.toggleClipboardStack()); // 追加
+                elements.deleteClipboardStackBtn.addEventListener('click', () => this.confirmClearClipboardStack()); // 追加
+                elements.copyClipboardStackBtn.addEventListener('click', () => this.copyClipboardStackText()); // 追加
+                elements.pasteClipboardStackBtn.addEventListener('click', () => this.pasteIntoClipboardStack()); // 追加
+
                 elements.newChatBtn.addEventListener('click', async () => {
                     const confirmed = await uiUtils.showCustomConfirm("現在のチャットを保存して新規チャットを開始しますか？");
                     if (confirmed) this.confirmStartNewChat();
@@ -4524,6 +4597,10 @@
                     state.settings.showMemoButton = elements.showMemoButtonToggle.checked;
                     uiUtils.updateChatScreenHeaderButtonVisibility();
                 });
+                elements.showClipboardStackButtonToggle.addEventListener('change', () => { // 追加
+                    state.settings.showClipboardStackButton = elements.showClipboardStackButtonToggle.checked;
+                    uiUtils.updateChatScreenHeaderButtonVisibility();
+                });
                 elements.memoHeightInput.addEventListener('input', () => {
                     const newHeight = elements.memoHeightInput.value.trim();
                     if (newHeight) {
@@ -4532,6 +4609,7 @@
                         document.documentElement.style.setProperty('--memo-height', DEFAULT_MEMO_HEIGHT);
                     }
                 });
+                // クリップボードスタックの高さ設定用inputのリスナーもここに追加 (もしあれば)
                 elements.showToggleAllContentButtonToggle.addEventListener('change', () => {
                     state.settings.showToggleAllContentButton = elements.showToggleAllContentButtonToggle.checked;
                     uiUtils.updateChatScreenHeaderButtonVisibility();
@@ -4584,10 +4662,374 @@
                         const currentlyShown = elements.messageContainer.querySelector('.message.show-actions');
                         if (currentlyShown) {
                             currentlyShown.classList.remove('show-actions');
-```javascript
+                        }
+                    }
+                });
+                document.body.addEventListener('click', (event) => {
+                    if (!elements.messageContainer.contains(event.target) && !elements.memoArea.contains(event.target) && !elements.clipboardStackArea.contains(event.target)) { // clipboardStackArea も考慮
+                        const currentlyShown = elements.messageContainer.querySelector('.message.show-actions');
+                        if (currentlyShown) {
+                            currentlyShown.classList.remove('show-actions');
+                        }
+                    }
+                }, true); 
+                elements.chatScreen.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: true });
+                elements.chatScreen.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
+                elements.chatScreen.addEventListener('touchend', this.handleTouchEnd.bind(this));
+                if ('visualViewport' in window) {
+                    window.visualViewport.addEventListener('resize', this.updateZoomState.bind(this));
+                    window.visualViewport.addEventListener('scroll', this.updateZoomState.bind(this));
+                }
+                window.addEventListener('popstate', this.handlePopState.bind(this));
+                elements.attachFileBtn.addEventListener('click', () => uiUtils.showFileUploadDialog());
+                elements.selectFilesBtn.addEventListener('click', () => elements.fileInput.click());
+                elements.fileInput.addEventListener('change', (event) => {
+                    this.handleFileSelection(event.target.files);
+                    event.target.value = null;
+                });
+                elements.confirmAttachBtn.addEventListener('click', () => this.confirmAttachment());
+                elements.cancelAttachBtn.addEventListener('click', () => this.cancelAttachment());
+                elements.fileUploadDialog.addEventListener('close', () => {
+                    if (elements.fileUploadDialog.returnValue !== 'ok') {
+                        this.cancelAttachment();
+                    }
+                });
+                elements.messageContainer.addEventListener('click', (event) => {
+                    const targetButton = event.target.closest('.message-toggle-button');
+                    if (targetButton && targetButton.dataset.action === 'toggle-collapse') {
+                        const index = parseInt(targetButton.dataset.index, 10);
+                        this.toggleMessageCollapse(index);
+                    }
+                });
+            },
+            handlePopState(event) {
+                const targetScreen = event.state?.screen || 'chat';
+                uiUtils.showScreen(targetScreen, true);
+            },
+            updateZoomState() {
+                if ('visualViewport' in window) {
+                    const newZoomState = window.visualViewport.scale > ZOOM_THRESHOLD;
+                    if (state.isZoomed !== newZoomState) {
+                        state.isZoomed = newZoomState;
+                        document.body.classList.toggle('zoomed', state.isZoomed);
+                    }
+                }
+            },
+            handleTouchStart(event) {
+                if (!state.settings.enableSwipeNavigation) return;
+                if (event.touches.length > 1 || state.isZoomed) {
+                    state.touchStartX = 0;
+                    state.touchStartY = 0;
+                    state.isSwiping = false;
+                    return;
+                }
+                state.touchStartX = event.touches[0].clientX;
+                state.touchStartY = event.touches[0].clientY;
+                state.isSwiping = false;
+                state.touchEndX = state.touchStartX;
+                state.touchEndY = state.touchStartY;
+            },
+            handleTouchMove(event) {
+                if (!state.settings.enableSwipeNavigation) return;
+                if (!state.touchStartX || event.touches.length > 1 || state.isZoomed) { 
+                    return;
+                }
+                const currentX = event.touches[0].clientX;
+                const currentY = event.touches[0].clientY;
+                const diffX = state.touchStartX - currentX;
+                const diffY = state.touchStartY - currentY;
+                if (Math.abs(diffX) > Math.abs(diffY)) {
+                    state.isSwiping = true;
+                    event.preventDefault();
+                } else {
+                    state.isSwiping = false;
+                }
+                state.touchEndX = currentX;
+                state.touchEndY = currentY;
+            },
+            handleTouchEnd(event) {
+                 if (!state.settings.enableSwipeNavigation) { 
+                     this.resetSwipeState();
+                     return;
+                 }
+                 this.updateZoomState();
+                 if (state.isZoomed) {
+                     this.resetSwipeState();
+                     return;
+                 }
+                 if (!state.isSwiping || !state.touchStartX) {
+                     this.resetSwipeState();
+                     return;
+                 }
+                const diffX = state.touchStartX - state.touchEndX;
+                const diffY = state.touchStartY - state.touchEndY;
+                if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(diffX) > Math.abs(diffY)) {
+                    if (diffX > 0) {
+                        uiUtils.showScreen('settings');
+                    } else {
+                        uiUtils.showScreen('history');
+                    }
+                }
+                this.resetSwipeState();
+            },
+            resetSwipeState() {
+                state.touchStartX = 0;
+                state.touchStartY = 0;
+                state.touchEndX = 0;
+                state.touchEndY = 0;
+                state.isSwiping = false;
+            },
+            toggleMemo() {
+                 if (state.editingMessageIndex !== null) { 
+                     uiUtils.showCustomAlert("メッセージ編集中はメモを開閉できません。");
+                     return;
+                 }
+                 if (state.isEditingSystemPrompt) { 
+                     uiUtils.showCustomAlert("システムプロンプト編集中はメモを開閉できません。");
+                     return;
+                 }
+
+                state.isMemoVisible = !state.isMemoVisible; 
+                elements.memoArea.classList.toggle('hidden', !state.isMemoVisible);
+
+                if (state.isMemoVisible) {
+                    elements.memoEditor.focus();
+                }
+            },
+            async copyMemoText() {
+                const memoText = elements.memoEditor.value;
+                if (!memoText.trim()) {
+                     const originalText = elements.copyMemoBtn.textContent;
+                     elements.copyMemoBtn.textContent = "空です";
+                     elements.copyMemoBtn.disabled = true;
+                     setTimeout(() => {
+                         elements.copyMemoBtn.textContent = originalText;
+                         elements.copyMemoBtn.disabled = false;
+                     }, 1500);
+                    return;
+                }
+                try {
+                    await navigator.clipboard.writeText(memoText);
+                    const originalText = elements.copyMemoBtn.textContent;
+                    elements.copyMemoBtn.textContent = "コピー完了!";
+                    elements.copyMemoBtn.disabled = true;
+                    setTimeout(() => { elements.copyMemoBtn.textContent = originalText; elements.copyMemoBtn.disabled = false; }, 1500);
+                } catch (err) {
+                    console.error("Copy memo error:", err);
+                    const originalText = elements.copyMemoBtn.textContent;
+                    elements.copyMemoBtn.textContent = "コピー失敗";
+                    elements.copyMemoBtn.disabled = true;
+                    setTimeout(() => { elements.copyMemoBtn.textContent = originalText; elements.copyMemoBtn.disabled = false; }, 2000);
+                }
+            },
+            async pasteIntoMemo() {
+                try {
+                    if (!navigator.clipboard || !navigator.clipboard.readText) {
+                        const originalText = elements.pasteMemoBtn.textContent;
+                        elements.pasteMemoBtn.textContent = "非対応";
+                        elements.pasteMemoBtn.disabled = true;
+                        setTimeout(() => { elements.pasteMemoBtn.textContent = originalText; elements.pasteMemoBtn.disabled = false; }, 2000);
+                        return;
+                    }
+                    const textToPaste = await navigator.clipboard.readText();
+                    if (textToPaste) {
+                        const currentText = elements.memoEditor.value;
+                        const selectionStart = elements.memoEditor.selectionStart;
+                        const selectionEnd = elements.memoEditor.selectionEnd;
+                        elements.memoEditor.value = currentText.substring(0, selectionStart) + textToPaste + currentText.substring(selectionEnd);
+                        elements.memoEditor.selectionStart = elements.memoEditor.selectionEnd = selectionStart + textToPaste.length;
+                        elements.memoEditor.focus();
+                        const originalText = elements.pasteMemoBtn.textContent;
+                        elements.pasteMemoBtn.textContent = "貼付け完了";
+                        elements.pasteMemoBtn.disabled = true;
+                        setTimeout(() => { elements.pasteMemoBtn.textContent = originalText; elements.pasteMemoBtn.disabled = false; }, 1500);
+                    } else {
+                        const originalText = elements.pasteMemoBtn.textContent;
+                        elements.pasteMemoBtn.textContent = "空です";
+                        elements.pasteMemoBtn.disabled = true;
+                        setTimeout(() => { elements.pasteMemoBtn.textContent = originalText; elements.pasteMemoBtn.disabled = false; }, 1500);
+                    }
+                } catch (err) {
+                    console.error("Paste memo error:", err);
+                    if (err.name === 'NotAllowedError' || err.message.includes('Read permission denied')) {
+                         const originalText = elements.pasteMemoBtn.textContent;
+                         elements.pasteMemoBtn.textContent = "許可エラー";
+                         elements.pasteMemoBtn.disabled = true;
+                         setTimeout(() => { elements.pasteMemoBtn.textContent = originalText; elements.pasteMemoBtn.disabled = false; }, 2000);
+                    } else {
+                          const originalText = elements.pasteMemoBtn.textContent;
+                          elements.pasteMemoBtn.textContent = "貼付け失敗";
+                          elements.pasteMemoBtn.disabled = true;
+                          setTimeout(() => { elements.pasteMemoBtn.textContent = originalText; elements.pasteMemoBtn.disabled = false; }, 2000);
+                    }
+                }
+            },
+            async confirmClearMemo() {
+                if (!elements.memoEditor.value.trim()) {
+                     const originalText = elements.deleteMemoBtn.textContent;
+                     elements.deleteMemoBtn.textContent = "空です";
+                     elements.deleteMemoBtn.disabled = true;
+                     setTimeout(() => {
+                         elements.deleteMemoBtn.textContent = originalText;
+                         elements.deleteMemoBtn.disabled = false;
+                     }, 1500);
+                     return;
+                }
+                const confirmed = await uiUtils.showCustomConfirm("メモの内容を全てクリアしますか？\nこの操作は元に戻せません。");
+                if (confirmed) {
+                    elements.memoEditor.value = '';
+                }
+            },
+            toggleClipboardStack() { // 新規追加
+                 if (state.editingMessageIndex !== null) { 
+                     uiUtils.showCustomAlert("メッセージ編集中はクリップボードスタックを開閉できません。");
+                     return;
+                 }
+                 if (state.isEditingSystemPrompt) { 
+                     uiUtils.showCustomAlert("システムプロンプト編集中はクリップボードスタックを開閉できません。");
+                     return;
+                 }
+
+                state.isClipboardStackVisible = !state.isClipboardStackVisible; 
+                elements.clipboardStackArea.classList.toggle('hidden', !state.isClipboardStackVisible);
+
+                if (state.isClipboardStackVisible) {
+                    elements.clipboardStackEditor.value = state.clipboardStackContent; // 表示時に内容を反映
+                    elements.clipboardStackEditor.focus();
+                    elements.clipboardStackEditor.scrollTop = elements.clipboardStackEditor.scrollHeight;
+                }
+            },
+            async copyClipboardStackText() { // 新規追加
+                const stackText = elements.clipboardStackEditor.value;
+                if (!stackText.trim()) {
+                     const originalText = elements.copyClipboardStackBtn.textContent;
+                     elements.copyClipboardStackBtn.textContent = "空です";
+                     elements.copyClipboardStackBtn.disabled = true;
+                     setTimeout(() => {
+                         elements.copyClipboardStackBtn.textContent = originalText;
+                         elements.copyClipboardStackBtn.disabled = false;
+                     }, 1500);
+                    return;
+                }
+                try {
+                    await navigator.clipboard.writeText(stackText);
+                    const originalText = elements.copyClipboardStackBtn.textContent;
+                    elements.copyClipboardStackBtn.textContent = "コピー完了!";
+                    elements.copyClipboardStackBtn.disabled = true;
+                    setTimeout(() => { elements.copyClipboardStackBtn.textContent = originalText; elements.copyClipboardStackBtn.disabled = false; }, 1500);
+                } catch (err) {
+                    console.error("Copy clipboard stack error:", err);
+                    const originalText = elements.copyClipboardStackBtn.textContent;
+                    elements.copyClipboardStackBtn.textContent = "コピー失敗";
+                    elements.copyClipboardStackBtn.disabled = true;
+                    setTimeout(() => { elements.copyClipboardStackBtn.textContent = originalText; elements.copyClipboardStackBtn.disabled = false; }, 2000);
+                }
+            },
+            async pasteIntoClipboardStack() { // 新規追加
+                try {
+                    if (!navigator.clipboard || !navigator.clipboard.readText) {
+                        const originalText = elements.pasteClipboardStackBtn.textContent;
+                        elements.pasteClipboardStackBtn.textContent = "非対応";
+                        elements.pasteClipboardStackBtn.disabled = true;
+                        setTimeout(() => { elements.pasteClipboardStackBtn.textContent = originalText; elements.pasteClipboardStackBtn.disabled = false; }, 2000);
+                        return;
+                    }
+                    const textToPaste = await navigator.clipboard.readText();
+                    if (textToPaste) {
+                        const currentText = elements.clipboardStackEditor.value;
+                        const separator = currentText.length > 0 && !currentText.endsWith('\n\n') ? "\n\n" : "";
+                        elements.clipboardStackEditor.value += separator + textToPaste;
+                        elements.clipboardStackEditor.scrollTop = elements.clipboardStackEditor.scrollHeight;
+                        elements.clipboardStackEditor.focus();
+                        state.clipboardStackContent = elements.clipboardStackEditor.value;
+                        const originalText = elements.pasteClipboardStackBtn.textContent;
+                        elements.pasteClipboardStackBtn.textContent = "貼付け完了";
+                        elements.pasteClipboardStackBtn.disabled = true;
+                        setTimeout(() => { elements.pasteClipboardStackBtn.textContent = originalText; elements.pasteClipboardStackBtn.disabled = false; }, 1500);
+                    } else {
+                        const originalText = elements.pasteClipboardStackBtn.textContent;
+                        elements.pasteClipboardStackBtn.textContent = "空です";
+                        elements.pasteClipboardStackBtn.disabled = true;
+                        setTimeout(() => { elements.pasteClipboardStackBtn.textContent = originalText; elements.pasteClipboardStackBtn.disabled = false; }, 1500);
+                    }
+                } catch (err) {
+                    console.error("Paste into clipboard stack error:", err);
+                    if (err.name === 'NotAllowedError' || err.message.includes('Read permission denied')) {
+                         const originalText = elements.pasteClipboardStackBtn.textContent;
+                         elements.pasteClipboardStackBtn.textContent = "許可エラー";
+                         elements.pasteClipboardStackBtn.disabled = true;
+                         setTimeout(() => { elements.pasteClipboardStackBtn.textContent = originalText; elements.pasteClipboardStackBtn.disabled = false; }, 2000);
+                    } else {
+                          const originalText = elements.pasteClipboardStackBtn.textContent;
+                          elements.pasteClipboardStackBtn.textContent = "貼付け失敗";
+                          elements.pasteClipboardStackBtn.disabled = true;
+                          setTimeout(() => { elements.pasteClipboardStackBtn.textContent = originalText; elements.pasteClipboardStackBtn.disabled = false; }, 2000);
+                    }
+                }
+            },
+            async confirmClearClipboardStack() { // 新規追加
+                if (!elements.clipboardStackEditor.value.trim()) {
+                     const originalText = elements.deleteClipboardStackBtn.textContent;
+                     elements.deleteClipboardStackBtn.textContent = "空です";
+                     elements.deleteClipboardStackBtn.disabled = true;
+                     setTimeout(() => {
+                         elements.deleteClipboardStackBtn.textContent = originalText;
+                         elements.deleteClipboardStackBtn.disabled = false;
+                     }, 1500);
+                     return;
+                }
+                const confirmed = await uiUtils.showCustomConfirm("クリップボードスタックの内容を全てクリアしますか？");
+                if (confirmed) {
+                    elements.clipboardStackEditor.value = '';
+                    state.clipboardStackContent = '';
+                }
+            },
+            async confirmStartNewChat() {
+                if (state.isSending) {
+                    const confirmed = await uiUtils.showCustomConfirm("送信中です。中断して新規チャットを開始しますか？");
+                    if (!confirmed) return;
+                    this.abortRequest();
+                }
+                if (state.editingMessageIndex !== null) {
+                    const confirmed = await uiUtils.showCustomConfirm("編集中です。変更を破棄して新規チャットを開始しますか？");
+                    if (!confirmed) return;
+                    const msgEl = elements.messageContainer.querySelector(`.message[data-index="${state.editingMessageIndex}"]`);
+                    this.cancelEditMessage(state.editingMessageIndex, msgEl);
+                }
+                if (state.isEditingSystemPrompt) {
+                    const confirmed = await uiUtils.showCustomConfirm("システムプロンプト編集中です。変更を破棄して新規チャットを開始しますか？");
+                    if (!confirmed) return;
+                    this.cancelEditSystemPrompt();
+                }
+                if (state.pendingAttachments.length > 0) {
+                    const confirmedAttach = await uiUtils.showCustomConfirm("添付準備中のファイルがあります。破棄して新規チャットを開始しますか？");
+                    if (!confirmedAttach) return;
+                    state.pendingAttachments = [];
+                    uiUtils.updateAttachmentBadgeVisibility();
+                }
+                if ((state.currentMessages.length > 0 || state.currentSystemPrompt) && state.currentChatId) {
+                    try {
+                        await dbUtils.saveChat();
+                    } catch (error) {
+                        console.error("Error saving current chat before new chat:", error);
+                        const conf = await uiUtils.showCustomConfirm("現在のチャットの保存に失敗しました。新規チャットを開始しますか？");
+                        if (!conf) return;
+                    }
+                }
+                this.startNewChat();
+                uiUtils.showScreen('chat');
+            },
+            startNewChat() {
+                state.currentChatId = null;
+                state.currentMessages = [];
+                state.currentSystemPrompt = state.settings.systemPrompt;
+                state.pendingAttachments = [];
                 state.isMemoVisible = false;
                 elements.memoArea.classList.add('hidden');
                 elements.memoEditor.value = '';
+                state.isClipboardStackVisible = false; // 追加
+                elements.clipboardStackArea.classList.add('hidden'); // 追加
+                // state.clipboardStackContent はクリアしない (一時保持のため)
                 state.areAllMessagesHidden = false;
                 uiUtils.updateToggleAllContentButton();
                 uiUtils.updateSystemPromptUI();
@@ -4600,8 +5042,28 @@
                 uiUtils.updateAttachmentBadgeVisibility();
             },
             async loadChat(id) {
-                if (!await this._canProceedWithAction(`チャット「${id}」を読み込み`)) return;
-                
+                if (state.isSending) {
+                    const confirmed = await uiUtils.showCustomConfirm("送信中です。中断して別のチャットを読み込みますか？");
+                    if (!confirmed) return;
+                    this.abortRequest();
+                }
+                if (state.editingMessageIndex !== null) {
+                    const confirmed = await uiUtils.showCustomConfirm("編集中です。変更を破棄して別のチャットを読み込みますか？");
+                    if (!confirmed) return;
+                    const msgEl = elements.messageContainer.querySelector(`.message[data-index="${state.editingMessageIndex}"]`);
+                    this.cancelEditMessage(state.editingMessageIndex, msgEl);
+                }
+                if (state.isEditingSystemPrompt) {
+                    const confirmed = await uiUtils.showCustomConfirm("システムプロンプト編集中です。変更を破棄して別のチャットを読み込みますか？");
+                    if (!confirmed) return;
+                    this.cancelEditSystemPrompt();
+                }
+                if (state.pendingAttachments.length > 0) {
+                    const confirmedAttach = await uiUtils.showCustomConfirm("添付準備中のファイルがあります。破棄して別のチャットを読み込みますか？");
+                    if (!confirmedAttach) return;
+                    state.pendingAttachments = [];
+                    uiUtils.updateAttachmentBadgeVisibility();
+                }
                 try {
                     const chat = await dbUtils.getChat(id);
                     if (chat) {
@@ -4636,6 +5098,7 @@
                         uiUtils.setSendingState(false);
                         uiUtils.updateAttachmentBadgeVisibility();
                         elements.memoEditor.value = '';
+                        // クリップボードスタックの内容はチャット切り替えでクリアしない
                         if (needsSave) {
                             await dbUtils.saveChat();
                         }
@@ -4654,9 +5117,15 @@
                 }
             },
             async duplicateChat(id) {
-                if (!await this._canProceedWithAction(`チャット「${id}」を複製`)) return;
+                if (state.isSending) { const conf = await uiUtils.showCustomConfirm("送信中です。中断してチャットを複製しますか？"); if (!conf) return; this.abortRequest(); }
+                if (state.editingMessageIndex !== null) { const conf = await uiUtils.showCustomConfirm("編集中です。変更を破棄してチャットを複製しますか？"); if (!conf) return; const msgEl = elements.messageContainer.querySelector(`.message[data-index="${state.editingMessageIndex}"]`); this.cancelEditMessage(state.editingMessageIndex, msgEl); }
+                if (state.isEditingSystemPrompt) { const conf = await uiUtils.showCustomConfirm("システムプロンプト編集中です。変更を破棄してチャットを複製しますか？"); if (!conf) return; this.cancelEditSystemPrompt(); }
                 if ((state.currentMessages.length > 0 || state.currentSystemPrompt) && state.currentChatId && state.currentChatId !== id) { try { await dbUtils.saveChat(); } catch (error) { console.error("Error saving current chat before duplicate:", error); const conf = await uiUtils.showCustomConfirm("現在のチャット保存に失敗しました。複製を続行しますか？"); if (!conf) return; } }
-                
+                if (state.pendingAttachments.length > 0) {
+                    const confirmedAttach = await uiUtils.showCustomConfirm("添付準備中のファイルがあります。破棄してチャットを複製しますか？");
+                    if (!confirmedAttach) return;
+                    state.pendingAttachments = [];
+                }
                 try {
                     const chat = await dbUtils.getChat(id);
                     if (chat) {
@@ -4762,15 +5231,17 @@
                     return;
                 }
                 if (state.isSending) {
-                    await uiUtils.showCustomAlert("送信中です。完了後に再度お試しください。"); return;
+                    await uiUtils.showCustomAlert("送信中です。完了後に再度お試しください。");
+                    return;
                 }
                 if (state.editingMessageIndex !== null) {
-                    await uiUtils.showCustomAlert("メッセージ編集中です。完了後に再度お試しください。"); return;
+                    await uiUtils.showCustomAlert("メッセージ編集中です。完了後に再度お試しください。");
+                    return;
                 }
                 if (state.isEditingSystemPrompt) {
-                    await uiUtils.showCustomAlert("システムプロンプト編集中です。完了後に再度お試しください。"); return;
+                    await uiUtils.showCustomAlert("システムプロンプト編集中です。完了後に再度お試しください。");
+                    return;
                 }
-
                 const chatTitle = elements.chatTitle.textContent.startsWith("新規チャット") ? "このチャット" : `チャット「${elements.chatTitle.textContent.replace(/^: /, '')}」`;
                 const confirmed = await uiUtils.showCustomConfirm(
                     `${chatTitle}を完全に削除しますか？\nこの操作は元に戻せません。`
@@ -4815,11 +5286,25 @@ sessionText += `あなた:\n`;
                 });
                 try {
                     await navigator.clipboard.writeText(sessionText.trim());
-                    uiUtils.showTemporaryButtonFeedback(elements.copySessionBtn, "コピー完了!", "");
+                    const buttonElement = elements.copySessionBtn;
+                    const originalText = buttonElement.textContent;
+                    buttonElement.textContent = 'コピー完了!';
+                    buttonElement.disabled = true;
+                    setTimeout(() => {
+                        buttonElement.textContent = originalText;
+                        buttonElement.disabled = false;
+                    }, 1500);
                 } catch (err) {
                     console.error("Copy session text error:", err);
                     await uiUtils.showCustomAlert("クリップボードへのコピーに失敗しました。\nお使いのブラウザが対応していないか、セキュリティ設定が原因の可能性があります。");
-                    uiUtils.showTemporaryButtonFeedback(elements.copySessionBtn, "", "コピー失敗", false, 2000);
+                    const buttonElement = elements.copySessionBtn;
+                    const originalText = buttonElement.textContent;
+                    buttonElement.textContent = 'コピー失敗';
+                    buttonElement.disabled = true;
+                    setTimeout(() => {
+                        buttonElement.textContent = originalText;
+                        buttonElement.disabled = false;
+                    }, 2000);
                 }
             },
             async confirmDeleteChat(id, title) {
@@ -5475,15 +5960,15 @@ if (msg.role === 'user') return true;
                      apiKey: elements.apiKeyInput.value.trim(),
                      modelName: elements.modelNameSelect.value,
                      streamingOutput: elements.streamingOutputCheckbox.checked,
-                     streamingSpeed: validationUtils.parseNumericValue(elements.streamingSpeedInput.value, DEFAULT_STREAMING_SPEED, 0, null),
+                     streamingSpeed: elements.streamingSpeedInput.value === '' ? DEFAULT_STREAMING_SPEED : parseInt(elements.streamingSpeedInput.value),
                      systemPrompt: elements.systemPromptDefaultTextarea.value.trim(),
-                     temperature: validationUtils.parseNumericValue(elements.temperatureInput.value, null, 0, 2, true),
-                     maxTokens: validationUtils.parseNumericValue(elements.maxTokensInput.value, null, 1, null, false, false),
-                     topK: validationUtils.parseNumericValue(elements.topKInput.value, null, 1, null, false, false),
-                     topP: validationUtils.parseNumericValue(elements.topPInput.value, null, 0, 1, true),
-                     presencePenalty: validationUtils.parseNumericValue(elements.presencePenaltyInput.value, null, -2.0, 1.9, true),
-                     frequencyPenalty: validationUtils.parseNumericValue(elements.frequencyPenaltyInput.value, null, -2.0, 1.9, true),
-                     thinkingBudget: validationUtils.parseNumericValue(elements.thinkingBudgetInput.value, null, 0, 24576, false),
+                     temperature: elements.temperatureInput.value === '' ? null : parseFloat(elements.temperatureInput.value),
+                     maxTokens: elements.maxTokensInput.value === '' ? null : parseInt(elements.maxTokensInput.value),
+                     topK: elements.topKInput.value === '' ? null : parseInt(elements.topKInput.value),
+                     topP: elements.topPInput.value === '' ? null : parseFloat(elements.topPInput.value),
+                     presencePenalty: elements.presencePenaltyInput.value === '' ? null : parseFloat(elements.presencePenaltyInput.value),
+                     frequencyPenalty: elements.frequencyPenaltyInput.value === '' ? null : parseFloat(elements.frequencyPenaltyInput.value),
+                     thinkingBudget: elements.thinkingBudgetInput.value === '' ? null : parseInt(elements.thinkingBudgetInput.value, 10),
                      dummyUser: elements.dummyUserInput.value.trim(),
                      dummyModel: elements.dummyModelInput.value.trim(),
                      concatDummyModel: elements.concatDummyModelCheckbox.checked,
@@ -5502,25 +5987,55 @@ if (msg.role === 'user') return true;
                      showBulkHistoryActions: elements.showBulkHistoryActionsToggle.checked,
                      showMemoButton: elements.showMemoButtonToggle.checked,
                      memoHeight: elements.memoHeightInput.value.trim() || DEFAULT_MEMO_HEIGHT,
+                     showClipboardStackButton: elements.showClipboardStackButtonToggle.checked, // 追加
+                     clipboardStackHeight: state.settings.clipboardStackHeight, // 既存の値を保持 (UIから変更しない場合)
                      showCollapseButtons: elements.showCollapseButtonsToggle.checked,
-                     messageBubbleOpacity: validationUtils.parseNumericValue(elements.messageBubbleOpacityInput.value, DEFAULT_MESSAGE_BUBBLE_OPACITY, 0, 1, true),
-                     chatOverlayOpacity: validationUtils.parseNumericValue(elements.chatOverlayOpacityInput.value, DEFAULT_CHAT_OVERLAY_OPACITY, 0, 1, true),
-                     headerFooterOpacity: validationUtils.parseNumericValue(elements.headerFooterOpacityInput.value, DEFAULT_HEADER_FOOTER_OPACITY, 0, 1, true),
+                     messageBubbleOpacity: elements.messageBubbleOpacityInput.value === '' ? DEFAULT_MESSAGE_BUBBLE_OPACITY : parseFloat(elements.messageBubbleOpacityInput.value),
+                     chatOverlayOpacity: elements.chatOverlayOpacityInput.value === '' ? DEFAULT_CHAT_OVERLAY_OPACITY : parseFloat(elements.chatOverlayOpacityInput.value),
+                     headerFooterOpacity: elements.headerFooterOpacityInput.value === '' ? DEFAULT_HEADER_FOOTER_OPACITY : parseFloat(elements.headerFooterOpacityInput.value),
                  };
-                
-                 if (newSettings.thinkingBudget !== null && !Number.isInteger(newSettings.thinkingBudget)) {
-                    newSettings.thinkingBudget = null;
+
+                 if (isNaN(newSettings.streamingSpeed) || newSettings.streamingSpeed < 0) {
+                     newSettings.streamingSpeed = DEFAULT_STREAMING_SPEED;
+                 }
+                 if (newSettings.temperature !== null && (isNaN(newSettings.temperature) || newSettings.temperature < 0 || newSettings.temperature > 2)) {
+                     newSettings.temperature = null;
+                 }
+                 if (newSettings.maxTokens !== null && (isNaN(newSettings.maxTokens) || newSettings.maxTokens < 1)) {
+                     newSettings.maxTokens = null;
+                 }
+                 if (newSettings.topK !== null && (isNaN(newSettings.topK) || newSettings.topK < 1)) {
+                     newSettings.topK = null;
+                 }
+                 if (newSettings.topP !== null && (isNaN(newSettings.topP) || newSettings.topP < 0 || newSettings.topP > 1)) {
+                     newSettings.topP = null;
+                 }
+                 if (newSettings.presencePenalty !== null && (isNaN(newSettings.presencePenalty) || newSettings.presencePenalty < -2.0 || newSettings.presencePenalty >= 2.0)) {
+                     newSettings.presencePenalty = null;
+                 }
+                 if (newSettings.frequencyPenalty !== null && (isNaN(newSettings.frequencyPenalty) || newSettings.frequencyPenalty < -2.0 || newSettings.frequencyPenalty >= 2.0)) {
+                     newSettings.frequencyPenalty = null;
+                 }
+                 if (newSettings.thinkingBudget !== null && (isNaN(newSettings.thinkingBudget) || newSettings.thinkingBudget < 0 || !Number.isInteger(newSettings.thinkingBudget))) {
+                     newSettings.thinkingBudget = null;
+                 }
+                 if (newSettings.messageBubbleOpacity !== null && (isNaN(newSettings.messageBubbleOpacity) || newSettings.messageBubbleOpacity < 0 || newSettings.messageBubbleOpacity > 1)) {
+                    newSettings.messageBubbleOpacity = DEFAULT_MESSAGE_BUBBLE_OPACITY;
+                 }
+                 if (newSettings.chatOverlayOpacity !== null && (isNaN(newSettings.chatOverlayOpacity) || newSettings.chatOverlayOpacity < 0 || newSettings.chatOverlayOpacity > 1)) {
+                    newSettings.chatOverlayOpacity = DEFAULT_CHAT_OVERLAY_OPACITY;
+                 }
+                 if (newSettings.headerFooterOpacity !== null && (isNaN(newSettings.headerFooterOpacity) || newSettings.headerFooterOpacity < 0 || newSettings.headerFooterOpacity > 1)) {
+                    newSettings.headerFooterOpacity = DEFAULT_HEADER_FOOTER_OPACITY;
                  }
 
                  try {
                      const oldSortOrder = state.settings.historySortOrder;
-                     const settingsToSave = { ...newSettings }; 
-                     
-                     const promises = Object.entries(settingsToSave)
-                         .filter(([key]) => key !== 'backgroundImageBlob') 
-                         .map(([key, value]) =>
-                             dbUtils.saveSetting(key, value)
-                         );
+                     const { memoWidth, ...settingsToSave } = newSettings; 
+
+                     const promises = Object.entries(settingsToSave).map(([key, value]) =>
+                         dbUtils.saveSetting(key, value)
+                     );
                      
                      if (state.settings.backgroundImageBlob instanceof Blob) {
                          promises.push(dbUtils.saveSetting('backgroundImageBlob', state.settings.backgroundImageBlob));
@@ -5582,6 +6097,10 @@ if (msg.role === 'user') return true;
                         state.isMemoVisible = false;
                         elements.memoArea.classList.add('hidden');
                         elements.memoEditor.value = '';
+                        state.isClipboardStackVisible = false; // 追加
+                        elements.clipboardStackArea.classList.add('hidden'); // 追加
+                        state.clipboardStackContent = ''; // 追加
+
                         state.settings = { 
                             apiKey: '', modelName: DEFAULT_MODEL, streamingOutput: true,
                             streamingSpeed: DEFAULT_STREAMING_SPEED, systemPrompt: '',
@@ -5597,6 +6116,8 @@ if (msg.role === 'user') return true;
                             showToggleAllContentButton: true, showBulkHistoryActions: true,
                             showMemoButton: true,
                             memoHeight: DEFAULT_MEMO_HEIGHT,
+                            showClipboardStackButton: true, // 追加
+                            clipboardStackHeight: DEFAULT_CLIPBOARD_STACK_HEIGHT, // 追加
                             showCollapseButtons: true,
                             messageBubbleOpacity: DEFAULT_MESSAGE_BUBBLE_OPACITY,
                             chatOverlayOpacity: DEFAULT_CHAT_OVERLAY_OPACITY,
@@ -5785,24 +6306,43 @@ if (msg.role === 'user') return true;
                     state.editingMessageIndex = null;
                 }
             },
-            async copyMessageText(index, buttonElement) {
+            async copyMessageText(index, buttonElement) { // 修正
                 const message = state.currentMessages[index];
-                if (!message) {
-                    return;
-                }
+                if (!message) return;
+
                 let textToCopy = message.content;
                 if (!textToCopy && message.role === 'user' && message.attachments && message.attachments.length > 0) {
                     textToCopy = `[添付ファイル: ${message.attachments.map(a => a.name).join(', ')}]`;
                 } else if (!textToCopy) {
                     textToCopy = "";
                 }
+
                 try {
                     await navigator.clipboard.writeText(textToCopy);
-                    uiUtils.showTemporaryButtonFeedback(buttonElement, 'コピー完了!', '');
+                    const originalText = buttonElement.textContent;
+                    buttonElement.textContent = 'コピー完了!';
+                    buttonElement.disabled = true;
+                    setTimeout(() => {
+                        buttonElement.textContent = originalText;
+                        buttonElement.disabled = false;
+                    }, 1500);
                 } catch (err) {
-                    console.error("Copy message text error:", err);
-                    uiUtils.showCustomAlert("クリップボードへのコピーに失敗しました。\nお使いのブラウザが対応していないか、セキュリティ設定が原因の可能性があります。");
-                    uiUtils.showTemporaryButtonFeedback(buttonElement, '', 'コピー失敗', false, 2000);
+                    console.error("Copy message text to OS clipboard error:", err);
+                    uiUtils.showCustomAlert("OSクリップボードへのコピーに失敗しました。");
+                }
+
+                const currentStackContent = elements.clipboardStackEditor.value;
+                const separator = currentStackContent.length > 0 && !currentStackContent.endsWith('\n\n') ? "\n\n" : "";
+                const messagePrefix = message.role === 'user' ? "User:" : "Model:";
+                elements.clipboardStackEditor.value += separator + `${messagePrefix}\n${textToCopy}`;
+                state.clipboardStackContent = elements.clipboardStackEditor.value;
+                elements.clipboardStackEditor.scrollTop = elements.clipboardStackEditor.scrollHeight;
+
+                if (!state.isClipboardStackVisible && state.settings.showClipboardStackButton) {
+                    uiUtils.showCustomAlert("メッセージをクリップボードスタックに追記しました。\n(OSクリップボードにもコピーされました)");
+                } else if (!state.settings.showClipboardStackButton) {
+                     // OSクリップボードへのコピーのみ成功した旨を伝える (スタックボタンがない場合)
+                     // (既にコピー完了の表示はボタンで行っているので、ここでは何もしなくても良いかもしれない)
                 }
             },
             async deleteMessage(index) {
@@ -6376,4 +6916,3 @@ if (msg.role === 'user') return true;
     </script>
 </body>
 </html>
-  
