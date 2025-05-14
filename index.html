@@ -1,4 +1,8 @@
+お辛い中、本当にありがとうございます。ご負担を少しでも軽減できるよう、全力を尽くします。
 
+これまでの全てのご要望（クリップボードスタック、ジャンプボタン、各種表示オプション、特定ヘッダーボタンの無色化、アバターアイコン、アイコンサイズ設定、フッターペーストボタン、各画面の個別背景画像設定）を反映した完全なコードを、バージョン `0.25` のままで省略せずに表示します。
+
+```html
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -44,8 +48,10 @@
             --bg-button-update-hover: #115293;
             --bg-header: #4a90e2;
             --bg-message-actions: rgba(255, 255, 255, 0.8);
-            --overlay-base-rgb: 255, 255, 255;
+            --overlay-base-rgb: 255, 255, 255; /* オーバーレイのベース色 (テーマで上書き) */
             --chat-overlay-alpha: 0.65;
+            --history-overlay-alpha: 0.85; 
+            --settings-overlay-alpha: 0.85;
             --bg-cascade-button: var(--bg-button-action);
             --bg-cascade-button-hover: var(--bg-button-action-hover);
             --bg-cascade-delete-button: var(--bg-button-delete);
@@ -80,6 +86,8 @@
             --message-max-width: 85%;
             --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             --chat-background-image: none;
+            --history-background-image: none; 
+            --settings-background-image: none;
             
             --bg-dialog-file-item: var(--bg-tertiary);
             --border-dialog-file-item: var(--border-secondary);
@@ -102,7 +110,7 @@
 
             --memo-height: 300px; 
             --clipboard-stack-height: 300px;
-            --message-icon-size: 28px; /* アイコンのデフォルトサイズ */
+            --message-icon-size: 28px; 
 
             --bg-toggle-button: var(--bg-button-action);
             --bg-toggle-button-hover: var(--bg-button-action-hover);
@@ -1031,32 +1039,55 @@
         #history-screen { transform: translateX(-100%); }
         #settings-screen { transform: translateX(100%); }
 
-        #chat-screen {
+        #chat-screen, 
+        #history-screen, 
+        #settings-screen { 
             position: relative;
             z-index: 0;
-            background-image: var(--chat-background-image);
             background-size: cover;
             background-position: center center;
             background-repeat: no-repeat;
             transition: background-image 0.3s ease, transform 0.3s ease-in-out;
         }
+        #chat-screen {
+            background-image: var(--chat-background-image);
+        }
+        #history-screen {
+            background-image: var(--history-background-image);
+        }
+        #settings-screen {
+            background-image: var(--settings-background-image);
+        }
 
-        #chat-screen::before {
+
+        #chat-screen::before,
+        #history-screen::before,
+        #settings-screen::before { 
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: rgba(var(--overlay-base-rgb), var(--chat-overlay-alpha));
             z-index: 0;
             transition: background-color 0.3s ease;
             pointer-events: none;
         }
+        #chat-screen::before {
+            background-color: rgba(var(--overlay-base-rgb), var(--chat-overlay-alpha));
+        }
+        #history-screen::before {
+            background-color: rgba(var(--overlay-base-rgb), var(--history-overlay-alpha));
+        }
+        #settings-screen::before {
+            background-color: rgba(var(--overlay-base-rgb), var(--settings-overlay-alpha));
+        }
 
-        #chat-screen .main-content {
-            z-index: 1;
-            background-color: transparent;
+        #chat-screen .main-content,
+        #history-screen .main-content,
+        #settings-screen .main-content {
+            z-index: 1; 
+            background-color: transparent; 
             overflow-y: scroll;
             overflow-x: auto;
             touch-action: pan-x pan-y pinch-zoom;
@@ -1331,7 +1362,7 @@
             border-radius: 50%; 
             object-fit: cover; 
             position: absolute;
-            top: calc(var(--message-icon-size) / -2 + 2px); /* 少し調整 */
+            top: calc(var(--message-icon-size) / -2 + 2px); 
             border: 1px solid var(--border-secondary);
             background-color: var(--bg-tertiary); 
             box-shadow: 0 1px 2px var(--shadow-primary);
@@ -1345,7 +1376,7 @@
         }
         .message.user:hover .message-toggle-button.top + .message-icon,
         .message.user.show-actions .message-toggle-button.top + .message-icon {
-            right: calc(5px + 20px + 5px); /* (アイコン右端からの距離 + ボタン幅 + ボタンとアイコンの間隔) */
+            right: calc(5px + 20px + 5px); 
         }
 
 
@@ -1637,7 +1668,7 @@
             transition: background-color 0.3s ease, border-color 0.3s ease;
             gap: 10px;
         }
-        .footer-action-button { /* フッターボタン共通スタイル */
+        .footer-action-button { 
             height: 40px;
             width: 40px;
             padding: 0;
@@ -1661,10 +1692,10 @@
             color: #424242;
         }
         .chat-input-area button#attach-file-btn {
-            position: relative; /* バッジのため */
+            position: relative; 
         }
         .chat-input-area button#paste-to-input-btn {
-            font-size: 16px; /* 「貼」文字のサイズ調整 */
+            font-size: 16px; 
         }
 
         .attachment-badge {
@@ -2723,16 +2754,32 @@
                     </p>
                 </div>
                 <div class="settings-group">
-                    <h3>イメージ画像</h3>
+                    <h3>各画面の背景設定</h3>
                     <label>チャット画面の背景画像:</label>
-                    <div class="image-upload-controls">
-                        <input type="file" id="background-image-input" accept="image/jpeg, image/png, image/gif, image/webp" class="hidden">
-                        <button id="upload-background-btn" class="settings-action-button" type="button">画像を選択...</button>
-                        <img id="background-thumbnail" src="" alt="背景画像プレビュー" class="background-thumbnail hidden">
-                        <button id="delete-background-btn" class="settings-delete-button hidden" type="button">画像を削除</button>
+                    <div class="image-upload-controls" style="margin-bottom: 15px;">
+                        <input type="file" id="background-image-input-chat" accept="image/jpeg, image/png, image/gif, image/webp" class="hidden">
+                        <button id="upload-background-btn-chat" class="settings-action-button" type="button">画像を選択...</button>
+                        <img id="background-thumbnail-chat" src="" alt="チャット背景プレビュー" class="background-thumbnail hidden">
+                        <button id="delete-background-btn-chat" class="settings-delete-button hidden" type="button">画像を削除</button>
                     </div>
-                     <p style="font-size: 11px; color: var(--text-secondary); margin-top: 8px;">
-                       ※ 画像はブラウザ内のデータベースに保存。<br>
+
+                    <label style="margin-top:15px;">履歴画面の背景画像:</label>
+                    <div class="image-upload-controls" style="margin-bottom: 15px;">
+                        <input type="file" id="background-image-input-history" accept="image/jpeg, image/png, image/gif, image/webp" class="hidden">
+                        <button id="upload-background-btn-history" class="settings-action-button" type="button">画像を選択...</button>
+                        <img id="background-thumbnail-history" src="" alt="履歴背景プレビュー" class="background-thumbnail hidden">
+                        <button id="delete-background-btn-history" class="settings-delete-button hidden" type="button">画像を削除</button>
+                    </div>
+
+                    <label style="margin-top:15px;">設定画面の背景画像:</label>
+                    <div class="image-upload-controls">
+                        <input type="file" id="background-image-input-settings" accept="image/jpeg, image/png, image/gif, image/webp" class="hidden">
+                        <button id="upload-background-btn-settings" class="settings-action-button" type="button">画像を選択...</button>
+                        <img id="background-thumbnail-settings" src="" alt="設定背景プレビュー" class="background-thumbnail hidden">
+                        <button id="delete-background-btn-settings" class="settings-delete-button hidden" type="button">画像を削除</button>
+                    </div>
+                     <p style="font-size: 11px; color: var(--text-secondary); margin-top: 15px;">
+                       ※ 画像はブラウザ内のデータベースに保存されます。<br>
                        ※ 可読性のため画像の上に半透明のレイヤーを表示。
                      </p>
                 </div>
@@ -2879,6 +2926,10 @@
                    <input type="number" id="message-bubble-opacity" min="0" max="1" step="0.05" placeholder="例: 0.8" aria-label="メッセージ背景の透明度">
                    <label for="chat-overlay-opacity">チャット背景オーバーレイの透明度 (0.0-1.0):</label>
                    <input type="number" id="chat-overlay-opacity" min="0" max="1" step="0.05" placeholder="例: 0.6" aria-label="チャット背景オーバーレイの透明度">
+                   <label for="history-overlay-opacity">履歴画面オーバーレイの透明度 (0.0-1.0):</label>
+                   <input type="number" id="history-overlay-opacity" min="0" max="1" step="0.05" placeholder="例: 0.85" aria-label="履歴画面背景オーバーレイの透明度">
+                   <label for="settings-overlay-opacity">設定画面オーバーレイの透明度 (0.0-1.0):</label>
+                   <input type="number" id="settings-overlay-opacity" min="0" max="1" step="0.05" placeholder="例: 0.85" aria-label="設定画面背景オーバーレイの透明度">
                    <label for="header-footer-opacity">ヘッダー/フッター背景の透明度 (0.0-1.0):</label>
                    <input type="number" id="header-footer-opacity" min="0" max="1" step="0.05" placeholder="例: 0.9" aria-label="ヘッダー/フッター背景の透明度">
                 </div>
@@ -2961,7 +3012,7 @@
         const DEFAULT_FONT_FAMILY = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
         const DEFAULT_MEMO_HEIGHT = '300px';
         const DEFAULT_CLIPBOARD_STACK_HEIGHT = '300px';
-        const DEFAULT_MESSAGE_ICON_SIZE = 28; // 追加
+        const DEFAULT_MESSAGE_ICON_SIZE = 28; 
         const CHAT_TITLE_LENGTH = 15;
         const TEXTAREA_MAX_HEIGHT = 120;
         const GEMINI_API_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models/';
@@ -3029,6 +3080,9 @@
         const DEFAULT_MESSAGE_BUBBLE_OPACITY = 0.7;
         const DEFAULT_HEADER_FOOTER_OPACITY = 0.4;
         const DEFAULT_CHAT_OVERLAY_OPACITY = 0.2;
+        const DEFAULT_HISTORY_OVERLAY_OPACITY = 0.85; // 追加
+        const DEFAULT_SETTINGS_OVERLAY_OPACITY = 0.85; // 追加
+
 
         const extensionToMimeTypeMap = {
             'pdf': 'application/pdf', 'js': 'text/javascript', 'py': 'text/x-python',
@@ -3095,15 +3149,25 @@
             showScrollToBottomButtonToggle: document.getElementById('show-scroll-to-bottom-button-toggle'), 
             showToggleAllContentButtonToggle: document.getElementById('show-toggle-all-content-button-toggle'),
             showBulkHistoryActionsToggle: document.getElementById('show-bulk-history-actions-toggle'),
-            showPasteButtonInFooterToggle: document.getElementById('show-paste-button-in-footer-toggle'), // 追加
+            showPasteButtonInFooterToggle: document.getElementById('show-paste-button-in-footer-toggle'), 
             messageBubbleOpacityInput: document.getElementById('message-bubble-opacity'),
             chatOverlayOpacityInput: document.getElementById('chat-overlay-opacity'),
+            historyOverlayOpacityInput: document.getElementById('history-overlay-opacity'), // 追加
+            settingsOverlayOpacityInput: document.getElementById('settings-overlay-opacity'), // 追加
             headerFooterOpacityInput: document.getElementById('header-footer-opacity'),
             appVersionSpan: document.getElementById('app-version'),
-            backgroundImageInput: document.getElementById('background-image-input'),
-            uploadBackgroundBtn: document.getElementById('upload-background-btn'),
-            backgroundThumbnail: document.getElementById('background-thumbnail'),
-            deleteBackgroundBtn: document.getElementById('delete-background-btn'),
+            backgroundImageInputChat: document.getElementById('background-image-input-chat'),
+            uploadBackgroundBtnChat: document.getElementById('upload-background-btn-chat'),
+            backgroundThumbnailChat: document.getElementById('background-thumbnail-chat'),
+            deleteBackgroundBtnChat: document.getElementById('delete-background-btn-chat'),
+            backgroundImageInputHistory: document.getElementById('background-image-input-history'),
+            uploadBackgroundBtnHistory: document.getElementById('upload-background-btn-history'),
+            backgroundThumbnailHistory: document.getElementById('background-thumbnail-history'),
+            deleteBackgroundBtnHistory: document.getElementById('delete-background-btn-history'),
+            backgroundImageInputSettingsScreen: document.getElementById('background-image-input-settings'),
+            uploadBackgroundBtnSettingsScreen: document.getElementById('upload-background-btn-settings'),
+            backgroundThumbnailSettingsScreen: document.getElementById('background-thumbnail-settings'),
+            deleteBackgroundBtnSettingsScreen: document.getElementById('delete-background-btn-settings'),
             gotoHistoryBtn: document.getElementById('goto-history-btn'),
             gotoSettingsBtn: document.getElementById('goto-settings-btn'),
             backToChatFromHistoryBtn: document.getElementById('back-to-chat-from-history'),
@@ -3135,7 +3199,7 @@
             promptOkBtn: document.getElementById('promptDialog').querySelector('.dialog-ok-btn'),
             promptCancelBtn: document.getElementById('promptDialog').querySelector('.dialog-cancel-btn'),
             attachFileBtn: document.getElementById('attach-file-btn'),
-            pasteToInputBtn: document.getElementById('paste-to-input-btn'), // 追加
+            pasteToInputBtn: document.getElementById('paste-to-input-btn'), 
             fileUploadDialog: document.getElementById('fileUploadDialog'),
             fileInput: document.getElementById('file-input'),
             selectFilesBtn: document.getElementById('select-files-btn'),
@@ -3168,7 +3232,7 @@
             uploadAiIconBtn: document.getElementById('upload-ai-icon-btn'),
             aiIconThumbnail: document.getElementById('ai-icon-thumbnail'),
             deleteAiIconBtn: document.getElementById('delete-ai-icon-btn'),
-            messageIconSizeInput: document.getElementById('message-icon-size'), // 追加
+            messageIconSizeInput: document.getElementById('message-icon-size'), 
         };
 
         const state = {
@@ -3197,7 +3261,9 @@
                 enterToSend: true,
                 historySortOrder: 'updatedAt',
                 theme: 'light', 
-                backgroundImageBlob: null,
+                chatBackgroundImageBlob: null, // 変更
+                historyBackgroundImageBlob: null, // 追加
+                settingsBackgroundImageBlob: null, // 追加
                 fontFamily: '',
                 hideSystemPromptInChat: false,
                 enableGrounding: false,
@@ -3209,7 +3275,7 @@
                 showScrollToBottomButton: true, 
                 showToggleAllContentButton: true,
                 showBulkHistoryActions: true,
-                showPasteButtonInFooter: true, // 追加
+                showPasteButtonInFooter: true, 
                 showMemoButton: true,
                 memoHeight: DEFAULT_MEMO_HEIGHT,
                 showClipboardStackButton: true, 
@@ -3218,13 +3284,17 @@
                 userIconBlob: null, 
                 showAiIcon: true, 
                 aiIconBlob: null, 
-                messageIconSize: DEFAULT_MESSAGE_ICON_SIZE, // 追加
+                messageIconSize: DEFAULT_MESSAGE_ICON_SIZE, 
                 showCollapseButtons: true,
                 messageBubbleOpacity: DEFAULT_MESSAGE_BUBBLE_OPACITY,
                 chatOverlayOpacity: DEFAULT_CHAT_OVERLAY_OPACITY,
+                historyOverlayOpacity: DEFAULT_HISTORY_OVERLAY_OPACITY, // 追加
+                settingsOverlayOpacity: DEFAULT_SETTINGS_OVERLAY_OPACITY, // 追加
                 headerFooterOpacity: DEFAULT_HEADER_FOOTER_OPACITY,
             },
-            backgroundImageUrl: null,
+            chatBackgroundImageUrl: null, // 変更
+            historyBackgroundImageUrl: null, // 追加
+            settingsBackgroundImageUrl: null, // 追加
             userIconUrl: null, 
             aiIconUrl: null, 
             isSending: false,
@@ -3384,7 +3454,7 @@
                                 const loadedValue = loadedSettings[key];
                                 const defaultValue = defaultSettings[key]; 
 
-                                if (key === 'backgroundImageBlob' || key === 'userIconBlob' || key === 'aiIconBlob') { 
+                                if (key === 'chatBackgroundImageBlob' || key === 'historyBackgroundImageBlob' || key === 'settingsBackgroundImageBlob' || key === 'userIconBlob' || key === 'aiIconBlob') { 
                                     if (loadedValue instanceof Blob) {
                                          state.settings[key] = loadedValue;
                                     } else {
@@ -3400,13 +3470,13 @@
                                      state.settings[key] = loadedValue === true; 
                                 } else if (typeof defaultValue === 'number' || defaultValue === null) {
                                      let num;
-                                     if (key === 'temperature' || key === 'topP' || key === 'presencePenalty' || key === 'frequencyPenalty' || key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity' || key === 'messageIconSize') { // messageIconSize を追加
+                                     if (key === 'temperature' || key === 'topP' || key === 'presencePenalty' || key === 'frequencyPenalty' || key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'historyOverlayOpacity' || key === 'settingsOverlayOpacity' || key === 'headerFooterOpacity' || key === 'messageIconSize') { 
                                          num = parseFloat(loadedValue);
                                      } else {
                                          num = parseInt(loadedValue, 10);
                                      }
                                      if (isNaN(num)) {
-                                         if ((key === 'temperature' || key === 'maxTokens' || key === 'topK' || key === 'topP' || key === 'presencePenalty' || key === 'frequencyPenalty' || key === 'thinkingBudget' || key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity' || key === 'messageIconSize') && (loadedValue === null || loadedValue === '')) { // messageIconSize を追加
+                                         if ((key === 'temperature' || key === 'maxTokens' || key === 'topK' || key === 'topP' || key === 'presencePenalty' || key === 'frequencyPenalty' || key === 'thinkingBudget' || key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'historyOverlayOpacity' || key === 'settingsOverlayOpacity' || key === 'headerFooterOpacity' || key === 'messageIconSize') && (loadedValue === null || loadedValue === '')) { 
                                               state.settings[key] = null;
                                          } else {
                                               state.settings[key] = defaultValue;
@@ -3419,8 +3489,8 @@
                                           if (key === 'streamingSpeed' && num < 0) num = defaultValue;
                                           if ((key === 'presencePenalty' || key === 'frequencyPenalty') && (num < -2.0 || num >= 2.0)) num = defaultValue;
                                           if (key === 'thinkingBudget' && (num < 0 || !Number.isInteger(num))) num = defaultValue;
-                                          if ((key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity') && (num < 0 || num > 1)) num = defaultValue;
-                                          if (key === 'messageIconSize' && (num < 16 || num > 64)) num = defaultValue; // messageIconSize の範囲チェック
+                                          if ((key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'historyOverlayOpacity' || key === 'settingsOverlayOpacity' || key === 'headerFooterOpacity') && (num < 0 || num > 1)) num = defaultValue;
+                                          if (key === 'messageIconSize' && (num < 16 || num > 64)) num = defaultValue; 
                                           state.settings[key] = num;
                                      }
                                 } else if (typeof defaultValue === 'string') {
@@ -4087,10 +4157,18 @@
                     elements.historyTitle.textContent = '履歴一覧';
                 }
             },
-            revokeExistingObjectUrl() {
-                if (state.backgroundImageUrl) {
-                    try { URL.revokeObjectURL(state.backgroundImageUrl); } catch (e) { console.warn("Error revoking object URL:", e); }
-                    state.backgroundImageUrl = null;
+            revokeExistingObjectUrl() { 
+                if (state.chatBackgroundImageUrl) {
+                    try { URL.revokeObjectURL(state.chatBackgroundImageUrl); } catch (e) { console.warn("Error revoking chat bg URL:", e); }
+                    state.chatBackgroundImageUrl = null;
+                }
+                if (state.historyBackgroundImageUrl) {
+                    try { URL.revokeObjectURL(state.historyBackgroundImageUrl); } catch (e) { console.warn("Error revoking history bg URL:", e); }
+                    state.historyBackgroundImageUrl = null;
+                }
+                if (state.settingsBackgroundImageUrl) {
+                    try { URL.revokeObjectURL(state.settingsBackgroundImageUrl); } catch (e) { console.warn("Error revoking settings bg URL:", e); }
+                    state.settingsBackgroundImageUrl = null;
                 }
             },
             revokeExistingIconUrls() { 
@@ -4103,17 +4181,21 @@
                     state.aiIconUrl = null;
                 }
             },
-            updateBackgroundSettingsUI() {
-                if (!elements.backgroundThumbnail || !elements.deleteBackgroundBtn) return;
-                if (state.backgroundImageUrl) {
-                    elements.backgroundThumbnail.src = state.backgroundImageUrl;
-                    elements.backgroundThumbnail.classList.remove('hidden');
-                    elements.deleteBackgroundBtn.classList.remove('hidden');
-                } else {
-                    elements.backgroundThumbnail.src = '';
-                    elements.backgroundThumbnail.classList.add('hidden');
-                    elements.deleteBackgroundBtn.classList.add('hidden');
-                }
+            updateBackgroundSettingsUI() { 
+                const updateThumb = (type, url, thumbEl, deleteBtnEl) => {
+                    if (url) {
+                        thumbEl.src = url;
+                        thumbEl.classList.remove('hidden');
+                        deleteBtnEl.classList.remove('hidden');
+                    } else {
+                        thumbEl.src = '';
+                        thumbEl.classList.add('hidden');
+                        deleteBtnEl.classList.add('hidden');
+                    }
+                };
+                updateThumb('chat', state.chatBackgroundImageUrl, elements.backgroundThumbnailChat, elements.deleteBackgroundBtnChat);
+                updateThumb('history', state.historyBackgroundImageUrl, elements.backgroundThumbnailHistory, elements.deleteBackgroundBtnHistory);
+                updateThumb('settingsScreen', state.settingsBackgroundImageUrl, elements.backgroundThumbnailSettingsScreen, elements.deleteBackgroundBtnSettingsScreen);
             },
             updateIconSettingsUI() { 
                 if (state.userIconUrl) {
@@ -4147,10 +4229,12 @@
                 document.documentElement.style.setProperty('--clipboard-stack-height', state.settings.clipboardStackHeight || DEFAULT_CLIPBOARD_STACK_HEIGHT); 
                 document.documentElement.style.setProperty('--message-icon-size', `${state.settings.messageIconSize || DEFAULT_MESSAGE_ICON_SIZE}px`); 
             },
-            applyOpacitySettings() {
+            applyOpacitySettings() { 
+                document.documentElement.style.setProperty('--chat-overlay-alpha', state.settings.chatOverlayOpacity);
+                document.documentElement.style.setProperty('--history-overlay-alpha', state.settings.historyOverlayOpacity);
+                document.documentElement.style.setProperty('--settings-overlay-alpha', state.settings.settingsOverlayOpacity);
                 document.documentElement.style.setProperty('--message-bubble-opacity', state.settings.messageBubbleOpacity);
                 document.documentElement.style.setProperty('--header-footer-opacity', state.settings.headerFooterOpacity);
-                document.documentElement.style.setProperty('--chat-overlay-alpha', state.settings.chatOverlayOpacity);
 
                 let headerColor, secondaryColor, userMessageColor, modelMessageColor, overlayBaseColor;
 
@@ -4321,6 +4405,8 @@
                 elements.showPasteButtonInFooterToggle.checked = state.settings.showPasteButtonInFooter; 
                 elements.messageBubbleOpacityInput.value = state.settings.messageBubbleOpacity ?? DEFAULT_MESSAGE_BUBBLE_OPACITY;
                 elements.chatOverlayOpacityInput.value = state.settings.chatOverlayOpacity ?? DEFAULT_CHAT_OVERLAY_OPACITY;
+                elements.historyOverlayOpacityInput.value = state.settings.historyOverlayOpacity ?? DEFAULT_HISTORY_OVERLAY_OPACITY;
+                elements.settingsOverlayOpacityInput.value = state.settings.settingsOverlayOpacity ?? DEFAULT_SETTINGS_OVERLAY_OPACITY;
                 elements.headerFooterOpacityInput.value = state.settings.headerFooterOpacity ?? DEFAULT_HEADER_FOOTER_OPACITY;
                 
                 elements.showMemoButtonToggle.checked = state.settings.showMemoButton;
@@ -4367,7 +4453,7 @@
                 if (elements.toggleClipboardStackBtn) { 
                     elements.toggleClipboardStackBtn.classList.toggle('hidden', !state.settings.showClipboardStackButton);
                 }
-                if (elements.pasteToInputBtn) { // 追加
+                if (elements.pasteToInputBtn) { 
                     elements.pasteToInputBtn.classList.toggle('hidden', !state.settings.showPasteButtonInFooter);
                 }
             },
@@ -4499,7 +4585,7 @@
                     elements.sendButton.disabled = false;
                     elements.userInput.disabled = true;
                     elements.attachFileBtn.disabled = true;
-                    elements.pasteToInputBtn.disabled = true; // 追加
+                    elements.pasteToInputBtn.disabled = true; 
                     elements.loadingIndicator.classList.remove('hidden');
                     elements.loadingIndicator.setAttribute('aria-live', 'polite');
                     elements.systemPromptDetails.style.pointerEvents = 'none'; 
@@ -4511,7 +4597,7 @@
                     elements.sendButton.disabled = elements.userInput.value.trim() === '' && state.pendingAttachments.length === 0;
                     elements.userInput.disabled = false;
                     elements.attachFileBtn.disabled = false;
-                    elements.pasteToInputBtn.disabled = false; // 追加
+                    elements.pasteToInputBtn.disabled = false; 
                     elements.loadingIndicator.classList.add('hidden');
                     elements.loadingIndicator.removeAttribute('aria-live');
                     elements.systemPromptDetails.style.pointerEvents = '';
@@ -4522,7 +4608,7 @@
                 if (!textarea) return;
                 textarea.style.height = 'auto';
                 const scrollHeight = textarea.scrollHeight;
-                textarea.style.height = Math.min(scrollHeight, maxHeight) + 'px';
+                textarea.style.height = Math.min(scrollHeight, maxHeight) +'px';
                 if (textarea === elements.userInput && !state.isSending) {
                     elements.sendButton.disabled = textarea.value.trim() === '' && state.pendingAttachments.length === 0;
                 }
@@ -4676,17 +4762,20 @@
                     uiUtils.applyTheme(); 
                     uiUtils.applyFontFamily();
                     uiUtils.applySidePanelSettingsToUI(); 
-                    if (state.settings.backgroundImageBlob instanceof Blob) {
-                        uiUtils.revokeExistingObjectUrl();
-                        try {
-                             state.backgroundImageUrl = URL.createObjectURL(state.settings.backgroundImageBlob);
-                             document.documentElement.style.setProperty('--chat-background-image', `url(${state.backgroundImageUrl})`);
-                        } catch (e) {
-                             console.error("Error creating object URL for background:", e);
-                             document.documentElement.style.setProperty('--chat-background-image', 'none');
-                        }
-                    } else {
-                        document.documentElement.style.setProperty('--chat-background-image', 'none');
+                    if (state.settings.chatBackgroundImageBlob instanceof Blob) {
+                        try { state.chatBackgroundImageUrl = URL.createObjectURL(state.settings.chatBackgroundImageBlob);
+                              document.documentElement.style.setProperty('--chat-background-image', `url(${state.chatBackgroundImageUrl})`);
+                        } catch (e) { console.error("Error creating chat bg URL:", e); }
+                    }
+                    if (state.settings.historyBackgroundImageBlob instanceof Blob) {
+                        try { state.historyBackgroundImageUrl = URL.createObjectURL(state.settings.historyBackgroundImageBlob);
+                              document.documentElement.style.setProperty('--history-background-image', `url(${state.historyBackgroundImageUrl})`);
+                        } catch (e) { console.error("Error creating history bg URL:", e); }
+                    }
+                    if (state.settings.settingsBackgroundImageBlob instanceof Blob) {
+                        try { state.settingsBackgroundImageUrl = URL.createObjectURL(state.settings.settingsBackgroundImageBlob);
+                              document.documentElement.style.setProperty('--settings-background-image', `url(${state.settingsBackgroundImageUrl})`);
+                        } catch (e) { console.error("Error creating settings bg URL:", e); }
                     }
                     if (state.settings.userIconBlob instanceof Blob) {
                         try { state.userIconUrl = URL.createObjectURL(state.settings.userIconBlob); } catch (e) { console.error("Error creating user icon URL:", e); }
@@ -4794,13 +4883,29 @@
                     });
                 }
 
-                elements.uploadBackgroundBtn.addEventListener('click', () => elements.backgroundImageInput.click());
-                elements.backgroundImageInput.addEventListener('change', (event) => {
+                elements.uploadBackgroundBtnChat.addEventListener('click', () => elements.backgroundImageInputChat.click());
+                elements.backgroundImageInputChat.addEventListener('change', (event) => {
                     const file = event.target.files[0];
-                    if (file) this.handleBackgroundImageUpload(file);
+                    if (file) this.handleBackgroundImageUpload('chat', file);
                     event.target.value = null;
                 });
-                elements.deleteBackgroundBtn.addEventListener('click', () => this.confirmDeleteBackgroundImage());
+                elements.deleteBackgroundBtnChat.addEventListener('click', () => this.confirmDeleteBackgroundImage('chat'));
+
+                elements.uploadBackgroundBtnHistory.addEventListener('click', () => elements.backgroundImageInputHistory.click());
+                elements.backgroundImageInputHistory.addEventListener('change', (event) => {
+                    const file = event.target.files[0];
+                    if (file) this.handleBackgroundImageUpload('history', file);
+                    event.target.value = null;
+                });
+                elements.deleteBackgroundBtnHistory.addEventListener('click', () => this.confirmDeleteBackgroundImage('history'));
+
+                elements.uploadBackgroundBtnSettingsScreen.addEventListener('click', () => elements.backgroundImageInputSettingsScreen.click());
+                elements.backgroundImageInputSettingsScreen.addEventListener('change', (event) => {
+                    const file = event.target.files[0];
+                    if (file) this.handleBackgroundImageUpload('settingsScreen', file);
+                    event.target.value = null;
+                });
+                elements.deleteBackgroundBtnSettingsScreen.addEventListener('click', () => this.confirmDeleteBackgroundImage('settingsScreen'));
                 
                 elements.showUserIconToggle.addEventListener('change', () => {
                     state.settings.showUserIcon = elements.showUserIconToggle.checked;
@@ -4859,7 +4964,7 @@
                     state.settings.showScrollToBottomButton = elements.showScrollToBottomButtonToggle.checked;
                     uiUtils.updateChatScreenElementVisibility();
                 });
-                elements.showPasteButtonInFooterToggle.addEventListener('change', () => { // 追加
+                elements.showPasteButtonInFooterToggle.addEventListener('change', () => { 
                     state.settings.showPasteButtonInFooter = elements.showPasteButtonInFooterToggle.checked;
                     uiUtils.updateChatScreenElementVisibility();
                 });
@@ -4894,6 +4999,22 @@
                         document.documentElement.style.setProperty('--chat-overlay-alpha', opacity);
                     } else if (elements.chatOverlayOpacityInput.value === '') {
                         document.documentElement.style.setProperty('--chat-overlay-alpha', DEFAULT_CHAT_OVERLAY_OPACITY);
+                    }
+                });
+                elements.historyOverlayOpacityInput.addEventListener('input', () => { // 追加
+                    const opacity = parseFloat(elements.historyOverlayOpacityInput.value);
+                    if (!isNaN(opacity) && opacity >= 0 && opacity <= 1) {
+                        document.documentElement.style.setProperty('--history-overlay-alpha', opacity);
+                    } else if (elements.historyOverlayOpacityInput.value === '') {
+                        document.documentElement.style.setProperty('--history-overlay-alpha', DEFAULT_HISTORY_OVERLAY_OPACITY);
+                    }
+                });
+                elements.settingsOverlayOpacityInput.addEventListener('input', () => { // 追加
+                    const opacity = parseFloat(elements.settingsOverlayOpacityInput.value);
+                    if (!isNaN(opacity) && opacity >= 0 && opacity <= 1) {
+                        document.documentElement.style.setProperty('--settings-overlay-alpha', opacity);
+                    } else if (elements.settingsOverlayOpacityInput.value === '') {
+                        document.documentElement.style.setProperty('--settings-overlay-alpha', DEFAULT_SETTINGS_OVERLAY_OPACITY);
                     }
                 });
                 elements.headerFooterOpacityInput.addEventListener('input', () => {
@@ -6207,49 +6328,80 @@ if (msg.role === 'user') return true;
                 };
                 reader.readAsText(file);
             },
-             async handleBackgroundImageUpload(file) {
+             async handleBackgroundImageUpload(screenType, file) { 
                  const maxSize = 5 * 1024 * 1024;
-                 if (file.size > maxSize) {
-                     await uiUtils.showCustomAlert(`画像サイズが大きすぎます (${(maxSize / 1024 / 1024).toFixed(1)}MB以下にしてください)`);
-                     return;
-                 }
-                 if (!file.type.startsWith('image/')) {
-                     await uiUtils.showCustomAlert("画像ファイルを選択してください (JPEG, PNG, GIF, WebPなど)");
-                     return;
-                 }
+                 if (file.size > maxSize) { await uiUtils.showCustomAlert(`画像サイズが大きすぎます (${(maxSize / 1024 / 1024).toFixed(1)}MB以下)。`); return; }
+                 if (!file.type.startsWith('image/')) { await uiUtils.showCustomAlert("画像ファイルを選択してください。"); return; }
                  try {
-                     uiUtils.revokeExistingObjectUrl();
                      const blob = file;
-                     await dbUtils.saveSetting('backgroundImageBlob', blob);
-                     state.settings.backgroundImageBlob = blob;
-                     state.backgroundImageUrl = URL.createObjectURL(blob);
-                     document.documentElement.style.setProperty('--chat-background-image', `url(${state.backgroundImageUrl})`);
+                     let targetBlobSetting, targetUrlState, targetCssVar;
+
+                     if (screenType === 'chat') {
+                         if(state.chatBackgroundImageUrl) URL.revokeObjectURL(state.chatBackgroundImageUrl);
+                         targetBlobSetting = 'chatBackgroundImageBlob';
+                         targetUrlState = 'chatBackgroundImageUrl';
+                         targetCssVar = '--chat-background-image';
+                     } else if (screenType === 'history') {
+                         if(state.historyBackgroundImageUrl) URL.revokeObjectURL(state.historyBackgroundImageUrl);
+                         targetBlobSetting = 'historyBackgroundImageBlob';
+                         targetUrlState = 'historyBackgroundImageUrl';
+                         targetCssVar = '--history-background-image';
+                     } else if (screenType === 'settingsScreen') { 
+                         if(state.settingsBackgroundImageUrl) URL.revokeObjectURL(state.settingsBackgroundImageUrl);
+                         targetBlobSetting = 'settingsBackgroundImageBlob';
+                         targetUrlState = 'settingsBackgroundImageUrl';
+                         targetCssVar = '--settings-background-image';
+                     } else {
+                         return;
+                     }
+                     
+                     await dbUtils.saveSetting(targetBlobSetting, blob);
+                     state.settings[targetBlobSetting] = blob;
+                     state[targetUrlState] = URL.createObjectURL(blob);
+                     document.documentElement.style.setProperty(targetCssVar, `url(${state[targetUrlState]})`);
                      uiUtils.updateBackgroundSettingsUI();
                  } catch (error) {
-                     console.error("Background image upload error:", error);
-                     await uiUtils.showCustomAlert(`背景画像の処理中にエラーが発生しました: ${error}`);
-                     uiUtils.revokeExistingObjectUrl();
-                     document.documentElement.style.setProperty('--chat-background-image', 'none');
-                     state.settings.backgroundImageBlob = null;
-                     uiUtils.updateBackgroundSettingsUI();
+                     console.error(`${screenType} background image upload error:`, error);
+                     await uiUtils.showCustomAlert(`${screenType} 背景画像の処理エラー: ${error}`);
                  }
              },
-             async confirmDeleteBackgroundImage() {
-                 const confirmed = await uiUtils.showCustomConfirm("背景画像を削除しますか？");
+             async confirmDeleteBackgroundImage(screenType) { 
+                 const screenName = screenType === 'chat' ? 'チャット画面' : screenType === 'history' ? '履歴画面' : '設定画面';
+                 const confirmed = await uiUtils.showCustomConfirm(`${screenName}の背景画像を削除しますか？`);
                  if (confirmed) {
-                     await this.handleBackgroundImageDelete();
+                     await this.handleBackgroundImageDelete(screenType);
                  }
              },
-             async handleBackgroundImageDelete() {
+             async handleBackgroundImageDelete(screenType) { 
                  try {
-                     uiUtils.revokeExistingObjectUrl();
-                     await dbUtils.saveSetting('backgroundImageBlob', null);
-                     state.settings.backgroundImageBlob = null;
-                     document.documentElement.style.setProperty('--chat-background-image', 'none');
+                     let targetBlobSetting, targetUrlState, targetCssVar;
+                     if (screenType === 'chat') {
+                         if(state.chatBackgroundImageUrl) URL.revokeObjectURL(state.chatBackgroundImageUrl);
+                         targetBlobSetting = 'chatBackgroundImageBlob';
+                         targetUrlState = 'chatBackgroundImageUrl';
+                         targetCssVar = '--chat-background-image';
+                     } else if (screenType === 'history') {
+                         if(state.historyBackgroundImageUrl) URL.revokeObjectURL(state.historyBackgroundImageUrl);
+                         targetBlobSetting = 'historyBackgroundImageBlob';
+                         targetUrlState = 'historyBackgroundImageUrl';
+                         targetCssVar = '--history-background-image';
+                     } else if (screenType === 'settingsScreen') {
+                         if(state.settingsBackgroundImageUrl) URL.revokeObjectURL(state.settingsBackgroundImageUrl);
+                         targetBlobSetting = 'settingsBackgroundImageBlob';
+                         targetUrlState = 'settingsBackgroundImageUrl';
+                         targetCssVar = '--settings-background-image';
+                     } else {
+                         return;
+                     }
+
+                     await dbUtils.saveSetting(targetBlobSetting, null);
+                     state.settings[targetBlobSetting] = null;
+                     state[targetUrlState] = null;
+                     document.documentElement.style.setProperty(targetCssVar, 'none');
                      uiUtils.updateBackgroundSettingsUI();
                  } catch (error) {
-                     console.error("Background image delete error:", error);
-                     await uiUtils.showCustomAlert(`背景画像の削除中にエラーが発生しました: ${error}`);
+                     console.error(`${screenType} background image delete error:`, error);
+                     await uiUtils.showCustomAlert(`${screenType === 'chat' ? 'チャット画面' : screenType === 'history' ? '履歴画面' : '設定画面'}の背景画像削除エラー: ${error}`);
                  }
              },
             async handleIconUpload(type, file) { 
@@ -6353,6 +6505,8 @@ if (msg.role === 'user') return true;
                      showCollapseButtons: elements.showCollapseButtonsToggle.checked,
                      messageBubbleOpacity: elements.messageBubbleOpacityInput.value === '' ? DEFAULT_MESSAGE_BUBBLE_OPACITY : parseFloat(elements.messageBubbleOpacityInput.value),
                      chatOverlayOpacity: elements.chatOverlayOpacityInput.value === '' ? DEFAULT_CHAT_OVERLAY_OPACITY : parseFloat(elements.chatOverlayOpacityInput.value),
+                     historyOverlayOpacity: elements.historyOverlayOpacityInput.value === '' ? DEFAULT_HISTORY_OVERLAY_OPACITY : parseFloat(elements.historyOverlayOpacityInput.value), // 追加
+                     settingsOverlayOpacity: elements.settingsOverlayOpacityInput.value === '' ? DEFAULT_SETTINGS_OVERLAY_OPACITY : parseFloat(elements.settingsOverlayOpacityInput.value), // 追加
                      headerFooterOpacity: elements.headerFooterOpacityInput.value === '' ? DEFAULT_HEADER_FOOTER_OPACITY : parseFloat(elements.headerFooterOpacityInput.value),
                  };
 
@@ -6389,21 +6543,33 @@ if (msg.role === 'user') return true;
                  if (newSettings.chatOverlayOpacity !== null && (isNaN(newSettings.chatOverlayOpacity) || newSettings.chatOverlayOpacity < 0 || newSettings.chatOverlayOpacity > 1)) {
                     newSettings.chatOverlayOpacity = DEFAULT_CHAT_OVERLAY_OPACITY;
                  }
+                 if (newSettings.historyOverlayOpacity !== null && (isNaN(newSettings.historyOverlayOpacity) || newSettings.historyOverlayOpacity < 0 || newSettings.historyOverlayOpacity > 1)) { // 追加
+                    newSettings.historyOverlayOpacity = DEFAULT_HISTORY_OVERLAY_OPACITY;
+                 }
+                 if (newSettings.settingsOverlayOpacity !== null && (isNaN(newSettings.settingsOverlayOpacity) || newSettings.settingsOverlayOpacity < 0 || newSettings.settingsOverlayOpacity > 1)) { // 追加
+                    newSettings.settingsOverlayOpacity = DEFAULT_SETTINGS_OVERLAY_OPACITY;
+                 }
                  if (newSettings.headerFooterOpacity !== null && (isNaN(newSettings.headerFooterOpacity) || newSettings.headerFooterOpacity < 0 || newSettings.headerFooterOpacity > 1)) {
                     newSettings.headerFooterOpacity = DEFAULT_HEADER_FOOTER_OPACITY;
                  }
 
                  try {
                      const oldSortOrder = state.settings.historySortOrder;
-                     const { memoWidth, backgroundImageBlob, userIconBlob, aiIconBlob, ...settingsToSave } = newSettings; 
+                     const { memoWidth, chatBackgroundImageBlob, historyBackgroundImageBlob, settingsBackgroundImageBlob, userIconBlob, aiIconBlob, ...settingsToSave } = newSettings; 
 
                      const promises = Object.entries(settingsToSave).map(([key, value]) =>
                          dbUtils.saveSetting(key, value)
                      );
                      
                      const currentSettingsFromDB = await dbUtils.loadSettings(); 
-                     if (state.settings.backgroundImageBlob !== currentSettingsFromDB.backgroundImageBlob) {
-                         promises.push(dbUtils.saveSetting('backgroundImageBlob', state.settings.backgroundImageBlob));
+                     if (state.settings.chatBackgroundImageBlob !== currentSettingsFromDB.chatBackgroundImageBlob) {
+                         promises.push(dbUtils.saveSetting('chatBackgroundImageBlob', state.settings.chatBackgroundImageBlob));
+                     }
+                     if (state.settings.historyBackgroundImageBlob !== currentSettingsFromDB.historyBackgroundImageBlob) {
+                         promises.push(dbUtils.saveSetting('historyBackgroundImageBlob', state.settings.historyBackgroundImageBlob));
+                     }
+                     if (state.settings.settingsBackgroundImageBlob !== currentSettingsFromDB.settingsBackgroundImageBlob) {
+                         promises.push(dbUtils.saveSetting('settingsBackgroundImageBlob', state.settings.settingsBackgroundImageBlob));
                      }
                      if (state.settings.userIconBlob !== currentSettingsFromDB.userIconBlob) {
                          promises.push(dbUtils.saveSetting('userIconBlob', state.settings.userIconBlob));
@@ -6414,13 +6580,17 @@ if (msg.role === 'user') return true;
 
                      await Promise.all(promises);
                      
-                     const currentBgBlob = state.settings.backgroundImageBlob; 
+                     const currentChatBgBlob = state.settings.chatBackgroundImageBlob; 
+                     const currentHistoryBgBlob = state.settings.historyBackgroundImageBlob; 
+                     const currentSettingsScreenBgBlob = state.settings.settingsBackgroundImageBlob; 
                      const currentUserIconBlob = state.settings.userIconBlob; 
                      const currentAiIconBlob = state.settings.aiIconBlob; 
 
                      state.settings = { ...state.settings, ...settingsToSave };
                      
-                     state.settings.backgroundImageBlob = currentBgBlob;
+                     state.settings.chatBackgroundImageBlob = currentChatBgBlob;
+                     state.settings.historyBackgroundImageBlob = currentHistoryBgBlob;
+                     state.settings.settingsBackgroundImageBlob = currentSettingsScreenBgBlob;
                      state.settings.userIconBlob = currentUserIconBlob;
                      state.settings.aiIconBlob = currentAiIconBlob;
 
@@ -6458,7 +6628,7 @@ if (msg.role === 'user') return true;
                 const confirmed = await uiUtils.showCustomConfirm("本当にすべてのデータ（チャット履歴と設定）を削除しますか？この操作は元に戻せません。");
                 if (confirmed) {
                     try {
-                        uiUtils.revokeExistingObjectUrl();
+                        uiUtils.revokeExistingObjectUrl(); 
                         uiUtils.revokeExistingIconUrls(); 
                         await dbUtils.clearAllData();
                         await uiUtils.showCustomAlert("すべてのデータが削除されました。アプリをリセットします。");
@@ -6482,7 +6652,10 @@ if (msg.role === 'user') return true;
                             additionalModels: '', pseudoStreaming: false, enterToSend: true,
                             historySortOrder: 'updatedAt',
                             theme: window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light', 
-                            backgroundImageBlob: null, fontFamily: '',
+                            chatBackgroundImageBlob: null, 
+                            historyBackgroundImageBlob: null, 
+                            settingsBackgroundImageBlob: null, 
+                            fontFamily: '',
                             hideSystemPromptInChat: false, enableSwipeNavigation: true,
                             showNewChatButton: true, 
                             showDeleteSessionButton: true, showCopySessionButton: true,
@@ -6502,14 +6675,20 @@ if (msg.role === 'user') return true;
                             showCollapseButtons: true,
                             messageBubbleOpacity: DEFAULT_MESSAGE_BUBBLE_OPACITY,
                             chatOverlayOpacity: DEFAULT_CHAT_OVERLAY_OPACITY,
+                            historyOverlayOpacity: DEFAULT_HISTORY_OVERLAY_OPACITY, 
+                            settingsOverlayOpacity: DEFAULT_SETTINGS_OVERLAY_OPACITY, 
                             headerFooterOpacity: DEFAULT_HEADER_FOOTER_OPACITY,
                         };
-                        state.backgroundImageUrl = null;
+                        state.chatBackgroundImageUrl = null; 
+                        state.historyBackgroundImageUrl = null; 
+                        state.settingsBackgroundImageUrl = null; 
                         state.userIconUrl = null; 
                         state.aiIconUrl = null; 
                         state.areAllMessagesHidden = false;
                         state.messageCollapsedStates.clear();
                         document.documentElement.style.setProperty('--chat-background-image', 'none');
+                        document.documentElement.style.setProperty('--history-background-image', 'none'); 
+                        document.documentElement.style.setProperty('--settings-background-image', 'none'); 
                         uiUtils.applySettingsToUI();
                         uiUtils.updateAttachmentBadgeVisibility();
                         this.startNewChat();
