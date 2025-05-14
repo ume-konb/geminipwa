@@ -157,6 +157,7 @@
             --bg-header: #007aff; 
             --bg-message-actions: rgba(50, 50, 50, 0.8);
             --overlay-base-rgb: 30, 30, 30; 
+            --bg-memo: #2c2c2e; 
             --bg-cascade-button: var(--bg-button-action);
             --bg-cascade-button-hover: var(--bg-button-action-hover);
             --bg-cascade-delete-button: var(--bg-button-delete);
@@ -178,7 +179,6 @@
             --text-placeholder: #777777;
             --text-system: #ccc;
             --text-memo: #e0e0e0; 
-            --bg-memo: #2c2c2e; 
 
             --border-primary: #444444;
             --border-secondary: #555555;
@@ -1061,23 +1061,23 @@
 
         #memo-area {
             position: absolute;
-            /* top: 15px; JavaScriptで動的に設定 */
-            left: 15px;
+            /* top, left はJSで設定 */
             width: var(--memo-width);
-            height: var(--memo-height);
+            height: var(--memo-height); 
             max-width: calc(100% - 30px);
-            max-height: calc(100% - 30px); /* JSでさらに調整 */
+            /* max-height はJSで動的に設定 */
             background-color: var(--bg-memo);
             border: 1px solid var(--border-secondary);
             border-radius: 8px;
             padding: 10px;
-            z-index: 15; /* ヘッダー(10)より手前、ダイアログ(100)より奥 */
+            z-index: 15; 
             box-shadow: 0 2px 8px var(--shadow-primary);
             overflow: auto;
             display: flex;
             flex-direction: column;
-            transition: opacity 0.3s ease, visibility 0.3s ease, width 0.3s ease, height 0.3s ease, background-color 0.3s ease, top 0.3s ease;
-            resize: both;
+            /* transitionはJSで制御するため、ここでは初期設定のみ */
+            /* transition: opacity 0.3s ease, visibility 0.3s ease, width 0.3s ease, height 0.3s ease, background-color 0.3s ease, top 0.3s ease; */
+            resize: vertical; 
         }
 
         #memo-area.hidden {
@@ -2124,7 +2124,7 @@
             color: var(--text-light);
         }
         body.pastel-yellow-mode .custom-dialog .dialog-ok-btn,
-        body.pastel-rainbow-mode .custom-dialog .dialog-ok-btn { /* レインボーも対象に */
+        body.pastel-rainbow-mode .custom-dialog .dialog-ok-btn { 
              color: var(--text-light); 
         }
         .custom-dialog .dialog-ok-btn:hover:not(:disabled) {
@@ -2135,7 +2135,7 @@
             color: var(--text-light);
         }
         body.pastel-yellow-mode .custom-dialog .dialog-cancel-btn,
-        body.pastel-rainbow-mode .custom-dialog .dialog-cancel-btn { /* レインボーも対象に */
+        body.pastel-rainbow-mode .custom-dialog .dialog-cancel-btn { 
              color: var(--text-light); 
         }
         .custom-dialog .dialog-cancel-btn:hover:not(:disabled) {
@@ -2326,7 +2326,7 @@
             align-items: center;
         }
         body.pastel-yellow-mode .remove-file-btn,
-        body.pastel-rainbow-mode .remove-file-btn { /* レインボーも対象に */
+        body.pastel-rainbow-mode .remove-file-btn { 
             color: var(--text-light); 
         }
         .remove-file-btn:hover {
@@ -3909,7 +3909,7 @@
                         overlayBaseColor = PASTEL_PURPLE_PRIMARY_COLOR;
                         break;
                     case 'pastel-rainbow':
-                        headerColor = PASTEL_RAINBOW_HEADER_COLOR;
+                        headerColor = PASTEL_RAINBOW_HEADER_COLOR; 
                         secondaryColor = PASTEL_RAINBOW_SECONDARY_COLOR;
                         userMessageColor = PASTEL_RAINBOW_USER_MESSAGE_COLOR;
                         modelMessageColor = PASTEL_RAINBOW_MODEL_MESSAGE_COLOR;
@@ -4615,13 +4615,6 @@
                     state.isSwiping = false;
                     return;
                 }
-                // メモ表示中のスワイプは許可しない
-                // if (state.isMemoVisible) {
-                //     state.touchStartX = 0;
-                //     state.touchStartY = 0;
-                //     state.isSwiping = false;
-                //     return;
-                // }
                 state.touchStartX = event.touches[0].clientX;
                 state.touchStartY = event.touches[0].clientY;
                 state.isSwiping = false;
@@ -4688,28 +4681,38 @@
                      return;
                  }
                 const mainContent = elements.chatScreen.querySelector('.main-content');
-                const oldScrollTop = mainContent.scrollTop; // スクロール位置を保存
+                const oldScrollTop = mainContent.scrollTop; 
 
                 state.isMemoVisible = !state.isMemoVisible;
+
+                elements.memoArea.style.transition = 'none'; 
                 elements.memoArea.classList.toggle('hidden', !state.isMemoVisible);
 
                 if (state.isMemoVisible) {
                     requestAnimationFrame(() => {
                         const headerHeight = elements.chatScreen.querySelector('.app-header').offsetHeight;
-                        elements.memoArea.style.top = `${headerHeight + 5}px`; 
+                        elements.memoArea.style.top = `${headerHeight + 10}px`; 
                         elements.memoArea.style.left = `15px`; 
 
                         if (elements.memoArea && elements.chatScreen) {
-                            const availableHeight = mainContent.clientHeight - (headerHeight + 5); 
-                            const memoAreaPadding = 10; 
-                            elements.memoArea.style.maxHeight = `calc(${availableHeight}px - ${memoAreaPadding * 2}px - 30px)`; 
+                            const mainContentPaddings = parseFloat(getComputedStyle(mainContent).paddingTop) + parseFloat(getComputedStyle(mainContent).paddingBottom);
+                            const availableHeightForMemo = mainContent.clientHeight - (headerHeight + 10) - mainContentPaddings - 20; 
+                            elements.memoArea.style.maxHeight = `${Math.max(100, availableHeightForMemo)}px`; 
+
                             uiUtils.adjustTextareaHeight(elements.memoEditor, elements.memoArea.clientHeight - 20 - (elements.memoArea.querySelector('.memo-actions-container')?.offsetHeight || 0));
                         }
                         elements.memoEditor.focus();
-                        mainContent.scrollTop = oldScrollTop; // スクロール位置を復元
+                        
+                        setTimeout(() => {
+                            mainContent.scrollTop = oldScrollTop;
+                            elements.memoArea.style.transition = 'opacity 0.3s ease, visibility 0.3s ease, width 0.3s ease, height 0.3s ease, background-color 0.3s ease, top 0.3s ease';
+                        }, 50); 
                     });
                 } else {
-                    mainContent.scrollTop = oldScrollTop; // 非表示時も復元
+                    mainContent.scrollTop = oldScrollTop; 
+                    requestAnimationFrame(() => { 
+                        elements.memoArea.style.transition = 'opacity 0.3s ease, visibility 0.3s ease, width 0.3s ease, height 0.3s ease, background-color 0.3s ease, top 0.3s ease';
+                    });
                 }
             },
             async copyMemoText() {
@@ -4814,7 +4817,6 @@
                     if (!confirmed) return;
                     this.cancelEditSystemPrompt();
                 }
-                // メモ表示中の確認は削除
                 if (state.pendingAttachments.length > 0) {
                     const confirmedAttach = await uiUtils.showCustomConfirm("添付準備中のファイルがあります。破棄して新規チャットを開始しますか？");
                     if (!confirmedAttach) return;
@@ -4869,7 +4871,6 @@
                     if (!confirmed) return;
                     this.cancelEditSystemPrompt();
                 }
-                // メモ表示中の確認は削除
                 if (state.pendingAttachments.length > 0) {
                     const confirmedAttach = await uiUtils.showCustomConfirm("添付準備中のファイルがあります。破棄して別のチャットを読み込みますか？");
                     if (!confirmedAttach) return;
@@ -4931,7 +4932,6 @@
                 if (state.isSending) { const conf = await uiUtils.showCustomConfirm("送信中です。中断してチャットを複製しますか？"); if (!conf) return; this.abortRequest(); }
                 if (state.editingMessageIndex !== null) { const conf = await uiUtils.showCustomConfirm("編集中です。変更を破棄してチャットを複製しますか？"); if (!conf) return; const msgEl = elements.messageContainer.querySelector(`.message[data-index="${state.editingMessageIndex}"]`); this.cancelEditMessage(state.editingMessageIndex, msgEl); }
                 if (state.isEditingSystemPrompt) { const conf = await uiUtils.showCustomConfirm("システムプロンプト編集中です。変更を破棄してチャットを複製しますか？"); if (!conf) return; this.cancelEditSystemPrompt(); }
-                // メモ表示中の確認は削除
                 if ((state.currentMessages.length > 0 || state.currentSystemPrompt) && state.currentChatId && state.currentChatId !== id) { try { await dbUtils.saveChat(); } catch (error) { console.error("Error saving current chat before duplicate:", error); const conf = await uiUtils.showCustomConfirm("現在のチャット保存に失敗しました。複製を続行しますか？"); if (!conf) return; } }
                 if (state.pendingAttachments.length > 0) {
                     const confirmedAttach = await uiUtils.showCustomConfirm("添付準備中のファイルがあります。破棄してチャットを複製しますか？");
