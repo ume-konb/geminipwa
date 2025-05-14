@@ -1,3 +1,120 @@
+ご指摘ありがとうございます。メモ機能の挙動について、承知いたしました。
+
+1.  **📝ボタンクリック時のスクロール位置リセット問題の修正**
+2.  **メモエリアをスクロール追従型にする**
+
+これらの改善を行うための修正案を以下に示します。
+
+**1. 📝ボタンクリック時のスクロール位置リセット問題の修正**
+
+これは、おそらくメモエリアの表示/非表示切り替え時に、レイアウトの再計算が走り、メインコンテンツエリアのスクロール位置が意図せず変更されてしまうことが原因と考えられます。
+
+*   **`appLogic.toggleMemo` の修正:**
+    メモエリアの表示/非表示を切り替える直前に現在のスクロール位置を保存し、切り替え後に復元する処理を追加します。
+
+    ```javascript
+    // appLogicオブジェクト内
+    toggleMemo() {
+        // ...（既存の編集中などのチェック）...
+
+        const mainContent = elements.chatScreen.querySelector('.main-content');
+        const oldScrollTop = mainContent.scrollTop; // スクロール位置を保存
+
+        state.isMemoVisible = !state.isMemoVisible;
+        elements.memoArea.classList.toggle('hidden', !state.isMemoVisible);
+
+        if (state.isMemoVisible) {
+            requestAnimationFrame(() => {
+                if (elements.memoArea && elements.chatScreen) {
+                    const mainContentHeight = mainContent.clientHeight;
+                    const memoAreaPadding = 10;
+                    elements.memoArea.style.maxHeight = `calc(${mainContentHeight}px - ${memoAreaPadding * 2}px)`;
+                    uiUtils.adjustTextareaHeight(elements.memoEditor, elements.memoArea.clientHeight - 20 - (elements.memoArea.querySelector('.memo-actions-container')?.offsetHeight || 0));
+                }
+                elements.memoEditor.focus();
+                mainContent.scrollTop = oldScrollTop; // スクロール位置を復元
+            });
+        } else {
+            mainContent.scrollTop = oldScrollTop; // 非表示時も念のため復元
+        }
+    },
+    ```
+
+**2. メモエリアをスクロール追従型にする**
+
+メモエリアを常に画面の特定の位置（例えば右上や左上）に固定表示するのではなく、チャットのスクロールに追従させるのは、UI/UXの観点から少しトリッキーです。完全に追従させると、チャットをスクロールするたびにメモも上下し、視認性や操作性が悪くなる可能性があります。
+
+考えられるアプローチとしては、
+
+*   **アプローチA: 擬似的な追従（トグルボタンで再配置）**
+    *   現在の「左上に固定表示」を維持しつつ、メモ表示中にチャットエリアをスクロールした場合、ユーザーが再度📝ボタンを押すことで、その時点のビューポート基準でメモを再配置する。これは比較的実装が容易です。しかし、「付随してくる」という感じとは異なります。
+*   **アプローチB: ヘッダー追従型ドロップダウン/ポップオーバー**
+    *   📝ボタンを押すと、ヘッダーの真下にメモエリアがドロップダウンまたはポップオーバーとして表示される。チャットエリアをスクロールしてもヘッダーは固定なので、メモも常にヘッダーの下に見える形になります。これは「付随する」感覚に近いですが、レイアウトやCSSの変更が大きくなります。
+*   **アプローチC: チャットメッセージにインラインでメモを挿入（高度）**
+    *   特定のメッセージに関連付けてメモを挿入するような形。これは非常に高度な機能で、データ構造からUIまで大幅な変更が必要です。
+
+今回は、**アプローチBに近い形で、メモエリアをヘッダーの下に表示し、チャットエリアとは独立してスクロールするが、ヘッダー自体がスクロールで隠れない限りは追従しているように見える**形を目指します。これは、CSSの `position: sticky` や `position: fixed` の組み合わせ、またはJavaScriptでの位置調整で実現できます。
+
+よりシンプルな実現方法として、メモエリアの `position` を `absolute` のまま、`top` の値をヘッダーの高さ分オフセットさせることで、ヘッダーの直下に表示されるように調整します。
+
+*   **CSSの修正 (`#memo-area`):**
+    `top` の値を調整し、必要であれば `z-index` も見直します。ヘッダーの高さが動的に変わらない前提であれば、固定値で指定できます。
+
+    ```css
+    #memo-area {
+        position: absolute;
+        /* ヘッダーの高さを考慮 (例: ヘッダーが60pxなら top: 60px;) */
+        /* JavaScriptで動的に設定する方が柔軟 */
+        top: 15px; /* 現状維持しつつ、JSで調整する方針も */
+        left: 15px;
+        /* ... 他のスタイル ... */
+        z-index: 15; /* ヘッダー(z-index:10)より手前、ダイアログ(z-index:100)より奥 */
+    }
+    ```
+    より正確にヘッダーの直下に配置するには、JavaScriptでヘッダーの高さを取得して `top` を設定するのが良いでしょう。
+
+*   **JavaScriptの修正 (`appLogic.toggleMemo`):**
+    メモ表示時に、ヘッダーの高さを取得して `memoArea.style.top` を設定します。
+
+    ```javascript
+    // appLogicオブジェクト内
+    toggleMemo() {
+        // ...（既存の編集中などのチェック）...
+
+        const mainContent = elements.chatScreen.querySelector('.main-content');
+        const oldScrollTop = mainContent.scrollTop;
+
+        state.isMemoVisible = !state.isMemoVisible;
+        elements.memoArea.classList.toggle('hidden', !state.isMemoVisible);
+
+        if (state.isMemoVisible) {
+            requestAnimationFrame(() => {
+                const headerHeight = elements.chatScreen.querySelector('.app-header').offsetHeight;
+                elements.memoArea.style.top = `${headerHeight + 5}px`; // ヘッダー直下に配置 (5pxのマージン)
+                elements.memoArea.style.left = `15px`; // 左端は維持
+
+                if (elements.memoArea && elements.chatScreen) {
+                    const availableHeight = mainContent.clientHeight - (headerHeight + 5); // ヘッダー下からの利用可能高
+                    const memoAreaPadding = 10; // メモエリア自体のパディング等
+                    // メモエリアの最大高さを調整
+                    elements.memoArea.style.maxHeight = `calc(${availableHeight}px - ${memoAreaPadding * 2}px - 30px)`; // 30pxは下部マージンなど余裕分
+                    uiUtils.adjustTextareaHeight(elements.memoEditor, elements.memoArea.clientHeight - 20 - (elements.memoArea.querySelector('.memo-actions-container')?.offsetHeight || 0));
+                }
+                elements.memoEditor.focus();
+                mainContent.scrollTop = oldScrollTop;
+            });
+        } else {
+            mainContent.scrollTop = oldScrollTop;
+        }
+    },
+    ```
+
+**完全なコードの再提示**
+
+これらの修正を適用した完全なHTMLコードを以下に示します。
+（前回のコードからの差分が中心となります）
+
+```html
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -238,6 +355,7 @@
             --bg-header: #ff8fab; 
             --bg-message-actions: rgba(255, 230, 234, 0.85); 
             --overlay-base-rgb: 255, 245, 248; 
+            --bg-memo: #fffafb;
             --bg-cascade-button: var(--bg-button-action);
             --bg-cascade-button-hover: var(--bg-button-action-hover);
             --bg-cascade-delete-button: var(--bg-button-delete);
@@ -259,8 +377,6 @@
             --text-placeholder: #b28a94; 
             --text-system: #7d5a65; 
             --text-memo: #5c3c45;
-            --bg-memo: #fffafb;
-
 
             --border-primary: #ffc2d7; 
             --border-secondary: #ffe0e7;
@@ -337,6 +453,7 @@
             --bg-header: #87cefa; 
             --bg-message-actions: rgba(224, 240, 255, 0.85); 
             --overlay-base-rgb: 240, 248, 255; 
+            --bg-memo: #f5faff;
             --bg-cascade-button: var(--bg-button-action);
             --bg-cascade-button-hover: var(--bg-button-action-hover);
             --bg-cascade-delete-button: var(--bg-button-delete);
@@ -358,7 +475,6 @@
             --text-placeholder: #9ab0c9; 
             --text-system: #5a7698; 
             --text-memo: #3a5679;
-            --bg-memo: #f5faff;
 
 
             --border-primary: #b0dfff; 
@@ -436,6 +552,7 @@
             --bg-header: #ffd700;
             --bg-message-actions: rgba(255, 250, 205, 0.85); 
             --overlay-base-rgb: 255, 254, 250;
+            --bg-memo: #fffef0;
             --bg-cascade-button: var(--bg-button-action);
             --bg-cascade-button-hover: var(--bg-button-action-hover);
             --bg-cascade-delete-button: var(--bg-button-delete);
@@ -457,7 +574,6 @@
             --text-placeholder: #a1887f; 
             --text-system: #795548; 
             --text-memo: #5d4037;
-            --bg-memo: #fffef0;
 
             --border-primary: #fff0b3; 
             --border-secondary: #fff5ba;
@@ -518,6 +634,7 @@
             --bg-header: #ab47bc;
             --bg-message-actions: rgba(225, 190, 231, 0.85); 
             --overlay-base-rgb: 243, 229, 245;
+            --bg-memo: #fbfaff;
             --bg-cascade-button: var(--bg-button-action);
             --bg-cascade-button-hover: var(--bg-button-action-hover);
             --bg-cascade-delete-button: var(--bg-button-delete);
@@ -539,7 +656,6 @@
             --text-placeholder: #9078a0; 
             --text-system: #6a1b9a; 
             --text-memo: #4a148c;
-            --bg-memo: #fbfaff;
 
             --border-primary: #ce93d8; 
             --border-secondary: #e1bee7;
@@ -564,48 +680,47 @@
         
         /* パステルモード🌈 (レインボー) */
         body.pastel-rainbow-mode {
-            --bg-primary: #fdfdfd; /* ほぼ白 */
-            --bg-secondary: #f5f5f5; /* ややグレー */
+            --bg-primary: #fdfdfd; 
+            --bg-secondary: #f5f5f5; 
             --bg-tertiary: #fafafa;
             --bg-input: #ffffff;
-            --bg-user-message: #e0fff0; /* ミントクリーム */
-            --bg-model-message: #e0f0ff; /* ベビーブルーアイズ */
-            --bg-system-message: #fff0f8; /* ラベンダブラッシュ */
-            --bg-error-message: #fff8e0; /* ペールカナリア */
-            --bg-button: #ff80c0; /* パステルマゼンタ */
+            --bg-user-message: #e0fff0; 
+            --bg-model-message: #e0f0ff; 
+            --bg-system-message: #fff0f8; 
+            --bg-error-message: #fff8e0; 
+            --bg-button: #ff80c0; 
             --bg-button-hover: #ff60a0;
             --bg-button-disabled: #ffc0e0;
-            --bg-button-action: #80d0ff; /* パステルシアン */
+            --bg-button-action: #80d0ff; 
             --bg-button-action-hover: #60b0e0;
-            --bg-button-delete: #ff8080; /* パステルレッド */
+            --bg-button-delete: #ff8080; 
             --bg-button-delete-hover: #ff6060;
-            --bg-button-retry: #80ff80; /* パステルグリーン */
+            --bg-button-retry: #80ff80; 
             --bg-button-retry-hover: #60e060;
-            --bg-button-edit: #ffc080; /* パステルオレンジ */
+            --bg-button-edit: #ffc080; 
             --bg-button-edit-hover: #ffa060;
-            --bg-button-copy: #c080ff; /* パステルパープル */
+            --bg-button-copy: #c080ff; 
             --bg-button-copy-hover: #a060e0;
-            --bg-button-paste: #ffff80; /* パステルイエロー */
+            --bg-button-paste: #ffff80; 
             --bg-button-paste-hover: #e0e060;
-            --bg-button-duplicate: #80ffff; /* パステルアクア */
+            --bg-button-duplicate: #80ffff; 
             --bg-button-duplicate-hover: #60e0e0;
-            --bg-button-export: #ff80ff; /* パステルピンク */
+            --bg-button-export: #ff80ff; 
             --bg-button-export-hover: #e060e0;
-            --bg-button-save: #c0ff80; /* パステルライム */
+            --bg-button-save: #c0ff80; 
             --bg-button-save-hover: #a0e060;
-            --bg-button-cancel: #ffc0c0; /* ライトパステルレッド */
+            --bg-button-cancel: #ffc0c0; 
             --bg-button-cancel-hover: #ffa0a0;
-            --bg-button-update: #80c0ff; /* パステルスカイブルー */
+            --bg-button-update: #80c0ff; 
             --bg-button-update-hover: #60a0e0;
             --bg-header: linear-gradient(to right, #ffadad, #ffd6a5, #fdffb6, #caffbf, #9bf6ff, #a0c4ff, #bdb2ff, #ffc6ff, #ffadad); 
             --bg-message-actions: rgba(245, 245, 245, 0.85);
             --overlay-base-rgb: 253, 253, 253;
-            --bg-memo: #f0fff0; /* ハニーデュー */
+            --bg-memo: #f0fff0; 
 
             --text-primary: #333;
             --text-secondary: #555;
-            --text-light: #fff; /* ヘッダー用 */
-            /* ボタン上のテキストはボタン色に応じて調整が必要な場合あり */
+            --text-light: #fff; 
             --text-disabled: #aaa;
             --text-error: #c00;
             --text-link: #007bff;
@@ -616,14 +731,45 @@
             --border-primary: #e0e0e0;
             --border-secondary: #f0f0f0;
             --border-tertiary: #fafafa;
-            --border-danger: #ffddd_d;
+            --border-danger: #ffdddd;
             --border-system: #e0e8f0;
 
-            --bg-button-gold: #ffcc00; /* 明るいゴールド */
+            --bg-button-gold: #ffcc00; 
             --text-button-gold: #333;
-            --bg-button-purple: #cc99ff; /* 明るいラベンダー */
+            --bg-button-purple: #cc99ff; 
             --text-button-purple: #fff;
-            /* ... その他 rainbow テーマに合わせた細部の色調整 ... */
+            
+            --bg-cascade-button: var(--bg-button-action);
+            --bg-cascade-button-hover: var(--bg-button-action-hover);
+            --bg-cascade-delete-button: var(--bg-button-delete);
+            --bg-cascade-delete-button-hover: var(--bg-button-delete-hover);
+            --text-cascade-indicator: var(--text-secondary);
+            --bg-button-header-delete: var(--bg-button-delete);
+            --bg-button-header-delete-hover: var(--bg-button-delete-hover);
+            --bg-button-header-copy: var(--bg-button-copy);
+            --bg-button-header-copy-hover: var(--bg-button-copy-hover);
+            --bg-button-header-toggle-content: var(--bg-button-action);
+            --bg-button-header-toggle-content-hover: var(--bg-button-action-hover);
+            
+            --bg-dialog-file-item: var(--bg-tertiary);
+            --border-dialog-file-item: var(--border-secondary);
+            --text-dialog-file-name: var(--text-primary);
+            --text-dialog-file-size: var(--text-secondary);
+            --bg-dialog-button-select: var(--bg-button-action);
+            --bg-dialog-button-select-hover: var(--bg-button-action-hover);
+            --bg-dialog-button-confirm: var(--bg-button-save);
+            --bg-dialog-button-confirm-hover: var(--bg-button-save-hover);
+            --bg-dialog-button-cancel: var(--bg-button-cancel);
+            --bg-dialog-button-cancel-hover: var(--bg-button-cancel-hover);
+
+            --bg-attachment-details: rgba(240, 240, 240, 0.5);
+            --border-attachment-details: var(--border-tertiary);
+            --text-attachment-summary: var(--text-secondary);
+            --text-attachment-filename: var(--text-primary);
+
+            --bg-toggle-button: var(--bg-button-action);
+            --bg-toggle-button-hover: var(--bg-button-action-hover);
+            --text-toggle-button: var(--text-light);
         }
 
 
@@ -717,9 +863,8 @@
             transition: background-color 0.3s ease;
             gap: 10px;
         }
-        /* レインボーテーマのヘッダーは直接グラデーションを指定 */
         body.pastel-rainbow-mode .app-header {
-            background: var(--bg-header); /* CSS変数でグラデーションを指定 */
+            background: var(--bg-header); 
         }
 
         .app-header h1 {
@@ -758,7 +903,6 @@
             flex-direction: row-reverse;
             justify-content: flex-start;
         }
-        /* レインボーテーマの履歴画面ヘッダー */
         body.pastel-rainbow-mode #history-screen .app-header {
             background: var(--bg-header);
         }
@@ -901,7 +1045,7 @@
         body.pastel-rainbow-mode .new-chat-button,
         body.pastel-rainbow-mode .app-header .action-button-in-header,
         body.pastel-rainbow-mode .header-save-button {
-            color: var(--text-light); /* レインボーヘッダー上は白文字 */
+            color: var(--text-light); 
         }
 
 
@@ -1033,22 +1177,22 @@
 
         #memo-area {
             position: absolute;
-            top: 15px;
+            /* top: 15px; JavaScriptで動的に設定 */
             left: 15px;
             width: var(--memo-width);
             height: var(--memo-height);
             max-width: calc(100% - 30px);
-            max-height: calc(100% - 30px);
+            max-height: calc(100% - 30px); /* JSでさらに調整 */
             background-color: var(--bg-memo);
             border: 1px solid var(--border-secondary);
             border-radius: 8px;
             padding: 10px;
-            z-index: 20;
+            z-index: 15; /* ヘッダー(10)より手前、ダイアログ(100)より奥 */
             box-shadow: 0 2px 8px var(--shadow-primary);
             overflow: auto;
             display: flex;
             flex-direction: column;
-            transition: opacity 0.3s ease, visibility 0.3s ease, width 0.3s ease, height 0.3s ease, background-color 0.3s ease;
+            transition: opacity 0.3s ease, visibility 0.3s ease, width 0.3s ease, height 0.3s ease, background-color 0.3s ease, top 0.3s ease;
             resize: both;
         }
 
@@ -1373,11 +1517,10 @@
             white-space: nowrap;
             line-height: 1.5;
         }
-        /* パステルイエローのボタン上のテキスト色調整 */
         body.pastel-yellow-mode .message-actions button,
         body.pastel-yellow-mode .message-cascade-controls button,
         body.pastel-yellow-mode .message-edit-actions button {
-            color: var(--text-light); /* ボタンアクションで定義された --text-light を使用 */
+            color: var(--text-light); 
         }
 
 
@@ -2096,9 +2239,9 @@
             background-color: var(--bg-button);
             color: var(--text-light);
         }
-        /* パステルイエローのOKボタンテキスト */
-        body.pastel-yellow-mode .custom-dialog .dialog-ok-btn {
-             color: var(--text-light); /* --text-light は #424242 */
+        body.pastel-yellow-mode .custom-dialog .dialog-ok-btn,
+        body.pastel-rainbow-mode .custom-dialog .dialog-ok-btn { /* レインボーも対象に */
+             color: var(--text-light); 
         }
         .custom-dialog .dialog-ok-btn:hover:not(:disabled) {
             background-color: var(--bg-button-hover);
@@ -2107,9 +2250,9 @@
             background-color: var(--bg-button-action);
             color: var(--text-light);
         }
-        /* パステルイエローのキャンセルボタンテキスト */
-        body.pastel-yellow-mode .custom-dialog .dialog-cancel-btn {
-             color: var(--text-light); /* --text-light は #424242 */
+        body.pastel-yellow-mode .custom-dialog .dialog-cancel-btn,
+        body.pastel-rainbow-mode .custom-dialog .dialog-cancel-btn { /* レインボーも対象に */
+             color: var(--text-light); 
         }
         .custom-dialog .dialog-cancel-btn:hover:not(:disabled) {
             background-color: var(--bg-button-action-hover);
@@ -2298,8 +2441,9 @@
             justify-content: center;
             align-items: center;
         }
-        body.pastel-yellow-mode .remove-file-btn {
-            color: var(--text-light); /* パステルイエローモードの削除ボタンテキスト */
+        body.pastel-yellow-mode .remove-file-btn,
+        body.pastel-rainbow-mode .remove-file-btn { /* レインボーも対象に */
+            color: var(--text-light); 
         }
         .remove-file-btn:hover {
             background-color: var(--bg-button-delete-hover);
@@ -2776,7 +2920,7 @@
         const PASTEL_RAINBOW_USER_MESSAGE_COLOR = '#e0fff0';
         const PASTEL_RAINBOW_MODEL_MESSAGE_COLOR = '#e0f0ff';
         const PASTEL_RAINBOW_SECONDARY_COLOR = '#f0f0f0';
-        const PASTEL_RAINBOW_HEADER_COLOR = '#ffadad'; // グラデーションの場合は代表色
+        const PASTEL_RAINBOW_HEADER_COLOR = '#ffadad'; 
         const PASTEL_RAINBOW_PRIMARY_COLOR = '#fdfdfd';
 
 
@@ -3881,7 +4025,7 @@
                         overlayBaseColor = PASTEL_PURPLE_PRIMARY_COLOR;
                         break;
                     case 'pastel-rainbow':
-                        headerColor = PASTEL_RAINBOW_HEADER_COLOR; // グラデーションの場合は代表色
+                        headerColor = PASTEL_RAINBOW_HEADER_COLOR;
                         secondaryColor = PASTEL_RAINBOW_SECONDARY_COLOR;
                         userMessageColor = PASTEL_RAINBOW_USER_MESSAGE_COLOR;
                         modelMessageColor = PASTEL_RAINBOW_MODEL_MESSAGE_COLOR;
@@ -4096,7 +4240,6 @@
                 if (state.isEditingSystemPrompt) {
                     appLogic.cancelEditSystemPrompt();
                 }
-                // メモ表示中の画面遷移は許可するが、チャット画面以外ではメモを隠す
                 if (state.isMemoVisible && screenName !== 'chat') {
                      elements.memoArea.classList.add('hidden');
                      state.isMemoVisible = false;
@@ -4165,7 +4308,6 @@
                     elements.loadingIndicator.setAttribute('aria-live', 'polite');
                     elements.systemPromptDetails.style.pointerEvents = 'none'; 
                     elements.systemPromptDetails.style.opacity = '0.7';
-                    // toggleMemoBtn と toggleAllContentBtn の disabled 設定はここでは行わない
                 } else {
                     elements.sendButton.textContent = '送';
                     elements.sendButton.classList.remove('sending');
@@ -4604,7 +4746,7 @@
             },
             handleTouchMove(event) {
                 if (!state.settings.enableSwipeNavigation) return;
-                if (!state.touchStartX || event.touches.length > 1 || state.isZoomed) { // メモ表示中のチェックを削除
+                if (!state.touchStartX || event.touches.length > 1 || state.isZoomed) { 
                     return;
                 }
                 const currentX = event.touches[0].clientX;
@@ -4621,7 +4763,7 @@
                 state.touchEndY = currentY;
             },
             handleTouchEnd(event) {
-                 if (!state.settings.enableSwipeNavigation) { // メモ表示中のチェックを削除
+                 if (!state.settings.enableSwipeNavigation) { 
                      this.resetSwipeState();
                      return;
                  }
@@ -4653,31 +4795,37 @@
                 state.isSwiping = false;
             },
             toggleMemo() {
-                // 送信中の制限を解除
-                // if (state.isSending) {
-                //     uiUtils.showCustomAlert("送信中はメモを開閉できません。");
-                //     return;
-                // }
-                 if (state.editingMessageIndex !== null) { // メッセージ編集中はまだ制限
+                 if (state.editingMessageIndex !== null) { 
                      uiUtils.showCustomAlert("メッセージ編集中はメモを開閉できません。");
                      return;
                  }
-                 if (state.isEditingSystemPrompt) { // システムプロンプト編集中もまだ制限
+                 if (state.isEditingSystemPrompt) { 
                      uiUtils.showCustomAlert("システムプロンプト編集中はメモを開閉できません。");
                      return;
                  }
+                const mainContent = elements.chatScreen.querySelector('.main-content');
+                const oldScrollTop = mainContent.scrollTop; // スクロール位置を保存
+
                 state.isMemoVisible = !state.isMemoVisible;
                 elements.memoArea.classList.toggle('hidden', !state.isMemoVisible);
+
                 if (state.isMemoVisible) {
                     requestAnimationFrame(() => {
-                         if (elements.memoArea && elements.chatScreen) {
-                            const mainContentHeight = elements.chatScreen.querySelector('.main-content').clientHeight;
-                            const memoAreaPadding = 10;
-                            elements.memoArea.style.maxHeight = `calc(${mainContentHeight}px - ${memoAreaPadding * 2}px)`;
-                            uiUtils.adjustTextareaHeight(elements.memoEditor, elements.memoArea.clientHeight - 20 - (elements.memoArea.querySelector('.memo-actions-container')?.offsetHeight || 0) );
-                         }
-                         elements.memoEditor.focus();
+                        const headerHeight = elements.chatScreen.querySelector('.app-header').offsetHeight;
+                        elements.memoArea.style.top = `${headerHeight + 5}px`; 
+                        elements.memoArea.style.left = `15px`; 
+
+                        if (elements.memoArea && elements.chatScreen) {
+                            const availableHeight = mainContent.clientHeight - (headerHeight + 5); 
+                            const memoAreaPadding = 10; 
+                            elements.memoArea.style.maxHeight = `calc(${availableHeight}px - ${memoAreaPadding * 2}px - 30px)`; 
+                            uiUtils.adjustTextareaHeight(elements.memoEditor, elements.memoArea.clientHeight - 20 - (elements.memoArea.querySelector('.memo-actions-container')?.offsetHeight || 0));
+                        }
+                        elements.memoEditor.focus();
+                        mainContent.scrollTop = oldScrollTop; // スクロール位置を復元
                     });
+                } else {
+                    mainContent.scrollTop = oldScrollTop; // 非表示時も復元
                 }
             },
             async copyMemoText() {
@@ -5173,7 +5321,6 @@ sessionText += `あなた:\n`;
             async handleSend(isRetry = false, retryUserMessageIndex = -1) {
                 if (state.editingMessageIndex !== null) { await uiUtils.showCustomAlert("他のメッセージを編集中です。"); return; }
                 if (state.isEditingSystemPrompt) { await uiUtils.showCustomAlert("システムプロンプトを編集中です。"); return; }
-                // メモ表示中の送信制限を解除
                 let text = '';
                 let attachmentsToSend = [];
                 if (isRetry) {
@@ -5896,7 +6043,6 @@ if (msg.role === 'user') return true;
             },
             startEditSystemPrompt() {
                 if (state.isSending) return;
-                 // メモ表示中でもシステムプロンプト編集は可能に
                 state.isEditingSystemPrompt = true;
                 elements.systemPromptEditor.value = state.currentSystemPrompt;
                 uiUtils.adjustTextareaHeight(elements.systemPromptEditor, 200);
@@ -5935,7 +6081,6 @@ if (msg.role === 'user') return true;
                      await uiUtils.showCustomAlert("システムプロンプト編集中です。");
                      return;
                  }
-                 // メモ表示中でもメッセージ編集可能に
                  if (state.editingMessageIndex === index) {
                      messageElement.querySelector('.edit-textarea')?.focus();
                      return;
@@ -6109,7 +6254,6 @@ if (msg.role === 'user') return true;
                     await uiUtils.showCustomAlert("システムプロンプト編集中は削除できません。");
                     return;
                 }
-                // メモ表示中の制限を解除
                 if (index < 0 || index >= state.currentMessages.length) {
                      return;
                 }
@@ -6193,7 +6337,6 @@ if (msg.role === 'user') return true;
                     await uiUtils.showCustomAlert("システムプロンプト編集中はリトライできません。");
                     return;
                 }
-                // メモ表示中の制限を解除
                 const userMessage = state.currentMessages[index];
                 if (!userMessage || userMessage.role !== 'user') return;
                 const messageContentPreview = userMessage.content.substring(0, 30) + "...";
@@ -6311,7 +6454,6 @@ if (msg.role === 'user') return true;
                 if (state.editingMessageIndex !== null) { await uiUtils.showCustomAlert("編集中は削除できません。"); return; }
                 if (state.isSending) { await uiUtils.showCustomAlert("送信中は削除できません。"); return; }
                 if (state.isEditingSystemPrompt) { await uiUtils.showCustomAlert("システムプロンプト編集中は削除できません。"); return; }
-                // メモ表示中の制限を解除
                 const siblings = this.getCascadedSiblings(indexToDelete, true);
                 const currentIndexInGroup = siblings.findIndex(m => m === msgToDelete) + 1;
                 const totalSiblings = siblings.length;
@@ -6502,7 +6644,6 @@ if (msg.role === 'user') return true;
                  }
             },
             toggleAllMessagesVisibility() {
-                // 送信中の制限を解除
                 if (state.editingMessageIndex !== null) {
                      uiUtils.showCustomAlert("メッセージ編集中は操作できません。");
                      return;
@@ -6511,7 +6652,6 @@ if (msg.role === 'user') return true;
                      uiUtils.showCustomAlert("システムプロンプト編集中は操作できません。");
                      return;
                  }
-                // メモ表示中の制限を解除
                 const mainContent = elements.chatScreen.querySelector('.main-content');
                 const oldScrollTop = mainContent.scrollTop;
 
