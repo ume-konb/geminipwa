@@ -57,6 +57,10 @@
             --bg-button-header-copy-hover: #c2185b;
             --bg-button-header-toggle-content: var(--bg-button-action);
             --bg-button-header-toggle-content-hover: var(--bg-button-action-hover);
+            --bg-button-scroll-jump: var(--bg-button-action); /* ジャンプボタン用 */
+            --bg-button-scroll-jump-hover: var(--bg-button-action-hover); /* ジャンプボタン用 */
+            --text-button-scroll-jump: var(--text-light); /* ジャンプボタン用 */
+
 
             --text-primary: #333333;
             --text-secondary: #777777;
@@ -103,7 +107,7 @@
             --badge-size: 12px;
 
             --memo-height: 300px; 
-            --clipboard-stack-height: 300px; /* クリップボードスタックのデフォルト高さ */
+            --clipboard-stack-height: 300px;
 
             --bg-toggle-button: var(--bg-button-action);
             --bg-toggle-button-hover: var(--bg-button-action-hover);
@@ -169,6 +173,9 @@
             --bg-button-header-copy-hover: var(--bg-button-copy-hover);
             --bg-button-header-toggle-content: var(--bg-button-action);
             --bg-button-header-toggle-content-hover: var(--bg-button-action-hover);
+            --bg-button-scroll-jump: var(--bg-button-action);
+            --bg-button-scroll-jump-hover: var(--bg-button-action-hover);
+            --text-button-scroll-jump: var(--text-light);
 
             --text-primary: #e0e0e0;
             --text-secondary: #aaaaaa;
@@ -251,6 +258,9 @@
             --bg-button-header-copy-hover: var(--bg-button-copy-hover);
             --bg-button-header-toggle-content: var(--bg-button-action);
             --bg-button-header-toggle-content-hover: var(--bg-button-action-hover);
+            --bg-button-scroll-jump: var(--bg-button-action);
+            --bg-button-scroll-jump-hover: var(--bg-button-action-hover);
+            --text-button-scroll-jump: var(--text-light);
 
             --text-primary: #5c3c45; 
             --text-secondary: #8c6b74; 
@@ -349,6 +359,9 @@
             --bg-button-header-copy-hover: var(--bg-button-copy-hover);
             --bg-button-header-toggle-content: var(--bg-button-action);
             --bg-button-header-toggle-content-hover: var(--bg-button-action-hover);
+            --bg-button-scroll-jump: var(--bg-button-action);
+            --bg-button-scroll-jump-hover: var(--bg-button-action-hover);
+            --text-button-scroll-jump: var(--text-light);
 
             --text-primary: #3a5679; 
             --text-secondary: #6b87a9; 
@@ -448,6 +461,9 @@
             --bg-button-header-copy-hover: var(--bg-button-copy-hover);
             --bg-button-header-toggle-content: var(--bg-button-action);
             --bg-button-header-toggle-content-hover: var(--bg-button-action-hover);
+            --bg-button-scroll-jump: var(--bg-button-action);
+            --bg-button-scroll-jump-hover: var(--bg-button-action-hover);
+            --text-button-scroll-jump: #424242; /* イエローテーマ用 */
 
             --text-primary: #5d4037; 
             --text-secondary: #8d6e63; 
@@ -530,6 +546,9 @@
             --bg-button-header-copy-hover: var(--bg-button-copy-hover);
             --bg-button-header-toggle-content: var(--bg-button-action);
             --bg-button-header-toggle-content-hover: var(--bg-button-action-hover);
+            --bg-button-scroll-jump: var(--bg-button-action);
+            --bg-button-scroll-jump-hover: var(--bg-button-action-hover);
+            --text-button-scroll-jump: var(--text-light);
 
             --text-primary: #4a148c; 
             --text-secondary: #6a1b9a; 
@@ -601,6 +620,10 @@
             --bg-message-actions: rgba(245, 245, 245, 0.85);
             --overlay-base-rgb: 253, 253, 253;
             --bg-memo: #f0fff0; 
+            --bg-button-scroll-jump: var(--bg-button-action);
+            --bg-button-scroll-jump-hover: var(--bg-button-action-hover);
+            --text-button-scroll-jump: var(--text-light);
+
 
             --text-primary: #333;
             --text-secondary: #555;
@@ -977,13 +1000,19 @@
         }
 
         .app-header #toggle-memo-btn,
-        .app-header #toggle-clipboard-stack-btn { /* 修正 */
+        .app-header #toggle-clipboard-stack-btn,
+        .app-header .scroll-jump-button { /* 修正 */
             background-color: var(--bg-button-action);
         }
         .app-header #toggle-memo-btn:hover,
-        .app-header #toggle-clipboard-stack-btn:hover { /* 修正 */
+        .app-header #toggle-clipboard-stack-btn:hover,
+        .app-header .scroll-jump-button:hover { /* 修正 */
             background-color: var(--bg-button-action-hover);
         }
+        body.pastel-yellow-mode .app-header .scroll-jump-button { /* イエローテーマ用 */
+            color: #424242;
+        }
+
         .app-header #toggle-all-content-btn {
             background-color: var(--bg-button-header-toggle-content);
         }
@@ -2447,6 +2476,8 @@
                 <button id="new-chat-btn" class="new-chat-button" title="新規チャットを開始">新規</button>
                 <button id="delete-session-btn" class="action-button-in-header" title="現在のチャットを削除">全削除</button>
                 <button id="copy-session-btn" class="action-button-in-header" title="チャット全体をコピー">全コピー</button>
+                <button id="scroll-to-top-btn" class="header-button scroll-jump-button" aria-label="最上部へスクロール" title="最上部へ">🔼</button>
+                <button id="scroll-to-bottom-btn" class="header-button scroll-jump-button" aria-label="最下部へスクロール" title="最下部へ">🔽</button>
                 <button id="toggle-all-content-btn" class="header-button" aria-label="全メッセージ表示切替" title="全メッセージの表示/非表示を切り替え">🖼️</button>
                 <button id="toggle-clipboard-stack-btn" class="header-button" aria-label="クリップボードスタックを開閉">🗒️</button>
                 <button id="toggle-memo-btn" class="header-button" aria-label="メモを開閉">📝</button>
@@ -2718,12 +2749,24 @@
                    </select>
                    <p style="height:10px"></p>
                    <label class="checkbox-label">
+                       <input type="checkbox" id="show-new-chat-button-toggle">
+                       ヘッダーに「新規」ボタンを表示する
+                   </label>
+                   <label class="checkbox-label">
                        <input type="checkbox" id="show-delete-session-button-toggle">
                        ヘッダーに「全削除」ボタンを表示する
                    </label>
                    <label class="checkbox-label">
                        <input type="checkbox" id="show-copy-session-button-toggle">
                        ヘッダーに「全コピー」ボタンを表示する
+                   </label>
+                   <label class="checkbox-label">
+                       <input type="checkbox" id="show-scroll-to-top-button-toggle">
+                       ヘッダーに「最上部へ(🔼)」ボタンを表示する
+                   </label>
+                   <label class="checkbox-label">
+                       <input type="checkbox" id="show-scroll-to-bottom-button-toggle">
+                       ヘッダーに「最下部へ(🔽)」ボタンを表示する
                    </label>
                    <label class="checkbox-label">
                        <input type="checkbox" id="show-toggle-all-content-button-toggle">
@@ -2848,7 +2891,7 @@
         const DEFAULT_TOP_P = 0.95;
         const DEFAULT_FONT_FAMILY = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
         const DEFAULT_MEMO_HEIGHT = '300px';
-        const DEFAULT_CLIPBOARD_STACK_HEIGHT = '300px'; // 追加
+        const DEFAULT_CLIPBOARD_STACK_HEIGHT = '300px';
         const CHAT_TITLE_LENGTH = 15;
         const TEXTAREA_MAX_HEIGHT = 120;
         const GEMINI_API_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models/';
@@ -2907,7 +2950,7 @@
         const LIGHT_MODE_PRIMARY_COLOR = '#ffffff'; 
 
 
-        const APP_VERSION = "0.26"; // バージョン更新
+        const APP_VERSION = "0.25"; 
         const SWIPE_THRESHOLD = 50;
         const ZOOM_THRESHOLD = 1.01;
         const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -2975,8 +3018,11 @@
             hideSystemPromptToggle: document.getElementById('hide-system-prompt-toggle'),
             enableGroundingToggle: document.getElementById('enable-grounding-toggle'),
             swipeNavigationToggle: document.getElementById('swipe-navigation-toggle'),
+            showNewChatButtonToggle: document.getElementById('show-new-chat-button-toggle'), // 追加
             showDeleteSessionButtonToggle: document.getElementById('show-delete-session-button-toggle'),
             showCopySessionButtonToggle: document.getElementById('show-copy-session-button-toggle'),
+            showScrollToTopButtonToggle: document.getElementById('show-scroll-to-top-button-toggle'), // 追加
+            showScrollToBottomButtonToggle: document.getElementById('show-scroll-to-bottom-button-toggle'), // 追加
             showToggleAllContentButtonToggle: document.getElementById('show-toggle-all-content-button-toggle'),
             showBulkHistoryActionsToggle: document.getElementById('show-bulk-history-actions-toggle'),
             messageBubbleOpacityInput: document.getElementById('message-bubble-opacity'),
@@ -2994,6 +3040,8 @@
             newChatBtn: document.getElementById('new-chat-btn'),
             deleteSessionBtn: document.getElementById('delete-session-btn'),
             copySessionBtn: document.getElementById('copy-session-btn'),
+            scrollToTopBtn: document.getElementById('scroll-to-top-btn'), // 追加
+            scrollToBottomBtn: document.getElementById('scroll-to-bottom-btn'), // 追加
             toggleAllContentBtn: document.getElementById('toggle-all-content-btn'),
             saveSettingsBtns: document.querySelectorAll('.js-save-settings-btn'),
             updateAppBtn: document.getElementById('update-app-btn'),
@@ -3031,7 +3079,6 @@
             showMemoButtonToggle: document.getElementById('show-memo-button-toggle'),
             memoHeightInput: document.getElementById('memo-height'),
             showCollapseButtonsToggle: document.getElementById('show-collapse-buttons-toggle'),
-            // クリップボードスタック関連の要素
             toggleClipboardStackBtn: document.getElementById('toggle-clipboard-stack-btn'),
             clipboardStackArea: document.getElementById('clipboard-stack-area'),
             clipboardStackEditor: document.getElementById('clipboard-stack-editor'),
@@ -3072,14 +3119,17 @@
                 hideSystemPromptInChat: false,
                 enableGrounding: false,
                 enableSwipeNavigation: true,
+                showNewChatButton: true, // 追加
                 showDeleteSessionButton: false,
                 showCopySessionButton: false,
+                showScrollToTopButton: true, // 追加
+                showScrollToBottomButton: true, // 追加
                 showToggleAllContentButton: true,
                 showBulkHistoryActions: true,
                 showMemoButton: true,
                 memoHeight: DEFAULT_MEMO_HEIGHT,
-                showClipboardStackButton: true, // 追加
-                clipboardStackHeight: DEFAULT_CLIPBOARD_STACK_HEIGHT, // 追加
+                showClipboardStackButton: true, 
+                clipboardStackHeight: DEFAULT_CLIPBOARD_STACK_HEIGHT, 
                 showCollapseButtons: true,
                 messageBubbleOpacity: DEFAULT_MESSAGE_BUBBLE_OPACITY,
                 chatOverlayOpacity: DEFAULT_CHAT_OVERLAY_OPACITY,
@@ -3101,8 +3151,8 @@
             selectedFilesForUpload: [],
             pendingAttachments: [],
             isMemoVisible: false,
-            isClipboardStackVisible: false, // 追加
-            clipboardStackContent: "", // 追加
+            isClipboardStackVisible: false, 
+            clipboardStackContent: "", 
             areAllMessagesHidden: false,
             messageCollapsedStates: new Map(),
         };
@@ -3255,7 +3305,7 @@
                                     } else {
                                         state.settings[key] = defaultValue; 
                                     }
-                                } else if (key === 'hideSystemPromptInChat' || key === 'enableGrounding' || key === 'enableSwipeNavigation' || key === 'showDeleteSessionButton' || key === 'showCopySessionButton' || key === 'showToggleAllContentButton' || key === 'showBulkHistoryActions' || key === 'showMemoButton' || key === 'showClipboardStackButton' || key === 'showCollapseButtons' || key === 'streamingOutput' || key === 'pseudoStreaming' || key === 'enterToSend' || key === 'concatDummyModel') { // showClipboardStackButton を追加
+                                } else if (key === 'hideSystemPromptInChat' || key === 'enableGrounding' || key === 'enableSwipeNavigation' || key === 'showNewChatButton' || key === 'showDeleteSessionButton' || key === 'showCopySessionButton' || key === 'showScrollToTopButton' || key === 'showScrollToBottomButton' || key === 'showToggleAllContentButton' || key === 'showBulkHistoryActions' || key === 'showMemoButton' || key === 'showClipboardStackButton' || key === 'showCollapseButtons' || key === 'streamingOutput' || key === 'pseudoStreaming' || key === 'enterToSend' || key === 'concatDummyModel') { 
                                      state.settings[key] = loadedValue === true; 
                                 } else if (typeof defaultValue === 'number' || defaultValue === null) {
                                      let num;
@@ -3839,13 +3889,11 @@
                 elements.loadingIndicator.classList.add('hidden');
                 this.setSendingState(false);
             },
-            scrollToBottom() {
-                requestAnimationFrame(() => {
-                    const mainContent = elements.chatScreen.querySelector('.main-content');
-                    if (mainContent) {
-                        mainContent.scrollTop = mainContent.scrollHeight;
-                    }
-                });
+            scrollToBottom() { // uiUtilsからappLogicへ移動またはラップ
+                const mainContent = elements.chatScreen.querySelector('.main-content');
+                if (mainContent) {
+                    mainContent.scrollTo({ top: mainContent.scrollHeight, behavior: 'smooth' });
+                }
             },
             updateChatTitle(definitiveTitle = null) {
                 let titleText = '新規チャット';
@@ -3955,16 +4003,16 @@
                     elements.deleteBackgroundBtn.classList.add('hidden');
                 }
             },
-            applySidePanelSettingsToUI() { // 名前変更
+            applySidePanelSettingsToUI() { 
                 if (elements.toggleMemoBtn) {
                     elements.toggleMemoBtn.classList.toggle('hidden', !state.settings.showMemoButton);
                 }
                 document.documentElement.style.setProperty('--memo-height', state.settings.memoHeight || DEFAULT_MEMO_HEIGHT);
 
-                if (elements.toggleClipboardStackBtn) { // 追加
+                if (elements.toggleClipboardStackBtn) { 
                     elements.toggleClipboardStackBtn.classList.toggle('hidden', !state.settings.showClipboardStackButton);
                 }
-                document.documentElement.style.setProperty('--clipboard-stack-height', state.settings.clipboardStackHeight || DEFAULT_CLIPBOARD_STACK_HEIGHT); // 追加
+                document.documentElement.style.setProperty('--clipboard-stack-height', state.settings.clipboardStackHeight || DEFAULT_CLIPBOARD_STACK_HEIGHT); 
             },
             applyOpacitySettings() {
                 document.documentElement.style.setProperty('--message-bubble-opacity', state.settings.messageBubbleOpacity);
@@ -4130,8 +4178,11 @@
                 elements.hideSystemPromptToggle.checked = state.settings.hideSystemPromptInChat;
                 elements.enableGroundingToggle.checked = state.settings.enableGrounding;
                 elements.swipeNavigationToggle.checked = state.settings.enableSwipeNavigation;
+                elements.showNewChatButtonToggle.checked = state.settings.showNewChatButton; // 追加
                 elements.showDeleteSessionButtonToggle.checked = state.settings.showDeleteSessionButton;
                 elements.showCopySessionButtonToggle.checked = state.settings.showCopySessionButton;
+                elements.showScrollToTopButtonToggle.checked = state.settings.showScrollToTopButton; // 追加
+                elements.showScrollToBottomButtonToggle.checked = state.settings.showScrollToBottomButton; // 追加
                 elements.showToggleAllContentButtonToggle.checked = state.settings.showToggleAllContentButton;
                 elements.showBulkHistoryActionsToggle.checked = state.settings.showBulkHistoryActions;
                 elements.messageBubbleOpacityInput.value = state.settings.messageBubbleOpacity ?? DEFAULT_MESSAGE_BUBBLE_OPACITY;
@@ -4140,8 +4191,8 @@
                 
                 elements.showMemoButtonToggle.checked = state.settings.showMemoButton;
                 elements.memoHeightInput.value = state.settings.memoHeight || '';
-                elements.showClipboardStackButtonToggle.checked = state.settings.showClipboardStackButton; // 追加
-                // elements.clipboardStackHeightInput.value = state.settings.clipboardStackHeight || ''; // HTMLにinput追加後
+                elements.showClipboardStackButtonToggle.checked = state.settings.showClipboardStackButton; 
+                // elements.clipboardStackHeightInput.value = state.settings.clipboardStackHeight || ''; 
 
                 elements.showCollapseButtonsToggle.checked = state.settings.showCollapseButtons;
 
@@ -4152,14 +4203,23 @@
                 this.applyTheme();
                 this.applyFontFamily();
                 this.toggleSystemPromptVisibility();
-                this.applySidePanelSettingsToUI(); // 変更
+                this.applySidePanelSettingsToUI(); 
             },
             updateChatScreenHeaderButtonVisibility() {
+                if (elements.newChatBtn) { 
+                    elements.newChatBtn.classList.toggle('hidden', !state.settings.showNewChatButton);
+                }
                 if (elements.deleteSessionBtn) {
                     elements.deleteSessionBtn.classList.toggle('hidden', !state.settings.showDeleteSessionButton);
                 }
                 if (elements.copySessionBtn) {
                     elements.copySessionBtn.classList.toggle('hidden', !state.settings.showCopySessionButton);
+                }
+                if (elements.scrollToTopBtn) { 
+                    elements.scrollToTopBtn.classList.toggle('hidden', !state.settings.showScrollToTopButton);
+                }
+                if (elements.scrollToBottomBtn) { 
+                    elements.scrollToBottomBtn.classList.toggle('hidden', !state.settings.showScrollToBottomButton);
                 }
                 if (elements.toggleAllContentBtn) {
                     elements.toggleAllContentBtn.classList.toggle('hidden', !state.settings.showToggleAllContentButton);
@@ -4167,7 +4227,7 @@
                 if (elements.toggleMemoBtn) {
                     elements.toggleMemoBtn.classList.toggle('hidden', !state.settings.showMemoButton);
                 }
-                if (elements.toggleClipboardStackBtn) { // 追加
+                if (elements.toggleClipboardStackBtn) { 
                     elements.toggleClipboardStackBtn.classList.toggle('hidden', !state.settings.showClipboardStackButton);
                 }
             },
@@ -4235,7 +4295,7 @@
                      elements.memoArea.classList.add('hidden');
                      state.isMemoVisible = false;
                 }
-                if (state.isClipboardStackVisible && screenName !== 'chat') { // 追加
+                if (state.isClipboardStackVisible && screenName !== 'chat') { 
                      elements.clipboardStackArea.classList.add('hidden');
                      state.isClipboardStackVisible = false;
                 }
@@ -4473,7 +4533,7 @@
                     await dbUtils.loadSettings();
                     uiUtils.applyTheme(); 
                     uiUtils.applyFontFamily();
-                    uiUtils.applySidePanelSettingsToUI(); // 変更
+                    uiUtils.applySidePanelSettingsToUI(); 
                     if (state.settings.backgroundImageBlob instanceof Blob) {
                         uiUtils.revokeExistingObjectUrl();
                         try {
@@ -4518,10 +4578,13 @@
                 elements.pasteMemoBtn.addEventListener('click', () => this.pasteIntoMemo());
                 elements.deleteMemoBtn.addEventListener('click', () => this.confirmClearMemo());
                 
-                elements.toggleClipboardStackBtn.addEventListener('click', () => this.toggleClipboardStack()); // 追加
-                elements.deleteClipboardStackBtn.addEventListener('click', () => this.confirmClearClipboardStack()); // 追加
-                elements.copyClipboardStackBtn.addEventListener('click', () => this.copyClipboardStackText()); // 追加
-                elements.pasteClipboardStackBtn.addEventListener('click', () => this.pasteIntoClipboardStack()); // 追加
+                elements.toggleClipboardStackBtn.addEventListener('click', () => this.toggleClipboardStack()); 
+                elements.deleteClipboardStackBtn.addEventListener('click', () => this.confirmClearClipboardStack()); 
+                elements.copyClipboardStackBtn.addEventListener('click', () => this.copyClipboardStackText()); 
+                elements.pasteClipboardStackBtn.addEventListener('click', () => this.pasteIntoClipboardStack()); 
+
+                elements.scrollToTopBtn.addEventListener('click', () => this.scrollToTop()); 
+                elements.scrollToBottomBtn.addEventListener('click', () => this.scrollToBottom()); 
 
                 elements.newChatBtn.addEventListener('click', async () => {
                     const confirmed = await uiUtils.showCustomConfirm("現在のチャットを保存して新規チャットを開始しますか？");
@@ -4597,10 +4660,23 @@
                     state.settings.showMemoButton = elements.showMemoButtonToggle.checked;
                     uiUtils.updateChatScreenHeaderButtonVisibility();
                 });
-                elements.showClipboardStackButtonToggle.addEventListener('change', () => { // 追加
+                elements.showClipboardStackButtonToggle.addEventListener('change', () => { 
                     state.settings.showClipboardStackButton = elements.showClipboardStackButtonToggle.checked;
                     uiUtils.updateChatScreenHeaderButtonVisibility();
                 });
+                elements.showNewChatButtonToggle.addEventListener('change', () => { // 追加
+                    state.settings.showNewChatButton = elements.showNewChatButtonToggle.checked;
+                    uiUtils.updateChatScreenHeaderButtonVisibility();
+                });
+                elements.showScrollToTopButtonToggle.addEventListener('change', () => { // 追加
+                    state.settings.showScrollToTopButton = elements.showScrollToTopButtonToggle.checked;
+                    uiUtils.updateChatScreenHeaderButtonVisibility();
+                });
+                elements.showScrollToBottomButtonToggle.addEventListener('change', () => { // 追加
+                    state.settings.showScrollToBottomButton = elements.showScrollToBottomButtonToggle.checked;
+                    uiUtils.updateChatScreenHeaderButtonVisibility();
+                });
+
                 elements.memoHeightInput.addEventListener('input', () => {
                     const newHeight = elements.memoHeightInput.value.trim();
                     if (newHeight) {
@@ -4609,7 +4685,6 @@
                         document.documentElement.style.setProperty('--memo-height', DEFAULT_MEMO_HEIGHT);
                     }
                 });
-                // クリップボードスタックの高さ設定用inputのリスナーもここに追加 (もしあれば)
                 elements.showToggleAllContentButtonToggle.addEventListener('change', () => {
                     state.settings.showToggleAllContentButton = elements.showToggleAllContentButtonToggle.checked;
                     uiUtils.updateChatScreenHeaderButtonVisibility();
@@ -4666,7 +4741,7 @@
                     }
                 });
                 document.body.addEventListener('click', (event) => {
-                    if (!elements.messageContainer.contains(event.target) && !elements.memoArea.contains(event.target) && !elements.clipboardStackArea.contains(event.target)) { // clipboardStackArea も考慮
+                    if (!elements.messageContainer.contains(event.target) && !elements.memoArea.contains(event.target) && !elements.clipboardStackArea.contains(event.target)) { 
                         const currentlyShown = elements.messageContainer.querySelector('.message.show-actions');
                         if (currentlyShown) {
                             currentlyShown.classList.remove('show-actions');
@@ -4880,7 +4955,7 @@
                     elements.memoEditor.value = '';
                 }
             },
-            toggleClipboardStack() { // 新規追加
+            toggleClipboardStack() { 
                  if (state.editingMessageIndex !== null) { 
                      uiUtils.showCustomAlert("メッセージ編集中はクリップボードスタックを開閉できません。");
                      return;
@@ -4894,12 +4969,12 @@
                 elements.clipboardStackArea.classList.toggle('hidden', !state.isClipboardStackVisible);
 
                 if (state.isClipboardStackVisible) {
-                    elements.clipboardStackEditor.value = state.clipboardStackContent; // 表示時に内容を反映
+                    elements.clipboardStackEditor.value = state.clipboardStackContent; 
                     elements.clipboardStackEditor.focus();
                     elements.clipboardStackEditor.scrollTop = elements.clipboardStackEditor.scrollHeight;
                 }
             },
-            async copyClipboardStackText() { // 新規追加
+            async copyClipboardStackText() { 
                 const stackText = elements.clipboardStackEditor.value;
                 if (!stackText.trim()) {
                      const originalText = elements.copyClipboardStackBtn.textContent;
@@ -4925,7 +5000,7 @@
                     setTimeout(() => { elements.copyClipboardStackBtn.textContent = originalText; elements.copyClipboardStackBtn.disabled = false; }, 2000);
                 }
             },
-            async pasteIntoClipboardStack() { // 新規追加
+            async pasteIntoClipboardStack() { 
                 try {
                     if (!navigator.clipboard || !navigator.clipboard.readText) {
                         const originalText = elements.pasteClipboardStackBtn.textContent;
@@ -4967,7 +5042,7 @@
                     }
                 }
             },
-            async confirmClearClipboardStack() { // 新規追加
+            async confirmClearClipboardStack() { 
                 if (!elements.clipboardStackEditor.value.trim()) {
                      const originalText = elements.deleteClipboardStackBtn.textContent;
                      elements.deleteClipboardStackBtn.textContent = "空です";
@@ -4982,6 +5057,18 @@
                 if (confirmed) {
                     elements.clipboardStackEditor.value = '';
                     state.clipboardStackContent = '';
+                }
+            },
+            scrollToTop() { 
+                const mainContent = elements.chatScreen.querySelector('.main-content');
+                if (mainContent) {
+                    mainContent.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            },
+            scrollToBottom() { 
+                const mainContent = elements.chatScreen.querySelector('.main-content');
+                if (mainContent) {
+                    mainContent.scrollTo({ top: mainContent.scrollHeight, behavior: 'smooth' });
                 }
             },
             async confirmStartNewChat() {
@@ -5027,9 +5114,9 @@
                 state.isMemoVisible = false;
                 elements.memoArea.classList.add('hidden');
                 elements.memoEditor.value = '';
-                state.isClipboardStackVisible = false; // 追加
-                elements.clipboardStackArea.classList.add('hidden'); // 追加
-                // state.clipboardStackContent はクリアしない (一時保持のため)
+                state.isClipboardStackVisible = false; 
+                elements.clipboardStackArea.classList.add('hidden'); 
+                // state.clipboardStackContent はクリアしない
                 state.areAllMessagesHidden = false;
                 uiUtils.updateToggleAllContentButton();
                 uiUtils.updateSystemPromptUI();
@@ -5981,14 +6068,17 @@ if (msg.role === 'user') return true;
                      hideSystemPromptInChat: elements.hideSystemPromptToggle.checked,
                      enableGrounding: elements.enableGroundingToggle.checked,
                      enableSwipeNavigation: elements.swipeNavigationToggle.checked,
+                     showNewChatButton: elements.showNewChatButtonToggle.checked, // 追加
                      showDeleteSessionButton: elements.showDeleteSessionButtonToggle.checked,
                      showCopySessionButton: elements.showCopySessionButtonToggle.checked,
+                     showScrollToTopButton: elements.showScrollToTopButtonToggle.checked, // 追加
+                     showScrollToBottomButton: elements.showScrollToBottomButtonToggle.checked, // 追加
                      showToggleAllContentButton: elements.showToggleAllContentButtonToggle.checked,
                      showBulkHistoryActions: elements.showBulkHistoryActionsToggle.checked,
                      showMemoButton: elements.showMemoButtonToggle.checked,
                      memoHeight: elements.memoHeightInput.value.trim() || DEFAULT_MEMO_HEIGHT,
-                     showClipboardStackButton: elements.showClipboardStackButtonToggle.checked, // 追加
-                     clipboardStackHeight: state.settings.clipboardStackHeight, // 既存の値を保持 (UIから変更しない場合)
+                     showClipboardStackButton: elements.showClipboardStackButtonToggle.checked, 
+                     clipboardStackHeight: state.settings.clipboardStackHeight, 
                      showCollapseButtons: elements.showCollapseButtonsToggle.checked,
                      messageBubbleOpacity: elements.messageBubbleOpacityInput.value === '' ? DEFAULT_MESSAGE_BUBBLE_OPACITY : parseFloat(elements.messageBubbleOpacityInput.value),
                      chatOverlayOpacity: elements.chatOverlayOpacityInput.value === '' ? DEFAULT_CHAT_OVERLAY_OPACITY : parseFloat(elements.chatOverlayOpacityInput.value),
@@ -6097,9 +6187,9 @@ if (msg.role === 'user') return true;
                         state.isMemoVisible = false;
                         elements.memoArea.classList.add('hidden');
                         elements.memoEditor.value = '';
-                        state.isClipboardStackVisible = false; // 追加
-                        elements.clipboardStackArea.classList.add('hidden'); // 追加
-                        state.clipboardStackContent = ''; // 追加
+                        state.isClipboardStackVisible = false; 
+                        elements.clipboardStackArea.classList.add('hidden'); 
+                        state.clipboardStackContent = ''; 
 
                         state.settings = { 
                             apiKey: '', modelName: DEFAULT_MODEL, streamingOutput: true,
@@ -6112,12 +6202,15 @@ if (msg.role === 'user') return true;
                             theme: window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light', 
                             backgroundImageBlob: null, fontFamily: '',
                             hideSystemPromptInChat: false, enableSwipeNavigation: true,
+                            showNewChatButton: true, 
                             showDeleteSessionButton: true, showCopySessionButton: true,
+                            showScrollToTopButton: true, 
+                            showScrollToBottomButton: true, 
                             showToggleAllContentButton: true, showBulkHistoryActions: true,
                             showMemoButton: true,
                             memoHeight: DEFAULT_MEMO_HEIGHT,
-                            showClipboardStackButton: true, // 追加
-                            clipboardStackHeight: DEFAULT_CLIPBOARD_STACK_HEIGHT, // 追加
+                            showClipboardStackButton: true, 
+                            clipboardStackHeight: DEFAULT_CLIPBOARD_STACK_HEIGHT, 
                             showCollapseButtons: true,
                             messageBubbleOpacity: DEFAULT_MESSAGE_BUBBLE_OPACITY,
                             chatOverlayOpacity: DEFAULT_CHAT_OVERLAY_OPACITY,
@@ -6306,7 +6399,7 @@ if (msg.role === 'user') return true;
                     state.editingMessageIndex = null;
                 }
             },
-            async copyMessageText(index, buttonElement) { // 修正
+            async copyMessageText(index, buttonElement) { 
                 const message = state.currentMessages[index];
                 if (!message) return;
 
@@ -6337,13 +6430,6 @@ if (msg.role === 'user') return true;
                 elements.clipboardStackEditor.value += separator + `${messagePrefix}\n${textToCopy}`;
                 state.clipboardStackContent = elements.clipboardStackEditor.value;
                 elements.clipboardStackEditor.scrollTop = elements.clipboardStackEditor.scrollHeight;
-
-                if (!state.isClipboardStackVisible && state.settings.showClipboardStackButton) {
-                    uiUtils.showCustomAlert("メッセージをクリップボードスタックに追記しました。\n(OSクリップボードにもコピーされました)");
-                } else if (!state.settings.showClipboardStackButton) {
-                     // OSクリップボードへのコピーのみ成功した旨を伝える (スタックボタンがない場合)
-                     // (既にコピー完了の表示はボタンで行っているので、ここでは何もしなくても良いかもしれない)
-                }
             },
             async deleteMessage(index) {
                 if (state.editingMessageIndex === index) {
@@ -6916,3 +7002,4 @@ if (msg.role === 'user') return true;
     </script>
 </body>
 </html>
+
