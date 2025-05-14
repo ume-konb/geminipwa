@@ -1061,7 +1061,7 @@
 
         #memo-area {
             position: absolute;
-            /* top, left はJSで設定 */
+            /* top, left は JS で設定 */
             width: var(--memo-width);
             height: var(--memo-height); 
             max-width: calc(100% - 30px);
@@ -1075,8 +1075,7 @@
             overflow: auto;
             display: flex;
             flex-direction: column;
-            /* transition はJSで制御するため、ここでは初期設定のみ */
-            transition: opacity 0.3s ease, visibility 0.3s ease, background-color 0.3s ease;
+            transition: opacity 0.3s ease, visibility 0.3s ease, background-color 0.3s ease; /* top, width, heightのtransitionを削除 */
             resize: vertical; 
         }
 
@@ -4690,12 +4689,22 @@
 
                 if (state.isMemoVisible) {
                     requestAnimationFrame(() => { 
-                        const headerHeight = elements.chatScreen.querySelector('.app-header').offsetHeight;
-                        elements.memoArea.style.top = `${headerHeight + 10}px`; 
-                        elements.memoArea.style.left = `15px`; 
+                        const headerElement = elements.chatScreen.querySelector('.app-header');
+                        if (!headerElement) {
+                            console.error("Header element not found for memo positioning.");
+                            elements.memoArea.style.top = '15px'; 
+                            elements.memoArea.style.left = '15px';
+                        } else {
+                            const headerRect = headerElement.getBoundingClientRect();
+                            const appContainerRect = elements.appContainer.getBoundingClientRect();
+                            const headerTopRelativeToAppContainer = headerRect.top - appContainerRect.top;
+                            elements.memoArea.style.top = `${headerTopRelativeToAppContainer + headerRect.height + 10}px`; 
+                            elements.memoArea.style.left = `15px`;
+                        }
 
                         if (elements.memoArea && elements.chatScreen) {
                             const mainContentPaddings = parseFloat(getComputedStyle(mainContent).paddingTop) + parseFloat(getComputedStyle(mainContent).paddingBottom);
+                            const headerHeight = elements.chatScreen.querySelector('.app-header')?.offsetHeight || 0;
                             const availableHeightForMemo = mainContent.clientHeight - (headerHeight + 10) - mainContentPaddings - 20; 
                             elements.memoArea.style.maxHeight = `${Math.max(100, availableHeightForMemo)}px`; 
 
