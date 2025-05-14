@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -110,10 +111,10 @@
             --message-bubble-opacity: 1;
             --header-footer-opacity: 1;
 
-            --bg-button-gold: #FFD700;
+            --bg-button-gold: #FFD700; /* ライトモードの金ボタン */
             --bg-button-gold-hover: #FFC700;
-            --text-button-gold: #333333; /* ライトモードでは暗い文字 */
-            --bg-button-purple: #800080;
+            --text-button-gold: #ffffff;
+            --bg-button-purple: #800080; /* ライトモードの紫ボタン */
             --bg-button-purple-hover: #6A006A;
             --text-button-purple: #ffffff;
         }
@@ -138,10 +139,10 @@
             --bg-button-retry-hover: #249a41;
             --bg-button-edit: #ff9500;
             --bg-button-edit-hover: #d17d00;
-            --bg-button-copy: #e91e63;
-            --bg-button-copy-hover: #c2185b;
-            --bg-button-paste: #00bcd4;
-            --bg-button-paste-hover: #0097a7;
+            --bg-button-copy: #f06292; /* ダークモードに合わせたピンク系 */
+            --bg-button-copy-hover: #ec407a;
+            --bg-button-paste: #4dd0e1; /* ダークモードに合わせたシアン系 */
+            --bg-button-paste-hover: #26c6da;
             --bg-button-duplicate: #8e8e93;
             --bg-button-duplicate-hover: #6b6b70;
             --bg-button-export: #0a84ff;
@@ -161,8 +162,11 @@
             --bg-cascade-delete-button-hover: var(--bg-button-delete-hover);
             --text-cascade-indicator: var(--text-secondary);
             --bg-button-header-delete: var(--bg-button-delete);
+            --bg-button-header-delete-hover: var(--bg-button-delete-hover);
             --bg-button-header-copy: var(--bg-button-copy);
+            --bg-button-header-copy-hover: var(--bg-button-copy-hover);
             --bg-button-header-toggle-content: var(--bg-button-action);
+            --bg-button-header-toggle-content-hover: var(--bg-button-action-hover);
 
             --text-primary: #e0e0e0;
             --text-secondary: #aaaaaa;
@@ -187,73 +191,76 @@
             --bg-toggle-button-hover: var(--bg-button-action-hover);
             --text-toggle-button: var(--text-light);
 
-            /* ダークモード時の金銀ボタンの色を修正 */
-            --bg-button-gold: #8B4513; /* 濃い茶色（金色の代替） */
-            --bg-button-gold-hover: #A0522D;
-            --text-button-gold: #e0e0e0; /* 明るい文字色 */
-            --bg-button-purple: #4B0082; /* インディゴ（紫色の代替） */
-            --bg-button-purple-hover: #5D1049;
-            --text-button-purple: #e0e0e0; /* 明るい文字色 */
+            /* ダークモードの金銀ボタンの色を修正 */
+            --bg-button-gold: #b8860b; /* ダークゴールデンロッド */
+            --bg-button-gold-hover: #daa520; /* やや明るいゴールデンロッド */
+            --text-button-gold: #ffffff;
+            --bg-button-purple: #6a0dad; /* ダークパープル */
+            --bg-button-purple-hover: #8a2be2; /* やや明るいブルーバイオレット */
+            --text-button-purple: #ffffff;
         }
 
         /* パステルモード🩷 (ピンク基調) */
         body.pastel-pink-mode {
-            --bg-primary: #fff5f8;
-            --bg-secondary: #ffe6ea;
-            --bg-tertiary: #fff0f3;
-            --bg-input: #ffffff;
-            --bg-user-message: #ffddee;
-            --bg-model-message: #f3e8ff;
-            --bg-system-message: #ffeef2;
-            --bg-error-message: #ffccd5;
-            --bg-button: #ff8fab;
-            --bg-button-hover: #ff7096;
-            --bg-button-disabled: #fcc2d7;
-            --bg-button-action: #ffb3c1;
+            --bg-primary: #fff5f8; 
+            --bg-secondary: #ffe6ea; 
+            --bg-tertiary: #fff0f3; 
+            --bg-input: #ffffff; 
+            --bg-user-message: #ffddee; 
+            --bg-model-message: #f3e8ff; 
+            --bg-system-message: #ffeef2; 
+            --bg-error-message: #ffccd5; 
+            --bg-button: #ff8fab; 
+            --bg-button-hover: #ff7096; 
+            --bg-button-disabled: #fcc2d7; 
+            --bg-button-action: #ffb3c1; 
             --bg-button-action-hover: #ffa8b9;
-            --bg-button-delete: #ff6b6b;
+            --bg-button-delete: #ff6b6b; 
             --bg-button-delete-hover: #f06060;
-            --bg-button-retry: #a0eade;
+            --bg-button-retry: #a0eade; 
             --bg-button-retry-hover: #88d8c0;
-            --bg-button-edit: #ffc974;
+            --bg-button-edit: #ffc974; 
             --bg-button-edit-hover: #ffbd59;
-            --bg-button-copy: #e5a9f0;
+            --bg-button-copy: #e5a9f0; 
             --bg-button-copy-hover: #d998e3;
-            --bg-button-paste: #b2e0ff;
+            --bg-button-paste: #b2e0ff; 
             --bg-button-paste-hover: #a1d5f7;
-            --bg-button-duplicate: #ffdaab;
+            --bg-button-duplicate: #ffdaab; 
             --bg-button-duplicate-hover: #ffce96;
-            --bg-button-export: #c8a2c8;
+            --bg-button-export: #c8a2c8; 
             --bg-button-export-hover: #b991b9;
-            --bg-button-save: #90ee90;
+            --bg-button-save: #90ee90; 
             --bg-button-save-hover: #78dd78;
-            --bg-button-cancel: #ff9aa2;
+            --bg-button-cancel: #ff9aa2; 
             --bg-button-cancel-hover: #ff868e;
-            --bg-button-update: #ff9a8b;
+            --bg-button-update: #ff9a8b; 
             --bg-button-update-hover: #ff8773;
-            --bg-header: #ff8fab;
-            --bg-message-actions: rgba(255, 230, 234, 0.85);
-            --overlay-base-rgb: 255, 245, 248;
+            --bg-header: #ff8fab; 
+            --bg-message-actions: rgba(255, 230, 234, 0.85); 
+            --overlay-base-rgb: 255, 245, 248; 
             --bg-cascade-button: var(--bg-button-action);
             --bg-cascade-button-hover: var(--bg-button-action-hover);
             --bg-cascade-delete-button: var(--bg-button-delete);
             --bg-cascade-delete-button-hover: var(--bg-button-delete-hover);
             --text-cascade-indicator: var(--text-secondary);
             --bg-button-header-delete: var(--bg-button-delete);
+            --bg-button-header-delete-hover: var(--bg-button-delete-hover);
             --bg-button-header-copy: var(--bg-button-copy);
+            --bg-button-header-copy-hover: var(--bg-button-copy-hover);
             --bg-button-header-toggle-content: var(--bg-button-action);
+            --bg-button-header-toggle-content-hover: var(--bg-button-action-hover);
 
-            --text-primary: #5c3c45;
-            --text-secondary: #8c6b74;
-            --text-light: #ffffff;
-            --text-disabled: #d8b8c0;
-            --text-error: #c5002f;
-            --text-link: #ff69b4;
-            --text-placeholder: #b28a94;
-            --text-system: #7d5a65;
+            --text-primary: #5c3c45; 
+            --text-secondary: #8c6b74; 
+            --text-light: #ffffff; 
+            --text-disabled: #d8b8c0; 
+            --text-error: #c5002f; 
+            --text-link: #ff69b4; 
+            --text-placeholder: #b28a94; 
+            --text-system: #7d5a65; 
             --text-memo: #5c3c45;
 
-            --border-primary: #ffc2d7;
+            --border-primary: #ffc2d7; 
             --border-secondary: #ffe0e7;
             --border-tertiary: #fff0f3;
             --border-danger: #ffb3c1;
@@ -267,8 +274,11 @@
             --text-dialog-file-name: var(--text-primary);
             --text-dialog-file-size: var(--text-secondary);
             --bg-dialog-button-select: var(--bg-button-action);
+            --bg-dialog-button-select-hover: var(--bg-button-action-hover);
             --bg-dialog-button-confirm: var(--bg-button-save);
+            --bg-dialog-button-confirm-hover: var(--bg-button-save-hover);
             --bg-dialog-button-cancel: var(--bg-button-cancel);
+            --bg-dialog-button-cancel-hover: var(--bg-button-cancel-hover);
 
             --bg-attachment-details: rgba(255, 230, 234, 0.5);
             --border-attachment-details: var(--border-tertiary);
@@ -279,72 +289,75 @@
             --bg-toggle-button-hover: var(--bg-button-action-hover);
             --text-toggle-button: var(--text-light);
 
-            --bg-button-gold: #ffdd77;
+            --bg-button-gold: #ffdd77; 
             --bg-button-gold-hover: #ffcc55;
             --text-button-gold: #816200;
-            --bg-button-purple: #d9a7e0;
+            --bg-button-purple: #d9a7e0; 
             --bg-button-purple-hover: #c790d0;
             --text-button-purple: #ffffff;
         }
 
         /* パステルモード🩵 (ライトブルー基調) */
         body.pastel-blue-mode {
-            --bg-primary: #f0f8ff;
-            --bg-secondary: #e0f0ff;
-            --bg-tertiary: #eaf5ff;
-            --bg-input: #ffffff;
-            --bg-user-message: #cff1ef;
-            --bg-model-message: #e0e8ff;
-            --bg-system-message: #e6f2ff;
-            --bg-error-message: #d1e9ff;
-            --bg-button: #87cefa;
-            --bg-button-hover: #70b8e8;
-            --bg-button-disabled: #b0dfff;
-            --bg-button-action: #add8e6;
+            --bg-primary: #f0f8ff; 
+            --bg-secondary: #e0f0ff; 
+            --bg-tertiary: #eaf5ff; 
+            --bg-input: #ffffff; 
+            --bg-user-message: #cff1ef; 
+            --bg-model-message: #e0e8ff; 
+            --bg-system-message: #e6f2ff; 
+            --bg-error-message: #d1e9ff; 
+            --bg-button: #87cefa; 
+            --bg-button-hover: #70b8e8; 
+            --bg-button-disabled: #b0dfff; 
+            --bg-button-action: #add8e6; 
             --bg-button-action-hover: #9ccce0;
-            --bg-button-delete: #ff7f7f;
+            --bg-button-delete: #ff7f7f; 
             --bg-button-delete-hover: #ff6a6a;
-            --bg-button-retry: #98fb98;
+            --bg-button-retry: #98fb98; 
             --bg-button-retry-hover: #82f082;
-            --bg-button-edit: #ffe082;
+            --bg-button-edit: #ffe082; 
             --bg-button-edit-hover: #ffda6b;
-            --bg-button-copy: #bca0dc;
+            --bg-button-copy: #bca0dc; 
             --bg-button-copy-hover: #ae8fcf;
-            --bg-button-paste: #a0cfd8;
+            --bg-button-paste: #a0cfd8; 
             --bg-button-paste-hover: #8ebfc9;
-            --bg-button-duplicate: #c1e1c1;
+            --bg-button-duplicate: #c1e1c1; 
             --bg-button-duplicate-hover: #add6ad;
-            --bg-button-export: #b0c4de;
+            --bg-button-export: #b0c4de; 
             --bg-button-export-hover: #a0b7d3;
-            --bg-button-save: #90ee90;
+            --bg-button-save: #90ee90; 
             --bg-button-save-hover: #78dd78;
-            --bg-button-cancel: #ff94a0;
+            --bg-button-cancel: #ff94a0; 
             --bg-button-cancel-hover: #ff808c;
-            --bg-button-update: #89cff0;
+            --bg-button-update: #89cff0; 
             --bg-button-update-hover: #70c0e0;
-            --bg-header: #87cefa;
-            --bg-message-actions: rgba(224, 240, 255, 0.85);
-            --overlay-base-rgb: 240, 248, 255;
+            --bg-header: #87cefa; 
+            --bg-message-actions: rgba(224, 240, 255, 0.85); 
+            --overlay-base-rgb: 240, 248, 255; 
             --bg-cascade-button: var(--bg-button-action);
             --bg-cascade-button-hover: var(--bg-button-action-hover);
             --bg-cascade-delete-button: var(--bg-button-delete);
             --bg-cascade-delete-button-hover: var(--bg-button-delete-hover);
             --text-cascade-indicator: var(--text-secondary);
             --bg-button-header-delete: var(--bg-button-delete);
+            --bg-button-header-delete-hover: var(--bg-button-delete-hover);
             --bg-button-header-copy: var(--bg-button-copy);
+            --bg-button-header-copy-hover: var(--bg-button-copy-hover);
             --bg-button-header-toggle-content: var(--bg-button-action);
+            --bg-button-header-toggle-content-hover: var(--bg-button-action-hover);
 
-            --text-primary: #3a5679;
-            --text-secondary: #6b87a9;
-            --text-light: #ffffff;
-            --text-disabled: #aec8e1;
-            --text-error: #a52a2a;
-            --text-link: #5f9ea0;
-            --text-placeholder: #9ab0c9;
-            --text-system: #5a7698;
+            --text-primary: #3a5679; 
+            --text-secondary: #6b87a9; 
+            --text-light: #ffffff; 
+            --text-disabled: #aec8e1; 
+            --text-error: #a52a2a; 
+            --text-link: #5f9ea0; 
+            --text-placeholder: #9ab0c9; 
+            --text-system: #5a7698; 
             --text-memo: #3a5679;
 
-            --border-primary: #b0dfff;
+            --border-primary: #b0dfff; 
             --border-secondary: #d5eaff;
             --border-tertiary: #eaf5ff;
             --border-danger: #add8e6;
@@ -358,8 +371,11 @@
             --text-dialog-file-name: var(--text-primary);
             --text-dialog-file-size: var(--text-secondary);
             --bg-dialog-button-select: var(--bg-button-action);
+            --bg-dialog-button-select-hover: var(--bg-button-action-hover);
             --bg-dialog-button-confirm: var(--bg-button-save);
+            --bg-dialog-button-confirm-hover: var(--bg-button-save-hover);
             --bg-dialog-button-cancel: var(--bg-button-cancel);
+            --bg-dialog-button-cancel-hover: var(--bg-button-cancel-hover);
 
             --bg-attachment-details: rgba(224, 240, 255, 0.5);
             --border-attachment-details: var(--border-tertiary);
@@ -370,142 +386,132 @@
             --bg-toggle-button-hover: var(--bg-button-action-hover);
             --text-toggle-button: var(--text-light);
 
-            --bg-button-gold: #ffe48c;
+            --bg-button-gold: #ffe48c; 
             --bg-button-gold-hover: #ffda70;
             --text-button-gold: #7a6200;
-            --bg-button-purple: #c1b2d7;
+            --bg-button-purple: #c1b2d7; 
             --bg-button-purple-hover: #b0a0cb;
             --text-button-purple: #ffffff;
         }
         
         /* パステルモード🟡 (イエロー基調) */
         body.pastel-yellow-mode {
-            --bg-primary: #fffbea; /* クリームイエローの背景 */
-            --bg-secondary: #fff5cc; /* やや濃いクリームイエロー */
-            --bg-tertiary: #fff9e0; /* カードなど */
+            --bg-primary: #fffefa; /* ベリーペールイエローの背景 */
+            --bg-secondary: #fffacd; /* レモンシフォン */
+            --bg-tertiary: #fff8dc; /* コーンシルク */
             --bg-input: #ffffff;
-            --bg-user-message: #fff0b3; /* パステルオレンジイエロー */
-            --bg-model-message: #ffe8cc; /* ソフトピーチ */
-            --bg-system-message: #fff7d6;
-            --bg-error-message: #ffe0b3;
-            --bg-button: #ffd966; /* 明るいパステルイエロー */
-            --bg-button-hover: #ffcf40;
-            --bg-button-disabled: #ffeeba;
-            --bg-button-action: #ffcc80; /* ソフトオレンジ */
-            --bg-button-action-hover: #ffbf66;
-            --bg-button-delete: #ff8a80; /* パステルコーラルレッド */
-            --bg-button-delete-hover: #ff726f;
-            --bg-button-retry: #c8e6c9; /* パステルグリーン */
-            --bg-button-retry-hover: #b2dfdb;
-            --bg-button-edit: #ffb74d; /* パステルオレンジ */
-            --bg-button-edit-hover: #ffa726;
-            --bg-button-copy: #ffcdd2; /* ソフトピンク */
-            --bg-button-copy-hover: #ffb2ba;
-            --bg-button-paste: #b3e5fc; /* ソフトブルー */
-            --bg-button-paste-hover: #9edcfb;
-            --bg-button-duplicate: #ffe082; /* ライトイエロー */
-            --bg-button-duplicate-hover: #ffd54f;
-            --bg-button-export: #d1c4e9; /* ソフトラベンダー */
-            --bg-button-export-hover: #b39ddb;
-            --bg-button-save: #a5d6a7; /* パステルグリーン */
-            --bg-button-save-hover: #81c784;
-            --bg-button-cancel: #ef9a9a; /* ソフトレッド */
-            --bg-button-cancel-hover: #e57373;
-            --bg-button-update: #ffab40; /* パステルアンバー */
-            --bg-button-update-hover: #ff9100;
-            --bg-header: #ffd966;
-            --bg-message-actions: rgba(255, 245, 224, 0.85);
-            --overlay-base-rgb: 255, 251, 234;
+            --bg-user-message: #fff5ba; /* ナポリイエロー */
+            --bg-model-message: #ffe4b5; /* モカシン */
+            --bg-system-message: #fffbea; /* ライトイエロー */
+            --bg-error-message: #ffebcd; /* ブランチドアーモンド */
+            --bg-button: #ffd700; /* ゴールド */
+            --bg-button-hover: #ffc700;
+            --bg-button-disabled: #fff0b3;
+            --bg-button-action: #ffec8b; /* ライトゴールデンロッドイエロー */
+            --bg-button-action-hover: #ffdf60;
+            --bg-button-delete: #ffa07a; /* ライトサーモン */
+            --bg-button-delete-hover: #ff8c69;
+            --bg-button-retry: #b0e57c; /* ペールライムグリーン */
+            --bg-button-retry-hover: #9acd32; /* やや濃いライムグリーン */
+            --bg-button-edit: #ffa500; /* オレンジ */
+            --bg-button-edit-hover: #ff8c00; /* ダークオレンジ */
+            --bg-button-copy: #ffb6c1; /* ライトピンク (アクセント) */
+            --bg-button-copy-hover: #ffaab5;
+            --bg-button-paste: #add8e6; /* ライトブルー (アクセント) */
+            --bg-button-paste-hover: #9ccce0;
+            --bg-button-duplicate: #f0e68c; /* カーキ */
+            --bg-button-duplicate-hover: #eadc67;
+            --bg-button-export: #fff0b3; /* ペールゴールデンロッド */
+            --bg-button-export-hover: #ffe78a;
+            --bg-button-save: #98fb98; /* ペールグリーン */
+            --bg-button-save-hover: #82f082;
+            --bg-button-cancel: #ffdab9; /* ピーチパフ */
+            --bg-button-cancel-hover: #ffceaa;
+            --bg-button-update: #ffcc5c; /* ゴールデンイエロー */
+            --bg-button-update-hover: #ffbf40;
+            --bg-header: #ffd700;
+            --bg-message-actions: rgba(255, 250, 205, 0.85); /* レモンシフォン半透明 */
+            --overlay-base-rgb: 255, 254, 250;
             --bg-cascade-button: var(--bg-button-action);
             --bg-cascade-button-hover: var(--bg-button-action-hover);
             --bg-cascade-delete-button: var(--bg-button-delete);
             --bg-cascade-delete-button-hover: var(--bg-button-delete-hover);
             --text-cascade-indicator: var(--text-secondary);
             --bg-button-header-delete: var(--bg-button-delete);
+            --bg-button-header-delete-hover: var(--bg-button-delete-hover);
             --bg-button-header-copy: var(--bg-button-copy);
+            --bg-button-header-copy-hover: var(--bg-button-copy-hover);
             --bg-button-header-toggle-content: var(--bg-button-action);
+            --bg-button-header-toggle-content-hover: var(--bg-button-action-hover);
 
-            --text-primary: #795548; /* ブラウン */
-            --text-secondary: #a1887f; /* ライトブラウン */
-            --text-light: #424242; /* イエロー背景なので濃いめの文字 */
-            --text-disabled: #d7ccc8; /* ブラウン系無効テキスト */
-            --text-error: #b71c1c; /* 濃い赤 */
+            --text-primary: #5d4037; /* ダークブラウン */
+            --text-secondary: #8d6e63; /* ライトブラウン */
+            --text-light: #424242; /* ボタン上の濃いテキスト */
+            --text-disabled: #bcaaa4; 
+            --text-error: #b71c1c; /* ダークレッド */
             --text-link: #ff8f00; /* アンバー */
-            --text-placeholder: #bcaaa4;
-            --text-system: #8d6e63;
-            --text-memo: #795548;
+            --text-placeholder: #a1887f; 
+            --text-system: #795548; /* ブラウン */
+            --text-memo: #5d4037;
 
-            --border-primary: #ffe0b2;
-            --border-secondary: #fff0cc;
-            --border-tertiary: #fff9e0;
-            --border-danger: #ffccbc;
-            --border-system: #ffeacc;
+            --border-primary: #fff0b3; 
+            --border-secondary: #fff5ba;
+            --border-tertiary: #fffacd;
+            --border-danger: #ffcc80; /* ペールオレンジ */
+            --border-system: #fff9c4; /* ライトイエローボーダー */
 
             --shadow-primary: rgba(200, 180, 130, 0.1);
             --shadow-secondary: rgba(200, 180, 130, 0.1);
 
-            --bg-dialog-file-item: var(--bg-tertiary);
-            --border-dialog-file-item: var(--border-secondary);
-            --text-dialog-file-name: var(--text-primary);
-            --text-dialog-file-size: var(--text-secondary);
-            --bg-dialog-button-select: var(--bg-button-action);
-            --bg-dialog-button-confirm: var(--bg-button-save);
-            --bg-dialog-button-cancel: var(--bg-button-cancel);
-
-            --bg-attachment-details: rgba(255, 245, 224, 0.5);
-            --border-attachment-details: var(--border-tertiary);
-            --text-attachment-summary: var(--text-secondary);
-            --text-attachment-filename: var(--text-primary);
-
             --bg-toggle-button: var(--bg-button-action);
             --bg-toggle-button-hover: var(--bg-button-action-hover);
-            --text-toggle-button: var(--text-light);
+            --text-toggle-button: var(--text-light); /* ボタン背景が明るいので濃いテキスト */
 
-            --bg-button-gold: #ffecb3; /* より淡いゴールド */
-            --bg-button-gold-hover: #ffe082;
-            --text-button-gold: #795548;
-            --bg-button-purple: #e1bee7; /* ソフトピンクパープル */
-            --bg-button-purple-hover: #ce93d8;
-            --text-button-purple: #4a148c;
+            --bg-button-gold: var(--bg-button);
+            --bg-button-gold-hover: var(--bg-button-hover);
+            --text-button-gold: var(--text-light);
+            --bg-button-purple: #e6e6fa; /* ラベンダー (アクセント) */
+            --bg-button-purple-hover: #d8bfd8; /* シスル */
+            --text-button-purple: #4b0082; /* インディゴ */
         }
 
         /* パステルモード🟣 (パープル基調) */
         body.pastel-purple-mode {
-            --bg-primary: #f3e5f5; /* ラベンダー背景 */
-            --bg-secondary: #e1bee7; /* やや濃いラベンダー */
-            --bg-tertiary: #ede7f6; /* カードなど */
+            --bg-primary: #f3e5f5; /* ライトパープル */
+            --bg-secondary: #e1bee7; /* ペールパープル */
+            --bg-tertiary: #ede7f6; /* ラベンダードリーム */
             --bg-input: #ffffff;
-            --bg-user-message: #d1c4e9; /* ソフトライラック */
-            --bg-model-message: #c5cae9; /* ソフトインディゴブルー */
-            --bg-system-message: #e8eaf6;
-            --bg-error-message: #ffcdd2; /* ソフトピンク（エラー用）*/
-            --bg-button: #ba68c8; /* ミディアムパープル */
-            --bg-button-hover: #ab47bc;
-            --bg-button-disabled: #e6ceff;
-            --bg-button-action: #ce93d8; /* ライトパープル */
-            --bg-button-action-hover: #b39ddb;
-            --bg-button-delete: #ef9a9a; /* ソフトレッド */
-            --bg-button-delete-hover: #e57373;
-            --bg-button-retry: #a5d6a7; /* パステルグリーン */
-            --bg-button-retry-hover: #81c784;
-            --bg-button-edit: #ffcc80; /* ソフトオレンジ */
-            --bg-button-edit-hover: #ffb74d;
-            --bg-button-copy: #b2dfdb; /* ソフトミント */
-            --bg-button-copy-hover: #80cbc4;
-            --bg-button-paste: #bbdefb; /* ソフトスカイブルー */
-            --bg-button-paste-hover: #90caf9;
-            --bg-button-duplicate: #cfd8dc; /* ブルーグレー */
-            --bg-button-duplicate-hover: #b0bec5;
-            --bg-button-export: #9fa8da; /* ソフトインディゴ */
-            --bg-button-export-hover: #7986cb;
-            --bg-button-save: #c8e6c9; /* パステルグリーン */
-            --bg-button-save-hover: #a5d6a7;
-            --bg-button-cancel: #f48fb1; /* ソフトピンク */
-            --bg-button-cancel-hover: #f06292;
-            --bg-button-update: #9575cd; /* ディープパープル */
-            --bg-button-update-hover: #7e57c2;
-            --bg-header: #ba68c8;
-            --bg-message-actions: rgba(237, 231, 246, 0.85);
+            --bg-user-message: #d1c4e9; /* ディープパープルライト */
+            --bg-model-message: #c5cae9; /* インディゴライト */
+            --bg-system-message: #f3e8fd; /* ベリーライトパープル */
+            --bg-error-message: #f8bbd0; /* ピンクライト */
+            --bg-button: #ab47bc; /* パープル */
+            --bg-button-hover: #9c27b0; /* ディープパープル */
+            --bg-button-disabled: #ce93d8; /* ライトパープル */
+            --bg-button-action: #ba68c8; /* ミディアムパープル */
+            --bg-button-action-hover: #a54eb4;
+            --bg-button-delete: #ec407a; /* ピンク */
+            --bg-button-delete-hover: #d81b60; /* ディープピンク */
+            --bg-button-retry: #81c784; /* グリーンライト (アクセント) */
+            --bg-button-retry-hover: #66bb6a; /* グリーン */
+            --bg-button-edit: #ffb74d; /* オレンジライト (アクセント) */
+            --bg-button-edit-hover: #ffa726; /* オレンジ */
+            --bg-button-copy: #7e57c2; /* ディープパープル */
+            --bg-button-copy-hover: #673ab7; /* インディゴ */
+            --bg-button-paste: #64b5f6; /* ブルーライト (アクセント) */
+            --bg-button-paste-hover: #42a5f5; /* ブルー */
+            --bg-button-duplicate: #9575cd; /* ディープパープルライト */
+            --bg-button-duplicate-hover: #7e57c2; /* ディープパープル */
+            --bg-button-export: #b39ddb; /* パープルライト */
+            --bg-button-export-hover: #9d80cf;
+            --bg-button-save: #a5d6a7; /* グリーンベリーライト */
+            --bg-button-save-hover: #81c784; /* グリーンライト */
+            --bg-button-cancel: #ef9a9a; /* レッドライト */
+            --bg-button-cancel-hover: #e57373; /* レッド */
+            --bg-button-update: #7986cb; /* インディゴライト */
+            --bg-button-update-hover: #5c6bc0; /* インディゴ */
+            --bg-header: #ab47bc;
+            --bg-message-actions: rgba(225, 190, 231, 0.85); /* ペールパープル半透明 */
             --overlay-base-rgb: 243, 229, 245;
             --bg-cascade-button: var(--bg-button-action);
             --bg-cascade-button-hover: var(--bg-button-action-hover);
@@ -513,53 +519,44 @@
             --bg-cascade-delete-button-hover: var(--bg-button-delete-hover);
             --text-cascade-indicator: var(--text-secondary);
             --bg-button-header-delete: var(--bg-button-delete);
+            --bg-button-header-delete-hover: var(--bg-button-delete-hover);
             --bg-button-header-copy: var(--bg-button-copy);
+            --bg-button-header-copy-hover: var(--bg-button-copy-hover);
             --bg-button-header-toggle-content: var(--bg-button-action);
+            --bg-button-header-toggle-content-hover: var(--bg-button-action-hover);
 
-            --text-primary: #4a148c; /* ディープパープル */
-            --text-secondary: #7b1fa2; /* ミディアムパープル */
-            --text-light: #ffffff;
-            --text-disabled: #d1b3e0; /* パープル系無効テキスト */
-            --text-error: #b71c1c;
-            --text-link: #8e24aa; /* パープル */
-            --text-placeholder: #b39ddb;
-            --text-system: #6a1b9a;
+            --text-primary: #4a148c; /* ディープパープルテキスト */
+            --text-secondary: #6a1b9a; /* パープルテキスト */
+            --text-light: #ffffff; 
+            --text-disabled: #b39ddb; 
+            --text-error: #c2185b; /* ディープピンクエラー */
+            --text-link: #7b1fa2; /* パープルリンク */
+            --text-placeholder: #9078a0; 
+            --text-system: #6a1b9a; 
             --text-memo: #4a148c;
 
-            --border-primary: #d1c4e9;
+            --border-primary: #ce93d8; 
             --border-secondary: #e1bee7;
-            --border-tertiary: #ede7f6;
-            --border-danger: #f8bbd0;
-            --border-system: #d1c4e9;
+            --border-tertiary: #f3e5f5;
+            --border-danger: #f48fb1; /* ライトピンクボーダー */
+            --border-system: #d1c4e9; /* ラベンダーボーダー */
 
-            --shadow-primary: rgba(180, 150, 200, 0.1);
-            --shadow-secondary: rgba(180, 150, 200, 0.1);
-
-            --bg-dialog-file-item: var(--bg-tertiary);
-            --border-dialog-file-item: var(--border-secondary);
-            --text-dialog-file-name: var(--text-primary);
-            --text-dialog-file-size: var(--text-secondary);
-            --bg-dialog-button-select: var(--bg-button-action);
-            --bg-dialog-button-confirm: var(--bg-button-save);
-            --bg-dialog-button-cancel: var(--bg-button-cancel);
-
-            --bg-attachment-details: rgba(237, 231, 246, 0.5);
-            --border-attachment-details: var(--border-tertiary);
-            --text-attachment-summary: var(--text-secondary);
-            --text-attachment-filename: var(--text-primary);
+            --shadow-primary: rgba(170, 150, 200, 0.1);
+            --shadow-secondary: rgba(170, 150, 200, 0.1);
 
             --bg-toggle-button: var(--bg-button-action);
             --bg-toggle-button-hover: var(--bg-button-action-hover);
             --text-toggle-button: var(--text-light);
 
-            --bg-button-gold: #fff176; /* パステルイエロー（アクセント） */
-            --bg-button-gold-hover: #ffeb3b;
-            --text-button-gold: #4a148c;
-            --bg-button-purple: #ab47bc; /* 明るめのパープル */
-            --bg-button-purple-hover: #9c27b0;
-            --text-button-purple: #ffffff;
+            --bg-button-gold: #ffee58; /* ライム (アクセント) */
+            --bg-button-gold-hover: #fdd835; /* イエロー */
+            --text-button-gold: #424242;
+            --bg-button-purple: var(--bg-button);
+            --bg-button-purple-hover: var(--bg-button-hover);
+            --text-button-purple: var(--text-light);
         }
 
+        /* 以下、共通のスタイルや詳細な要素のスタイルは変更なしなので省略しません */
         * {
             margin: 0;
             padding: 0;
@@ -725,22 +722,20 @@
         .history-action-button.purple:hover:not(:disabled) {
             background-color: var(--bg-button-purple-hover);
         }
-        /* ダークモード時の全取込・全出力ボタンの色を body.dark-mode で明示的に指定 */
         body.dark-mode .history-action-button.gold {
-            background-color: var(--bg-button-gold); /* ダークモード用の値が使われる */
+            background-color: var(--bg-button-gold);
             color: var(--text-button-gold);
         }
         body.dark-mode .history-action-button.gold:hover:not(:disabled) {
             background-color: var(--bg-button-gold-hover);
         }
         body.dark-mode .history-action-button.purple {
-            background-color: var(--bg-button-purple); /* ダークモード用の値が使われる */
+            background-color: var(--bg-button-purple);
             color: var(--text-button-purple);
         }
         body.dark-mode .history-action-button.purple:hover:not(:disabled) {
             background-color: var(--bg-button-purple-hover);
         }
-        /* パステルテーマではそれぞれのテーマ変数を使用 */
         body.pastel-pink-mode .history-action-button.gold,
         body.pastel-blue-mode .history-action-button.gold,
         body.pastel-yellow-mode .history-action-button.gold,
@@ -767,7 +762,6 @@
         body.pastel-purple-mode .history-action-button.purple:hover:not(:disabled) {
             background-color: var(--bg-button-purple-hover);
         }
-
 
         .header-save-button {
             padding: 4px 12px;
@@ -807,6 +801,17 @@
             color: var(--text-light); 
             opacity: 0.9;
         }
+        /* パステルイエローモードでヘッダーボタンテキストが暗い場合 */
+        body.pastel-yellow-mode .header-button,
+        body.pastel-yellow-mode .header-notice {
+            color: #424242; /* --text-light と同じ */
+        }
+        body.pastel-yellow-mode .new-chat-button,
+        body.pastel-yellow-mode .app-header .action-button-in-header,
+        body.pastel-yellow-mode .header-save-button {
+            color: #424242;
+        }
+
 
         .new-chat-button {
             font-size: 14px;
@@ -1161,40 +1166,40 @@
             pointer-events: none;
         }
         body:not(.dark-mode):not(.pastel-pink-mode):not(.pastel-blue-mode):not(.pastel-yellow-mode):not(.pastel-purple-mode) .message.user .message-content.collapsed::after {
-             background: linear-gradient(to bottom, rgba(var(--overlay-base-rgb),0) 0%, var(--bg-user-message) 100%);
+             background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, var(--bg-user-message) 100%);
         }
         body:not(.dark-mode):not(.pastel-pink-mode):not(.pastel-blue-mode):not(.pastel-yellow-mode):not(.pastel-purple-mode) .message.model .message-content.collapsed::after {
-             background: linear-gradient(to bottom, rgba(var(--overlay-base-rgb),0) 0%, var(--bg-model-message) 100%);
+             background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, var(--bg-model-message) 100%);
         }
         body.dark-mode .message.user .message-content.collapsed::after {
-             background: linear-gradient(to bottom, rgba(var(--overlay-base-rgb),0) 0%, var(--bg-user-message) 100%);
+             background: linear-gradient(to bottom, rgba(30,30,30,0) 0%, var(--bg-user-message) 100%); 
         }
         body.dark-mode .message.model .message-content.collapsed::after {
-             background: linear-gradient(to bottom, rgba(var(--overlay-base-rgb),0) 0%, var(--bg-model-message) 100%);
+             background: linear-gradient(to bottom, rgba(30,30,30,0) 0%, var(--bg-model-message) 100%); 
         }
         body.pastel-pink-mode .message.user .message-content.collapsed::after {
-            background: linear-gradient(to bottom, rgba(var(--overlay-base-rgb),0) 0%, var(--bg-user-message) 100%);
+            background: linear-gradient(to bottom, rgba(255,245,248,0) 0%, var(--bg-user-message) 100%); 
         }
         body.pastel-pink-mode .message.model .message-content.collapsed::after {
-            background: linear-gradient(to bottom, rgba(var(--overlay-base-rgb),0) 0%, var(--bg-model-message) 100%);
+            background: linear-gradient(to bottom, rgba(255,245,248,0) 0%, var(--bg-model-message) 100%); 
         }
         body.pastel-blue-mode .message.user .message-content.collapsed::after {
-            background: linear-gradient(to bottom, rgba(var(--overlay-base-rgb),0) 0%, var(--bg-user-message) 100%);
+            background: linear-gradient(to bottom, rgba(240,248,255,0) 0%, var(--bg-user-message) 100%); 
         }
         body.pastel-blue-mode .message.model .message-content.collapsed::after {
-            background: linear-gradient(to bottom, rgba(var(--overlay-base-rgb),0) 0%, var(--bg-model-message) 100%);
+            background: linear-gradient(to bottom, rgba(240,248,255,0) 0%, var(--bg-model-message) 100%); 
         }
         body.pastel-yellow-mode .message.user .message-content.collapsed::after {
-            background: linear-gradient(to bottom, rgba(var(--overlay-base-rgb),0) 0%, var(--bg-user-message) 100%);
+            background: linear-gradient(to bottom, rgba(255,254,250,0) 0%, var(--bg-user-message) 100%); 
         }
         body.pastel-yellow-mode .message.model .message-content.collapsed::after {
-            background: linear-gradient(to bottom, rgba(var(--overlay-base-rgb),0) 0%, var(--bg-model-message) 100%);
+            background: linear-gradient(to bottom, rgba(255,254,250,0) 0%, var(--bg-model-message) 100%); 
         }
         body.pastel-purple-mode .message.user .message-content.collapsed::after {
-            background: linear-gradient(to bottom, rgba(var(--overlay-base-rgb),0) 0%, var(--bg-user-message) 100%);
+            background: linear-gradient(to bottom, rgba(243,229,245,0) 0%, var(--bg-user-message) 100%); 
         }
         body.pastel-purple-mode .message.model .message-content.collapsed::after {
-            background: linear-gradient(to bottom, rgba(var(--overlay-base-rgb),0) 0%, var(--bg-model-message) 100%);
+            background: linear-gradient(to bottom, rgba(243,229,245,0) 0%, var(--bg-model-message) 100%); 
         }
 
 
@@ -1450,7 +1455,7 @@
         body.pastel-blue-mode .chat-input-area button#send-button.sending,
         body.pastel-yellow-mode .chat-input-area button#send-button.sending,
         body.pastel-purple-mode .chat-input-area button#send-button.sending {
-            background-color: #ffee88;
+            background-color: #ffee88; 
             color: #554400;
         }
         body.pastel-pink-mode .chat-input-area button#send-button.sending:hover,
@@ -1657,7 +1662,7 @@
         }
         .param-grid {
             display: grid;
-                        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             gap: 15px;
         }
 
@@ -1703,8 +1708,7 @@
 
         @media (prefers-color-scheme: dark) {
           body:not(.light-mode-forced):not(.pastel-pink-mode):not(.pastel-blue-mode):not(.pastel-yellow-mode):not(.pastel-purple-mode) {
-            /* JavaScriptで明示的にテーマが設定されていない場合のOSダークモードの初期フォールバック */
-            /* body.dark-mode で詳細なスタイルが定義されているため、ここでは最小限でOK */
+            /* OS設定ダークモード時のフォールバック */
             --bg-primary: #1a1a1a;
             --text-primary: #e0e0e0;
           }
@@ -1872,7 +1876,7 @@
         body.pastel-blue-mode .message-content pre,
         body.pastel-yellow-mode .message-content pre,
         body.pastel-purple-mode .message-content pre {
-            background-color: var(--bg-tertiary);
+            background-color: var(--bg-tertiary); 
             border-color: var(--border-secondary);
             color: var(--text-secondary);
         }
@@ -1895,7 +1899,7 @@
         body.pastel-blue-mode .message-content th,
         body.pastel-yellow-mode .message-content th,
         body.pastel-purple-mode .message-content th {
-            background-color: var(--bg-secondary);
+            background-color: var(--bg-secondary); 
         }
 
 
@@ -1938,7 +1942,7 @@
         body.pastel-blue-mode .custom-dialog::backdrop,
         body.pastel-yellow-mode .custom-dialog::backdrop,
         body.pastel-purple-mode .custom-dialog::backdrop {
-            background-color: rgba(var(--overlay-base-rgb), 0.4);
+            background-color: rgba(var(--overlay-base-rgb), 0.4); 
         }
 
         .custom-dialog[open] {
@@ -2611,47 +2615,47 @@
         const DARK_THEME_COLOR = '#007aff';
         const PASTEL_PINK_THEME_COLOR = '#ff8fab';
         const PASTEL_BLUE_THEME_COLOR = '#87cefa';
-        const PASTEL_YELLOW_THEME_COLOR = '#ffd966';
-        const PASTEL_PURPLE_THEME_COLOR = '#ba68c8';
+        const PASTEL_YELLOW_THEME_COLOR = '#ffd700';
+        const PASTEL_PURPLE_THEME_COLOR = '#ab47bc';
 
-        const LIGHT_MODE_USER_MESSAGE_COLOR = '#dcf8c6';
-        const LIGHT_MODE_MODEL_MESSAGE_COLOR = '#e5e5ea';
-        const LIGHT_MODE_SECONDARY_COLOR = '#f0f2f5';
-        const LIGHT_MODE_HEADER_COLOR = LIGHT_THEME_COLOR;
-        const LIGHT_MODE_PRIMARY_COLOR = '#ffffff';
 
         const DARK_MODE_USER_MESSAGE_COLOR = '#056162';
         const DARK_MODE_MODEL_MESSAGE_COLOR = '#3a3a3c';
         const DARK_MODE_SECONDARY_COLOR = '#101010';
-        const DARK_MODE_HEADER_COLOR = DARK_THEME_COLOR;
-        const DARK_MODE_PRIMARY_COLOR = '#1a1a1a';
+        const DARK_MODE_PRIMARY_COLOR = '#1a1a1a'; 
 
         const PASTEL_PINK_USER_MESSAGE_COLOR = '#ffddee';
         const PASTEL_PINK_MODEL_MESSAGE_COLOR = '#f3e8ff';
         const PASTEL_PINK_SECONDARY_COLOR = '#ffe6ea';
-        const PASTEL_PINK_HEADER_COLOR = PASTEL_PINK_THEME_COLOR;
-        const PASTEL_PINK_PRIMARY_COLOR = '#fff5f8';
+        const PASTEL_PINK_HEADER_COLOR = '#ff8fab';
+        const PASTEL_PINK_PRIMARY_COLOR = '#fff5f8'; 
 
         const PASTEL_BLUE_USER_MESSAGE_COLOR = '#cff1ef';
         const PASTEL_BLUE_MODEL_MESSAGE_COLOR = '#e0e8ff';
         const PASTEL_BLUE_SECONDARY_COLOR = '#e0f0ff';
-        const PASTEL_BLUE_HEADER_COLOR = PASTEL_BLUE_THEME_COLOR;
-        const PASTEL_BLUE_PRIMARY_COLOR = '#f0f8ff';
+        const PASTEL_BLUE_HEADER_COLOR = '#87cefa';
+        const PASTEL_BLUE_PRIMARY_COLOR = '#f0f8ff'; 
 
-        const PASTEL_YELLOW_USER_MESSAGE_COLOR = '#fff0b3';
-        const PASTEL_YELLOW_MODEL_MESSAGE_COLOR = '#ffe8cc';
-        const PASTEL_YELLOW_SECONDARY_COLOR = '#fff5cc';
-        const PASTEL_YELLOW_HEADER_COLOR = PASTEL_YELLOW_THEME_COLOR;
-        const PASTEL_YELLOW_PRIMARY_COLOR = '#fffbea';
+        const PASTEL_YELLOW_USER_MESSAGE_COLOR = '#fff5ba';
+        const PASTEL_YELLOW_MODEL_MESSAGE_COLOR = '#ffe4b5';
+        const PASTEL_YELLOW_SECONDARY_COLOR = '#fffacd';
+        const PASTEL_YELLOW_HEADER_COLOR = '#ffd700';
+        const PASTEL_YELLOW_PRIMARY_COLOR = '#fffefa';
 
         const PASTEL_PURPLE_USER_MESSAGE_COLOR = '#d1c4e9';
         const PASTEL_PURPLE_MODEL_MESSAGE_COLOR = '#c5cae9';
         const PASTEL_PURPLE_SECONDARY_COLOR = '#e1bee7';
-        const PASTEL_PURPLE_HEADER_COLOR = PASTEL_PURPLE_THEME_COLOR;
+        const PASTEL_PURPLE_HEADER_COLOR = '#ab47bc';
         const PASTEL_PURPLE_PRIMARY_COLOR = '#f3e5f5';
 
+        const LIGHT_MODE_USER_MESSAGE_COLOR = '#dcf8c6';
+        const LIGHT_MODE_MODEL_MESSAGE_COLOR = '#e5e5ea';
+        const LIGHT_MODE_SECONDARY_COLOR = '#f0f2f5';
+        const LIGHT_MODE_HEADER_COLOR = '#4a90e2';
+        const LIGHT_MODE_PRIMARY_COLOR = '#ffffff'; 
 
-        const APP_VERSION = "0.25"; // バージョンを0.25に戻す
+
+        const APP_VERSION = "0.25"; // バージョンを0.25に修正
         const SWIPE_THRESHOLD = 50;
         const ZOOM_THRESHOLD = 1.01;
         const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -2803,7 +2807,7 @@
                 pseudoStreaming: false,
                 enterToSend: true,
                 historySortOrder: 'updatedAt',
-                theme: 'light', 
+                theme: 'light', // 'light', 'dark', 'pastel-pink', 'pastel-blue', 'pastel-yellow', 'pastel-purple'
                 backgroundImageBlob: null,
                 fontFamily: '',
                 hideSystemPromptInChat: false,
@@ -2840,72 +2844,6 @@
             areAllMessagesHidden: false,
             messageCollapsedStates: new Map(),
         };
-
-        // ... (以前の dbUtils, uiUtils, appLogic, apiUtils の関数群はここにそのままペースト) ...
-        // uiUtils.applyOpacitySettings と uiUtils.applyTheme は修正済みのものを想定
-        // JavaScript の theme 関連の配列にも新しいテーマ値を追加
-        // 例: dbUtils.loadSettings 内の ['light', 'dark', 'pastel-pink', 'pastel-blue'] を
-        //    ['light', 'dark', 'pastel-pink', 'pastel-blue', 'pastel-yellow', 'pastel-purple'] に変更
-
-        // dbUtils.loadSettings のテーマバリデーションを修正
-        // request.onsuccess 内の theme の処理
-        // if (key === 'theme') {
-        //    if (['light', 'dark', 'pastel-pink', 'pastel-blue', 'pastel-yellow', 'pastel-purple'].includes(loadedSettings[key])) {
-        //        state.settings[key] = loadedSettings[key];
-        //    } else {
-        //        state.settings[key] = defaultSettings[key]; // 不正な値ならデフォルト
-        //    }
-        // }
-        // ... OS設定による初期テーマ設定の調整部分も同様に修正 ...
-        // if (!['light', 'dark', 'pastel-pink', 'pastel-blue', 'pastel-yellow', 'pastel-purple'].includes(state.settings.theme)) {
-        //    state.settings.theme = window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        // }
-
-
-        // uiUtils.applyTheme の switch case を修正
-        // switch (theme) {
-        //     case 'dark': /* ... */ break;
-        //     case 'pastel-pink': /* ... */ break;
-        //     case 'pastel-blue': /* ... */ break;
-        //     case 'pastel-yellow':
-        //         document.body.classList.add('pastel-yellow-mode');
-        //         themeColorMetaValue = PASTEL_YELLOW_THEME_COLOR;
-        //         break;
-        //     case 'pastel-purple':
-        //         document.body.classList.add('pastel-purple-mode');
-        //         themeColorMetaValue = PASTEL_PURPLE_THEME_COLOR;
-        //         break;
-        //     /* ... default ... */
-        // }
-
-
-        // uiUtils.applyOpacitySettings の switch case を修正
-        // switch (state.settings.theme) {
-        //     case 'dark': /* ... */ break;
-        //     case 'pastel-pink': /* ... */ break;
-        //     case 'pastel-blue': /* ... */ break;
-        //     case 'pastel-yellow':
-        //         headerColor = PASTEL_YELLOW_HEADER_COLOR;
-        //         secondaryColor = PASTEL_YELLOW_SECONDARY_COLOR;
-        //         userMessageColor = PASTEL_YELLOW_USER_MESSAGE_COLOR;
-        //         modelMessageColor = PASTEL_YELLOW_MODEL_MESSAGE_COLOR;
-        //         overlayBaseColor = PASTEL_YELLOW_PRIMARY_COLOR;
-        //         break;
-        //     case 'pastel-purple':
-        //         headerColor = PASTEL_PURPLE_HEADER_COLOR;
-        //         secondaryColor = PASTEL_PURPLE_SECONDARY_COLOR;
-        //         userMessageColor = PASTEL_PURPLE_USER_MESSAGE_COLOR;
-        //         modelMessageColor = PASTEL_PURPLE_MODEL_MESSAGE_COLOR;
-        //         overlayBaseColor = PASTEL_PURPLE_PRIMARY_COLOR;
-        //         break;
-        //     /* ... default ... */
-        // }
-        
-        // 以下、以前提示したJavaScriptコードの残りをそのまま記述
-        // ただし、上記のコメントアウト部分で示したように、テーマ関連の配列やswitch caseは
-        // 新しいパステルテーマ🟡🟣に対応するように修正する必要があります。
-        // (文字数制限のため、ここでは完全なJSの再展開は省略しますが、
-        //  修正ポイントは上記コメントの通りです)
 
         function updateMessageMaxWidthVar() {
             const container = elements.messageContainer;
@@ -3052,7 +2990,7 @@
                                          state.settings[key] = null;
                                     }
                                 } else if (key === 'theme') {
-                                    if (['light', 'dark', 'pastel-pink', 'pastel-blue', 'pastel-yellow', 'pastel-purple'].includes(loadedValue)) { // 新テーマ追加
+                                    if (['light', 'dark', 'pastel-pink', 'pastel-blue', 'pastel-yellow', 'pastel-purple'].includes(loadedValue)) { //テーマ追加
                                         state.settings[key] = loadedValue;
                                     } else {
                                         state.settings[key] = defaultValue; 
@@ -3090,7 +3028,7 @@
                                 }
                             }
                         }
-                        if (!['light', 'dark', 'pastel-pink', 'pastel-blue', 'pastel-yellow', 'pastel-purple'].includes(state.settings.theme)) { // 新テーマ追加
+                        if (!['light', 'dark', 'pastel-pink', 'pastel-blue', 'pastel-yellow', 'pastel-purple'].includes(state.settings.theme)) { //テーマ追加
                             state.settings.theme = window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
                         }
                         resolve(state.settings);
@@ -3098,7 +3036,6 @@
                     request.onerror = (event) => reject(`設定読み込みエラー: ${event.target.error}`);
                 });
             },
-            // ... (dbUtils の残りの関数は変更なし) ...
             async saveChat(optionalTitle = null) {
                 await this.openDB();
                 if ((!state.currentMessages || state.currentMessages.length === 0) && !state.currentSystemPrompt) {
@@ -3263,8 +3200,8 @@
                 });
             }
         };
+
         const uiUtils = {
-            // ... (uiUtils の appendMessage, updateStreamingMessage, finalizeStreamingMessage, displayError, scrollToBottom, updateChatTitle, formatDate, renderHistoryList, revokeExistingObjectUrl, updateBackgroundSettingsUI, applyMemoSettingsToUI は変更なし) ...
             renderChatMessages(maintainScroll = false) {
                 const mainContent = elements.chatScreen.querySelector('.main-content');
                 const oldScrollTop = maintainScroll ? mainContent.scrollTop : null;
@@ -3777,7 +3714,7 @@
 
                 switch (state.settings.theme) {
                     case 'dark':
-                        headerColor = DARK_MODE_HEADER_COLOR;
+                        headerColor = DARK_THEME_COLOR;
                         secondaryColor = DARK_MODE_SECONDARY_COLOR;
                         userMessageColor = DARK_MODE_USER_MESSAGE_COLOR;
                         modelMessageColor = DARK_MODE_MODEL_MESSAGE_COLOR;
@@ -3797,14 +3734,14 @@
                         modelMessageColor = PASTEL_BLUE_MODEL_MESSAGE_COLOR;
                         overlayBaseColor = PASTEL_BLUE_PRIMARY_COLOR;
                         break;
-                    case 'pastel-yellow': // 新テーマ
+                    case 'pastel-yellow':
                         headerColor = PASTEL_YELLOW_HEADER_COLOR;
                         secondaryColor = PASTEL_YELLOW_SECONDARY_COLOR;
                         userMessageColor = PASTEL_YELLOW_USER_MESSAGE_COLOR;
                         modelMessageColor = PASTEL_YELLOW_MODEL_MESSAGE_COLOR;
                         overlayBaseColor = PASTEL_YELLOW_PRIMARY_COLOR;
                         break;
-                    case 'pastel-purple': // 新テーマ
+                    case 'pastel-purple':
                         headerColor = PASTEL_PURPLE_HEADER_COLOR;
                         secondaryColor = PASTEL_PURPLE_SECONDARY_COLOR;
                         userMessageColor = PASTEL_PURPLE_USER_MESSAGE_COLOR;
@@ -3813,7 +3750,7 @@
                         break;
                     case 'light':
                     default:
-                        headerColor = LIGHT_MODE_HEADER_COLOR;
+                        headerColor = LIGHT_THEME_COLOR;
                         secondaryColor = LIGHT_MODE_SECONDARY_COLOR;
                         userMessageColor = LIGHT_MODE_USER_MESSAGE_COLOR;
                         modelMessageColor = LIGHT_MODE_MODEL_MESSAGE_COLOR;
@@ -3843,6 +3780,7 @@
                 }
             },
             hexToRgb(hex) {
+                if (typeof hex !== 'string') return null;
                 const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
                 return result ? {
                     r: parseInt(result[1], 16),
@@ -3941,7 +3879,6 @@
                 this.toggleSystemPromptVisibility();
                 this.applyMemoSettingsToUI();
             },
-            // ... (uiUtils の残りの関数は変更なし) ...
             updateChatScreenHeaderButtonVisibility() {
                 if (elements.deleteSessionBtn) {
                     elements.deleteSessionBtn.classList.toggle('hidden', !state.settings.showDeleteSessionButton);
@@ -4241,16 +4178,13 @@
         };
 
         const appLogic = {
-            // ... (initializeApp, setupEventListeners, handlePopState, updateZoomState, handleTouchStart, handleTouchMove, handleTouchEnd, resetSwipeState, toggleMemo, copyMemoText, pasteIntoMemo, confirmClearMemo, confirmStartNewChat, startNewChat, loadChat, duplicateChat, exportChat, confirmDeleteCurrentSession, deleteCurrentSession, copyCurrentSessionText, confirmDeleteChat, editHistoryTitle, typeCharacterByCharacter はほぼ変更なし) ...
-            // ただし、initializeApp 内の appVersionSpan の設定は APP_VERSION (0.25) を参照するように
-            // saveSettings, confirmClearAllData 内の theme のバリデーションやデフォルト値設定も新しいテーマを含むように
-            initializeApp() {
+            async initializeApp() {
                 if (typeof marked !== 'undefined') {
                     marked.setOptions({
                         breaks: true, gfm: true, sanitize: true, smartypants: false
                     });
                 }
-                elements.appVersionSpan.textContent = APP_VERSION; // 0.25
+                elements.appVersionSpan.textContent = APP_VERSION;
                 window.addEventListener('beforeinstallprompt', (event) => {
                     event.preventDefault();
                 });
@@ -4258,7 +4192,7 @@
                 registerServiceWorker();
                 try {
                     await dbUtils.openDB();
-                    await dbUtils.loadSettings(); // ここで新しいテーマも読み込まれる
+                    await dbUtils.loadSettings();
                     uiUtils.applyTheme(); 
                     uiUtils.applyFontFamily();
                     uiUtils.applyMemoSettingsToUI();
@@ -4274,7 +4208,7 @@
                     } else {
                         document.documentElement.style.setProperty('--chat-background-image', 'none');
                     }
-                    uiUtils.applySettingsToUI();
+                    uiUtils.applySettingsToUI(); 
                     const chats = await dbUtils.getAllChats(state.settings.historySortOrder);
                     if (chats && chats.length > 0) {
                         await this.loadChat(chats[0].id);
@@ -4828,7 +4762,7 @@
                 if (state.isEditingSystemPrompt) { const conf = await uiUtils.showCustomConfirm("システムプロンプト編集中です。変更を破棄してチャットを複製しますか？"); if (!conf) return; this.cancelEditSystemPrompt(); }
                 if (state.isMemoVisible) {
                      this.toggleMemo();
-                }
+                                     }
                 if ((state.currentMessages.length > 0 || state.currentSystemPrompt) && state.currentChatId && state.currentChatId !== id) { try { await dbUtils.saveChat(); } catch (error) { console.error("Error saving current chat before duplicate:", error); const conf = await uiUtils.showCustomConfirm("現在のチャット保存に失敗しました。複製を続行しますか？"); if (!conf) return; } }
                 if (state.pendingAttachments.length > 0) {
                     const confirmedAttach = await uiUtils.showCustomConfirm("添付準備中のファイルがあります。破棄してチャットを複製しますか？");
@@ -5099,8 +5033,6 @@ sessionText += `あなた:\n`;
                 }
                 return accumulatedRawContent;
             },
-            // ... (appLogic の残りの関数 (handleSend 以降) もほぼ変更なしだが、
-            // saveSettings と confirmClearAllData の theme の部分は新しいテーマ値を含むように修正が必要) ...
             async handleSend(isRetry = false, retryUserMessageIndex = -1) {
                 if (state.editingMessageIndex !== null) { await uiUtils.showCustomAlert("他のメッセージを編集中です。"); return; }
                 if (state.isEditingSystemPrompt) { await uiUtils.showCustomAlert("システムプロンプトを編集中です。"); return; }
@@ -6077,14 +6009,12 @@ if (msg.role === 'user') return true;
                     const originalFirstUserMsgIndex = state.currentMessages.findIndex(m => m.role === 'user');
                     indicesToDelete.sort((a, b) => b - a).forEach(idx => {
                         state.currentMessages.splice(idx, 1);
-                        state.messageCollapsedStates.delete(idx);
+                        state.messageCollapsedStates.delete(idx); 
                     });
                     const oldCollapsedStates = new Map(state.messageCollapsedStates);
                     state.messageCollapsedStates.clear();
                      state.currentMessages.forEach((msg, newIdx) => {
-                        const oldIdxEquivalent = newIdx >= Math.min(...indicesToDelete) ? // 削除された最小インデックスより大きいか
-                                               newIdx + indicesToDelete.filter(d => d <= newIdx).length : // 削除された数だけずらす
-                                               newIdx;
+                        const oldIdxEquivalent = newIdx >= Math.min(...indicesToDelete) ? newIdx + indicesToDelete.filter(i => i <= newIdx).length : newIdx;
                         if (oldCollapsedStates.has(oldIdxEquivalent)) {
                             state.messageCollapsedStates.set(newIdx, oldCollapsedStates.get(oldIdxEquivalent));
                         } else {
@@ -6391,8 +6321,6 @@ if (msg.role === 'user') return true;
                         }
                         let finalMimeType;
                         if (guessedMimeType) {
-                            
-Model isn't available right now. Please wait a minute and try again.
                             finalMimeType = guessedMimeType;
                         } else if (browserMimeType) {
                             finalMimeType = browserMimeType;
