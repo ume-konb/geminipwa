@@ -102,8 +102,8 @@
             --badge-color: #ffcc00;
             --badge-size: 12px;
 
-            --memo-width: calc(100% - 30px); /* これは使われなくなるが、設定値として残る */
-            --memo-height: 300px; /* CSS変数としてはこれが最大高さに使われる */
+            /* --memo-width: calc(100% - 30px); */ /* 削除（CSSで100%固定のため） */
+            --memo-height: 300px; /* メモエリアの初期の最大高さとして使用 */
 
             --bg-toggle-button: var(--bg-button-action);
             --bg-toggle-button-hover: var(--bg-button-action-hover);
@@ -1122,9 +1122,9 @@
         #memo-editor {
             flex-grow: 1;
             width: 100%;
-            /* height: 100%; */ /* flex-growに任せる */
+            /* height: 100%; */ 
             border: none;
-            resize: none; /* 親の#memo-areaでresize:verticalするので、こちらはnone */
+            resize: none; 
             background-color: transparent;
             color: var(--text-memo);
             font-family: inherit;
@@ -2591,19 +2591,13 @@
                         <input type="checkbox" id="show-memo-button-toggle">
                         ヘッダーにメモボタンを表示する
                     </label>
-                    <div class="param-grid">
-                        <div>
-                            <label for="memo-width">メモの幅 (例: 300px, 80%):</label>
-                            <input type="text" id="memo-width" placeholder="例: 300px or 80%" aria-label="メモの幅">
-                        </div>
-                        <div>
-                            <label for="memo-height">メモの高さ (例: 200px, 50vh):</label>
-                            <input type="text" id="memo-height" placeholder="例: 200px or 50vh" aria-label="メモの高さ">
-                        </div>
+                    <div>
+                        <label for="memo-height">メモの初期の高さ (例: 200px, 30vh):</label>
+                        <input type="text" id="memo-height" placeholder="例: 200px, 30vh (縦にリサイズ可能)" aria-label="メモの初期の高さ">
                     </div>
                     <p style="font-size: 11px; color: var(--text-secondary); margin-top: 8px;">
-                        ※ 幅/高さはピクセル(px)またはパーセント(%)、ビューポート高さ(vh)で指定できます。<br>
-                        ※ デフォルト: 幅 calc(100% - 30px), 高さ 300px (新しい配置では幅は100%固定、高さはCSS変数で制御)
+                        ※ 高さはピクセル(px)またはビューポート高さ(vh)で指定できます。<br>
+                        ※ デフォルト: 300px。メモエリアは縦方向にリサイズ可能です。
                     </p>
                 </div>
 
@@ -2760,7 +2754,7 @@
         const DEFAULT_TOP_K = 40;
         const DEFAULT_TOP_P = 0.95;
         const DEFAULT_FONT_FAMILY = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
-        const DEFAULT_MEMO_WIDTH = 'calc(100% - 30px)';
+        // const DEFAULT_MEMO_WIDTH = 'calc(100% - 30px)'; // 削除
         const DEFAULT_MEMO_HEIGHT = '300px';
         const CHAT_TITLE_LENGTH = 15;
         const TEXTAREA_MAX_HEIGHT = 120;
@@ -2942,7 +2936,7 @@
             pasteMemoBtn: document.getElementById('paste-memo-btn'),
             deleteMemoBtn: document.getElementById('delete-memo-btn'),
             showMemoButtonToggle: document.getElementById('show-memo-button-toggle'),
-            memoWidthInput: document.getElementById('memo-width'),
+            // memoWidthInput: document.getElementById('memo-width'), // 削除
             memoHeightInput: document.getElementById('memo-height'),
             showCollapseButtonsToggle: document.getElementById('show-collapse-buttons-toggle'),
         };
@@ -2983,7 +2977,7 @@
                 showToggleAllContentButton: true,
                 showBulkHistoryActions: true,
                 showMemoButton: true,
-                memoWidth: DEFAULT_MEMO_WIDTH,
+                // memoWidth: DEFAULT_MEMO_WIDTH, // 削除
                 memoHeight: DEFAULT_MEMO_HEIGHT,
                 showCollapseButtons: true,
                 messageBubbleOpacity: DEFAULT_MESSAGE_BUBBLE_OPACITY,
@@ -3021,9 +3015,6 @@
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(updateMessageMaxWidthVar, 150);
-            //  if (elements.memoArea && !elements.memoArea.classList.contains('hidden')) {
-            //      uiUtils.adjustTextareaHeight(elements.memoEditor, elements.memoArea.clientHeight - 20 - (elements.memoArea.querySelector('.memo-actions-container')?.offsetHeight || 0) );
-            //  }
         });
 
         const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -3143,6 +3134,7 @@
 
                         for (const key in loadedSettings) {
                              if (key === 'darkMode') continue; 
+                             if (key === 'memoWidth') continue; // memoWidth はロードしない
 
                              if (key in defaultSettings) { 
                                 const loadedValue = loadedSettings[key];
@@ -3864,11 +3856,7 @@
                 if (elements.toggleMemoBtn) {
                     elements.toggleMemoBtn.classList.toggle('hidden', !state.settings.showMemoButton);
                 }
-                // document.documentElement.style.setProperty('--memo-width', state.settings.memoWidth || DEFAULT_MEMO_WIDTH); // 新しい配置ではCSSで100%固定
-                document.documentElement.style.setProperty('--memo-height', state.settings.memoHeight || DEFAULT_MEMO_HEIGHT); // これは最大高さとして利用
-                // if (elements.memoArea && !elements.memoArea.classList.contains('hidden')) { // エディタ高さはflex-growとresizeに依存
-                //     uiUtils.adjustTextareaHeight(elements.memoEditor, elements.memoArea.clientHeight - 20 - (elements.memoArea.querySelector('.memo-actions-container')?.offsetHeight || 0) );
-                // }
+                document.documentElement.style.setProperty('--memo-height', state.settings.memoHeight || DEFAULT_MEMO_HEIGHT);
             },
             applyOpacitySettings() {
                 document.documentElement.style.setProperty('--message-bubble-opacity', state.settings.messageBubbleOpacity);
@@ -4042,7 +4030,7 @@
                 elements.chatOverlayOpacityInput.value = state.settings.chatOverlayOpacity ?? DEFAULT_CHAT_OVERLAY_OPACITY;
                 elements.headerFooterOpacityInput.value = state.settings.headerFooterOpacity ?? DEFAULT_HEADER_FOOTER_OPACITY;
                 elements.showMemoButtonToggle.checked = state.settings.showMemoButton;
-                elements.memoWidthInput.value = state.settings.memoWidth || '';
+                // elements.memoWidthInput.value = state.settings.memoWidth || ''; // 削除
                 elements.memoHeightInput.value = state.settings.memoHeight || '';
                 elements.showCollapseButtonsToggle.checked = state.settings.showCollapseButtons;
 
@@ -4485,26 +4473,14 @@
                     state.settings.showMemoButton = elements.showMemoButtonToggle.checked;
                     uiUtils.updateChatScreenHeaderButtonVisibility();
                 });
-                elements.memoWidthInput.addEventListener('input', () => {
-                    const newWidth = elements.memoWidthInput.value.trim();
-                    // if (newWidth) { // 新しい配置では幅はCSSで100%固定
-                    //     document.documentElement.style.setProperty('--memo-width', newWidth);
-                    // } else {
-                    //     document.documentElement.style.setProperty('--memo-width', DEFAULT_MEMO_WIDTH);
-                    // }
-                });
+                // elements.memoWidthInput.addEventListener('input', () => { // 削除
+                // });
                 elements.memoHeightInput.addEventListener('input', () => {
                     const newHeight = elements.memoHeightInput.value.trim();
                     if (newHeight) {
                         document.documentElement.style.setProperty('--memo-height', newHeight);
-                        //  if (!elements.memoArea.classList.contains('hidden')) {
-                        //     uiUtils.adjustTextareaHeight(elements.memoEditor, elements.memoArea.clientHeight - 20 - (elements.memoArea.querySelector('.memo-actions-container')?.offsetHeight || 0) );
-                        //  }
                     } else {
                         document.documentElement.style.setProperty('--memo-height', DEFAULT_MEMO_HEIGHT);
-                        // if (!elements.memoArea.classList.contains('hidden')) {
-                        //     uiUtils.adjustTextareaHeight(elements.memoEditor, elements.memoArea.clientHeight - 20 - (elements.memoArea.querySelector('.memo-actions-container')?.offsetHeight || 0) );
-                        //  }
                     }
                 });
                 elements.showToggleAllContentButtonToggle.addEventListener('change', () => {
@@ -4690,7 +4666,6 @@
                 elements.memoArea.classList.toggle('hidden', !state.isMemoVisible);
 
                 if (state.isMemoVisible) {
-                    // メモエリアはCSSで位置とサイズが制御されるため、JSでの動的スタイル設定は不要
                     elements.memoEditor.focus();
                 }
             },
@@ -4737,7 +4712,6 @@
                         elements.memoEditor.value = currentText.substring(0, selectionStart) + textToPaste + currentText.substring(selectionEnd);
                         elements.memoEditor.selectionStart = elements.memoEditor.selectionEnd = selectionStart + textToPaste.length;
                         elements.memoEditor.focus();
-                        // uiUtils.adjustTextareaHeight(elements.memoEditor, elements.memoArea.clientHeight - 20 - (elements.memoArea.querySelector('.memo-actions-container')?.offsetHeight || 0)); // heightはflex-growに任せる
                         const originalText = elements.pasteMemoBtn.textContent;
                         elements.pasteMemoBtn.textContent = "貼付け完了";
                         elements.pasteMemoBtn.disabled = true;
@@ -5145,7 +5119,7 @@ sessionText += `あなた:\n`;
                     }
                 }
             },
-                        async typeCharacterByCharacter(processedChunks, messageIndex, signal, prefix = '') {
+            async typeCharacterByCharacter(processedChunks, messageIndex, signal, prefix = '') {
                 const speed = state.settings.streamingSpeed;
                 let accumulatedRawContent = prefix;
                 state.partialStreamContent = prefix;
@@ -5777,7 +5751,7 @@ if (msg.role === 'user') return true;
                      showToggleAllContentButton: elements.showToggleAllContentButtonToggle.checked,
                      showBulkHistoryActions: elements.showBulkHistoryActionsToggle.checked,
                      showMemoButton: elements.showMemoButtonToggle.checked,
-                     memoWidth: elements.memoWidthInput.value.trim() || DEFAULT_MEMO_WIDTH,
+                     // memoWidth: elements.memoWidthInput.value.trim() || DEFAULT_MEMO_WIDTH, // 削除
                      memoHeight: elements.memoHeightInput.value.trim() || DEFAULT_MEMO_HEIGHT,
                      showCollapseButtons: elements.showCollapseButtonsToggle.checked,
                      messageBubbleOpacity: elements.messageBubbleOpacityInput.value === '' ? DEFAULT_MESSAGE_BUBBLE_OPACITY : parseFloat(elements.messageBubbleOpacityInput.value),
@@ -5821,11 +5795,32 @@ if (msg.role === 'user') return true;
 
                  try {
                      const oldSortOrder = state.settings.historySortOrder;
-                     const promises = Object.entries(newSettings).map(([key, value]) =>
+                     // memoWidth を除外して保存
+                     const { memoWidth, ...settingsToSave } = newSettings; 
+
+                     const promises = Object.entries(settingsToSave).map(([key, value]) =>
                          dbUtils.saveSetting(key, value)
                      );
+                     
+                     // backgroundImageBlobの保存 (これは settingsToSave には含まれていない可能性があるため、別途処理)
+                     if (state.settings.backgroundImageBlob instanceof Blob) {
+                         promises.push(dbUtils.saveSetting('backgroundImageBlob', state.settings.backgroundImageBlob));
+                     } else if (newSettings.backgroundImageBlob === null) { // 明示的にnullが設定された場合（削除時など）
+                          promises.push(dbUtils.saveSetting('backgroundImageBlob', null));
+                     }
+
+
                      await Promise.all(promises);
-                     state.settings = { ...state.settings, ...newSettings };
+                     
+                     const currentBgBlob = state.settings.backgroundImageBlob; 
+                     state.settings = { ...state.settings, ...settingsToSave };
+                     if (settingsToSave.backgroundImageBlob === undefined && currentBgBlob) { // settingsToSave に Blob がないが、元々あった場合
+                        state.settings.backgroundImageBlob = currentBgBlob;
+                     } else if (settingsToSave.backgroundImageBlob === null) { // 明示的にnullが設定された場合
+                        state.settings.backgroundImageBlob = null;
+                     }
+
+
                      uiUtils.applySettingsToUI();
                      await uiUtils.showCustomAlert("設定を保存しました。");
                      if (newSettings.historySortOrder !== oldSortOrder && state.currentScreen === 'history') {
@@ -5884,7 +5879,8 @@ if (msg.role === 'user') return true;
                             showDeleteSessionButton: true, showCopySessionButton: true,
                             showToggleAllContentButton: true, showBulkHistoryActions: true,
                             showMemoButton: true,
-                            memoWidth: DEFAULT_MEMO_WIDTH, memoHeight: DEFAULT_MEMO_HEIGHT,
+                            // memoWidth: DEFAULT_MEMO_WIDTH, // 削除
+                            memoHeight: DEFAULT_MEMO_HEIGHT,
                             showCollapseButtons: true,
                             messageBubbleOpacity: DEFAULT_MESSAGE_BUBBLE_OPACITY,
                             chatOverlayOpacity: DEFAULT_CHAT_OVERLAY_OPACITY,
