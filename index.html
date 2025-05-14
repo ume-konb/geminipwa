@@ -1,4 +1,6 @@
+はい、承知いたしました。前回提案したメモエリアの位置変更の修正を、提供されたコード全体に適用し、省略せずに表示します。
 
+```html
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -102,8 +104,8 @@
             --badge-color: #ffcc00;
             --badge-size: 12px;
 
-            --memo-width: calc(100% - 30px);
-            --memo-height: 300px;
+            --memo-width: calc(100% - 30px); /* これは使われなくなるが、設定値として残る */
+            --memo-height: 300px; /* CSS変数としてはこれが最大高さに使われる */
 
             --bg-toggle-button: var(--bg-button-action);
             --bg-toggle-button-hover: var(--bg-button-action-hover);
@@ -1060,29 +1062,33 @@
         }
 
         #memo-area {
-            position: absolute;
-            /* top, left は JS で設定 */
-            width: var(--memo-width);
-            height: var(--memo-height); 
-            max-width: calc(100% - 30px);
-            /* max-height はJSで動的に設定 */
+            position: relative;
+            width: 100%; 
+            min-height: 80px; 
+            max-height: var(--memo-height); 
             background-color: var(--bg-memo);
-            border: 1px solid var(--border-secondary);
-            border-radius: 8px;
-            padding: 10px;
-            z-index: 15; 
-            box-shadow: 0 2px 8px var(--shadow-primary);
-            overflow: auto;
+            border-bottom: 1px solid var(--border-secondary);
+            padding: 10px 15px; 
+            z-index: 5; 
+            box-shadow: 0 1px 3px var(--shadow-primary);
+            overflow: auto; 
             display: flex;
             flex-direction: column;
-            transition: opacity 0.3s ease, visibility 0.3s ease, background-color 0.3s ease; /* top, width, heightのtransitionを削除 */
+            transition: max-height 0.3s ease-out, padding-top 0.3s ease-out, padding-bottom 0.3s ease-out, opacity 0.3s ease-out, border-width 0.3s ease-out;
             resize: vertical; 
+            margin-bottom: 0;
         }
 
         #memo-area.hidden {
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
+            max-height: 0 !important;
+            min-height: 0 !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            border-width: 0 !important;
+            overflow: hidden;
         }
 
         .memo-actions-container {
@@ -1118,9 +1124,9 @@
         #memo-editor {
             flex-grow: 1;
             width: 100%;
-            height: 100%;
+            /* height: 100%; */ /* flex-growに任せる */
             border: none;
-            resize: none;
+            resize: none; /* 親の#memo-areaでresize:verticalするので、こちらはnone */
             background-color: transparent;
             color: var(--text-memo);
             font-family: inherit;
@@ -2369,15 +2375,17 @@
                 <button id="toggle-memo-btn" class="header-button" aria-label="メモを開閉">📝</button>
                 <button id="goto-settings-btn" class="header-button" aria-label="設定へ">⚙</button>
             </header>
-            <main class="main-content">
-                <div id="memo-area" class="hidden">
-                    <div class="memo-actions-container">
-                        <button id="delete-memo-btn" class="delete-memo-btn" title="メモの内容を全て削除">全削除</button>
-                        <button id="copy-memo-btn" class="copy-memo-btn" title="メモをコピー">コピー</button>
-                        <button id="paste-memo-btn" class="paste-memo-btn" title="メモに貼り付け">貼付け</button>
-                    </div>
-                    <textarea id="memo-editor" aria-label="メモ入力エリア" placeholder="ここに一時的なメモを入力...（保存されません）"></textarea>
+            
+            <div id="memo-area" class="hidden">
+                <div class="memo-actions-container">
+                    <button id="delete-memo-btn" class="delete-memo-btn" title="メモの内容を全て削除">全削除</button>
+                    <button id="copy-memo-btn" class="copy-memo-btn" title="メモをコピー">コピー</button>
+                    <button id="paste-memo-btn" class="paste-memo-btn" title="メモに貼り付け">貼付け</button>
                 </div>
+                <textarea id="memo-editor" aria-label="メモ入力エリア" placeholder="ここに一時的なメモを入力...（保存されません）"></textarea>
+            </div>
+
+            <main class="main-content">
                 <div id="system-prompt-area" class="system-prompt-area">
                     <details id="system-prompt-details">
                         <summary>システムプロンプト</summary>
@@ -2597,7 +2605,7 @@
                     </div>
                     <p style="font-size: 11px; color: var(--text-secondary); margin-top: 8px;">
                         ※ 幅/高さはピクセル(px)またはパーセント(%)、ビューポート高さ(vh)で指定できます。<br>
-                        ※ デフォルト: 幅 calc(100% - 30px), 高さ 300px
+                        ※ デフォルト: 幅 calc(100% - 30px), 高さ 300px (新しい配置では幅は100%固定、高さはCSS変数で制御)
                     </p>
                 </div>
 
@@ -3015,9 +3023,9 @@
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(updateMessageMaxWidthVar, 150);
-             if (elements.memoArea && !elements.memoArea.classList.contains('hidden')) {
-                 uiUtils.adjustTextareaHeight(elements.memoEditor, elements.memoArea.clientHeight - 20 - (elements.memoArea.querySelector('.memo-actions-container')?.offsetHeight || 0) );
-             }
+            //  if (elements.memoArea && !elements.memoArea.classList.contains('hidden')) {
+            //      uiUtils.adjustTextareaHeight(elements.memoEditor, elements.memoArea.clientHeight - 20 - (elements.memoArea.querySelector('.memo-actions-container')?.offsetHeight || 0) );
+            //  }
         });
 
         const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -3858,11 +3866,11 @@
                 if (elements.toggleMemoBtn) {
                     elements.toggleMemoBtn.classList.toggle('hidden', !state.settings.showMemoButton);
                 }
-                document.documentElement.style.setProperty('--memo-width', state.settings.memoWidth || DEFAULT_MEMO_WIDTH);
-                document.documentElement.style.setProperty('--memo-height', state.settings.memoHeight || DEFAULT_MEMO_HEIGHT);
-                if (elements.memoArea && !elements.memoArea.classList.contains('hidden')) {
-                    uiUtils.adjustTextareaHeight(elements.memoEditor, elements.memoArea.clientHeight - 20 - (elements.memoArea.querySelector('.memo-actions-container')?.offsetHeight || 0) );
-                }
+                // document.documentElement.style.setProperty('--memo-width', state.settings.memoWidth || DEFAULT_MEMO_WIDTH); // 新しい配置ではCSSで100%固定
+                document.documentElement.style.setProperty('--memo-height', state.settings.memoHeight || DEFAULT_MEMO_HEIGHT); // これは最大高さとして利用
+                // if (elements.memoArea && !elements.memoArea.classList.contains('hidden')) { // エディタ高さはflex-growとresizeに依存
+                //     uiUtils.adjustTextareaHeight(elements.memoEditor, elements.memoArea.clientHeight - 20 - (elements.memoArea.querySelector('.memo-actions-container')?.offsetHeight || 0) );
+                // }
             },
             applyOpacitySettings() {
                 document.documentElement.style.setProperty('--message-bubble-opacity', state.settings.messageBubbleOpacity);
@@ -4481,24 +4489,24 @@
                 });
                 elements.memoWidthInput.addEventListener('input', () => {
                     const newWidth = elements.memoWidthInput.value.trim();
-                    if (newWidth) {
-                        document.documentElement.style.setProperty('--memo-width', newWidth);
-                    } else {
-                        document.documentElement.style.setProperty('--memo-width', DEFAULT_MEMO_WIDTH);
-                    }
+                    // if (newWidth) { // 新しい配置では幅はCSSで100%固定
+                    //     document.documentElement.style.setProperty('--memo-width', newWidth);
+                    // } else {
+                    //     document.documentElement.style.setProperty('--memo-width', DEFAULT_MEMO_WIDTH);
+                    // }
                 });
                 elements.memoHeightInput.addEventListener('input', () => {
                     const newHeight = elements.memoHeightInput.value.trim();
                     if (newHeight) {
                         document.documentElement.style.setProperty('--memo-height', newHeight);
-                         if (!elements.memoArea.classList.contains('hidden')) {
-                            uiUtils.adjustTextareaHeight(elements.memoEditor, elements.memoArea.clientHeight - 20 - (elements.memoArea.querySelector('.memo-actions-container')?.offsetHeight || 0) );
-                         }
+                        //  if (!elements.memoArea.classList.contains('hidden')) {
+                        //     uiUtils.adjustTextareaHeight(elements.memoEditor, elements.memoArea.clientHeight - 20 - (elements.memoArea.querySelector('.memo-actions-container')?.offsetHeight || 0) );
+                        //  }
                     } else {
                         document.documentElement.style.setProperty('--memo-height', DEFAULT_MEMO_HEIGHT);
-                        if (!elements.memoArea.classList.contains('hidden')) {
-                            uiUtils.adjustTextareaHeight(elements.memoEditor, elements.memoArea.clientHeight - 20 - (elements.memoArea.querySelector('.memo-actions-container')?.offsetHeight || 0) );
-                         }
+                        // if (!elements.memoArea.classList.contains('hidden')) {
+                        //     uiUtils.adjustTextareaHeight(elements.memoEditor, elements.memoArea.clientHeight - 20 - (elements.memoArea.querySelector('.memo-actions-container')?.offsetHeight || 0) );
+                        //  }
                     }
                 });
                 elements.showToggleAllContentButtonToggle.addEventListener('change', () => {
@@ -4679,49 +4687,13 @@
                      uiUtils.showCustomAlert("システムプロンプト編集中はメモを開閉できません。");
                      return;
                  }
-                const mainContent = elements.chatScreen.querySelector('.main-content');
-                const oldScrollTop = mainContent.scrollTop; 
 
                 state.isMemoVisible = !state.isMemoVisible; 
-
-                elements.memoArea.style.transition = 'none'; 
                 elements.memoArea.classList.toggle('hidden', !state.isMemoVisible);
 
                 if (state.isMemoVisible) {
-                    requestAnimationFrame(() => { 
-                        const headerElement = elements.chatScreen.querySelector('.app-header');
-                        if (!headerElement) {
-                            console.error("Header element not found for memo positioning.");
-                            elements.memoArea.style.top = '15px'; 
-                            elements.memoArea.style.left = '15px';
-                        } else {
-                            const headerRect = headerElement.getBoundingClientRect();
-                            const appContainerRect = elements.appContainer.getBoundingClientRect();
-                            const headerTopRelativeToAppContainer = headerRect.top - appContainerRect.top;
-                            elements.memoArea.style.top = `${headerTopRelativeToAppContainer + headerRect.height + 10}px`; 
-                            elements.memoArea.style.left = `15px`;
-                        }
-
-                        if (elements.memoArea && elements.chatScreen) {
-                            const mainContentPaddings = parseFloat(getComputedStyle(mainContent).paddingTop) + parseFloat(getComputedStyle(mainContent).paddingBottom);
-                            const headerHeight = elements.chatScreen.querySelector('.app-header')?.offsetHeight || 0;
-                            const availableHeightForMemo = mainContent.clientHeight - (headerHeight + 10) - mainContentPaddings - 20; 
-                            elements.memoArea.style.maxHeight = `${Math.max(100, availableHeightForMemo)}px`; 
-
-                            uiUtils.adjustTextareaHeight(elements.memoEditor, elements.memoArea.clientHeight - 20 - (elements.memoArea.querySelector('.memo-actions-container')?.offsetHeight || 0));
-                        }
-                        elements.memoEditor.focus();
-                        
-                        setTimeout(() => {
-                            mainContent.scrollTop = oldScrollTop;
-                            elements.memoArea.style.transition = 'opacity 0.3s ease, visibility 0.3s ease, background-color 0.3s ease';
-                        }, 50); 
-                    });
-                } else {
-                    mainContent.scrollTop = oldScrollTop; 
-                    requestAnimationFrame(() => { 
-                        elements.memoArea.style.transition = 'opacity 0.3s ease, visibility 0.3s ease, background-color 0.3s ease';
-                    });
+                    // メモエリアはCSSで位置とサイズが制御されるため、JSでの動的スタイル設定は不要
+                    elements.memoEditor.focus();
                 }
             },
             async copyMemoText() {
@@ -4767,7 +4739,7 @@
                         elements.memoEditor.value = currentText.substring(0, selectionStart) + textToPaste + currentText.substring(selectionEnd);
                         elements.memoEditor.selectionStart = elements.memoEditor.selectionEnd = selectionStart + textToPaste.length;
                         elements.memoEditor.focus();
-                        uiUtils.adjustTextareaHeight(elements.memoEditor, elements.memoArea.clientHeight - 20 - (elements.memoArea.querySelector('.memo-actions-container')?.offsetHeight || 0));
+                        // uiUtils.adjustTextareaHeight(elements.memoEditor, elements.memoArea.clientHeight - 20 - (elements.memoArea.querySelector('.memo-actions-container')?.offsetHeight || 0)); // heightはflex-growに任せる
                         const originalText = elements.pasteMemoBtn.textContent;
                         elements.pasteMemoBtn.textContent = "貼付け完了";
                         elements.pasteMemoBtn.disabled = true;
@@ -5175,7 +5147,7 @@ sessionText += `あなた:\n`;
                     }
                 }
             },
-            async typeCharacterByCharacter(processedChunks, messageIndex, signal, prefix = '') {
+                        async typeCharacterByCharacter(processedChunks, messageIndex, signal, prefix = '') {
                 const speed = state.settings.streamingSpeed;
                 let accumulatedRawContent = prefix;
                 state.partialStreamContent = prefix;
