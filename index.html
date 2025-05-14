@@ -104,6 +104,7 @@
             --clipboard-stack-height: 300px;
             --message-icon-size: 28px;
             --message-icon-offset-y: 0px;
+            --icon-name-font-size: 10px; /* アイコン名フォントサイズのデフォルト */
 
             --bg-toggle-button: var(--bg-button-action);
             --bg-toggle-button-hover: var(--bg-button-action-hover);
@@ -1352,33 +1353,48 @@
             left: 5px; 
         }
 
-        /* 追加: アイコン名表示スタイル */
         .message-icon-name {
             position: absolute;
-            font-size: 10px;
+            font-size: var(--icon-name-font-size, 10px);
             color: var(--text-secondary);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             max-width: 80px;
-            text-align: center;
             z-index: 2;
-            top: calc( (var(--message-icon-size) / 2 + 4px) + var(--message-icon-offset-y, 0px) );
-            transform: translateX(-50%);
+            top: calc(var(--message-icon-size) + var(--message-icon-offset-y, 0px) - (var(--message-icon-size) / 4) );
         }
         .message.user .message-icon-name {
-            right: calc(5px + (var(--message-icon-size) / 2) - (var(--message-icon-size) / 2));
             left: auto;
+            right: calc(var(--message-icon-size) + 8px); 
+            text-align: right;
         }
         .message.model .message-icon-name {
-            left: calc(5px + (var(--message-icon-size) / 2));
+            left: calc(var(--message-icon-size) + 8px); 
             right: auto;
+            text-align: left;
         }
 
 
         .message.message-hidden-by-toggle {
+            visibility: hidden;
+            opacity: 0;
+            max-height: 0 !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+            border-width: 0 !important;
+            overflow: hidden;
+        }
+        .message.message-hidden-by-toggle .message-actions,
+        .message.message-hidden-by-toggle .message-cascade-controls,
+        .message.message-hidden-by-toggle .message-toggle-button,
+        .message.message-hidden-by-toggle .message-icon,
+        .message.message-hidden-by-toggle .message-icon-name {
             display: none !important;
         }
+
         .message:first-child {
             margin-top: 0;
         }
@@ -1478,12 +1494,14 @@
             color: var(--text-toggle-button);
             border: none;
             border-radius: 4px;
-            padding: 2px 6px;
-            font-size: 10px;
+            /* padding: 2px 6px; */ /* 修正前 */
+            padding: 1px 4px; /* 修正後 */
+            /* font-size: 10px; */ /* 修正前 */
+            font-size: 8px;  /* 修正後 */
             line-height: 1;
             cursor: pointer;
             z-index: 3;
-            opacity: 0;
+            opacity: 0.7; /* 修正: 透過度を上げる */
             transition: opacity 0.2s ease, background-color 0.2s ease;
             pointer-events: auto;
             min-width: auto;
@@ -1492,14 +1510,19 @@
         .message-toggle-button:hover {
             background-color: var(--bg-toggle-button-hover);
         }
-        .message:hover .message-toggle-button,
-        .message.show-actions .message-toggle-button {
+        .message:hover .message-toggle-button.top,
+        .message.show-actions .message-toggle-button.top {
+            opacity: 0.9; /* 修正: hover/show-actions時も少し透過度を残す */
+        }
+        .message:hover .message-toggle-button.bottom, /* ボトムボタンのhover時も透過度を調整 */
+        .message.show-actions .message-toggle-button.bottom {
             opacity: 1;
         }
 
+
         .message-toggle-button.top {
-            top: 5px; 
-            right: 5px; 
+            top: 2px;  
+            right: 2px; 
             left: auto;
             z-index: 3; 
         }
@@ -1514,12 +1537,12 @@
 
         .message-actions {
             position: absolute;
-            bottom: -35px;
+            bottom: -30px; /* 修正 */
             display: none;
             flex-wrap: nowrap;
             gap: 5px;
             background: var(--bg-message-actions);
-            padding: 10px 8px 5px 8px;
+            padding: 6px 8px 3px 8px; /* 修正 */
             border-radius: 5px;
             box-shadow: 0 1px 3px var(--shadow-primary);
             z-index: 2;
@@ -2139,6 +2162,11 @@
         .message.show-actions .message-toggle-button {
              opacity: 1;
         }
+        .message:hover .message-toggle-button.top, /* 修正 */
+        .message.show-actions .message-toggle-button.top {
+             opacity: 0.9;
+        }
+
 
         .message.editing.show-actions .message-actions,
         .message.editing.show-actions .message-cascade-controls,
@@ -2802,17 +2830,21 @@
                     <label for="ai-name-input">表示するAI名:</label>
                     <input type="text" id="ai-name-input" placeholder="例: Gemini" aria-label="表示するAI名">
 
+                    <div style="margin-top: 10px;">
+                        <label for="icon-name-font-size">アイコン下の名前の文字サイズ (px):</label>
+                        <input type="number" id="icon-name-font-size" min="6" max="16" step="1" placeholder="例: 10" aria-label="アイコン下の名前の文字サイズ">
+                    </div>
 
                     <div style="margin-top: 20px;">
                         <label for="message-icon-size">アイコン表示サイズ (px):</label>
                         <input type="number" id="message-icon-size" min="16" max="64" step="1" placeholder="例: 28" aria-label="アイコン表示サイズ">
                     </div>
                     <div style="margin-top: 15px;">
-                        <label for="message-icon-offset-y">アイコン垂直オフセット (px):</label>
+                        <label for="message-icon-offset-y">アイコン垂直オフセット (px, 上が正):</label>
                         <input type="number" id="message-icon-offset-y" step="1" placeholder="例: 0 (上下に調整)" aria-label="アイコン垂直オフセット">
                     </div>
                     <p style="font-size: 11px; color: var(--text-secondary); margin-top: 8px;">
-                       ※ マイナス値で上に、プラス値で下にアイコンが移動します。
+                       ※ プラス値で上に、マイナス値で下にアイコンが移動します。
                     </p>
                      <p style="font-size: 11px; color: var(--text-secondary); margin-top: 15px;">
                        ※ アイコン画像はブラウザ内のデータベースに保存されます。<br>
@@ -3015,6 +3047,7 @@
         const DEFAULT_MESSAGE_ICON_OFFSET_Y = 0;
         const DEFAULT_USER_NAME = "あなた"; 
         const DEFAULT_AI_NAME = "AI";     
+        const DEFAULT_ICON_NAME_FONT_SIZE = 10;
         const CHAT_TITLE_LENGTH = 15;
         const TEXTAREA_MAX_HEIGHT = 120;
         const GEMINI_API_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models/';
@@ -3227,6 +3260,7 @@
             aiNameInput: document.getElementById('ai-name-input'),           
             messageIconSizeInput: document.getElementById('message-icon-size'),
             messageIconOffsetYInput: document.getElementById('message-icon-offset-y'),
+            iconNameFontSizeInput: document.getElementById('icon-name-font-size'), // 追加
         };
 
         const state = {
@@ -3279,7 +3313,8 @@
                 showAiIcon: true, 
                 aiIconBlob: null,
                 showAiName: true,          
-                aiName: DEFAULT_AI_NAME,     
+                aiName: DEFAULT_AI_NAME,
+                iconNameFontSize: DEFAULT_ICON_NAME_FONT_SIZE, // 追加
                 messageIconSize: DEFAULT_MESSAGE_ICON_SIZE,
                 messageIconOffsetY: DEFAULT_MESSAGE_ICON_OFFSET_Y,
                 showCollapseButtons: true,
@@ -3463,16 +3498,15 @@
                                      state.settings[key] = loadedValue === true; 
                                 } else if (typeof defaultValue === 'number' || defaultValue === null) {
                                      let num;
-                                     if (key === 'temperature' || key === 'topP' || key === 'presencePenalty' || key === 'frequencyPenalty' || key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity' || key === 'messageIconSize' || key === 'messageIconOffsetY') {
+                                     if (key === 'temperature' || key === 'topP' || key === 'presencePenalty' || key === 'frequencyPenalty' || key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity' || key === 'messageIconSize' || key === 'messageIconOffsetY' || key === 'iconNameFontSize') {
                                          num = parseFloat(loadedValue);
                                      } else {
                                          num = parseInt(loadedValue, 10);
                                      }
                                      if (isNaN(num)) {
-                                        // 数値キーでnullを許容するものはここで処理
                                          if ((key === 'temperature' || key === 'maxTokens' || key === 'topK' || key === 'topP' || key === 'presencePenalty' || key === 'frequencyPenalty' || key === 'thinkingBudget' || key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity') && (loadedValue === null || loadedValue === '')) {
                                               state.settings[key] = null;
-                                         } else { // それ以外の数値キーはデフォルト値
+                                         } else { 
                                               state.settings[key] = defaultValue;
                                          }
                                      } else {
@@ -3486,6 +3520,7 @@
                                           if ((key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity') && (num < 0 || num > 1)) num = defaultValue;
                                           if (key === 'messageIconSize' && (num < 16 || num > 64)) num = defaultValue;
                                           if (key === 'messageIconOffsetY' && (num < -50 || num > 50)) num = defaultValue;
+                                          if (key === 'iconNameFontSize' && (num < 6 || num > 16)) num = defaultValue;
                                           state.settings[key] = num;
                                      }
                                 } else if (typeof defaultValue === 'string') {
@@ -4228,6 +4263,7 @@
                 document.documentElement.style.setProperty('--clipboard-stack-height', state.settings.clipboardStackHeight || DEFAULT_CLIPBOARD_STACK_HEIGHT); 
                 document.documentElement.style.setProperty('--message-icon-size', `${state.settings.messageIconSize || DEFAULT_MESSAGE_ICON_SIZE}px`);
                 document.documentElement.style.setProperty('--message-icon-offset-y', `${state.settings.messageIconOffsetY || DEFAULT_MESSAGE_ICON_OFFSET_Y}px`);
+                document.documentElement.style.setProperty('--icon-name-font-size', `${state.settings.iconNameFontSize || DEFAULT_ICON_NAME_FONT_SIZE}px`);
             },
             applyOpacitySettings() {
                 document.documentElement.style.setProperty('--message-bubble-opacity', state.settings.messageBubbleOpacity);
@@ -4414,8 +4450,10 @@
                 elements.showAiIconToggle.checked = state.settings.showAiIcon;
                 elements.showAiNameToggle.checked = state.settings.showAiName;     
                 elements.aiNameInput.value = state.settings.aiName || '';            
+                elements.iconNameFontSizeInput.value = state.settings.iconNameFontSize ?? DEFAULT_ICON_NAME_FONT_SIZE;
                 elements.messageIconSizeInput.value = state.settings.messageIconSize ?? DEFAULT_MESSAGE_ICON_SIZE;
-                elements.messageIconOffsetYInput.value = state.settings.messageIconOffsetY ?? DEFAULT_MESSAGE_ICON_OFFSET_Y;
+                elements.messageIconOffsetYInput.value = state.settings.messageIconOffsetY !== null ? (-1 * state.settings.messageIconOffsetY) : DEFAULT_MESSAGE_ICON_OFFSET_Y;
+
 
                 elements.showCollapseButtonsToggle.checked = state.settings.showCollapseButtons;
 
@@ -4477,7 +4515,7 @@
                 if (models.length > 0) {
                     group.disabled = false;
                     models.forEach(modelId => {
-                                                const option = document.createElement('option');
+                        const option = document.createElement('option');
                         option.value = modelId;
                         option.textContent = modelId;
                         group.appendChild(option);
@@ -4900,7 +4938,7 @@
                     event.target.value = null;
                 });
                 elements.deleteUserIconBtn.addEventListener('click', () => this.confirmDeleteIcon('user'));
-                elements.showUserNameToggle.addEventListener('change', () => { // 追加
+                elements.showUserNameToggle.addEventListener('change', () => {
                     state.settings.showUserName = elements.showUserNameToggle.checked;
                     uiUtils.renderChatMessages(true);
                 });
@@ -4916,9 +4954,17 @@
                     event.target.value = null;
                 });
                 elements.deleteAiIconBtn.addEventListener('click', () => this.confirmDeleteIcon('ai'));
-                elements.showAiNameToggle.addEventListener('change', () => { // 追加
+                elements.showAiNameToggle.addEventListener('change', () => {
                     state.settings.showAiName = elements.showAiNameToggle.checked;
                     uiUtils.renderChatMessages(true);
+                });
+                elements.iconNameFontSizeInput.addEventListener('input', () => { // 追加
+                    const newSize = parseInt(elements.iconNameFontSizeInput.value, 10);
+                    if (newSize >= 6 && newSize <= 16) {
+                        document.documentElement.style.setProperty('--icon-name-font-size', `${newSize}px`);
+                    } else if (elements.iconNameFontSizeInput.value === '') {
+                        document.documentElement.style.setProperty('--icon-name-font-size', `${DEFAULT_ICON_NAME_FONT_SIZE}px`);
+                    }
                 });
 
                 elements.messageIconSizeInput.addEventListener('input', () => { 
@@ -4931,8 +4977,11 @@
                 });
                 elements.messageIconOffsetYInput.addEventListener('input', () => { 
                     const newOffsetY = parseInt(elements.messageIconOffsetYInput.value, 10);
-                    if (!isNaN(newOffsetY) && newOffsetY >= -50 && newOffsetY <= 50) {
-                        document.documentElement.style.setProperty('--message-icon-offset-y', `${newOffsetY}px`);
+                    // 内部的には下方向が正なので、入力値(上が正)を反転させてCSS変数にセット
+                    const internalOffsetY = isNaN(newOffsetY) ? DEFAULT_MESSAGE_ICON_OFFSET_Y : (-1 * newOffsetY);
+
+                    if (internalOffsetY >= -50 && internalOffsetY <= 50) { // 内部値でチェック
+                        document.documentElement.style.setProperty('--message-icon-offset-y', `${internalOffsetY}px`);
                     } else if (elements.messageIconOffsetYInput.value === '') {
                         document.documentElement.style.setProperty('--message-icon-offset-y', `${DEFAULT_MESSAGE_ICON_OFFSET_Y}px`);
                     }
@@ -6490,9 +6539,10 @@ if (msg.role === 'user') return true;
                      userName: elements.userNameInput.value.trim() || DEFAULT_USER_NAME, 
                      showAiIcon: elements.showAiIconToggle.checked,
                      showAiName: elements.showAiNameToggle.checked,   
-                     aiName: elements.aiNameInput.value.trim() || DEFAULT_AI_NAME,   
+                     aiName: elements.aiNameInput.value.trim() || DEFAULT_AI_NAME,
+                     iconNameFontSize: parseInt(elements.iconNameFontSizeInput.value, 10) || DEFAULT_ICON_NAME_FONT_SIZE,
                      messageIconSize: parseInt(elements.messageIconSizeInput.value, 10) || DEFAULT_MESSAGE_ICON_SIZE,
-                     messageIconOffsetY: parseInt(elements.messageIconOffsetYInput.value, 10) || DEFAULT_MESSAGE_ICON_OFFSET_Y,
+                     messageIconOffsetY: (elements.messageIconOffsetYInput.value === '' ? DEFAULT_MESSAGE_ICON_OFFSET_Y : (-1 * parseInt(elements.messageIconOffsetYInput.value, 10))) || DEFAULT_MESSAGE_ICON_OFFSET_Y,
                      showCollapseButtons: elements.showCollapseButtonsToggle.checked,
                      messageBubbleOpacity: elements.messageBubbleOpacityInput.value === '' ? DEFAULT_MESSAGE_BUBBLE_OPACITY : parseFloat(elements.messageBubbleOpacityInput.value),
                      chatOverlayOpacity: elements.chatOverlayOpacityInput.value === '' ? DEFAULT_CHAT_OVERLAY_OPACITY : parseFloat(elements.chatOverlayOpacityInput.value),
@@ -6528,6 +6578,9 @@ if (msg.role === 'user') return true;
                  }
                  if (newSettings.messageIconOffsetY !== null && (isNaN(newSettings.messageIconOffsetY) || newSettings.messageIconOffsetY < -50 || newSettings.messageIconOffsetY > 50)) {
                      newSettings.messageIconOffsetY = DEFAULT_MESSAGE_ICON_OFFSET_Y;
+                 }
+                 if (newSettings.iconNameFontSize !== null && (isNaN(newSettings.iconNameFontSize) || newSettings.iconNameFontSize < 6 || newSettings.iconNameFontSize > 16)) {
+                     newSettings.iconNameFontSize = DEFAULT_ICON_NAME_FONT_SIZE;
                  }
                  if (newSettings.messageBubbleOpacity !== null && (isNaN(newSettings.messageBubbleOpacity) || newSettings.messageBubbleOpacity < 0 || newSettings.messageBubbleOpacity > 1)) {
                     newSettings.messageBubbleOpacity = DEFAULT_MESSAGE_BUBBLE_OPACITY;
@@ -6647,7 +6700,8 @@ if (msg.role === 'user') return true;
                             showAiIcon: true, 
                             aiIconBlob: null,
                             showAiName: true,          
-                            aiName: DEFAULT_AI_NAME,     
+                            aiName: DEFAULT_AI_NAME,
+                            iconNameFontSize: DEFAULT_ICON_NAME_FONT_SIZE,
                             messageIconSize: DEFAULT_MESSAGE_ICON_SIZE,
                             messageIconOffsetY: DEFAULT_MESSAGE_ICON_OFFSET_Y,
                             showCollapseButtons: true,
@@ -7288,7 +7342,18 @@ if (msg.role === 'user') return true;
                  }
 
                 const mainContent = elements.chatScreen.querySelector('.main-content');
-                const oldScrollTop = mainContent.scrollTop;
+                let firstVisibleMessage = null;
+                let offsetFromFirstVisible = 0;
+
+                if (!state.areAllMessagesHidden) { // 非表示にする前
+                    firstVisibleMessage = Array.from(elements.messageContainer.children).find(
+                        el => el.matches('.message:not(.message-hidden-by-toggle)') && el.offsetTop >= mainContent.scrollTop
+                    );
+                    if (firstVisibleMessage) {
+                        offsetFromFirstVisible = mainContent.scrollTop - firstVisibleMessage.offsetTop;
+                    }
+                }
+
 
                 state.areAllMessagesHidden = !state.areAllMessagesHidden;
                 uiUtils.updateToggleAllContentButton();
@@ -7302,7 +7367,21 @@ if (msg.role === 'user') return true;
                 });
                 
                 requestAnimationFrame(() => {
-                    mainContent.scrollTop = oldScrollTop;
+                    if (firstVisibleMessage && !state.areAllMessagesHidden) { // 表示に戻すとき
+                        // firstVisibleMessage が再度DOM内に存在し、表示されているか確認
+                        const stillVisibleMessage = Array.from(elements.messageContainer.children).find(el => el === firstVisibleMessage);
+                        if(stillVisibleMessage && !stillVisibleMessage.classList.contains('message-hidden-by-toggle')){
+                             mainContent.scrollTop = stillVisibleMessage.offsetTop + offsetFromFirstVisible;
+                        } else {
+                            // 要素が見つからない、または非表示のままの場合は、おおよその位置にスクロール（難しい）
+                            // または、一番上など、明確な位置にスクロールする
+                             mainContent.scrollTop = 0; // 安全策として一番上に
+                        }
+                    } else if (!firstVisibleMessage && !state.areAllMessagesHidden) {
+                        // 非表示にする前に可視要素がなかった場合（例：メッセージが0件）、一番上に
+                        mainContent.scrollTop = 0;
+                    }
+                    // 全非表示時はスクロール位置の調整は特に行わない（要素がないため基準が難しい）
                 });
             }
         };
