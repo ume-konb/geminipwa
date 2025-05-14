@@ -102,7 +102,8 @@
 
             --memo-height: 300px; 
             --clipboard-stack-height: 300px;
-            --message-icon-size: 28px; /* アイコンのデフォルトサイズ */
+            --message-icon-size: 28px;
+            --message-icon-offset-y: 0px; /* アイコン垂直オフセットのデフォルト値 */
 
             --bg-toggle-button: var(--bg-button-action);
             --bg-toggle-button-hover: var(--bg-button-action-hover);
@@ -644,7 +645,7 @@
         }
 
 
-        /* 以下、共通のスタイルや詳細な要素のスタイルは変更なしなので省略しません */
+        /* 以下、共通のスタイルや詳細な要素のスタイル */
         * {
             margin: 0;
             padding: 0;
@@ -732,7 +733,7 @@
             top: 0;
             z-index: 10;
             transition: background-color 0.3s ease;
-            gap: 10px;
+            gap: 8px; /* 修正: 10pxから8pxへ */
         }
         body.pastel-rainbow-mode .app-header {
             background: var(--bg-header); 
@@ -746,7 +747,9 @@
             text-overflow: ellipsis;
             text-align: left;
             margin: 0;
-            margin-right: auto;
+            margin-right: auto; /* 修正: 維持 */
+            flex-shrink: 1;     /* 追加 */
+            min-width: 60px;    /* 追加 (値は調整可能) */
         }
         .header-button {
             background: none;
@@ -756,8 +759,14 @@
             padding: 5px;
             line-height: 1;
             min-width: 30px;
-            flex-shrink: 0;
+            flex-shrink: 0; /* 修正: 維持 */
         }
+        /* 修正: 設定ボタンにorderプロパティを追加 */
+        #goto-settings-btn {
+            order: 99;
+            margin-left: 5px; /* 任意 */
+        }
+
 
         .app-header #toggle-clipboard-stack-btn,
         .app-header #toggle-memo-btn,
@@ -1331,7 +1340,8 @@
             border-radius: 50%; 
             object-fit: cover; 
             position: absolute;
-            top: calc(var(--message-icon-size) / -2 + 2px); /* 少し調整 */
+            /* 修正前: top: calc(var(--message-icon-size) / -2 + 2px); */
+            top: calc( (var(--message-icon-size) / -2 + 2px) + var(--message-icon-offset-y, 0px) ); /* 修正後 */
             border: 1px solid var(--border-secondary);
             background-color: var(--bg-tertiary); 
             box-shadow: 0 1px 2px var(--shadow-primary);
@@ -1343,10 +1353,12 @@
         .message.model .message-icon {
             left: 5px; 
         }
+        /* 修正: このスタイルは不要になるか影響がなくなるためコメントアウト
         .message.user:hover .message-toggle-button.top + .message-icon,
         .message.user.show-actions .message-toggle-button.top + .message-icon {
-            right: calc(5px + 20px + 5px); /* (アイコン右端からの距離 + ボタン幅 + ボタンとアイコンの間隔) */
+            right: calc(5px + 20px + 5px); 
         }
+        */
 
 
         .message.message-hidden-by-toggle {
@@ -1470,10 +1482,12 @@
             opacity: 1;
         }
 
+        /* 修正: 折りたたみボタンの位置調整 */
         .message-toggle-button.top {
-            top: -25px;
-            right: 0;
+            top: 5px; /* バブル内上部からの距離 */
+            right: 5px; /* バブル内右部からの距離 */
             left: auto;
+            z-index: 3; /* アイコンより手前に表示されるように念のため */
         }
 
         .message-toggle-button.bottom {
@@ -2764,6 +2778,14 @@
                         <label for="message-icon-size">アイコン表示サイズ (px):</label>
                         <input type="number" id="message-icon-size" min="16" max="64" step="1" placeholder="例: 28" aria-label="アイコン表示サイズ">
                     </div>
+                    <!-- 修正: アイコン垂直オフセット設定の追加 -->
+                    <div style="margin-top: 15px;">
+                        <label for="message-icon-offset-y">アイコン垂直オフセット (px):</label>
+                        <input type="number" id="message-icon-offset-y" step="1" placeholder="例: 0 (上下に調整)" aria-label="アイコン垂直オフセット">
+                    </div>
+                    <p style="font-size: 11px; color: var(--text-secondary); margin-top: 8px;">
+                       ※ マイナス値で上に、プラス値で下にアイコンが移動します。
+                    </p>
                      <p style="font-size: 11px; color: var(--text-secondary); margin-top: 15px;">
                        ※ アイコン画像はブラウザ内のデータベースに保存されます。<br>
                        ※ 表示時は円形に切り取られます。デフォルトサイズ: 28px。
@@ -2961,7 +2983,8 @@
         const DEFAULT_FONT_FAMILY = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
         const DEFAULT_MEMO_HEIGHT = '300px';
         const DEFAULT_CLIPBOARD_STACK_HEIGHT = '300px';
-        const DEFAULT_MESSAGE_ICON_SIZE = 28; // 追加
+        const DEFAULT_MESSAGE_ICON_SIZE = 28;
+        const DEFAULT_MESSAGE_ICON_OFFSET_Y = 0; // 追加
         const CHAT_TITLE_LENGTH = 15;
         const TEXTAREA_MAX_HEIGHT = 120;
         const GEMINI_API_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models/';
@@ -3095,7 +3118,7 @@
             showScrollToBottomButtonToggle: document.getElementById('show-scroll-to-bottom-button-toggle'), 
             showToggleAllContentButtonToggle: document.getElementById('show-toggle-all-content-button-toggle'),
             showBulkHistoryActionsToggle: document.getElementById('show-bulk-history-actions-toggle'),
-            showPasteButtonInFooterToggle: document.getElementById('show-paste-button-in-footer-toggle'), // 追加
+            showPasteButtonInFooterToggle: document.getElementById('show-paste-button-in-footer-toggle'),
             messageBubbleOpacityInput: document.getElementById('message-bubble-opacity'),
             chatOverlayOpacityInput: document.getElementById('chat-overlay-opacity'),
             headerFooterOpacityInput: document.getElementById('header-footer-opacity'),
@@ -3135,7 +3158,7 @@
             promptOkBtn: document.getElementById('promptDialog').querySelector('.dialog-ok-btn'),
             promptCancelBtn: document.getElementById('promptDialog').querySelector('.dialog-cancel-btn'),
             attachFileBtn: document.getElementById('attach-file-btn'),
-            pasteToInputBtn: document.getElementById('paste-to-input-btn'), // 追加
+            pasteToInputBtn: document.getElementById('paste-to-input-btn'),
             fileUploadDialog: document.getElementById('fileUploadDialog'),
             fileInput: document.getElementById('file-input'),
             selectFilesBtn: document.getElementById('select-files-btn'),
@@ -3168,7 +3191,8 @@
             uploadAiIconBtn: document.getElementById('upload-ai-icon-btn'),
             aiIconThumbnail: document.getElementById('ai-icon-thumbnail'),
             deleteAiIconBtn: document.getElementById('delete-ai-icon-btn'),
-            messageIconSizeInput: document.getElementById('message-icon-size'), // 追加
+            messageIconSizeInput: document.getElementById('message-icon-size'),
+            messageIconOffsetYInput: document.getElementById('message-icon-offset-y'), // 追加
         };
 
         const state = {
@@ -3209,7 +3233,7 @@
                 showScrollToBottomButton: true, 
                 showToggleAllContentButton: true,
                 showBulkHistoryActions: true,
-                showPasteButtonInFooter: true, // 追加
+                showPasteButtonInFooter: true,
                 showMemoButton: true,
                 memoHeight: DEFAULT_MEMO_HEIGHT,
                 showClipboardStackButton: true, 
@@ -3218,7 +3242,8 @@
                 userIconBlob: null, 
                 showAiIcon: true, 
                 aiIconBlob: null, 
-                messageIconSize: DEFAULT_MESSAGE_ICON_SIZE, // 追加
+                messageIconSize: DEFAULT_MESSAGE_ICON_SIZE,
+                messageIconOffsetY: DEFAULT_MESSAGE_ICON_OFFSET_Y, // 追加
                 showCollapseButtons: true,
                 messageBubbleOpacity: DEFAULT_MESSAGE_BUBBLE_OPACITY,
                 chatOverlayOpacity: DEFAULT_CHAT_OVERLAY_OPACITY,
@@ -3400,13 +3425,13 @@
                                      state.settings[key] = loadedValue === true; 
                                 } else if (typeof defaultValue === 'number' || defaultValue === null) {
                                      let num;
-                                     if (key === 'temperature' || key === 'topP' || key === 'presencePenalty' || key === 'frequencyPenalty' || key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity' || key === 'messageIconSize') { // messageIconSize を追加
+                                     if (key === 'temperature' || key === 'topP' || key === 'presencePenalty' || key === 'frequencyPenalty' || key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity' || key === 'messageIconSize' || key === 'messageIconOffsetY') { // 修正: messageIconOffsetY を追加
                                          num = parseFloat(loadedValue);
                                      } else {
                                          num = parseInt(loadedValue, 10);
                                      }
                                      if (isNaN(num)) {
-                                         if ((key === 'temperature' || key === 'maxTokens' || key === 'topK' || key === 'topP' || key === 'presencePenalty' || key === 'frequencyPenalty' || key === 'thinkingBudget' || key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity' || key === 'messageIconSize') && (loadedValue === null || loadedValue === '')) { // messageIconSize を追加
+                                         if ((key === 'temperature' || key === 'maxTokens' || key === 'topK' || key === 'topP' || key === 'presencePenalty' || key === 'frequencyPenalty' || key === 'thinkingBudget' || key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity' || key === 'messageIconSize' || key === 'messageIconOffsetY') && (loadedValue === null || loadedValue === '')) { // 修正: messageIconOffsetY を追加
                                               state.settings[key] = null;
                                          } else {
                                               state.settings[key] = defaultValue;
@@ -3420,7 +3445,8 @@
                                           if ((key === 'presencePenalty' || key === 'frequencyPenalty') && (num < -2.0 || num >= 2.0)) num = defaultValue;
                                           if (key === 'thinkingBudget' && (num < 0 || !Number.isInteger(num))) num = defaultValue;
                                           if ((key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity') && (num < 0 || num > 1)) num = defaultValue;
-                                          if (key === 'messageIconSize' && (num < 16 || num > 64)) num = defaultValue; // messageIconSize の範囲チェック
+                                          if (key === 'messageIconSize' && (num < 16 || num > 64)) num = defaultValue;
+                                          if (key === 'messageIconOffsetY' && (num < -50 || num > 50)) num = defaultValue; // 修正: messageIconOffsetY の範囲チェック
                                           state.settings[key] = num;
                                      }
                                 } else if (typeof defaultValue === 'string') {
@@ -4145,7 +4171,8 @@
                     elements.toggleClipboardStackBtn.classList.toggle('hidden', !state.settings.showClipboardStackButton);
                 }
                 document.documentElement.style.setProperty('--clipboard-stack-height', state.settings.clipboardStackHeight || DEFAULT_CLIPBOARD_STACK_HEIGHT); 
-                document.documentElement.style.setProperty('--message-icon-size', `${state.settings.messageIconSize || DEFAULT_MESSAGE_ICON_SIZE}px`); 
+                document.documentElement.style.setProperty('--message-icon-size', `${state.settings.messageIconSize || DEFAULT_MESSAGE_ICON_SIZE}px`);
+                document.documentElement.style.setProperty('--message-icon-offset-y', `${state.settings.messageIconOffsetY || DEFAULT_MESSAGE_ICON_OFFSET_Y}px`); // 追加
             },
             applyOpacitySettings() {
                 document.documentElement.style.setProperty('--message-bubble-opacity', state.settings.messageBubbleOpacity);
@@ -4318,7 +4345,7 @@
                 elements.showScrollToBottomButtonToggle.checked = state.settings.showScrollToBottomButton; 
                 elements.showToggleAllContentButtonToggle.checked = state.settings.showToggleAllContentButton;
                 elements.showBulkHistoryActionsToggle.checked = state.settings.showBulkHistoryActions;
-                elements.showPasteButtonInFooterToggle.checked = state.settings.showPasteButtonInFooter; 
+                elements.showPasteButtonInFooterToggle.checked = state.settings.showPasteButtonInFooter;
                 elements.messageBubbleOpacityInput.value = state.settings.messageBubbleOpacity ?? DEFAULT_MESSAGE_BUBBLE_OPACITY;
                 elements.chatOverlayOpacityInput.value = state.settings.chatOverlayOpacity ?? DEFAULT_CHAT_OVERLAY_OPACITY;
                 elements.headerFooterOpacityInput.value = state.settings.headerFooterOpacity ?? DEFAULT_HEADER_FOOTER_OPACITY;
@@ -4328,7 +4355,8 @@
                 elements.showClipboardStackButtonToggle.checked = state.settings.showClipboardStackButton; 
                 elements.showUserIconToggle.checked = state.settings.showUserIcon; 
                 elements.showAiIconToggle.checked = state.settings.showAiIcon; 
-                elements.messageIconSizeInput.value = state.settings.messageIconSize || DEFAULT_MESSAGE_ICON_SIZE; 
+                elements.messageIconSizeInput.value = state.settings.messageIconSize ?? DEFAULT_MESSAGE_ICON_SIZE;
+                elements.messageIconOffsetYInput.value = state.settings.messageIconOffsetY ?? DEFAULT_MESSAGE_ICON_OFFSET_Y; // 追加
 
                 elements.showCollapseButtonsToggle.checked = state.settings.showCollapseButtons;
 
@@ -4367,7 +4395,7 @@
                 if (elements.toggleClipboardStackBtn) { 
                     elements.toggleClipboardStackBtn.classList.toggle('hidden', !state.settings.showClipboardStackButton);
                 }
-                if (elements.pasteToInputBtn) { // 追加
+                if (elements.pasteToInputBtn) {
                     elements.pasteToInputBtn.classList.toggle('hidden', !state.settings.showPasteButtonInFooter);
                 }
             },
@@ -4499,7 +4527,7 @@
                     elements.sendButton.disabled = false;
                     elements.userInput.disabled = true;
                     elements.attachFileBtn.disabled = true;
-                    elements.pasteToInputBtn.disabled = true; // 追加
+                    elements.pasteToInputBtn.disabled = true;
                     elements.loadingIndicator.classList.remove('hidden');
                     elements.loadingIndicator.setAttribute('aria-live', 'polite');
                     elements.systemPromptDetails.style.pointerEvents = 'none'; 
@@ -4511,7 +4539,7 @@
                     elements.sendButton.disabled = elements.userInput.value.trim() === '' && state.pendingAttachments.length === 0;
                     elements.userInput.disabled = false;
                     elements.attachFileBtn.disabled = false;
-                    elements.pasteToInputBtn.disabled = false; // 追加
+                    elements.pasteToInputBtn.disabled = false;
                     elements.loadingIndicator.classList.add('hidden');
                     elements.loadingIndicator.removeAttribute('aria-live');
                     elements.systemPromptDetails.style.pointerEvents = '';
@@ -4833,6 +4861,14 @@
                         document.documentElement.style.setProperty('--message-icon-size', `${DEFAULT_MESSAGE_ICON_SIZE}px`);
                     }
                 });
+                elements.messageIconOffsetYInput.addEventListener('input', () => { // 追加
+                    const newOffsetY = parseInt(elements.messageIconOffsetYInput.value, 10);
+                    if (!isNaN(newOffsetY) && newOffsetY >= -50 && newOffsetY <= 50) {
+                        document.documentElement.style.setProperty('--message-icon-offset-y', `${newOffsetY}px`);
+                    } else if (elements.messageIconOffsetYInput.value === '') {
+                        document.documentElement.style.setProperty('--message-icon-offset-y', `${DEFAULT_MESSAGE_ICON_OFFSET_Y}px`);
+                    }
+                });
 
 
                 elements.hideSystemPromptToggle.addEventListener('change', () => {
@@ -4859,7 +4895,7 @@
                     state.settings.showScrollToBottomButton = elements.showScrollToBottomButtonToggle.checked;
                     uiUtils.updateChatScreenElementVisibility();
                 });
-                elements.showPasteButtonInFooterToggle.addEventListener('change', () => { // 追加
+                elements.showPasteButtonInFooterToggle.addEventListener('change', () => {
                     state.settings.showPasteButtonInFooter = elements.showPasteButtonInFooterToggle.checked;
                     uiUtils.updateChatScreenElementVisibility();
                 });
@@ -5258,10 +5294,21 @@
                     mainContent.scrollTo({ top: mainContent.scrollHeight, behavior: 'smooth' });
                 }
             },
-            async pasteToUserInput() { 
+            async pasteToUserInput() { // 修正: 即時貼り付けとフィードバック
+                const button = elements.pasteToInputBtn;
+                const originalTextContent = button.textContent;
+                const originalTitle = button.title;
+
                 try {
                     if (!navigator.clipboard || !navigator.clipboard.readText) {
-                        uiUtils.showCustomAlert("このブラウザはクリップボードの読み取りに対応していません。");
+                        button.textContent = "!";
+                        button.title = "クリップボードAPI非対応";
+                        button.disabled = true;
+                        setTimeout(() => {
+                            button.textContent = originalTextContent;
+                            button.title = originalTitle;
+                            button.disabled = false;
+                        }, 2000);
                         return;
                     }
                     const textToPaste = await navigator.clipboard.readText();
@@ -5272,15 +5319,38 @@
                         elements.userInput.value = currentText.substring(0, selectionStart) + textToPaste + currentText.substring(selectionEnd);
                         elements.userInput.selectionStart = elements.userInput.selectionEnd = selectionStart + textToPaste.length;
                         elements.userInput.focus();
-                        uiUtils.adjustTextareaHeight(); 
+                        uiUtils.adjustTextareaHeight();
+                        uiUtils.updateAttachmentBadgeVisibility(); // 入力があったので送信ボタンの状態を更新
+
+                        button.textContent = "✓";
+                        button.title = "貼り付け完了";
+                        setTimeout(() => {
+                            button.textContent = originalTextContent;
+                            button.title = originalTitle;
+                        }, 1500);
+                    } else {
+                        button.textContent = "空";
+                        button.title = "クリップボードは空です";
+                        setTimeout(() => {
+                            button.textContent = originalTextContent;
+                            button.title = originalTitle;
+                        }, 1500);
                     }
                 } catch (err) {
                     console.error("Paste to user input error:", err);
                     if (err.name === 'NotAllowedError' || err.message.includes('Read permission denied')) {
-                         uiUtils.showCustomAlert("クリップボードの読み取り許可がありません。");
+                        button.textContent = "!";
+                        button.title = "クリップボードの許可なし";
                     } else {
-                         uiUtils.showCustomAlert("貼り付けに失敗しました。");
+                        button.textContent = "X";
+                        button.title = "貼り付け失敗";
                     }
+                    button.disabled = true;
+                    setTimeout(() => {
+                        button.textContent = originalTextContent;
+                        button.title = originalTitle;
+                        button.disabled = false;
+                    }, 2000);
                 }
             },
             async confirmStartNewChat() {
@@ -6342,14 +6412,15 @@ if (msg.role === 'user') return true;
                      showScrollToBottomButton: elements.showScrollToBottomButtonToggle.checked, 
                      showToggleAllContentButton: elements.showToggleAllContentButtonToggle.checked,
                      showBulkHistoryActions: elements.showBulkHistoryActionsToggle.checked,
-                     showPasteButtonInFooter: elements.showPasteButtonInFooterToggle.checked, 
+                     showPasteButtonInFooter: elements.showPasteButtonInFooterToggle.checked,
                      showMemoButton: elements.showMemoButtonToggle.checked,
                      memoHeight: elements.memoHeightInput.value.trim() || DEFAULT_MEMO_HEIGHT,
                      showClipboardStackButton: elements.showClipboardStackButtonToggle.checked, 
                      clipboardStackHeight: state.settings.clipboardStackHeight, 
                      showUserIcon: elements.showUserIconToggle.checked, 
                      showAiIcon: elements.showAiIconToggle.checked, 
-                     messageIconSize: parseInt(elements.messageIconSizeInput.value, 10) || DEFAULT_MESSAGE_ICON_SIZE, 
+                     messageIconSize: parseInt(elements.messageIconSizeInput.value, 10) || DEFAULT_MESSAGE_ICON_SIZE,
+                     messageIconOffsetY: parseInt(elements.messageIconOffsetYInput.value, 10) || DEFAULT_MESSAGE_ICON_OFFSET_Y, // 追加
                      showCollapseButtons: elements.showCollapseButtonsToggle.checked,
                      messageBubbleOpacity: elements.messageBubbleOpacityInput.value === '' ? DEFAULT_MESSAGE_BUBBLE_OPACITY : parseFloat(elements.messageBubbleOpacityInput.value),
                      chatOverlayOpacity: elements.chatOverlayOpacityInput.value === '' ? DEFAULT_CHAT_OVERLAY_OPACITY : parseFloat(elements.chatOverlayOpacityInput.value),
@@ -6382,6 +6453,9 @@ if (msg.role === 'user') return true;
                  }
                  if (newSettings.messageIconSize !== null && (isNaN(newSettings.messageIconSize) || newSettings.messageIconSize < 16 || newSettings.messageIconSize > 64)) {
                      newSettings.messageIconSize = DEFAULT_MESSAGE_ICON_SIZE;
+                 }
+                 if (newSettings.messageIconOffsetY !== null && (isNaN(newSettings.messageIconOffsetY) || newSettings.messageIconOffsetY < -50 || newSettings.messageIconOffsetY > 50)) { // 追加
+                     newSettings.messageIconOffsetY = DEFAULT_MESSAGE_ICON_OFFSET_Y;
                  }
                  if (newSettings.messageBubbleOpacity !== null && (isNaN(newSettings.messageBubbleOpacity) || newSettings.messageBubbleOpacity < 0 || newSettings.messageBubbleOpacity > 1)) {
                     newSettings.messageBubbleOpacity = DEFAULT_MESSAGE_BUBBLE_OPACITY;
@@ -6489,7 +6563,7 @@ if (msg.role === 'user') return true;
                             showScrollToTopButton: true, 
                             showScrollToBottomButton: true, 
                             showToggleAllContentButton: true, showBulkHistoryActions: true,
-                            showPasteButtonInFooter: true, 
+                            showPasteButtonInFooter: true,
                             showMemoButton: true,
                             memoHeight: DEFAULT_MEMO_HEIGHT,
                             showClipboardStackButton: true, 
@@ -6498,7 +6572,8 @@ if (msg.role === 'user') return true;
                             userIconBlob: null, 
                             showAiIcon: true, 
                             aiIconBlob: null, 
-                            messageIconSize: DEFAULT_MESSAGE_ICON_SIZE, 
+                            messageIconSize: DEFAULT_MESSAGE_ICON_SIZE,
+                            messageIconOffsetY: DEFAULT_MESSAGE_ICON_OFFSET_Y, // 追加
                             showCollapseButtons: true,
                             messageBubbleOpacity: DEFAULT_MESSAGE_BUBBLE_OPACITY,
                             chatOverlayOpacity: DEFAULT_CHAT_OVERLAY_OPACITY,
