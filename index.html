@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -6149,39 +6148,41 @@
             async typeCharacterByCharacter(processedChunks, messageIndex, signal, prefix = '') {
                 const speed = state.settings.streamingSpeed;
                 let accumulatedRawContent = prefix;
-                state.partialStreamContent = prefix; // ストリーミング中の部分コンテンツ
-                if (prefix) { // prefixがあれば最初に一度描画
-                    uiUtils.updateStreamingMessage(messageIndex, ''); // charは空で良い
+                state.partialStreamContent = prefix;
+
+                if (prefix) {
+                    uiUtils.updateStreamingMessage(messageIndex, '');
                 }
 
-                if (!speed || speed <= 0) { // 速度0以下なら一括表示
-                    accumulatedRawContent = prefix + processedChunks.map(chunk => chunk === null ? '\n\n' : chunk).join('');
+                if (!speed || speed <= 0) {
+                    accumulatedRawContent = prefix + processedChunks.join(''); // ★★★ 修正: 単純結合 ★★★
                     state.partialStreamContent = accumulatedRawContent;
                     uiUtils.updateStreamingMessage(messageIndex, '');
                     return accumulatedRawContent;
                 }
 
+                // console.log(`タイピングエフェクト速度: ${speed}ms`); // デバッグ用ログ
                 for (const chunk of processedChunks) {
-                    if (signal.aborted) { // 中断されたらループを抜ける
+                    if (signal.aborted) {
+                        // console.log("タイピング中断"); // デバッグ用ログ
                         return accumulatedRawContent;
                     }
-                    if (chunk === null) { // null は改行セパレータとして扱う
-                        const separator = '\n\n';
-                        accumulatedRawContent += separator;
-                        state.partialStreamContent = accumulatedRawContent;
-                        uiUtils.updateStreamingMessage(messageIndex, ''); // 改行なのでcharは空
-                    } else if (typeof chunk === 'string') {
+                    // ★★★ 修正箇所: chunk === null の分岐を削除 ★★★
+                    if (typeof chunk === 'string') { // 文字列チャンクのみ処理
                         for (const char of chunk) {
                             if (signal.aborted) {
+                                // console.log("タイピング中断"); // デバッグ用ログ
                                 return accumulatedRawContent;
                             }
                             accumulatedRawContent += char;
                             state.partialStreamContent = accumulatedRawContent;
-                            uiUtils.updateStreamingMessage(messageIndex, char); // 1文字ずつUI更新
-                            await sleep(speed); // 設定された速度で待機
+                            uiUtils.updateStreamingMessage(messageIndex, char);
+                            await sleep(speed);
                         }
                     }
+                    // ★★★ 修正ここまで ★★★
                 }
+                // console.log("タイピングエフェクト完了"); // デバッグ用ログ
                 return accumulatedRawContent;
             },
             async handleSend(isRetry = false, retryUserMessageIndex = -1) {
@@ -6560,7 +6561,7 @@
                         systemPrompt = content;
                     } else if ((role === 'user' || role === 'model') && (content || attributesString.includes('attachments'))) {
                         const messageData = {
-                            role: role, content: content, timestamp: Date.now(), attachments: [] // attachments は初期化
+                            role: role, content: content, timestamp: Date.now(), attachments: []
                         };
                         // 属性のパース
                         const attributes = {};
@@ -6569,10 +6570,10 @@
                             if (eqIndex > 0) {
                                 const key = attr.substring(0, eqIndex);
                                 let value = attr.substring(eqIndex + 1);
-                                if (value.startsWith('"') && value.endsWith('"')) { // クォート除去
+                                if (value.startsWith('"') && value.endsWith('"')) {
                                     value = value.substring(1, value.length - 1);
                                 }
-                                attributes[key] = value.replace(/&quot;/g, '"'); // HTMLエンティティを元に戻す
+                                attributes[key] = value.replace(/&quot;/g, '"'); 
                             } else if (attr) { // 値なし属性 (例: isCascaded)
                                 attributes[attr] = true;
                             }
@@ -7945,34 +7946,37 @@
                 let finalSafetyRatings = null;
                 let finalGroundingMetadata = null;
                 let finalUsageMetadata = null;
-                let firstChunk = true; // 最初のチャンクかどうかを判定するフラグ
+                let firstChunk = true;
 
                 try {
                     while (true) {
                         const { value, done } = await reader.read();
-                        if (done || state.abortController?.signal.aborted) { // 完了または中断
-                            if (state.abortController?.signal.aborted && !finalFinishReason) { // 明示的な中断で理由がなければ
+                        if (done || state.abortController?.signal.aborted) {
+                            if (state.abortController?.signal.aborted && !finalFinishReason) {
                                 finalFinishReason = 'ABORTED';
                             }
                             break;
                         }
-                        buffer += decoder.decode(value, { stream: true }); // チャンクをバッファに追加
-                        let boundary = buffer.indexOf('\n'); // 改行でチャンクを区切る
+                        buffer += decoder.decode(value, { stream: true });
+                        let boundary = buffer.indexOf('\n');
                         while (boundary !== -1) {
                             const chunkString = buffer.substring(0, boundary).trim();
-                            buffer = buffer.substring(boundary + 1); // バッファ更新
+                            buffer = buffer.substring(boundary + 1);
 
-                            if (chunkString.startsWith("data: ")) { // "data: " で始まる有効なチャンク
+                            if (chunkString.startsWith("data: ")) {
                                 try {
-                                    const jsonData = JSON.parse(chunkString.substring(6)); // "data: " を除いてパース
+                                    const jsonData = JSON.parse(chunkString.substring(6));
                                     if (jsonData.candidates && jsonData.candidates.length > 0) {
                                         const candidate = jsonData.candidates[0];
                                         if (candidate.content && candidate.content.parts) {
-                                            candidate.content.parts.forEach(part => {
-                                                if (part.text) {
-                                                    processedChunks.push(part.text);
-                                                }
-                                            });
+                                            // ★★★ 修正箇所 ★★★
+                                            const combinedTextFromParts = candidate.content.parts
+                                                .map(part => part.text || "") // part.text がなければ空文字
+                                                .join(""); // parts内のテキストを単純結合
+                                            if (combinedTextFromParts) { // 空のテキストは追加しない
+                                                processedChunks.push(combinedTextFromParts);
+                                            }
+                                            // ★★★ 修正ここまで ★★★
                                         }
                                         if (candidate.finishReason) finalFinishReason = candidate.finishReason;
                                         if (candidate.safetyRatings) finalSafetyRatings = candidate.safetyRatings;
@@ -7980,37 +7984,40 @@
                                     }
                                     if (jsonData.usageMetadata) finalUsageMetadata = jsonData.usageMetadata;
 
-                                     // 最初のチャンクでブロック理由があればエラーとして扱う
-                                     if (firstChunk && jsonData.promptFeedback && jsonData.promptFeedback.blockReason) {
-                                        throw new Error(`ストリーミング開始エラー (ブロック理由: ${jsonData.promptFeedback.blockReason})`);
-                                    }
+                                    if (firstChunk && jsonData.promptFeedback && jsonData.promptFeedback.blockReason) {
+                                       throw new Error(`ストリーミング開始エラー (ブロック理由: ${jsonData.promptFeedback.blockReason})`);
+                                   }
                                 } catch (e) {
                                     console.error("ストリーミングJSONパースエラー:", e, "Chunk:", chunkString);
-                                    processedChunks.push(` [パースエラー: ${e.message}] `); // エラー情報をチャンクとして追加
+                                    processedChunks.push(` [パースエラー: ${e.message}] `);
                                 }
                             }
-                             firstChunk = false; // 最初のチャンク処理後はfalse
-                            boundary = buffer.indexOf('\n'); // 次の改行を探す
+                            firstChunk = false;
+                            boundary = buffer.indexOf('\n');
                         }
                     }
                 } catch (error) {
                     console.error("Error handling streaming response:", error);
-                    if (state.abortController?.signal.aborted) { // 中断シグナルがあれば理由を設定
+                    if (state.abortController?.signal.aborted) {
                          finalFinishReason = 'ABORTED';
                     } else {
-                        throw error; // それ以外のエラーは再スロー
+                        throw error;
                     }
                 } finally {
-                    // ループ終了後、バッファに残っているデータを処理
                     if (buffer.trim().startsWith("data: ")) {
                         try {
                             const jsonData = JSON.parse(buffer.trim().substring(6));
                             if (jsonData.candidates && jsonData.candidates.length > 0) {
                                 const candidate = jsonData.candidates[0];
                                 if (candidate.content && candidate.content.parts) {
-                                    candidate.content.parts.forEach(part => {
-                                        if (part.text) processedChunks.push(part.text);
-                                    });
+                                    // ★★★ 修正箇所 (finallyブロックにも適用) ★★★
+                                    const combinedTextFromParts = candidate.content.parts
+                                        .map(part => part.text || "")
+                                        .join("");
+                                    if (combinedTextFromParts) {
+                                        processedChunks.push(combinedTextFromParts);
+                                    }
+                                     // ★★★ 修正ここまで ★★★
                                 }
                                 if (candidate.finishReason) finalFinishReason = candidate.finishReason;
                                 if (candidate.safetyRatings) finalSafetyRatings = candidate.safetyRatings;
@@ -8021,7 +8028,6 @@
                             console.warn("Error parsing final buffered chunk:", e);
                         }
                     }
-                    // 最終的な中断チェック
                     if (state.abortController?.signal.aborted && !finalFinishReason) {
                         finalFinishReason = 'ABORTED';
                     }
