@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -3148,7 +3149,7 @@
         const LIGHT_MODE_PRIMARY_COLOR = '#ffffff';
 
 
-        const APP_VERSION = "0.25";
+        const APP_VERSION = "0.25.1"; // 疑似ストリーミング修正
         const SWIPE_THRESHOLD = 50;
         const ZOOM_THRESHOLD = 1.01;
         const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -5298,13 +5299,12 @@
                             currentlyShown.classList.remove('show-actions');
                         }
                     }
-                }, true); // キャプチャフェーズで先に実行するように変更
-                // body クリックでメッセージアクションを非表示 (メモエリアなどを除く)
+                }, true);
                 document.body.addEventListener('click', (event) => {
                     if (!elements.messageContainer.contains(event.target) &&
                         !elements.memoArea.contains(event.target) &&
                         !elements.clipboardStackArea.contains(event.target) &&
-                        !event.target.closest('.custom-dialog')) { // ダイアログ内クリックは除外
+                        !event.target.closest('.custom-dialog')) {
                         const currentlyShown = elements.messageContainer.querySelector('.message.show-actions');
                         if (currentlyShown) {
                             currentlyShown.classList.remove('show-actions');
@@ -6113,11 +6113,11 @@
                     if (signal.aborted) {
                         return accumulatedRawContent;
                     }
-                    if (chunk === null) {
-                        const separator = '\n\n';
+                    if (chunk === null) { // null は改行として解釈
+                        const separator = '\n\n'; // 2つの改行
                         accumulatedRawContent += separator;
                         state.partialStreamContent = accumulatedRawContent;
-                        uiUtils.updateStreamingMessage(messageIndex, '');
+                        uiUtils.updateStreamingMessage(messageIndex, ''); // UI更新をトリガー
                     } else if (typeof chunk === 'string') {
                         for (const char of chunk) {
                             if (signal.aborted) {
@@ -6274,7 +6274,7 @@
                     const response = await apiUtils.callGeminiApi(apiMessages, generationConfig, systemInstruction);
                     const dummyModelPrefix = (state.settings.concatDummyModel && state.settings.dummyModel) ? state.settings.dummyModel : '';
 
-                    if (state.settings.streamingOutput && !state.settings.pseudoStreaming) {
+                    if (state.settings.streamingOutput && !state.settings.pseudoStreaming) { // 通常のストリーミング
                         const tempPlaceholderIndex = state.currentMessages.length;
                         uiUtils.appendMessage('model', '', tempPlaceholderIndex, true);
                         const streamResult = await apiUtils.handleStreamingResponse(response);
@@ -6289,8 +6289,9 @@
                         }
                         const placeholderElement = document.getElementById(`streaming-message-${tempPlaceholderIndex}`);
                         if (placeholderElement) placeholderElement.remove();
-                    } else {
-                        const data = await response.json();
+                    } else { // 非ストリーミング または 疑似ストリーミング
+                        const data = await response.json(); // レスポンス全体をJSONとしてパース
+                        console.log("API応答 (非ストリーミング/疑似ストリーミング):", data);
                         const candidate = data.candidates?.[0];
                         let rawContentFromApi = "";
                         if (candidate) {
@@ -6317,7 +6318,26 @@
                             usageMetadata = data.usageMetadata || null;
                         }
                         modelResponseRawContent = dummyModelPrefix + rawContentFromApi;
+
+                        // 疑似ストリーミングの場合、取得したテキストをtypeCharacterByCharacterで表示
+                        if (state.settings.streamingOutput && state.settings.pseudoStreaming) {
+                            const tempPlaceholderIndex = state.currentMessages.length;
+                            uiUtils.appendMessage('model', '', tempPlaceholderIndex, true); // プレースホルダー表示
+
+                            const pseudoChunks = modelResponseRawContent.split('\n\n').flatMap((part, index, arr) =>
+                                index < arr.length - 1 ? [...part.split(''), null] : part.split('')
+                            );
+
+                            await this.typeCharacterByCharacter(pseudoChunks, tempPlaceholderIndex, state.abortController.signal, '');
+
+                            if (state.abortController?.signal.aborted) {
+                                throw new Error("リクエストがキャンセルされました。");
+                            }
+                            const placeholderElement = document.getElementById(`streaming-message-${tempPlaceholderIndex}`);
+                            if (placeholderElement) placeholderElement.remove();
+                        }
                     }
+
 
                     if (modelResponseRawContent || modelResponseMetadata.finishReason) {
                          const newModelMessage = {
@@ -6352,7 +6372,7 @@
                     const displayErrorMessage = isAbort ? error.message : (error.message || "不明なエラーが発生しました");
                     const partialRawContent = state.partialStreamContent || error.cause?.partialChunks?.join('');
 
-                    if (partialRawContent && (state.settings.streamingOutput && !state.settings.pseudoStreaming)) {
+                    if (partialRawContent && state.settings.streamingOutput) { 
                          const finalPartialContent = partialRawContent + `\n\n(${isAbort ? '中断されました' : 'エラーが発生しました'})`;
                          const partialMessage = {
                              role: 'model', content: finalPartialContent, timestamp: Date.now(), error: true,
@@ -7784,17 +7804,31 @@
                 const { signal } = state.abortController;
 
                 const useStreaming = state.settings.streamingOutput;
-                const usePseudo = state.settings.pseudoStreaming;
+                const usePseudo = state.settings.pseudoStreaming; // 疑似ストリーミング設定を取得
                 const model = state.settings.modelName || DEFAULT_MODEL;
                 const apiKey = state.settings.apiKey;
 
-                let endpointMethod = useStreaming
-                    ? (usePseudo ? 'generateContent?alt=sse&' : 'streamGenerateContent?alt=sse&') // 修正: ここに alt=sse を追加
-                    : 'generateContent?';
-                if (!endpointMethod.endsWith('&') && !endpointMethod.endsWith('?')) { // keyの前にセパレータがない場合
-                    endpointMethod += endpointMethod.includes('?') ? '&' : '?';
+                let endpointMethod;
+                if (useStreaming) {
+                    if (usePseudo) {
+                        // 疑似ストリーミングの場合は、ストリーミングなしのエンドポイントを使用
+                        endpointMethod = 'generateContent?'; // `alt=sse` を付けない
+                        console.log("使用モード: 疑似ストリーミング (generateContent を使用)");
+                    } else {
+                        // 通常のストリーミング
+                        endpointMethod = 'streamGenerateContent?alt=sse&';
+                        console.log("使用モード: リアルタイムストリーミング");
+                    }
+                } else {
+                    // 非ストリーミング
+                    endpointMethod = 'generateContent?';
+                    console.log("使用モード: 非ストリーミング");
                 }
 
+                // keyの前にセパレータがない場合に追加
+                if (!endpointMethod.endsWith('&') && !endpointMethod.endsWith('?')) {
+                    endpointMethod += endpointMethod.includes('?') ? '&' : '?';
+                }
 
                 const endpoint = `${GEMINI_API_BASE_URL}${model}:${endpointMethod}key=${apiKey}`;
 
@@ -7822,7 +7856,7 @@
 
                 const tools = [];
                 if (state.settings.enableGrounding) {
-                    tools.push({ "googleSearchRetrieval": {} }); // 修正: google_search -> googleSearchRetrieval
+                    tools.push({ "googleSearchRetrieval": {} });
                 }
 
                 if (tools.length > 0) {
