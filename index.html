@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF- ocho">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GeminiPWA</title>
     <link rel="manifest" href="manifest.json">
@@ -103,9 +103,9 @@
             --memo-height: 300px;
             --clipboard-stack-height: 300px;
             --message-icon-size: 28px;
-            --message-icon-offset-y: -10px; /* 修正: デフォルト内部値 (下が正) */
+            --message-icon-offset-y: -10px; 
             --icon-name-font-size: 10px;
-            --icon-name-offset-y: -10px;  /* 修正: デフォルト内部値 (下が正) */
+            --icon-name-offset-y: -10px;  
 
             --bg-toggle-button: var(--bg-button-action);
             --bg-toggle-button-hover: var(--bg-button-action-hover);
@@ -121,7 +121,7 @@
             --bg-button-purple-hover: #6A006A;
             --text-button-purple: #ffffff;
 
-            /* 折りたたみボタン カスタマイズ用 */
+            
             --message-toggle-button-top-font-size: 6px;
             --message-toggle-button-top-text-collapse: "-";
             --message-toggle-button-top-text-expand: "□";
@@ -210,7 +210,7 @@
             --text-button-purple: #ffffff;
         }
 
-        /* パステルモード🩷 (ピンク基調) */
+        
         body.pastel-pink-mode {
             --bg-primary: #fff5f8;
             --bg-secondary: #ffe6ea;
@@ -306,7 +306,7 @@
             --text-button-purple: #ffffff;
         }
 
-        /* パステルモード🩵 (ライトブルー基調) */
+        
         body.pastel-blue-mode {
             --bg-primary: #f0f8ff;
             --bg-secondary: #e0f0ff;
@@ -403,7 +403,7 @@
             --text-button-purple: #ffffff;
         }
 
-        /* パステルモード🟡 (イエロー基調) */
+        
         body.pastel-yellow-mode {
             --bg-primary: #fffefa;
             --bg-secondary: #fffacd;
@@ -483,7 +483,7 @@
             --text-button-purple: #4b0082;
         }
 
-        /* パステルモード🟣 (パープル基調) */
+        
         body.pastel-purple-mode {
             --bg-primary: #f3e5f5;
             --bg-secondary: #e1bee7;
@@ -563,7 +563,7 @@
             --text-button-purple: var(--text-light);
         }
 
-        /* パステルモード🌈 (レインボー) */
+        
         body.pastel-rainbow-mode {
             --bg-primary: #fdfdfd;
             --bg-secondary: #f5f5f5;
@@ -656,7 +656,7 @@
         }
 
 
-        /* 以下、共通のスタイルや詳細な要素のスタイル */
+        
         * {
             margin: 0;
             padding: 0;
@@ -1532,14 +1532,14 @@
             right: 3px;
             left: auto;
             z-index: 3;
-            font-size: var(--message-toggle-button-top-font-size); /* Updated */
+            font-size: var(--message-toggle-button-top-font-size); 
         }
 
         .message-toggle-button.bottom {
             position: static;
             flex-shrink: 0;
             padding: 4px 10px;
-            font-size: var(--message-toggle-button-bottom-font-size); /* Updated */
+            font-size: var(--message-toggle-button-bottom-font-size); 
             line-height: 1.5;
         }
 
@@ -1696,7 +1696,7 @@
             transition: background-color 0.3s ease, border-color 0.3s ease;
             gap: 10px;
         }
-        .footer-action-button { /* フッターボタン共通スタイル */
+        .footer-action-button { 
             height: 40px;
             width: 40px;
             padding: 0;
@@ -1720,10 +1720,10 @@
             color: #424242;
         }
         .chat-input-area button#attach-file-btn {
-            position: relative; /* バッジのため */
+            position: relative; 
         }
         .chat-input-area button#paste-to-input-btn {
-            font-size: 16px; /* 「貼」文字のサイズ調整 */
+            font-size: 16px; 
         }
 
         .attachment-badge {
@@ -2892,7 +2892,7 @@
                        <input type="checkbox" id="enter-to-send">
                        Enterキーで送信する
                    </label>
-                   <!-- 追加: 自動スクロールオプション -->
+                   
                    <label class="checkbox-label">
                        <input type="checkbox" id="auto-scroll-on-new-message">
                        メッセージ送受信時に自動スクロールする
@@ -3008,7 +3008,7 @@
 
                 <div class="danger-zone">
                      <p style="text-align: center; color: var(--text-secondary); font-size: 12px; margin-bottom: 10px;">
-                         バージョン: <span id="app-version"></span>ti
+                         バージョン: <span id="app-version"></span>
                      </p>
                      <button id="update-app-btn">アプリを更新 (キャッシュクリア)</button>
                      <p style="font-size: 11px; color: var(--text-secondary); margin-top: -5px; margin-bottom: 10px; text-align:center;">
@@ -3452,7 +3452,7 @@
                 window.addEventListener('load', () => {
                     navigator.serviceWorker.register('./sw.js')
                         .then(registration => {
-                            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                            
                             navigator.serviceWorker.addEventListener('message', event => {
                                 if (event.data && event.data.action === 'reloadPage') {
                                     alert('アプリが更新されました。ページをリロードします。');
@@ -3734,7 +3734,7 @@
                     const store = this._getStore(CHATS_STORE);
                     const indexName = sortBy === 'createdAt' ? CHAT_CREATEDAT_INDEX : CHAT_UPDATEDAT_INDEX;
                     if (!store.indexNames.contains(indexName)) {
-                         console.warn(`インデックス ${indexName} が見つかりません。フォールバックします。`);
+                         
                          const getAllRequest = store.getAll();
                          getAllRequest.onsuccess = (event) => resolve(event.target.result.reverse());
                          getAllRequest.onerror = (event) => reject(`全チャット取得エラー(フォールバック): ${event.target.error}`);
@@ -6112,11 +6112,11 @@
                     if (signal.aborted) {
                         return accumulatedRawContent;
                     }
-                    if (chunk === null) { // null は改行として解釈
-                        const separator = '\n\n'; // 2つの改行
+                    if (chunk === null) { 
+                        const separator = '\n\n'; 
                         accumulatedRawContent += separator;
                         state.partialStreamContent = accumulatedRawContent;
-                        uiUtils.updateStreamingMessage(messageIndex, ''); // UI更新をトリガー
+                        uiUtils.updateStreamingMessage(messageIndex, ''); 
                     } else if (typeof chunk === 'string') {
                         for (const char of chunk) {
                             if (signal.aborted) {
@@ -6273,7 +6273,7 @@
                     const response = await apiUtils.callGeminiApi(apiMessages, generationConfig, systemInstruction);
                     const dummyModelPrefix = (state.settings.concatDummyModel && state.settings.dummyModel) ? state.settings.dummyModel : '';
 
-                    if (state.settings.streamingOutput && !state.settings.pseudoStreaming) { // 通常のストリーミング
+                    if (state.settings.streamingOutput && !state.settings.pseudoStreaming) { 
                         const tempPlaceholderIndex = state.currentMessages.length;
                         uiUtils.appendMessage('model', '', tempPlaceholderIndex, true);
                         const streamResult = await apiUtils.handleStreamingResponse(response);
@@ -6288,9 +6288,9 @@
                         }
                         const placeholderElement = document.getElementById(`streaming-message-${tempPlaceholderIndex}`);
                         if (placeholderElement) placeholderElement.remove();
-                    } else { // 非ストリーミング または 疑似ストリーミング
-                        const data = await response.json(); // レスポンス全体をJSONとしてパース
-                        console.log("API応答 (非ストリーミング/疑似ストリーミング):", data);
+                    } else { 
+                        const data = await response.json(); 
+                        
                         const candidate = data.candidates?.[0];
                         let rawContentFromApi = "";
                         if (candidate) {
@@ -6318,10 +6318,10 @@
                         }
                         modelResponseRawContent = dummyModelPrefix + rawContentFromApi;
 
-                        // 疑似ストリーミングの場合、取得したテキストをtypeCharacterByCharacterで表示
+                        
                         if (state.settings.streamingOutput && state.settings.pseudoStreaming) {
                             const tempPlaceholderIndex = state.currentMessages.length;
-                            uiUtils.appendMessage('model', '', tempPlaceholderIndex, true); // プレースホルダー表示
+                            uiUtils.appendMessage('model', '', tempPlaceholderIndex, true); 
 
                             const pseudoChunks = modelResponseRawContent.split('\n\n').flatMap((part, index, arr) =>
                                 index < arr.length - 1 ? [...part.split(''), null] : part.split('')
@@ -7134,7 +7134,7 @@
                      const paddingRight = parseFloat(computedStyle.paddingRight) || 0;
                      horizontalPadding = paddingLeft + paddingRight;
                  } catch (e) {
-                     console.warn("Could not get computed style for message element padding.");
+                     
                  }
                  messageElement.style.width = `calc(var(--message-max-width) + ${horizontalPadding}px + 17px)`;
 
@@ -7281,13 +7281,19 @@
                     }, 1500);
                 } catch (err) {
                     console.error("Copy message text to OS clipboard error:", err);
-                    uiUtils.showCustomAlert("OSクリップボードへのコピーに失敗しました。");
+                    await uiUtils.showCustomAlert("OSクリップボードへのコピーに失敗しました。");
+                    const originalText = buttonElement.textContent;
+                    buttonElement.textContent = 'コピー失敗';
+                    buttonElement.disabled = true;
+                    setTimeout(() => {
+                        buttonElement.textContent = originalText;
+                        buttonElement.disabled = false;
+                    }, 2000);
                 }
 
                 const currentStackContent = elements.clipboardStackEditor.value;
                 const separator = currentStackContent.length > 0 && !currentStackContent.endsWith('\n\n') ? "\n\n" : "";
-                const messagePrefix = message.role === 'user' ? "User:" : "Model:";
-                elements.clipboardStackEditor.value += separator + `${messagePrefix}\n${textToCopy}`;
+                elements.clipboardStackEditor.value += separator + textToCopy;
                 state.clipboardStackContent = elements.clipboardStackEditor.value;
                 elements.clipboardStackEditor.scrollTop = elements.clipboardStackEditor.scrollHeight;
             },
@@ -7803,28 +7809,28 @@
                 const { signal } = state.abortController;
 
                 const useStreaming = state.settings.streamingOutput;
-                const usePseudo = state.settings.pseudoStreaming; // 疑似ストリーミング設定を取得
+                const usePseudo = state.settings.pseudoStreaming; 
                 const model = state.settings.modelName || DEFAULT_MODEL;
                 const apiKey = state.settings.apiKey;
 
                 let endpointMethod;
                 if (useStreaming) {
                     if (usePseudo) {
-                        // 疑似ストリーミングの場合は、ストリーミングなしのエンドポイントを使用
-                        endpointMethod = 'generateContent?'; // `alt=sse` を付けない
-                        console.log("使用モード: 疑似ストリーミング (generateContent を使用)");
+                        
+                        endpointMethod = 'generateContent?'; 
+                        
                     } else {
-                        // 通常のストリーミング
+                        
                         endpointMethod = 'streamGenerateContent?alt=sse&';
-                        console.log("使用モード: リアルタイムストリーミング");
+                        
                     }
                 } else {
-                    // 非ストリーミング
+                    
                     endpointMethod = 'generateContent?';
-                    console.log("使用モード: 非ストリーミング");
+                    
                 }
 
-                // keyの前にセパレータがない場合に追加
+                
                 if (!endpointMethod.endsWith('&') && !endpointMethod.endsWith('?')) {
                     endpointMethod += endpointMethod.includes('?') ? '&' : '?';
                 }
@@ -7877,7 +7883,7 @@
                             if (errorData.error && errorData.error.message) {
                                 errorMsg = `APIエラー (${response.status}): ${errorData.error.message}`;
                             }
-                        } catch (e) { /* ignore json parse error */ }
+                        } catch (e) {  }
                         throw new Error(errorMsg);
                     }
                     return response;
@@ -7941,7 +7947,7 @@
                      const finalGroundingMetadata = groundingMetadata;
 
                      if (!isCancelled && processedChunks.length === 0 && (!finishReason || finishReason === "STOP")) {
-                         // console.warn("ストリーミングがコンテンツなしで終了しました。");
+                         
                      }
 
                      return {
@@ -7952,12 +7958,12 @@
                          usageMetadata: finalUsageMetadata
                      };
                  } catch (error) {
-                     // console.error("ストリームの読み取り/処理エラー:", error);
+                     
                      const partialChunksOnError = (error.message !== "リクエストがキャンセルされました.") ? processedChunks : [];
                      throw new Error(`${error.message || error}`, { cause: { originalError: error, partialChunks: partialChunksOnError } });
                  } finally {
                      if (!reader.closed && !isCancelled) {
-                         try { await reader.cancel("Cleanup cancellation"); } catch(e) { /* ignore */ }
+                         try { await reader.cancel("Cleanup cancellation"); } catch(e) {  }
                      }
                  }
 
@@ -7978,7 +7984,7 @@
                          if (line.startsWith('data: ')) {
                              parseSseData(line.substring(6));
                          } else if (line !== '') {
-                            // console.warn("データ以外のSSE行を無視:", line);
+                            
                          }
                      }
                      return remainingBuffer;
@@ -8016,7 +8022,7 @@
                              finalUsageMetadata = chunkData.usageMetadata;
                          }
                      } catch (parseError) {
-                        // console.warn("ストリーム内の不正なJSONをスキップ:", jsonString, parseError);
+                        
                      }
                  }
             }
