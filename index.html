@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -2557,7 +2556,7 @@
             background-color: var(--bg-dialog-button-cancel);
         }
         #fileUploadDialog .dialog-actions #cancel-attach-btn:hover:not(:disabled) {
-            background-color: var(--bg-button-cancel-hover);
+            background-color: var(--bg-dialog-button-cancel-hover);
         }
         .orange-button {
             background-color: var(--bg-button-edit);
@@ -6341,9 +6340,22 @@
                         }
                         const placeholderElement = document.getElementById(`streaming-message-${tempPlaceholderIndex}`);
                         if (placeholderElement) placeholderElement.remove();
+                    } else if (state.settings.streamingOutput && state.settings.pseudoStreaming) {
+                        const tempPlaceholderIndex = state.currentMessages.length;
+                        uiUtils.appendMessage('model', '', tempPlaceholderIndex, true);
+                        const streamResult = await apiUtils.handleStreamingResponse(response);
+                        modelResponseMetadata = { finishReason: streamResult.finishReason, safetyRatings: streamResult.safetyRatings };
+                        groundingMetadata = streamResult.groundingMetadata;
+                        usageMetadata = streamResult.usageMetadata;
+                        modelResponseRawContent = await this.typeCharacterByCharacter(streamResult.processedChunks, tempPlaceholderIndex, state.abortController.signal, dummyModelPrefix);
+
+                        if (modelResponseMetadata.finishReason === 'ABORTED' || state.abortController?.signal.aborted) {
+                            throw new Error("リクエストがキャンセルされました。");
+                        }
+                        const placeholderElement = document.getElementById(`streaming-message-${tempPlaceholderIndex}`);
+                        if (placeholderElement) placeholderElement.remove();
                     } else {
                         const data = await response.json();
-
                         const candidate = data.candidates?.[0];
                         let rawContentFromApi = "";
                         if (candidate) {
@@ -6370,24 +6382,6 @@
                             usageMetadata = data.usageMetadata || null;
                         }
                         modelResponseRawContent = dummyModelPrefix + rawContentFromApi;
-
-
-                        if (state.settings.streamingOutput && state.settings.pseudoStreaming) {
-                            const tempPlaceholderIndex = state.currentMessages.length;
-                            uiUtils.appendMessage('model', '', tempPlaceholderIndex, true);
-
-                            const pseudoChunks = modelResponseRawContent.split('\n\n').flatMap((part, index, arr) =>
-                                index < arr.length - 1 ? [...part.split(''), null] : part.split('')
-                            );
-
-                            await this.typeCharacterByCharacter(pseudoChunks, tempPlaceholderIndex, state.abortController.signal, '');
-
-                            if (state.abortController?.signal.aborted) {
-                                throw new Error("リクエストがキャンセルされました。");
-                            }
-                            const placeholderElement = document.getElementById(`streaming-message-${tempPlaceholderIndex}`);
-                            if (placeholderElement) placeholderElement.remove();
-                        }
                     }
 
 
@@ -7896,17 +7890,9 @@
                 const model = state.settings.modelName || DEFAULT_MODEL;
                 const apiKey = state.settings.apiKey;
 
-                let endpointMethod;
-                if (useStreaming) {
-                    if (usePseudo) {
-                        endpointMethod = 'generateContent?';
-                    } else {
-                        endpointMethod = 'streamGenerateContent?alt=sse&';
-                    }
-                } else {
-                    endpointMethod = 'generateContent?';
-                }
-
+                let endpointMethod = useStreaming
+                    ? (usePseudo ? 'generateContent?alt=sse&' : 'streamGenerateContent?alt=sse&')
+                    : 'generateContent?';
 
                 if (!endpointMethod.endsWith('&') && !endpointMethod.endsWith('?')) {
                     endpointMethod += endpointMethod.includes('?') ? '&' : '?';
