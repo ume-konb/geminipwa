@@ -3577,7 +3577,7 @@
                         state.settings = { ...defaultSettings };
 
                         if (loadedSettings.hasOwnProperty('darkMode') && !loadedSettings.hasOwnProperty('theme')) {
-                            state.settings.theme = loadedSettings.darkMode === false ? 'dark' : 'light';
+                            state.settings.theme = loadedSettings.darkMode === true ? 'dark' : 'light';
                         }
 
                         for (const key in loadedSettings) {
