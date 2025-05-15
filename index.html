@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF- ocho">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GeminiPWA</title>
     <link rel="manifest" href="manifest.json">
@@ -103,9 +103,9 @@
             --memo-height: 300px;
             --clipboard-stack-height: 300px;
             --message-icon-size: 28px;
-            --message-icon-offset-y: -10px; 
+            --message-icon-offset-y: -10px;
             --icon-name-font-size: 10px;
-            --icon-name-offset-y: -10px;  
+            --icon-name-offset-y: -10px;
 
             --bg-toggle-button: var(--bg-button-action);
             --bg-toggle-button-hover: var(--bg-button-action-hover);
@@ -121,7 +121,7 @@
             --bg-button-purple-hover: #6A006A;
             --text-button-purple: #ffffff;
 
-            
+
             --message-toggle-button-top-font-size: 6px;
             --message-toggle-button-top-text-collapse: "-";
             --message-toggle-button-top-text-expand: "□";
@@ -210,7 +210,7 @@
             --text-button-purple: #ffffff;
         }
 
-        
+
         body.pastel-pink-mode {
             --bg-primary: #fff5f8;
             --bg-secondary: #ffe6ea;
@@ -306,7 +306,7 @@
             --text-button-purple: #ffffff;
         }
 
-        
+
         body.pastel-blue-mode {
             --bg-primary: #f0f8ff;
             --bg-secondary: #e0f0ff;
@@ -403,7 +403,7 @@
             --text-button-purple: #ffffff;
         }
 
-        
+
         body.pastel-yellow-mode {
             --bg-primary: #fffefa;
             --bg-secondary: #fffacd;
@@ -483,7 +483,7 @@
             --text-button-purple: #4b0082;
         }
 
-        
+
         body.pastel-purple-mode {
             --bg-primary: #f3e5f5;
             --bg-secondary: #e1bee7;
@@ -563,7 +563,7 @@
             --text-button-purple: var(--text-light);
         }
 
-        
+
         body.pastel-rainbow-mode {
             --bg-primary: #fdfdfd;
             --bg-secondary: #f5f5f5;
@@ -656,7 +656,7 @@
         }
 
 
-        
+
         * {
             margin: 0;
             padding: 0;
@@ -1532,14 +1532,14 @@
             right: 3px;
             left: auto;
             z-index: 3;
-            font-size: var(--message-toggle-button-top-font-size); 
+            font-size: var(--message-toggle-button-top-font-size);
         }
 
         .message-toggle-button.bottom {
             position: static;
             flex-shrink: 0;
             padding: 4px 10px;
-            font-size: var(--message-toggle-button-bottom-font-size); 
+            font-size: var(--message-toggle-button-bottom-font-size);
             line-height: 1.5;
         }
 
@@ -1696,7 +1696,7 @@
             transition: background-color 0.3s ease, border-color 0.3s ease;
             gap: 10px;
         }
-        .footer-action-button { 
+        .footer-action-button {
             height: 40px;
             width: 40px;
             padding: 0;
@@ -1720,10 +1720,10 @@
             color: #424242;
         }
         .chat-input-area button#attach-file-btn {
-            position: relative; 
+            position: relative;
         }
         .chat-input-area button#paste-to-input-btn {
-            font-size: 16px; 
+            font-size: 16px;
         }
 
         .attachment-badge {
@@ -2559,6 +2559,42 @@
         #fileUploadDialog .dialog-actions #cancel-attach-btn:hover:not(:disabled) {
             background-color: var(--bg-button-cancel-hover);
         }
+        .orange-button {
+            background-color: var(--bg-button-edit);
+            color: var(--text-light);
+        }
+        .orange-button:hover:not(:disabled) {
+            background-color: var(--bg-button-edit-hover);
+        }
+        body.dark-mode .orange-button {
+            background-color: var(--bg-button-edit);
+            color: var(--text-light);
+        }
+        body.dark-mode .orange-button:hover:not(:disabled) {
+            background-color: var(--bg-button-edit-hover);
+        }
+        body.pastel-pink-mode .orange-button,
+        body.pastel-blue-mode .orange-button,
+        body.pastel-yellow-mode .orange-button,
+        body.pastel-purple-mode .orange-button,
+        body.pastel-rainbow-mode .orange-button {
+            background-color: var(--bg-button-edit);
+            color: var(--text-light);
+        }
+        body.pastel-pink-mode .orange-button:hover:not(:disabled),
+        body.pastel-blue-mode .orange-button:hover:not(:disabled),
+        body.pastel-yellow-mode .orange-button:hover:not(:disabled),
+        body.pastel-purple-mode .orange-button:hover:not(:disabled),
+        body.pastel-rainbow-mode .orange-button:hover:not(:disabled) {
+            background-color: var(--bg-button-edit-hover);
+        }
+        body.pastel-yellow-mode .orange-button {
+            color: #ffffff;
+        }
+        .danger-zone .orange-button {
+            margin-top: 10px;
+            width: 100%;
+        }
     </style>
     <script src="marked.js"></script>
 </head>
@@ -2892,7 +2928,7 @@
                        <input type="checkbox" id="enter-to-send">
                        Enterキーで送信する
                    </label>
-                   
+
                    <label class="checkbox-label">
                        <input type="checkbox" id="auto-scroll-on-new-message">
                        メッセージ送受信時に自動スクロールする
@@ -3008,7 +3044,7 @@
 
                 <div class="danger-zone">
                      <p style="text-align: center; color: var(--text-secondary); font-size: 12px; margin-bottom: 10px;">
-                         バージョン: <span id="app-version"></span>ti
+                         バージョン: <span id="app-version"></span>
                      </p>
                      <button id="update-app-btn">アプリを更新 (キャッシュクリア)</button>
                      <p style="font-size: 11px; color: var(--text-secondary); margin-top: -5px; margin-bottom: 10px; text-align:center;">
@@ -3020,6 +3056,11 @@
                          <button id="clear-data-btn">全データクリア (履歴と設定)</button>
                          <p style="font-size: 11px; color: var(--text-secondary); margin-top:5px; margin-bottom: 10px;">
                              ※ ブラウザに保存されている設定や履歴を全て削除。<BR>
+                             ！！間違えて押そうとしていないか注意！！
+                         </p>
+                         <button id="clear-history-btn" class="orange-button">全履歴削除</button>
+                         <p style="font-size: 11px; color: var(--text-secondary); margin-top:5px; margin-bottom: 10px;">
+                             ※ ブラウザに保存されているチャット履歴を全て削除します。設定は保持されます。<BR>
                              ！！間違えて押そうとしていないか注意！！
                          </p>
                      </details>
@@ -3254,6 +3295,7 @@
             saveSettingsBtns: document.querySelectorAll('.js-save-settings-btn'),
             updateAppBtn: document.getElementById('update-app-btn'),
             clearDataBtn: document.getElementById('clear-data-btn'),
+            clearHistoryBtn: document.getElementById('clear-history-btn'),
             importHistoryBtn: document.getElementById('import-history-btn'),
             importHistoryInput: document.getElementById('import-history-input'),
             exportAllSessionsBtn: document.getElementById('export-all-sessions-btn'),
@@ -3452,7 +3494,6 @@
                 window.addEventListener('load', () => {
                     navigator.serviceWorker.register('./sw.js')
                         .then(registration => {
-                            
                             navigator.serviceWorker.addEventListener('message', event => {
                                 if (event.data && event.data.action === 'reloadPage') {
                                     alert('アプリが更新されました。ページをリロードします。');
@@ -3734,7 +3775,6 @@
                     const store = this._getStore(CHATS_STORE);
                     const indexName = sortBy === 'createdAt' ? CHAT_CREATEDAT_INDEX : CHAT_UPDATEDAT_INDEX;
                     if (!store.indexNames.contains(indexName)) {
-                         
                          const getAllRequest = store.getAll();
                          getAllRequest.onsuccess = (event) => resolve(event.target.result.reverse());
                          getAllRequest.onerror = (event) => reject(`全チャット取得エラー(フォールバック): ${event.target.error}`);
@@ -3789,6 +3829,18 @@
                     clearChatsReq.onsuccess = onComplete;
                     clearChatsReq.onerror = (e) => onError(CHATS_STORE, e);
                     transaction.onerror = (event) => reject(`データクリアトランザクション失敗: ${event.target.error}`);
+                });
+            },
+            async clearAllChatsStore() {
+                await this.openDB();
+                return new Promise((resolve, reject) => {
+                    const transaction = state.db.transaction([CHATS_STORE], 'readwrite');
+                    const chatsStore = transaction.objectStore(CHATS_STORE);
+                    const clearChatsReq = chatsStore.clear();
+
+                    clearChatsReq.onsuccess = () => resolve();
+                    clearChatsReq.onerror = (e) => reject(`CHATS_STORE クリアエラー: ${e.target.error}`);
+                    transaction.onerror = (event) => reject(`チャット履歴クリアトランザクション失敗: ${event.target.error}`);
                 });
             }
         };
@@ -5104,6 +5156,7 @@
                 });
                 elements.updateAppBtn.addEventListener('click', () => this.updateApp());
                 elements.clearDataBtn.addEventListener('click', () => this.confirmClearAllData());
+                elements.clearHistoryBtn.addEventListener('click', () => this.confirmClearAllHistory());
 
                 if (elements.themeSelect) {
                     elements.themeSelect.addEventListener('change', () => {
@@ -6112,11 +6165,11 @@
                     if (signal.aborted) {
                         return accumulatedRawContent;
                     }
-                    if (chunk === null) { 
-                        const separator = '\n\n'; 
+                    if (chunk === null) {
+                        const separator = '\n\n';
                         accumulatedRawContent += separator;
                         state.partialStreamContent = accumulatedRawContent;
-                        uiUtils.updateStreamingMessage(messageIndex, ''); 
+                        uiUtils.updateStreamingMessage(messageIndex, '');
                     } else if (typeof chunk === 'string') {
                         for (const char of chunk) {
                             if (signal.aborted) {
@@ -6273,7 +6326,7 @@
                     const response = await apiUtils.callGeminiApi(apiMessages, generationConfig, systemInstruction);
                     const dummyModelPrefix = (state.settings.concatDummyModel && state.settings.dummyModel) ? state.settings.dummyModel : '';
 
-                    if (state.settings.streamingOutput && !state.settings.pseudoStreaming) { 
+                    if (state.settings.streamingOutput && !state.settings.pseudoStreaming) {
                         const tempPlaceholderIndex = state.currentMessages.length;
                         uiUtils.appendMessage('model', '', tempPlaceholderIndex, true);
                         const streamResult = await apiUtils.handleStreamingResponse(response);
@@ -6288,9 +6341,9 @@
                         }
                         const placeholderElement = document.getElementById(`streaming-message-${tempPlaceholderIndex}`);
                         if (placeholderElement) placeholderElement.remove();
-                    } else { 
-                        const data = await response.json(); 
-                        
+                    } else {
+                        const data = await response.json();
+
                         const candidate = data.candidates?.[0];
                         let rawContentFromApi = "";
                         if (candidate) {
@@ -6318,10 +6371,10 @@
                         }
                         modelResponseRawContent = dummyModelPrefix + rawContentFromApi;
 
-                        
+
                         if (state.settings.streamingOutput && state.settings.pseudoStreaming) {
                             const tempPlaceholderIndex = state.currentMessages.length;
-                            uiUtils.appendMessage('model', '', tempPlaceholderIndex, true); 
+                            uiUtils.appendMessage('model', '', tempPlaceholderIndex, true);
 
                             const pseudoChunks = modelResponseRawContent.split('\n\n').flatMap((part, index, arr) =>
                                 index < arr.length - 1 ? [...part.split(''), null] : part.split('')
@@ -6371,7 +6424,7 @@
                     const displayErrorMessage = isAbort ? error.message : (error.message || "不明なエラーが発生しました");
                     const partialRawContent = state.partialStreamContent || error.cause?.partialChunks?.join('');
 
-                    if (partialRawContent && state.settings.streamingOutput) { 
+                    if (partialRawContent && state.settings.streamingOutput) {
                          const finalPartialContent = partialRawContent + `\n\n(${isAbort ? '中断されました' : 'エラーが発生しました'})`;
                          const partialMessage = {
                              role: 'model', content: finalPartialContent, timestamp: Date.now(), error: true,
@@ -7070,6 +7123,37 @@
                     }
                 }
             },
+            async confirmClearAllHistory() {
+                const confirmed = await uiUtils.showCustomConfirm("本当にすべてのチャット履歴を削除しますか？\nこの操作は元に戻せません。設定は保持されます。");
+                if (confirmed) {
+                    try {
+                        await dbUtils.clearAllChatsStore();
+                        state.currentChatId = null;
+                        state.currentMessages = [];
+                        state.pendingAttachments = [];
+                        state.isMemoVisible = false;
+                        elements.memoArea.classList.add('hidden');
+                        elements.memoEditor.value = '';
+                        state.isClipboardStackVisible = false;
+                        elements.clipboardStackArea.classList.add('hidden');
+                        state.clipboardStackContent = '';
+                        state.areAllMessagesHidden = false;
+                        uiUtils.updateToggleAllContentButton();
+                        state.messageCollapsedStates.clear();
+
+                        this.startNewChat();
+                        await uiUtils.showCustomAlert("すべてのチャット履歴が削除されました。");
+
+                        if (state.currentScreen === 'history') {
+                            uiUtils.renderHistoryList();
+                        }
+
+                    } catch (error) {
+                        console.error("Clear all history error:", error);
+                        await uiUtils.showCustomAlert(`チャット履歴の削除中にエラーが発生しました: ${error}`);
+                    }
+                }
+            },
             startEditSystemPrompt() {
                 if (state.isSending) return;
                 state.isEditingSystemPrompt = true;
@@ -7134,7 +7218,6 @@
                      const paddingRight = parseFloat(computedStyle.paddingRight) || 0;
                      horizontalPadding = paddingLeft + paddingRight;
                  } catch (e) {
-                     
                  }
                  messageElement.style.width = `calc(var(--message-max-width) + ${horizontalPadding}px + 17px)`;
 
@@ -7809,28 +7892,22 @@
                 const { signal } = state.abortController;
 
                 const useStreaming = state.settings.streamingOutput;
-                const usePseudo = state.settings.pseudoStreaming; 
+                const usePseudo = state.settings.pseudoStreaming;
                 const model = state.settings.modelName || DEFAULT_MODEL;
                 const apiKey = state.settings.apiKey;
 
                 let endpointMethod;
                 if (useStreaming) {
                     if (usePseudo) {
-                        
-                        endpointMethod = 'generateContent?'; 
-                        
+                        endpointMethod = 'generateContent?';
                     } else {
-                        
                         endpointMethod = 'streamGenerateContent?alt=sse&';
-                        
                     }
                 } else {
-                    
                     endpointMethod = 'generateContent?';
-                    
                 }
 
-                
+
                 if (!endpointMethod.endsWith('&') && !endpointMethod.endsWith('?')) {
                     endpointMethod += endpointMethod.includes('?') ? '&' : '?';
                 }
@@ -7947,7 +8024,6 @@
                      const finalGroundingMetadata = groundingMetadata;
 
                      if (!isCancelled && processedChunks.length === 0 && (!finishReason || finishReason === "STOP")) {
-                         
                      }
 
                      return {
@@ -7958,7 +8034,6 @@
                          usageMetadata: finalUsageMetadata
                      };
                  } catch (error) {
-                     
                      const partialChunksOnError = (error.message !== "リクエストがキャンセルされました.") ? processedChunks : [];
                      throw new Error(`${error.message || error}`, { cause: { originalError: error, partialChunks: partialChunksOnError } });
                  } finally {
@@ -7984,7 +8059,6 @@
                          if (line.startsWith('data: ')) {
                              parseSseData(line.substring(6));
                          } else if (line !== '') {
-                            
                          }
                      }
                      return remainingBuffer;
@@ -8022,7 +8096,6 @@
                              finalUsageMetadata = chunkData.usageMetadata;
                          }
                      } catch (parseError) {
-                        
                      }
                  }
             }
