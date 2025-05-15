@@ -17,7 +17,7 @@
             --bg-model-message: #e5e5ea;
             --bg-system-message: #f0f8ff;
             --bg-error-message: #ffebee;
-            /* ボタン背景色RGB値 (透明度なしの基本色) */
+
             --bg-button-rgb: 74, 144, 226;
             --bg-button-hover-rgb: 53, 122, 189;
             --bg-button-disabled-rgb: 160, 195, 232;
@@ -53,11 +53,10 @@
             --bg-button-gold-hover-rgb: 255, 199, 0;
             --bg-button-purple-rgb: 128, 0, 128;
             --bg-button-purple-hover-rgb: 106, 0, 106;
-            /* 新しいボタン透明度変数 */
+
             --button-opacity: 1;
 
 
-            /* 既存の --bg-button 系変数を rgba で定義し直す */
             --bg-button: rgba(var(--bg-button-rgb), var(--button-opacity));
             --bg-button-hover: rgba(var(--bg-button-hover-rgb), var(--button-opacity));
             --bg-button-disabled: rgba(var(--bg-button-disabled-rgb), var(--button-opacity));
@@ -103,7 +102,7 @@
             --bg-button-purple-hover: rgba(var(--bg-button-purple-hover-rgb), var(--button-opacity));
 
 
-            --bg-header: #4a90e2; /* ヘッダーは現状維持 (個別透明度設定あり) */
+            --bg-header: #4a90e2;
             --bg-message-actions: rgba(255, 255, 255, 0.8);
             --overlay-base-rgb: 255, 255, 255;
             --chat-overlay-alpha: 0.65;
@@ -3056,8 +3055,8 @@
                    <input type="number" id="chat-overlay-opacity" min="0" max="1" step="0.05" placeholder="例: 0.6" aria-label="チャット背景オーバーレイの透明度">
                    <label for="header-footer-opacity">ヘッダー/フッターの透明度 (0.0-1.0):</label>
                    <input type="number" id="header-footer-opacity" min="0" max="1" step="0.05" placeholder="例: 0.9" aria-label="ヘッダー/フッターの透明度">
-                   <label for="button-opacity">各種ボタンの透明度 (0.1-1.0):</label>
-                   <input type="number" id="button-opacity" min="0.1" max="1" step="0.05" placeholder="例: 1.0" aria-label="各種ボタンの透明度">
+                   <label for="button-opacity">各種ボタンの透明度 (0.05-1.0):</label>
+                   <input type="number" id="button-opacity" min="0.05" max="1" step="0.05" placeholder="例: 1.0" aria-label="各種ボタンの透明度">
                 </div>
 
                 <div class="danger-zone">
