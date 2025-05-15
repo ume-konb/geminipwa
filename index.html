@@ -3008,7 +3008,7 @@
 
                 <div class="danger-zone">
                      <p style="text-align: center; color: var(--text-secondary); font-size: 12px; margin-bottom: 10px;">
-                         バージョン: <span id="app-version"></span>ti
+                         バージョン: <span id="app-version"></span>
                      </p>
                      <button id="update-app-btn">アプリを更新 (キャッシュクリア)</button>
                      <p style="font-size: 11px; color: var(--text-secondary); margin-top: -5px; margin-bottom: 10px; text-align:center;">
@@ -3070,7 +3070,7 @@
 
     <script>
         const DB_NAME = 'GeminiPWA_DB';
-        const DB_VERSION = 8; // DBバージョンは変更なし
+        const DB_VERSION = 8;
         const SETTINGS_STORE = 'settings';
         const CHATS_STORE = 'chats';
         const CHAT_UPDATEDAT_INDEX = 'updatedAtIndex';
@@ -3085,11 +3085,11 @@
         const DEFAULT_MEMO_HEIGHT = '300px';
         const DEFAULT_CLIPBOARD_STACK_HEIGHT = '300px';
         const DEFAULT_MESSAGE_ICON_SIZE = 28;
-        const DEFAULT_MESSAGE_ICON_OFFSET_Y = -10; // 内部値(下が正)として。UIでは10(上が正)
+        const DEFAULT_MESSAGE_ICON_OFFSET_Y = -10;
         const DEFAULT_USER_NAME = "あなた";
         const DEFAULT_AI_NAME = "AI";
         const DEFAULT_ICON_NAME_FONT_SIZE = 10;
-        const DEFAULT_ICON_NAME_OFFSET_Y = -10;  // 内部値(下が正)として。UIでは10(上が正)
+        const DEFAULT_ICON_NAME_OFFSET_Y = -10;
         const CHAT_TITLE_LENGTH = 15;
         const TEXTAREA_MAX_HEIGHT = 120;
         const GEMINI_API_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models/';
@@ -3164,7 +3164,7 @@
         const DEFAULT_TOGGLE_BUTTON_BOTTOM_FONT_SIZE = 14;
         const DEFAULT_TOGGLE_BUTTON_BOTTOM_TEXT_COLLAPSE = "_";
         const DEFAULT_TOGGLE_BUTTON_BOTTOM_TEXT_EXPAND = "□";
-        const DEFAULT_AUTO_SCROLL_ON_NEW_MESSAGE = true; // 追加: 自動スクロールのデフォルト値
+        const DEFAULT_AUTO_SCROLL_ON_NEW_MESSAGE = true;
 
         const extensionToMimeTypeMap = {
             'pdf': 'application/pdf', 'js': 'text/javascript', 'py': 'text/x-python',
@@ -3218,7 +3218,7 @@
             additionalModelsTextarea: document.getElementById('additional-models'),
             pseudoStreamingCheckbox: document.getElementById('pseudo-streaming'),
             enterToSendCheckbox: document.getElementById('enter-to-send'),
-            autoScrollOnNewMessageCheckbox: document.getElementById('auto-scroll-on-new-message'), // 追加: 自動スクロールチェックボックス
+            autoScrollOnNewMessageCheckbox: document.getElementById('auto-scroll-on-new-message'),
             historySortOrderSelect: document.getElementById('history-sort-order'),
             themeSelect: document.getElementById('theme-select'),
             fontFamilyInput: document.getElementById('font-family-input'),
@@ -3345,7 +3345,7 @@
                 additionalModels: '',
                 pseudoStreaming: false,
                 enterToSend: true,
-                autoScrollOnNewMessage: DEFAULT_AUTO_SCROLL_ON_NEW_MESSAGE, // 追加: 自動スクロール設定
+                autoScrollOnNewMessage: DEFAULT_AUTO_SCROLL_ON_NEW_MESSAGE,
                 historySortOrder: 'updatedAt',
                 theme: 'light',
                 backgroundImageBlob: null,
@@ -3533,18 +3533,18 @@
                         settingsArray.forEach(item => {
                             loadedSettings[item.key] = item.value;
                         });
-                        const defaultSettings = { ...state.settings }; // 現在のデフォルト値で初期化
-                        state.settings = { ...defaultSettings }; // state.settings をリセット
+                        const defaultSettings = { ...state.settings };
+                        state.settings = { ...defaultSettings };
 
                         if (loadedSettings.hasOwnProperty('darkMode') && !loadedSettings.hasOwnProperty('theme')) {
                             state.settings.theme = loadedSettings.darkMode === true ? 'dark' : 'light';
                         }
 
                         for (const key in loadedSettings) {
-                             if (key === 'darkMode') continue; // 古い設定なのでスキップ
-                             if (key === 'memoWidth') continue; // 古い設定なのでスキップ
+                             if (key === 'darkMode') continue;
+                             if (key === 'memoWidth') continue;
 
-                             if (key in defaultSettings) { // state.settings (デフォルト値で初期化済み) にキーが存在するか
+                             if (key in defaultSettings) {
                                 const loadedValue = loadedSettings[key];
                                 const defaultValue = defaultSettings[key];
 
@@ -3567,7 +3567,7 @@
                                            key === 'showClipboardStackButton' || key === 'showUserIcon' || key === 'showAiIcon' ||
                                            key === 'showUserName' || key === 'showAiName' || key === 'showCollapseButtons' ||
                                            key === 'streamingOutput' || key === 'pseudoStreaming' || key === 'enterToSend' ||
-                                           key === 'concatDummyModel' || key === 'autoScrollOnNewMessage' /* 追加: 自動スクロール設定の読み込み */ ) {
+                                           key === 'concatDummyModel' || key === 'autoScrollOnNewMessage' ) {
                                      state.settings[key] = loadedValue === true;
                                 } else if (key === 'toggleButtonTopFontSize' || key === 'toggleButtonBottomFontSize') {
                                     let num = parseInt(loadedValue, 10);
@@ -3681,7 +3681,7 @@
                         getRequest.onsuccess = (event) => {
                             const existingChat = event.target.result;
                              if (!existingChat) {
-                                 state.currentChatId = null; // ID が無効なら新規として保存
+                                 state.currentChatId = null;
                                  determineTitleAndSave(null);
                             } else {
                                 determineTitleAndSave(existingChat);
@@ -3689,7 +3689,7 @@
                         };
                         getRequest.onerror = (event) => {
                             console.error("チャット取得エラー(保存時):", event.target.error);
-                            state.currentChatId = null; // エラー時も新規として保存
+                            state.currentChatId = null;
                             determineTitleAndSave(null);
                         };
                     } else {
@@ -3736,12 +3736,12 @@
                     if (!store.indexNames.contains(indexName)) {
                          console.warn(`インデックス ${indexName} が見つかりません。フォールバックします。`);
                          const getAllRequest = store.getAll();
-                         getAllRequest.onsuccess = (event) => resolve(event.target.result.reverse()); // 更新順相当のフォールバック
+                         getAllRequest.onsuccess = (event) => resolve(event.target.result.reverse());
                          getAllRequest.onerror = (event) => reject(`全チャット取得エラー(フォールバック): ${event.target.error}`);
                          return;
                     }
                     const index = store.index(indexName);
-                    const request = index.openCursor(null, 'prev'); // 新しい順
+                    const request = index.openCursor(null, 'prev');
                     const chats = [];
                     request.onsuccess = (event) => {
                         const cursor = event.target.result;
@@ -3813,26 +3813,25 @@
                 for (let i = 0; i < state.currentMessages.length; i++) {
                     const msg = state.currentMessages[i];
                     if (msg.role === 'model' && msg.isCascaded && msg.siblingGroupId) {
-                        if (msg.siblingGroupId !== currentSiblingGroupId) { // 新しいグループ
+                        if (msg.siblingGroupId !== currentSiblingGroupId) {
                             currentSiblingGroupId = msg.siblingGroupId;
                             siblingsInGroup = state.currentMessages.filter(m => m.role === 'model' && m.isCascaded && m.siblingGroupId === currentSiblingGroupId);
-                            siblingIndex = 0; // グループ内でリセット
+                            siblingIndex = 0;
                         }
-                        // 現在のメッセージがグループ内の何番目かを見つける
                         const currentIndexInGroup = siblingsInGroup.findIndex(m => m === msg);
                         if (currentIndexInGroup !== -1) {
-                            siblingIndex = currentIndexInGroup + 1; // 1-based index
+                            siblingIndex = currentIndexInGroup + 1;
                         }
 
-                        if (msg.isSelected) { // 選択されているものだけ表示
+                        if (msg.isSelected) {
                             this.appendMessage(msg.role, msg.content, i, false, {
                                 currentIndex: siblingIndex,
                                 total: siblingsInGroup.length,
                                 siblingGroupId: currentSiblingGroupId
                             }, msg.attachments);
                         }
-                    } else { // カスケードでないか、userメッセージ
-                        currentSiblingGroupId = null; // グループ情報をリセット
+                    } else {
+                        currentSiblingGroupId = null;
                         siblingsInGroup = [];
                         this.appendMessage(msg.role, msg.content, i, false, null, msg.attachments);
                     }
@@ -3900,7 +3899,7 @@
                 const contentDiv = document.createElement('div');
                 contentDiv.classList.add('message-content');
 
-                if (isCurrentlyCollapsed) { // state.messageCollapsedStates.get(index) は上で取得済み
+                if (isCurrentlyCollapsed) {
                     contentDiv.classList.add('collapsed');
                     const toggleButtonTopElement = messageDiv.querySelector('.message-toggle-button.top');
                     if (toggleButtonTopElement) {
@@ -3930,7 +3929,7 @@
                     if (content && content.trim() !== '') {
                         const pre = document.createElement('pre');
                         pre.textContent = content;
-                        pre.style.marginTop = '8px'; // 添付ファイルとの間に少しマージン
+                        pre.style.marginTop = '8px';
                         contentDiv.appendChild(pre);
                     }
                 } else {
@@ -3942,11 +3941,11 @@
                         } else if (role === 'error') {
                              const p = document.createElement('p'); p.textContent = content; contentDiv.appendChild(p);
                         } else if (isStreamingPlaceholder) {
-                            contentDiv.innerHTML = ''; // ストリーミング中は空で開始
-                        } else { // フォールバック
+                            contentDiv.innerHTML = '';
+                        } else {
                             const pre = document.createElement('pre'); pre.textContent = content; contentDiv.innerHTML = ''; contentDiv.appendChild(pre);
                         }
-                    } catch (e) { // marked.parseが失敗した場合のフォールバック
+                    } catch (e) {
                          console.error("Markdown parse error:", e);
                          const pre = document.createElement('pre'); pre.textContent = content; contentDiv.innerHTML = ''; contentDiv.appendChild(pre);
                     }
@@ -4008,7 +4007,6 @@
                                 citationList.appendChild(listItem);
                             });
 
-                            // フォールバック: groundingSupportsがない場合や、それを使っても引用が生成されなかった場合
                             if (sortedCitations.length === 0) {
                                  messageData.groundingMetadata.groundingChunks.forEach((chunk, idx) => {
                                      if (chunk?.web?.uri) {
@@ -4032,7 +4030,7 @@
                         }
 
                         if (messageData.groundingMetadata.webSearchQueries && messageData.groundingMetadata.webSearchQueries.length > 0) {
-                            if (detailsHasContent) { // 既に引用リストがあれば区切り線
+                            if (detailsHasContent) {
                                 const separator = document.createElement('hr');
                                 separator.style.marginTop = '10px';
                                 separator.style.marginBottom = '8px';
@@ -4043,14 +4041,14 @@
                             const queryHeader = document.createElement('div');
                             queryHeader.textContent = '検索に使用されたクエリ:';
                             queryHeader.style.fontWeight = '500';
-                            queryHeader.style.marginTop = detailsHasContent ? '0' : '8px'; // 最初の要素ならマージン
+                            queryHeader.style.marginTop = detailsHasContent ? '0' : '8px';
                             queryHeader.style.marginBottom = '4px';
                             queryHeader.style.fontSize = '11px';
                             queryHeader.style.color = 'var(--text-secondary)';
                             details.appendChild(queryHeader);
 
                             const queryList = document.createElement('ul');
-                            queryList.classList.add('search-query-list'); // class追加
+                            queryList.classList.add('search-query-list');
                             queryList.style.listStyle = 'none';
                             queryList.style.paddingLeft = '0';
                             queryList.style.margin = '0';
@@ -4127,7 +4125,6 @@
                         const bottomTitle = isCurrentlyCollapsed ? 'メッセージを展開' : 'メッセージを折りたたむ';
                         toggleButtonBottom.title = bottomTitle;
                         toggleButtonBottom.setAttribute('aria-label', bottomTitle);
-                        // actionsDiv の最初の子要素として挿入 (もし他のボタンが既にあればその前)
                         if (actionsDiv.firstChild) {
                             actionsDiv.insertBefore(toggleButtonBottom, actionsDiv.firstChild);
                         } else {
@@ -4150,12 +4147,12 @@
                     copyButton.title = 'テキストをコピー';
                     copyButton.classList.add('js-copy-btn');
                     copyButton.onclick = (event) => {
-                        event.stopPropagation(); // messageDiv のクリックイベントを抑制
+                        event.stopPropagation();
                         appLogic.copyMessageText(index, copyButton);
                     };
                     actionsDiv.appendChild(copyButton);
 
-                    if (role === 'user' || role === 'model') { // エラーメッセージにはリトライ不要
+                    if (role === 'user' || role === 'model') {
                         const retryButton = document.createElement('button');
                         retryButton.textContent = 'リトライ';
                         retryButton.title = 'このメッセージから再生成';
@@ -4176,7 +4173,7 @@
                         tokenSpan.classList.add('token-count-display');
 
                         let finalTotalTokenCount = usage.totalTokenCount;
-                        if (typeof messageData.usageMetadata.thoughtsTokenCount === 'number') { // thoughtsTokenCount があれば引く
+                        if (typeof messageData.usageMetadata.thoughtsTokenCount === 'number') {
                             finalTotalTokenCount -= messageData.usageMetadata.thoughtsTokenCount;
                         }
 
@@ -4204,11 +4201,10 @@
                             contentDiv.innerHTML = marked.parse(state.partialStreamContent || '');
                         } catch (e) {
                             console.error("Streaming markdown parse error:", e);
-                            contentDiv.textContent = state.partialStreamContent; // パースエラー時は生テキスト
+                            contentDiv.textContent = state.partialStreamContent;
                         }
                     }
                 }
-                // 修正: 自動スクロールオプションをチェック
                 if (state.settings.autoScrollOnNewMessage) {
                     this.scrollToBottom();
                 }
@@ -4223,22 +4219,21 @@
                              contentDiv.innerHTML = marked.parse(finalRawContent);
                          } catch (e) {
                              console.error("Final markdown parse error:", e);
-                             contentDiv.textContent = finalRawContent; // パースエラー時は生テキスト
+                             contentDiv.textContent = finalRawContent;
                          }
                     } else if (contentDiv) {
-                        contentDiv.textContent = finalRawContent; // marked がない場合
+                        contentDiv.textContent = finalRawContent;
                     }
-                    messageDiv.removeAttribute('id'); // ストリーミング完了後はID不要
+                    messageDiv.removeAttribute('id');
 
                     const msgData = state.currentMessages[index];
                     if (msgData && msgData.role === 'model' && msgData.isCascaded) {
                         const siblings = appLogic.getCascadedSiblings(index);
                         if (siblings.length > 1) {
-                            this.renderChatMessages(); // カスケードの場合、インジケータ更新のため再描画
+                            this.renderChatMessages();
                         }
                     }
                 }
-                // 修正: 自動スクロールオプションをチェック
                 if (state.settings.autoScrollOnNewMessage) {
                     this.scrollToBottom();
                 }
@@ -4248,9 +4243,6 @@
                 this.appendMessage('error', `エラー: ${message}`, errorIndex);
                 elements.loadingIndicator.classList.add('hidden');
                 this.setSendingState(false);
-                // エラーメッセージ表示時はスクロールした方が良い場合が多いので、オプションに関わらずスクロールする
-                // (ただし、ユーザーが意図的にスクロールをオフにしている場合は検討の余地あり)
-                // ここでは一律スクロールさせます。
                 this.scrollToBottom();
             },
             scrollToBottom() {
@@ -4264,16 +4256,16 @@
                 let baseTitle = '';
                 let isNewChat = !state.currentChatId;
 
-                if (state.currentChatId) { // 既存チャットの場合
+                if (state.currentChatId) {
                     isNewChat = false;
                     if (definitiveTitle !== null) {
                         baseTitle = definitiveTitle;
-                    } else { // DBからタイトルを取得できなかった場合など、メッセージから推測
+                    } else {
                         const firstUserMessage = state.currentMessages.find(m => m.role === 'user');
                         if (firstUserMessage) {
                             baseTitle = firstUserMessage.content;
                         } else if (state.currentMessages.length > 0) {
-                            baseTitle = "チャット履歴"; // 何かしらメッセージはあるが無題の場合
+                            baseTitle = "チャット履歴";
                         }
                     }
 
@@ -4284,17 +4276,15 @@
                         if (baseTitle.startsWith(IMPORT_PREFIX)) {
                             titleText = IMPORT_PREFIX + titleText;
                         }
-                    } else if(state.currentMessages.length > 0) { // baseTitleが空だがメッセージはある
+                    } else if(state.currentMessages.length > 0) {
                         titleText = 'チャット履歴';
                     }
-                    // `titleText`が '新規チャット' のままでメッセージがある場合（例: 新規チャット後、最初のメッセージを送信したがまだ保存前）
                     if (titleText === '新規チャット' && state.currentMessages.length > 0) {
                         titleText = 'チャット履歴';
                     }
                 }
-                // 新規チャットの場合、`titleText` は '新規チャット' のまま
 
-                const displayTitle = isNewChat ? titleText : `: ${titleText}`; // 既存チャットならコロンを付与
+                const displayTitle = isNewChat ? titleText : `: ${titleText}`;
                 elements.chatTitle.textContent = displayTitle;
                 document.title = `GeminiPWA - ${titleText}`;
             },
@@ -4327,13 +4317,13 @@
                             const titleText = chat.title || `履歴 ${chat.id}`;
                             const titleEl = li.querySelector('.history-item-title');
                             titleEl.textContent = titleText;
-                            titleEl.title = titleText; // ツールチップ用
+                            titleEl.title = titleText;
 
                             li.querySelector('.created-date').textContent = `作成: ${this.formatDate(chat.createdAt)}`;
                             li.querySelector('.updated-date').textContent = `更新: ${this.formatDate(chat.updatedAt)}`;
 
                             li.onclick = (event) => {
-                                if (!event.target.closest('.history-item-actions button')) { // ボタン以外をクリックした場合
+                                if (!event.target.closest('.history-item-actions button')) {
                                     appLogic.loadChat(chat.id);
                                     this.showScreen('chat');
                                 }
@@ -4464,7 +4454,7 @@
                         overlayBaseColor = PASTEL_PURPLE_PRIMARY_COLOR;
                         break;
                     case 'pastel-rainbow':
-                        headerColor = PASTEL_RAINBOW_HEADER_COLOR; // This is a gradient, so direct RGB won't apply same way
+                        headerColor = PASTEL_RAINBOW_HEADER_COLOR;
                         secondaryColor = PASTEL_RAINBOW_SECONDARY_COLOR;
                         userMessageColor = PASTEL_RAINBOW_USER_MESSAGE_COLOR;
                         modelMessageColor = PASTEL_RAINBOW_MODEL_MESSAGE_COLOR;
@@ -4480,12 +4470,12 @@
                         break;
                 }
 
-                if (state.settings.theme !== 'pastel-rainbow') { // Rainbow header is a gradient
+                if (state.settings.theme !== 'pastel-rainbow') {
                     const headerRgb = this.hexToRgb(headerColor) || this.parseRgbCss(headerColor);
                     if (headerRgb) {
                         document.documentElement.style.setProperty('--bg-header-rgb', `${headerRgb.r}, ${headerRgb.g}, ${headerRgb.b}`);
                     }
-                } // For rainbow, CSS handles it directly with var(--bg-header)
+                }
 
                 const secondaryBgRgb = this.hexToRgb(secondaryColor) || this.parseRgbCss(secondaryColor);
                  if (secondaryBgRgb) {
@@ -4549,7 +4539,7 @@
                         break;
                     case 'pastel-rainbow':
                         document.body.classList.add('pastel-rainbow-mode');
-                        themeColorMetaValue = PASTEL_RAINBOW_THEME_COLOR; // Or a representative color for the gradient
+                        themeColorMetaValue = PASTEL_RAINBOW_THEME_COLOR;
                         break;
                     case 'light':
                     default:
@@ -4581,7 +4571,7 @@
                 elements.additionalModelsTextarea.value = state.settings.additionalModels || '';
                 elements.pseudoStreamingCheckbox.checked = state.settings.pseudoStreaming;
                 elements.enterToSendCheckbox.checked = state.settings.enterToSend;
-                elements.autoScrollOnNewMessageCheckbox.checked = state.settings.autoScrollOnNewMessage; // 追加: UIに反映
+                elements.autoScrollOnNewMessageCheckbox.checked = state.settings.autoScrollOnNewMessage;
                 elements.historySortOrderSelect.value = state.settings.historySortOrder || 'updatedAt';
                 if (elements.themeSelect) elements.themeSelect.value = state.settings.theme || 'light';
                 elements.fontFamilyInput.value = state.settings.fontFamily || '';
@@ -4617,7 +4607,6 @@
 
                 elements.showCollapseButtonsToggle.checked = state.settings.showCollapseButtons;
 
-                // New toggle button settings
                 elements.toggleButtonTopFontSizeInput.value = state.settings.toggleButtonTopFontSize ?? DEFAULT_TOGGLE_BUTTON_TOP_FONT_SIZE;
                 elements.toggleButtonTopTextCollapseInput.value = state.settings.toggleButtonTopTextCollapse || DEFAULT_TOGGLE_BUTTON_TOP_TEXT_COLLAPSE;
                 elements.toggleButtonTopTextExpandInput.value = state.settings.toggleButtonTopTextExpand || DEFAULT_TOGGLE_BUTTON_TOP_TEXT_EXPAND;
@@ -4679,7 +4668,7 @@
             },
             updateUserModelOptions() {
                 const group = elements.userDefinedModelsGroup;
-                group.innerHTML = ''; // Clear existing user-defined options
+                group.innerHTML = '';
                 const models = (state.settings.additionalModels || '')
                     .split(',')
                     .map(m => m.trim())
@@ -4693,7 +4682,6 @@
                         option.textContent = modelId;
                         group.appendChild(option);
                     });
-                    // Ensure current selection is preserved if it's a user-defined model
                     if (models.includes(state.settings.modelName)) {
                         elements.modelNameSelect.value = state.settings.modelName;
                     }
@@ -4708,7 +4696,7 @@
             },
             updateSystemPromptUI() {
                 elements.systemPromptEditor.value = state.currentSystemPrompt;
-                if (!state.isEditingSystemPrompt) { // 編集中でない場合は閉じる
+                if (!state.isEditingSystemPrompt) {
                     elements.systemPromptDetails.removeAttribute('open');
                 }
                 this.adjustTextareaHeight(elements.systemPromptEditor, 200);
@@ -4724,35 +4712,33 @@
                      if (messageElement) {
                         appLogic.cancelEditMessage(state.editingMessageIndex, messageElement);
                      } else {
-                        state.editingMessageIndex = null; // 要素が見つからない場合はリセット
+                        state.editingMessageIndex = null;
                      }
                 }
                 if (state.isEditingSystemPrompt) {
                     appLogic.cancelEditSystemPrompt();
                 }
-                if (state.isMemoVisible && screenName !== 'chat') { // チャット画面以外でメモが開いていたら閉じる
+                if (state.isMemoVisible && screenName !== 'chat') {
                      elements.memoArea.classList.add('hidden');
                      state.isMemoVisible = false;
                 }
-                if (state.isClipboardStackVisible && screenName !== 'chat') { // 同様にクリップボードスタックも
+                if (state.isClipboardStackVisible && screenName !== 'chat') {
                      elements.clipboardStackArea.classList.add('hidden');
                      state.isClipboardStackVisible = false;
                 }
 
                 if (screenName === state.currentScreen) {
-                    if (screenName === 'history') this.updateHistoryHeaderButtonVisibility(); // 履歴画面で再表示された場合ボタン表示を更新
+                    if (screenName === 'history') this.updateHistoryHeaderButtonVisibility();
                     return;
-                } // 同じ画面なら何もしない
+                }
 
                 const allScreens = [elements.chatScreen, elements.historyScreen, elements.settingsScreen];
                 let activeScreen = null;
 
-                // ブラウザ履歴の管理 (popstateからの呼び出しでない場合のみ)
                 if (!fromPopState) {
                     if (screenName === 'history' || screenName === 'settings') {
                         history.pushState({ screen: screenName }, '', `#${screenName}`);
                     } else if (screenName === 'chat') {
-                        // チャット画面はルートなので replaceState で履歴を汚さないように
                         history.replaceState({ screen: 'chat' }, '', '#chat');
                     }
                 }
@@ -4760,7 +4746,7 @@
 
                 allScreens.forEach(screen => {
                     screen.classList.remove('active');
-                    screen.inert = true; // 非アクティブな画面は操作不能に
+                    screen.inert = true;
                 });
 
                 if (screenName === 'chat') {
@@ -4768,31 +4754,31 @@
                     elements.chatScreen.style.transform = 'translateX(0)';
                     elements.historyScreen.style.transform = 'translateX(-100%)';
                     elements.settingsScreen.style.transform = 'translateX(100%)';
-                    requestAnimationFrame(() => { // DOM更新後に実行
+                    requestAnimationFrame(() => {
                         this.updateSystemPromptUI();
                         this.adjustTextareaHeight();
-                        this.updateChatScreenElementVisibility(); // チャット画面固有のボタン表示更新
+                        this.updateChatScreenElementVisibility();
                     });
                 } else if (screenName === 'history') {
                     activeScreen = elements.historyScreen;
                     elements.chatScreen.style.transform = 'translateX(100%)';
                     elements.historyScreen.style.transform = 'translateX(0)';
-                    elements.settingsScreen.style.transform = 'translateX(200%)'; // 右からスライドインするように
+                    elements.settingsScreen.style.transform = 'translateX(200%)';
                     this.renderHistoryList();
                 } else if (screenName === 'settings') {
                     activeScreen = elements.settingsScreen;
                     elements.chatScreen.style.transform = 'translateX(-100%)';
-                    elements.historyScreen.style.transform = 'translateX(-200%)'; // 左からスライドインするように
+                    elements.historyScreen.style.transform = 'translateX(-200%)';
                     elements.settingsScreen.style.transform = 'translateX(0)';
-                    this.applySettingsToUI(); // 設定画面表示時にUIに最新設定を反映
+                    this.applySettingsToUI();
                 }
 
-                requestAnimationFrame(() => { // アニメーションがスムーズになるように
+                requestAnimationFrame(() => {
                     allScreens.forEach(screen => {
                         screen.style.transition = 'transform 0.3s ease-in-out';
                     });
                     if (activeScreen) {
-                        activeScreen.inert = false; // アクティブ画面は操作可能に
+                        activeScreen.inert = false;
                         activeScreen.classList.add('active');
                     }
                 });
@@ -4804,13 +4790,13 @@
                     elements.sendButton.textContent = '止';
                     elements.sendButton.classList.add('sending');
                     elements.sendButton.title = "停止";
-                    elements.sendButton.disabled = false; // 送信中は停止ボタンとして常に有効
+                    elements.sendButton.disabled = false;
                     elements.userInput.disabled = true;
                     elements.attachFileBtn.disabled = true;
                     elements.pasteToInputBtn.disabled = true;
                     elements.loadingIndicator.classList.remove('hidden');
                     elements.loadingIndicator.setAttribute('aria-live', 'polite');
-                    elements.systemPromptDetails.style.pointerEvents = 'none'; // システムプロンプト編集不可
+                    elements.systemPromptDetails.style.pointerEvents = 'none';
                     elements.systemPromptDetails.style.opacity = '0.7';
                 } else {
                     elements.sendButton.textContent = '送';
@@ -4828,11 +4814,10 @@
             },
             adjustTextareaHeight(textarea = elements.userInput, maxHeight = TEXTAREA_MAX_HEIGHT) {
                 if (!textarea) return;
-                textarea.style.height = 'auto'; // 一旦高さを自動に戻す
+                textarea.style.height = 'auto';
                 const scrollHeight = textarea.scrollHeight;
                 textarea.style.height = Math.min(scrollHeight, maxHeight) + 'px';
 
-                // 送信ボタンの有効/無効状態も更新 (userInput の場合のみ)
                 if (textarea === elements.userInput && !state.isSending) {
                     elements.sendButton.disabled = textarea.value.trim() === '' && state.pendingAttachments.length === 0;
                 }
@@ -4846,13 +4831,12 @@
                     dialogElement.addEventListener('close', closeListener);
                     dialogElement.showModal();
                     if (focusElement) {
-                        requestAnimationFrame(() => { focusElement.focus(); }); // 次のフレームでフォーカス
+                        requestAnimationFrame(() => { focusElement.focus(); });
                     }
                 });
             },
             async showCustomAlert(message) {
                 elements.alertMessage.textContent = message;
-                 // ボタンのイベントリスナーを再設定（重複防止）
                  const newOkBtn = elements.alertOkBtn.cloneNode(true);
                  elements.alertOkBtn.parentNode.replaceChild(newOkBtn, elements.alertOkBtn);
                  elements.alertOkBtn = newOkBtn;
@@ -4862,7 +4846,6 @@
             },
             async showCustomConfirm(message) {
                 elements.confirmMessage.textContent = message;
-                 // ボタンのイベントリスナーを再設定
                  const newOkBtn = elements.confirmOkBtn.cloneNode(true);
                  elements.confirmOkBtn.parentNode.replaceChild(newOkBtn, elements.confirmOkBtn);
                  elements.confirmOkBtn = newOkBtn;
@@ -4878,19 +4861,18 @@
             async showCustomPrompt(message, defaultValue = '') {
                 elements.promptMessage.textContent = message;
                 elements.promptInput.value = defaultValue;
-                // ボタンと入力欄のイベントリスナーを再設定
                  const newOkBtn = elements.promptOkBtn.cloneNode(true);
                  elements.promptOkBtn.parentNode.replaceChild(newOkBtn, elements.promptOkBtn);
                  elements.promptOkBtn = newOkBtn;
                  const newCancelBtn = elements.promptCancelBtn.cloneNode(true);
                  elements.promptCancelBtn.parentNode.replaceChild(newCancelBtn, elements.promptCancelBtn);
                  elements.promptCancelBtn = newCancelBtn;
-                 const newPromptInput = elements.promptInput.cloneNode(true); // 入力欄も作り直す
+                 const newPromptInput = elements.promptInput.cloneNode(true);
                  elements.promptInput.parentNode.replaceChild(newPromptInput, elements.promptInput);
                  elements.promptInput = newPromptInput;
 
 
-                const enterHandler = (event) => { // Enterキー対応
+                const enterHandler = (event) => {
                     if (event.key === 'Enter') {
                         event.preventDefault();
                         elements.promptOkBtn.click();
@@ -4899,34 +4881,33 @@
                 elements.promptInput.addEventListener('keypress', enterHandler);
 
                 elements.promptOkBtn.onclick = () => elements.promptDialog.close(elements.promptInput.value);
-                elements.promptCancelBtn.onclick = () => elements.promptDialog.close(''); // キャンセル時は空文字
+                elements.promptCancelBtn.onclick = () => elements.promptDialog.close('');
 
-                const closeHandler = () => { // close時にイベントリスナーを削除
+                const closeHandler = () => {
                     elements.promptInput.removeEventListener('keypress', enterHandler);
                     elements.promptDialog.removeEventListener('close', closeHandler);
                 };
                  elements.promptDialog.addEventListener('close', closeHandler);
 
                 const result = await this.showCustomDialog(elements.promptDialog, elements.promptInput);
-                return result; // OK時は入力値、キャンセル時は空文字
+                return result;
             },
             updateAttachmentBadgeVisibility() {
                 const hasAttachments = state.pendingAttachments.length > 0;
                 elements.attachFileBtn.classList.toggle('has-attachments', hasAttachments);
-                 // 送信ボタンの有効/無効状態も更新
                  if (!state.isSending) {
                      elements.sendButton.disabled = elements.userInput.value.trim() === '' && state.pendingAttachments.length === 0;
                  }
             },
             showFileUploadDialog() {
-                if (state.pendingAttachments.length > 0) { // 既に添付ファイルがある場合はそれを表示
+                if (state.pendingAttachments.length > 0) {
                     state.selectedFilesForUpload = state.pendingAttachments.map(att => ({ file: att.file }));
                 } else {
                     state.selectedFilesForUpload = [];
                 }
                 this.updateSelectedFilesUI();
                 elements.fileUploadDialog.showModal();
-                this.updateAttachmentBadgeVisibility(); // ダイアログ表示時にもバッジ状態を更新
+                this.updateAttachmentBadgeVisibility();
             },
             updateSelectedFilesUI() {
                 elements.selectedFilesList.innerHTML = '';
@@ -4960,14 +4941,11 @@
                     totalSize += item.file.size;
                 });
 
-                // 合計サイズが上限を超えていたら添付ボタンを無効化
                 if (totalSize > MAX_TOTAL_ATTACHMENT_SIZE) {
                     elements.confirmAttachBtn.disabled = true;
-                    // ここでユーザーに通知するUIを追加しても良い (例: file-upload-notice の内容を変更)
                 } else {
                     elements.confirmAttachBtn.disabled = false;
                 }
-                // 選択ファイルが0件の場合も添付ボタンを無効化
                 if (state.selectedFilesForUpload.length === 0) {
                      elements.confirmAttachBtn.disabled = true;
                 }
@@ -4995,22 +4973,21 @@
                 elements.appVersionSpan.textContent = APP_VERSION;
 
                 window.addEventListener('beforeinstallprompt', (event) => {
-                    event.preventDefault(); // PWAインストールプロンプトを制御
+                    event.preventDefault();
                 });
 
-                uiUtils.showScreen('chat'); // 初期画面はチャット
+                uiUtils.showScreen('chat');
                 registerServiceWorker();
 
                 try {
                     await dbUtils.openDB();
-                    await dbUtils.loadSettings(); // 設定を読み込み
-                    uiUtils.applyTheme(); // テーマを適用
-                    uiUtils.applyFontFamily(); // フォントを適用
-                    uiUtils.applySidePanelSettingsToUI(); // サイドパネル関連の設定を適用
+                    await dbUtils.loadSettings();
+                    uiUtils.applyTheme();
+                    uiUtils.applyFontFamily();
+                    uiUtils.applySidePanelSettingsToUI();
 
-                    // 背景画像の読み込み
                     if (state.settings.backgroundImageBlob instanceof Blob) {
-                        uiUtils.revokeExistingObjectUrl(); // 古いURLを破棄
+                        uiUtils.revokeExistingObjectUrl();
                         try {
                              state.backgroundImageUrl = URL.createObjectURL(state.settings.backgroundImageBlob);
                              document.documentElement.style.setProperty('--chat-background-image', `url(${state.backgroundImageUrl})`);
@@ -5021,7 +4998,6 @@
                     } else {
                         document.documentElement.style.setProperty('--chat-background-image', 'none');
                     }
-                    // アイコン画像の読み込み
                     if (state.settings.userIconBlob instanceof Blob) {
                         try { state.userIconUrl = URL.createObjectURL(state.settings.userIconBlob); } catch (e) { console.error("Error creating user icon URL:", e); }
                     }
@@ -5029,15 +5005,15 @@
                         try { state.aiIconUrl = URL.createObjectURL(state.settings.aiIconBlob); } catch (e) { console.error("Error creating AI icon URL:", e); }
                     }
 
-                    uiUtils.applySettingsToUI(); // 全設定をUIに反映
+                    uiUtils.applySettingsToUI();
 
                     const chats = await dbUtils.getAllChats(state.settings.historySortOrder);
                     if (chats && chats.length > 0) {
-                        await this.loadChat(chats[0].id); // 最新のチャットを読み込み
+                        await this.loadChat(chats[0].id);
                     } else {
-                        this.startNewChat(); // 履歴がなければ新規チャット
+                        this.startNewChat();
                     }
-                    history.replaceState({ screen: 'chat' }, '', '#chat'); // 初期履歴エントリ
+                    history.replaceState({ screen: 'chat' }, '', '#chat');
                     state.currentScreen = 'chat';
 
                 } catch (error) {
@@ -5045,12 +5021,11 @@
                     await uiUtils.showCustomAlert(`アプリの初期化に失敗しました: ${error}`);
                     elements.appContainer.innerHTML = `<p style="padding: 20px; text-align: center; color: red;">アプリの起動に失敗しました。</p>`;
                 } finally {
-                    updateMessageMaxWidthVar(); // メッセージ幅の初期計算
-                    this.setupEventListeners(); // イベントリスナーを設定
-                    this.updateZoomState(); // ズーム状態を確認
-                    uiUtils.adjustTextareaHeight(); // 入力欄の高さを調整
-                    uiUtils.setSendingState(false); // 送信状態をリセット
-                    // 修正: 自動スクロールオプションをチェックして初回スクロール
+                    updateMessageMaxWidthVar();
+                    this.setupEventListeners();
+                    this.updateZoomState();
+                    uiUtils.adjustTextareaHeight();
+                    uiUtils.setSendingState(false);
                     if (state.settings.autoScrollOnNewMessage) {
                         uiUtils.scrollToBottom();
                     }
@@ -5090,17 +5065,17 @@
                 elements.userInput.addEventListener('keypress', (e) => {
                     if (state.settings.enterToSend && e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
-                        if (!(elements.userInput.value.trim() === '' && state.pendingAttachments.length === 0) && !state.isSending) { // 送信可能かチェック
+                        if (!(elements.userInput.value.trim() === '' && state.pendingAttachments.length === 0) && !state.isSending) {
                              this.handleSend();
                         }
                     }
                 });
-                 elements.userInput.addEventListener('input', () => uiUtils.updateAttachmentBadgeVisibility()); // 入力時にもバッジ更新
+                 elements.userInput.addEventListener('input', () => uiUtils.updateAttachmentBadgeVisibility());
 
                 elements.systemPromptDetails.addEventListener('toggle', (event) => {
-                    if (event.target.open) { // details が開かれたら編集開始
+                    if (event.target.open) {
                         this.startEditSystemPrompt();
-                    } else if (state.isEditingSystemPrompt) { // details が閉じられたが編集中だった場合（例：Escキーなど）
+                    } else if (state.isEditingSystemPrompt) {
                         this.cancelEditSystemPrompt();
                     }
                 });
@@ -5114,7 +5089,7 @@
                 elements.importHistoryInput.addEventListener('change', (event) => {
                     const file = event.target.files[0];
                     if (file) this.handleHistoryImport(file);
-                    event.target.value = null; // 同じファイルを再度選択できるようにリセット
+                    event.target.value = null;
                 });
                 elements.exportAllSessionsBtn.addEventListener('click', () => this.exportAllSessions());
                 elements.importAllSessionsBtn.addEventListener('click', () => elements.importAllSessionsInput.click());
@@ -5132,8 +5107,8 @@
 
                 if (elements.themeSelect) {
                     elements.themeSelect.addEventListener('change', () => {
-                        state.settings.theme = elements.themeSelect.value; // 即時反映のため一時的にstateを更新
-                        uiUtils.applyTheme(); // DB保存はsaveSettingsボタンで行う
+                        state.settings.theme = elements.themeSelect.value;
+                        uiUtils.applyTheme();
                     });
                 }
 
@@ -5145,10 +5120,9 @@
                 });
                 elements.deleteBackgroundBtn.addEventListener('click', () => this.confirmDeleteBackgroundImage());
 
-                // User Icon Settings
                 elements.showUserIconToggle.addEventListener('change', () => {
                     state.settings.showUserIcon = elements.showUserIconToggle.checked;
-                    uiUtils.renderChatMessages(true); // 表示を即時更新
+                    uiUtils.renderChatMessages(true);
                 });
                 elements.uploadUserIconBtn.addEventListener('click', () => elements.userIconInput.click());
                 elements.userIconInput.addEventListener('change', (event) => {
@@ -5162,7 +5136,6 @@
                     uiUtils.renderChatMessages(true);
                 });
 
-                // AI Icon Settings
                 elements.showAiIconToggle.addEventListener('change', () => {
                     state.settings.showAiIcon = elements.showAiIconToggle.checked;
                     uiUtils.renderChatMessages(true);
@@ -5182,16 +5155,16 @@
                     const newSize = parseInt(elements.iconNameFontSizeInput.value, 10);
                     if (newSize >= 6 && newSize <= 16) {
                         document.documentElement.style.setProperty('--icon-name-font-size', `${newSize}px`);
-                    } else if (elements.iconNameFontSizeInput.value === '') { // 空ならデフォルト
+                    } else if (elements.iconNameFontSizeInput.value === '') {
                         document.documentElement.style.setProperty('--icon-name-font-size', `${DEFAULT_ICON_NAME_FONT_SIZE}px`);
                     }
                 });
                 elements.iconNameOffsetYInput.addEventListener('input', () => {
                     const uiOffsetY = parseInt(elements.iconNameOffsetYInput.value, 10);
-                    const internalOffsetY = isNaN(uiOffsetY) ? DEFAULT_ICON_NAME_OFFSET_Y : (uiOffsetY * -1); // UI(上が正) to Internal(下が正)
-                    if (internalOffsetY >= -20 && internalOffsetY <= 20) { // 内部値でチェック
+                    const internalOffsetY = isNaN(uiOffsetY) ? DEFAULT_ICON_NAME_OFFSET_Y : (uiOffsetY * -1);
+                    if (internalOffsetY >= -20 && internalOffsetY <= 20) {
                         document.documentElement.style.setProperty('--icon-name-offset-y', `${internalOffsetY}px`);
-                    } else if (elements.iconNameOffsetYInput.value === '') { // 空ならデフォルト
+                    } else if (elements.iconNameOffsetYInput.value === '') {
                         document.documentElement.style.setProperty('--icon-name-offset-y', `${DEFAULT_ICON_NAME_OFFSET_Y}px`);
                     }
                 });
@@ -5200,17 +5173,17 @@
                     const newSize = parseInt(elements.messageIconSizeInput.value, 10);
                     if (newSize >= 16 && newSize <= 64) {
                         document.documentElement.style.setProperty('--message-icon-size', `${newSize}px`);
-                    } else if (elements.messageIconSizeInput.value === '') { // 空ならデフォルト
+                    } else if (elements.messageIconSizeInput.value === '') {
                         document.documentElement.style.setProperty('--message-icon-size', `${DEFAULT_MESSAGE_ICON_SIZE}px`);
                     }
                 });
                 elements.messageIconOffsetYInput.addEventListener('input', () => {
                     const uiOffsetY = parseInt(elements.messageIconOffsetYInput.value, 10);
-                    const internalOffsetY = isNaN(uiOffsetY) ? DEFAULT_MESSAGE_ICON_OFFSET_Y : (uiOffsetY * -1); // UI(上が正) to Internal(下が正)
+                    const internalOffsetY = isNaN(uiOffsetY) ? DEFAULT_MESSAGE_ICON_OFFSET_Y : (uiOffsetY * -1);
 
-                    if (internalOffsetY >= -50 && internalOffsetY <= 50) { // 内部値でチェック
+                    if (internalOffsetY >= -50 && internalOffsetY <= 50) {
                         document.documentElement.style.setProperty('--message-icon-offset-y', `${internalOffsetY}px`);
-                    } else if (elements.messageIconOffsetYInput.value === '') { // 空ならデフォルト
+                    } else if (elements.messageIconOffsetYInput.value === '') {
                         document.documentElement.style.setProperty('--message-icon-offset-y', `${DEFAULT_MESSAGE_ICON_OFFSET_Y}px`);
                     }
                 });
@@ -5232,7 +5205,6 @@
                     state.settings.showNewChatButton = elements.showNewChatButtonToggle.checked;
                     uiUtils.updateChatScreenElementVisibility();
                 });
-                // 他のヘッダーボタン表示トグルも同様に
                 elements.showDeleteSessionButtonToggle.addEventListener('change', () => {
                     state.settings.showDeleteSessionButton = elements.showDeleteSessionButtonToggle.checked;
                     uiUtils.updateChatScreenElementVisibility();
@@ -5304,72 +5276,66 @@
                 });
                 elements.showCollapseButtonsToggle.addEventListener('change', () => {
                     state.settings.showCollapseButtons = elements.showCollapseButtonsToggle.checked;
-                    uiUtils.renderChatMessages(true); // ボタンの表示/非表示を即時反映
+                    uiUtils.renderChatMessages(true);
                 });
 
-                // メッセージクリックでアクション表示/非表示
                 elements.messageContainer.addEventListener('click', (event) => {
                     const clickedMessage = event.target.closest('.message');
                     if (event.target.closest('.message-actions button, .message-cascade-controls button, .message-toggle-button')) {
-                        // アクションボタンやトグルボタン自体がクリックされた場合は何もしない
                         return;
                     }
                     if (clickedMessage) {
                         const currentlyShown = elements.messageContainer.querySelector('.message.show-actions');
                         if (currentlyShown && currentlyShown !== clickedMessage) {
-                            currentlyShown.classList.remove('show-actions'); // 他のメッセージのアクションを閉じる
+                            currentlyShown.classList.remove('show-actions');
                         }
-                        if (!clickedMessage.classList.contains('editing')) { // 編集中はトグルしない
+                        if (!clickedMessage.classList.contains('editing')) {
                             clickedMessage.classList.toggle('show-actions');
                         }
-                    } else { // メッセージコンテナのメッセージ以外の部分をクリックした場合
+                    } else {
                         const currentlyShown = elements.messageContainer.querySelector('.message.show-actions');
                         if (currentlyShown) {
                             currentlyShown.classList.remove('show-actions');
                         }
                     }
-                });
+                }, true); // キャプチャフェーズで先に実行するように変更
                 // body クリックでメッセージアクションを非表示 (メモエリアなどを除く)
                 document.body.addEventListener('click', (event) => {
                     if (!elements.messageContainer.contains(event.target) &&
                         !elements.memoArea.contains(event.target) &&
-                        !elements.clipboardStackArea.contains(event.target)) {
+                        !elements.clipboardStackArea.contains(event.target) &&
+                        !event.target.closest('.custom-dialog')) { // ダイアログ内クリックは除外
                         const currentlyShown = elements.messageContainer.querySelector('.message.show-actions');
                         if (currentlyShown) {
                             currentlyShown.classList.remove('show-actions');
                         }
                     }
-                }, true); // キャプチャフェーズで先に実行
+                }, true);
 
-                // タッチイベント (スワイプナビゲーション)
                 elements.chatScreen.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: true });
-                elements.chatScreen.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false }); // preventDefault のため passive: false
+                elements.chatScreen.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
                 elements.chatScreen.addEventListener('touchend', this.handleTouchEnd.bind(this));
 
-                // ズーム状態の監視
                 if ('visualViewport' in window) {
                     window.visualViewport.addEventListener('resize', this.updateZoomState.bind(this));
-                    window.visualViewport.addEventListener('scroll', this.updateZoomState.bind(this)); // スクロールでもズーム状態が変わる可能性がある
+                    window.visualViewport.addEventListener('scroll', this.updateZoomState.bind(this));
                 }
 
-                // ブラウザバック/進むボタンの処理
                 window.addEventListener('popstate', this.handlePopState.bind(this));
 
-                // ファイル添付関連
                 elements.attachFileBtn.addEventListener('click', () => uiUtils.showFileUploadDialog());
                 elements.selectFilesBtn.addEventListener('click', () => elements.fileInput.click());
                 elements.fileInput.addEventListener('change', (event) => {
                     this.handleFileSelection(event.target.files);
-                    event.target.value = null; // 同じファイルを選択できるように
+                    event.target.value = null;
                 });
                 elements.confirmAttachBtn.addEventListener('click', () => this.confirmAttachment());
                 elements.cancelAttachBtn.addEventListener('click', () => this.cancelAttachment());
-                elements.fileUploadDialog.addEventListener('close', () => { // ダイアログが閉じられた時
-                    if (elements.fileUploadDialog.returnValue !== 'ok') { // OK以外で閉じられた場合
-                        this.cancelAttachment(); // 選択をキャンセル扱い
+                elements.fileUploadDialog.addEventListener('close', () => {
+                    if (elements.fileUploadDialog.returnValue !== 'ok') {
+                        this.cancelAttachment();
                     }
                 });
-                // メッセージ折りたたみボタンのイベント委譲
                 elements.messageContainer.addEventListener('click', (event) => {
                     const targetButton = event.target.closest('.message-toggle-button');
                     if (targetButton && targetButton.dataset.action === 'toggle-collapse') {
@@ -5379,21 +5345,21 @@
                 });
             },
             handlePopState(event) {
-                const targetScreen = event.state?.screen || 'chat'; // state がなければチャット画面
-                uiUtils.showScreen(targetScreen, true); // fromPopState = true
+                const targetScreen = event.state?.screen || 'chat';
+                uiUtils.showScreen(targetScreen, true);
             },
             updateZoomState() {
                 if ('visualViewport' in window) {
                     const newZoomState = window.visualViewport.scale > ZOOM_THRESHOLD;
                     if (state.isZoomed !== newZoomState) {
                         state.isZoomed = newZoomState;
-                        document.body.classList.toggle('zoomed', state.isZoomed); // bodyにクラスを付与/削除
+                        document.body.classList.toggle('zoomed', state.isZoomed);
                     }
                 }
             },
             handleTouchStart(event) {
                 if (!state.settings.enableSwipeNavigation) return;
-                if (event.touches.length > 1 || state.isZoomed) { // マルチタッチやズーム中はスワイプ無効
+                if (event.touches.length > 1 || state.isZoomed) {
                     state.touchStartX = 0;
                     state.touchStartY = 0;
                     state.isSwiping = false;
@@ -5401,8 +5367,8 @@
                 }
                 state.touchStartX = event.touches[0].clientX;
                 state.touchStartY = event.touches[0].clientY;
-                state.isSwiping = false; // スワイプ開始フラグ
-                state.touchEndX = state.touchStartX; // 初期化
+                state.isSwiping = false;
+                state.touchEndX = state.touchStartX;
                 state.touchEndY = state.touchStartY;
             },
             handleTouchMove(event) {
@@ -5415,12 +5381,11 @@
                 const diffX = state.touchStartX - currentX;
                 const diffY = state.touchStartY - currentY;
 
-                // 水平方向の動きが垂直方向より大きい場合のみスワイプと判定
                 if (Math.abs(diffX) > Math.abs(diffY)) {
                     state.isSwiping = true;
-                    event.preventDefault(); // 画面全体のスクロールを抑制
+                    event.preventDefault();
                 } else {
-                    state.isSwiping = false; // 垂直スクロールと判断
+                    state.isSwiping = false;
                 }
                 state.touchEndX = currentX;
                 state.touchEndY = currentY;
@@ -5430,24 +5395,23 @@
                      this.resetSwipeState();
                      return;
                  }
-                 this.updateZoomState(); // 念のためズーム状態を更新
-                 if (state.isZoomed) { // ズーム中はスワイプ無効
+                 this.updateZoomState();
+                 if (state.isZoomed) {
                      this.resetSwipeState();
                      return;
                  }
-                 if (!state.isSwiping || !state.touchStartX) { // スワイプと判定されていなければ何もしない
+                 if (!state.isSwiping || !state.touchStartX) {
                      this.resetSwipeState();
                      return;
                  }
 
                 const diffX = state.touchStartX - state.touchEndX;
-                const diffY = state.touchStartY - state.touchEndY; // Y方向の差も一応見ておく
+                const diffY = state.touchStartY - state.touchEndY;
 
-                // 水平方向の移動が閾値を超え、かつY方向の移動より大きい場合
                 if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(diffX) > Math.abs(diffY)) {
-                    if (diffX > 0) { // 左へスワイプ
+                    if (diffX > 0) {
                         uiUtils.showScreen('settings');
-                    } else { // 右へスワイプ
+                    } else {
                         uiUtils.showScreen('history');
                     }
                 }
@@ -5479,7 +5443,7 @@
             },
             async copyMemoText() {
                 const memoText = elements.memoEditor.value;
-                if (!memoText.trim()) { // 空の場合は何もしない（または通知）
+                if (!memoText.trim()) {
                      const originalText = elements.copyMemoBtn.textContent;
                      elements.copyMemoBtn.textContent = "空です";
                      elements.copyMemoBtn.disabled = true;
@@ -5506,7 +5470,6 @@
             async pasteIntoMemo() {
                 try {
                     if (!navigator.clipboard || !navigator.clipboard.readText) {
-                        // クリップボードAPI非対応の処理
                         const originalText = elements.pasteMemoBtn.textContent;
                         elements.pasteMemoBtn.textContent = "非対応";
                         elements.pasteMemoBtn.disabled = true;
@@ -5519,7 +5482,7 @@
                         const selectionStart = elements.memoEditor.selectionStart;
                         const selectionEnd = elements.memoEditor.selectionEnd;
                         elements.memoEditor.value = currentText.substring(0, selectionStart) + textToPaste + currentText.substring(selectionEnd);
-                        elements.memoEditor.selectionStart = elements.memoEditor.selectionEnd = selectionStart + textToPaste.length; // カーソル位置調整
+                        elements.memoEditor.selectionStart = elements.memoEditor.selectionEnd = selectionStart + textToPaste.length;
                         elements.memoEditor.focus();
                         const originalText = elements.pasteMemoBtn.textContent;
                         elements.pasteMemoBtn.textContent = "貼付け完了";
@@ -5534,13 +5497,11 @@
                 } catch (err) {
                     console.error("Paste memo error:", err);
                     if (err.name === 'NotAllowedError' || err.message.includes('Read permission denied')) {
-                         // ユーザーが許可しなかった場合
                          const originalText = elements.pasteMemoBtn.textContent;
                          elements.pasteMemoBtn.textContent = "許可エラー";
                          elements.pasteMemoBtn.disabled = true;
                          setTimeout(() => { elements.pasteMemoBtn.textContent = originalText; elements.pasteMemoBtn.disabled = false; }, 2000);
                     } else {
-                          // その他のエラー
                           const originalText = elements.pasteMemoBtn.textContent;
                           elements.pasteMemoBtn.textContent = "貼付け失敗";
                           elements.pasteMemoBtn.disabled = true;
@@ -5549,7 +5510,7 @@
                 }
             },
             async confirmClearMemo() {
-                if (!elements.memoEditor.value.trim()) { // 空なら何もしない
+                if (!elements.memoEditor.value.trim()) {
                      const originalText = elements.deleteMemoBtn.textContent;
                      elements.deleteMemoBtn.textContent = "空です";
                      elements.deleteMemoBtn.disabled = true;
@@ -5578,9 +5539,9 @@
                 elements.clipboardStackArea.classList.toggle('hidden', !state.isClipboardStackVisible);
 
                 if (state.isClipboardStackVisible) {
-                    elements.clipboardStackEditor.value = state.clipboardStackContent; // 表示時に最新の内容を反映
+                    elements.clipboardStackEditor.value = state.clipboardStackContent;
                     elements.clipboardStackEditor.focus();
-                    elements.clipboardStackEditor.scrollTop = elements.clipboardStackEditor.scrollHeight; // 最下部へスクロール
+                    elements.clipboardStackEditor.scrollTop = elements.clipboardStackEditor.scrollHeight;
                 }
             },
             async copyClipboardStackText() {
@@ -5621,11 +5582,11 @@
                     const textToPaste = await navigator.clipboard.readText();
                     if (textToPaste) {
                         const currentText = elements.clipboardStackEditor.value;
-                        const separator = currentText.length > 0 && !currentText.endsWith('\n\n') ? "\n\n" : ""; // 2行空けて連結
+                        const separator = currentText.length > 0 && !currentText.endsWith('\n\n') ? "\n\n" : "";
                         elements.clipboardStackEditor.value += separator + textToPaste;
-                        elements.clipboardStackEditor.scrollTop = elements.clipboardStackEditor.scrollHeight; // 最下部へ
+                        elements.clipboardStackEditor.scrollTop = elements.clipboardStackEditor.scrollHeight;
                         elements.clipboardStackEditor.focus();
-                        state.clipboardStackContent = elements.clipboardStackEditor.value; // state も更新
+                        state.clipboardStackContent = elements.clipboardStackEditor.value;
                         const originalText = elements.pasteClipboardStackBtn.textContent;
                         elements.pasteClipboardStackBtn.textContent = "貼付け完了";
                         elements.pasteClipboardStackBtn.disabled = true;
@@ -5665,7 +5626,7 @@
                 const confirmed = await uiUtils.showCustomConfirm("クリップボードスタックの内容を全てクリアしますか？");
                 if (confirmed) {
                     elements.clipboardStackEditor.value = '';
-                    state.clipboardStackContent = ''; // state もクリア
+                    state.clipboardStackContent = '';
                 }
             },
             scrollToTop() {
@@ -5705,8 +5666,8 @@
                         elements.userInput.value = currentText.substring(0, selectionStart) + textToPaste + currentText.substring(selectionEnd);
                         elements.userInput.selectionStart = elements.userInput.selectionEnd = selectionStart + textToPaste.length;
                         elements.userInput.focus();
-                        uiUtils.adjustTextareaHeight(); // 高さを再調整
-                        uiUtils.updateAttachmentBadgeVisibility(); // 送信ボタンの状態更新
+                        uiUtils.adjustTextareaHeight();
+                        uiUtils.updateAttachmentBadgeVisibility();
 
                         button.textContent = "✓";
                         button.title = "貼り付け完了";
@@ -5749,12 +5710,12 @@
                     const confirmed = await uiUtils.showCustomConfirm("編集中です。変更を破棄して新規チャットを開始しますか？");
                     if (!confirmed) return;
                     const msgEl = elements.messageContainer.querySelector(`.message[data-index="${state.editingMessageIndex}"]`);
-                    this.cancelEditMessage(state.editingMessageIndex, msgEl); // 編集キャンセル
+                    this.cancelEditMessage(state.editingMessageIndex, msgEl);
                 }
                 if (state.isEditingSystemPrompt) {
                     const confirmed = await uiUtils.showCustomConfirm("システムプロンプト編集中です。変更を破棄して新規チャットを開始しますか？");
                     if (!confirmed) return;
-                    this.cancelEditSystemPrompt(); // システムプロンプト編集キャンセル
+                    this.cancelEditSystemPrompt();
                 }
                 if (state.pendingAttachments.length > 0) {
                     const confirmedAttach = await uiUtils.showCustomConfirm("添付準備中のファイルがあります。破棄して新規チャットを開始しますか？");
@@ -5764,7 +5725,6 @@
                 }
 
                 if ((state.currentMessages.length > 0 || state.currentSystemPrompt) && state.currentChatId) {
-                    // 既存のチャットIDがある場合は、現在のチャットを保存
                     try {
                         await dbUtils.saveChat();
                     } catch (error) {
@@ -5774,29 +5734,28 @@
                     }
                 }
                 this.startNewChat();
-                uiUtils.showScreen('chat'); // チャット画面へ遷移
+                uiUtils.showScreen('chat');
             },
             startNewChat() {
                 state.currentChatId = null;
                 state.currentMessages = [];
-                state.currentSystemPrompt = state.settings.systemPrompt; // デフォルトのシステムプロンプトを適用
+                state.currentSystemPrompt = state.settings.systemPrompt;
                 state.pendingAttachments = [];
                 state.isMemoVisible = false;
                 elements.memoArea.classList.add('hidden');
                 elements.memoEditor.value = '';
                 state.isClipboardStackVisible = false;
                 elements.clipboardStackArea.classList.add('hidden');
-                state.areAllMessagesHidden = false; // 全メッセージ表示状態をリセット
+                state.areAllMessagesHidden = false;
                 uiUtils.updateToggleAllContentButton();
                 uiUtils.updateSystemPromptUI();
-                state.messageCollapsedStates.clear(); // 折りたたみ状態をクリア
+                state.messageCollapsedStates.clear();
                 uiUtils.renderChatMessages();
                 uiUtils.updateChatTitle();
                 elements.userInput.value = '';
                 uiUtils.adjustTextareaHeight();
                 uiUtils.setSendingState(false);
                 uiUtils.updateAttachmentBadgeVisibility();
-                // 修正: 自動スクロールオプションをチェック
                 if (state.settings.autoScrollOnNewMessage) {
                     uiUtils.scrollToBottom();
                 }
@@ -5829,28 +5788,27 @@
                     const chat = await dbUtils.getChat(id);
                     if (chat) {
                         state.currentChatId = chat.id;
-                        state.currentMessages = chat.messages?.map(msg => ({ // 添付ファイルがない場合に備える
+                        state.currentMessages = chat.messages?.map(msg => ({
                             ...msg,
                             attachments: msg.attachments || []
                         })) || [];
 
-                        // カスケードメッセージの isSelected の整合性チェックと修正
                         let needsSave = false;
                         const groupIds = new Set(state.currentMessages.filter(m => m.siblingGroupId).map(m => m.siblingGroupId));
                         groupIds.forEach(gid => {
                             const siblings = state.currentMessages.filter(m => m.siblingGroupId === gid);
                             const selected = siblings.filter(m => m.isSelected);
-                            if (selected.length === 0 && siblings.length > 0) { // 選択されているものがない
-                                siblings[siblings.length - 1].isSelected = true; // グループの最後のものを選択
+                            if (selected.length === 0 && siblings.length > 0) {
+                                siblings[siblings.length - 1].isSelected = true;
                                 needsSave = true;
-                            } else if (selected.length > 1) { // 複数選択されている
-                                selected.slice(0, -1).forEach(m => m.isSelected = false); // 最後のもの以外は非選択に
+                            } else if (selected.length > 1) {
+                                selected.slice(0, -1).forEach(m => m.isSelected = false);
                                 needsSave = true;
                             }
                         });
 
-                        state.currentSystemPrompt = chat.systemPrompt !== undefined ? chat.systemPrompt : state.settings.systemPrompt; // systemPrompt がなければデフォルトを使用
-                        state.pendingAttachments = []; // 添付ファイルはチャットごとにリセット
+                        state.currentSystemPrompt = chat.systemPrompt !== undefined ? chat.systemPrompt : state.settings.systemPrompt;
+                        state.pendingAttachments = [];
                         state.areAllMessagesHidden = false;
                         uiUtils.updateToggleAllContentButton();
                         uiUtils.updateSystemPromptUI();
@@ -5861,19 +5819,18 @@
                         uiUtils.adjustTextareaHeight();
                         uiUtils.setSendingState(false);
                         uiUtils.updateAttachmentBadgeVisibility();
-                        elements.memoEditor.value = ''; // メモはチャット間で共有しない
-                        if (needsSave) { // isSelected を修正した場合
+                        elements.memoEditor.value = '';
+                        if (needsSave) {
                             await dbUtils.saveChat();
                         }
-                        history.replaceState({ screen: 'chat' }, '', '#chat'); // URLをチャットに更新
+                        history.replaceState({ screen: 'chat' }, '', '#chat');
                         state.currentScreen = 'chat';
-                        // 修正: 自動スクロールオプションをチェック
                         if (state.settings.autoScrollOnNewMessage && state.currentMessages.length > 0) {
                             uiUtils.scrollToBottom();
                         }
                     } else {
                         await uiUtils.showCustomAlert("チャット履歴が見つかりませんでした。");
-                        this.startNewChat(); // 見つからなければ新規チャット
+                        this.startNewChat();
                         uiUtils.showScreen('chat');
                     }
                 } catch (error) {
@@ -5884,7 +5841,6 @@
                 }
             },
             async duplicateChat(id) {
-                // 送信中・編集中・添付準備中の確認は省略 (loadChat と同様の処理が必要なら追加)
                 if (state.isSending) { const conf = await uiUtils.showCustomConfirm("送信中です。中断してチャットを複製しますか？"); if (!conf) return; this.abortRequest(); }
                 if (state.editingMessageIndex !== null) { const conf = await uiUtils.showCustomConfirm("編集中です。変更を破棄してチャットを複製しますか？"); if (!conf) return; const msgEl = elements.messageContainer.querySelector(`.message[data-index="${state.editingMessageIndex}"]`); this.cancelEditMessage(state.editingMessageIndex, msgEl); }
                 if (state.isEditingSystemPrompt) { const conf = await uiUtils.showCustomConfirm("システムプロンプト編集中です。変更を破棄してチャットを複製しますか？"); if (!conf) return; this.cancelEditSystemPrompt(); }
@@ -5892,7 +5848,7 @@
                 if (state.pendingAttachments.length > 0) {
                     const confirmedAttach = await uiUtils.showCustomConfirm("添付準備中のファイルがあります。破棄してチャットを複製しますか？");
                     if (!confirmedAttach) return;
-                    state.pendingAttachments = []; // 添付ファイルは複製しない
+                    state.pendingAttachments = [];
                 }
 
                 try {
@@ -5901,33 +5857,29 @@
                         const originalTitle = chat.title || "無題のチャット";
                         const newTitle = originalTitle.replace(new RegExp(DUPLICATE_SUFFIX.replace(/([().])/g, '\\$1') + '$'), '').trim() + DUPLICATE_SUFFIX;
 
-                        // siblingGroupId を新しいものに置き換えるためのマップ
                         const groupIdMap = new Map();
                         const duplicatedMessages = [];
 
                         (chat.messages || []).forEach(msg => {
-                            const newMsg = JSON.parse(JSON.stringify(msg)); // ディープコピー
-                            newMsg.attachments = msg.attachments ? JSON.parse(JSON.stringify(msg.attachments)) : []; // 添付ファイルもディープコピー
+                            const newMsg = JSON.parse(JSON.stringify(msg));
+                            newMsg.attachments = msg.attachments ? JSON.parse(JSON.stringify(msg.attachments)) : [];
                             newMsg.isCascaded = msg.isCascaded ?? false;
-                            newMsg.isSelected = msg.isSelected ?? false; // isSelectedもコピー
+                            newMsg.isSelected = msg.isSelected ?? false;
 
                             if (msg.siblingGroupId) {
                                 if (!groupIdMap.has(msg.siblingGroupId)) {
-                                    // 新しいユニークなIDを生成
                                     groupIdMap.set(msg.siblingGroupId, `dup-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`);
                                 }
                                 newMsg.siblingGroupId = groupIdMap.get(msg.siblingGroupId);
                             } else {
-                                delete newMsg.siblingGroupId; // なければ削除
+                                delete newMsg.siblingGroupId;
                             }
                             duplicatedMessages.push(newMsg);
                         });
 
-                        // 複製されたメッセージ群の中で、各siblingGroupのisSelectedを再設定
                         const newGroupIds = new Set(duplicatedMessages.filter(m => m.siblingGroupId).map(m => m.siblingGroupId));
                         newGroupIds.forEach(gid => {
                             const siblings = duplicatedMessages.filter(m => m.siblingGroupId === gid);
-                            // グループ内の最後のメッセージを選択状態にする
                             siblings.forEach((m, idx) => {
                                 m.isSelected = (idx === siblings.length - 1);
                             });
@@ -5937,19 +5889,19 @@
                             messages: duplicatedMessages,
                             systemPrompt: chat.systemPrompt || '',
                             updatedAt: Date.now(),
-                            createdAt: Date.now(), // 複製時は新規作成扱い
+                            createdAt: Date.now(),
                             title: newTitle
                         };
 
                         const newChatId = await new Promise((resolve, reject) => {
                             const store = dbUtils._getStore(CHATS_STORE, 'readwrite');
-                            const request = store.add(newChatData); // addで新しいIDを生成
+                            const request = store.add(newChatData);
                             request.onsuccess = (event) => resolve(event.target.result);
                             request.onerror = (event) => reject(event.target.error);
                         });
 
                         if (state.currentScreen === 'history') {
-                            uiUtils.renderHistoryList(); // 履歴画面ならリストを更新
+                            uiUtils.renderHistoryList();
                         } else {
                             await uiUtils.showCustomAlert(`チャット「${newTitle}」を複製しました。`);
                         }
@@ -5983,11 +5935,10 @@
                                  if (msg.role === 'model') {
                                      if (msg.isCascaded) attributes += ' isCascaded';
                                      if (msg.isSelected) attributes += ' isSelected';
-                                     // siblingGroupId はエクスポートに含めない（インポート時に再生成するため）
                                  }
                                  if (msg.role === 'user' && msg.attachments && msg.attachments.length > 0) {
                                      const fileNames = msg.attachments.map(a => a.name).join(';');
-                                     attributes += ` attachments="${fileNames.replace(/"/g, '&quot;')}"`; // HTMLエンティティに置換
+                                     attributes += ` attachments="${fileNames.replace(/"/g, '&quot;')}"`;
                                  }
                                  exportText += `<|#|${msg.role}|#|${attributes.trim()}>\n${msg.content}\n<|#|/${msg.role}|#|>\n\n`;
                              }
@@ -5997,7 +5948,7 @@
                      const blob = new Blob([exportText.trim()], { type: 'text/plain;charset=utf-8' });
                      const url = URL.createObjectURL(blob);
                      const a = document.createElement('a');
-                     const safeTitle = (chatTitle || `chat_${chatId}_export`).replace(/[<>:"/\\|?*\s]/g, '_'); // 無効な文字を置換
+                     const safeTitle = (chatTitle || `chat_${chatId}_export`).replace(/[<>:"/\\|?*\s]/g, '_');
                      a.href = url;
                      a.download = `${safeTitle}.txt`;
                      document.body.appendChild(a);
@@ -6040,7 +5991,7 @@
                     if (state.currentChatId) {
                         await dbUtils.deleteChat(state.currentChatId);
                     }
-                    this.startNewChat(); // 削除後は新規チャット状態へ
+                    this.startNewChat();
                     await uiUtils.showCustomAlert("チャットを削除しました。");
                 } catch (error) {
                     console.error("Error deleting current session:", error);
@@ -6062,7 +6013,7 @@
                         sessionText += `あなた:\n`;
                     } else if (msg.role === 'model') {
                         sessionText += `モデル:\n`;
-                    } else if (msg.role === 'error') { // エラーメッセージもコピー対象
+                    } else if (msg.role === 'error') {
                         sessionText += `エラー:\n`;
                     }
                     sessionText += `${msg.content}\n\n`;
@@ -6098,18 +6049,17 @@
                  const confirmed = await uiUtils.showCustomConfirm(`「${title || 'この履歴'}」を削除しますか？`);
                  if (confirmed) {
                     const isDeletingCurrent = state.currentChatId === id;
-                    const currentScreenBeforeDelete = state.currentScreen; // 削除前の画面を記憶
+                    const currentScreenBeforeDelete = state.currentScreen;
                     try {
                         await dbUtils.deleteChat(id);
-                        if (isDeletingCurrent) { // 現在表示中のチャットを削除した場合
-                            this.startNewChat(); // 新規チャット状態にする
+                        if (isDeletingCurrent) {
+                            this.startNewChat();
                         }
-                        if (currentScreenBeforeDelete === 'history') { // 履歴画面で削除した場合
-                            await uiUtils.renderHistoryList(); // 履歴リストを再描画
-                            // もし履歴が空になったら、チャット画面も新規にする（UX向上）
+                        if (currentScreenBeforeDelete === 'history') {
+                            await uiUtils.renderHistoryList();
                             const listIsEmpty = elements.historyList.querySelectorAll('.history-item:not(.js-history-item-template)').length === 0;
                             if (listIsEmpty) {
-                                if (!isDeletingCurrent) { // 現在のチャットでなかった場合のみ
+                                if (!isDeletingCurrent) {
                                     this.startNewChat();
                                 }
                             }
@@ -6117,26 +6067,25 @@
                     } catch (error) {
                         console.error("Confirm delete chat error:", error);
                         await uiUtils.showCustomAlert(`チャット削除エラー: ${error}`);
-                        uiUtils.setSendingState(false); // 念のため
+                        uiUtils.setSendingState(false);
                     }
                 }
             },
             async editHistoryTitle(chatId, titleElement) {
                 const currentTitle = titleElement.textContent;
                 const newTitle = await uiUtils.showCustomPrompt("新しいタイトル:", currentTitle);
-                const trimmedTitle = (newTitle !== null) ? newTitle.trim() : ''; // nullチェックとtrim
+                const trimmedTitle = (newTitle !== null) ? newTitle.trim() : '';
 
-                if (newTitle !== '' && trimmedTitle !== '' && trimmedTitle !== currentTitle) { // 空でなく、変更がある場合
-                    const finalTitle = trimmedTitle.substring(0, 100); // タイトル長制限
+                if (newTitle !== '' && trimmedTitle !== '' && trimmedTitle !== currentTitle) {
+                    const finalTitle = trimmedTitle.substring(0, 100);
                     try {
                         await dbUtils.updateChatTitleDb(chatId, finalTitle);
-                        titleElement.textContent = finalTitle; // UIを即時更新
-                        titleElement.title = finalTitle; // ツールチップも更新
-                        // 更新日時も更新
+                        titleElement.textContent = finalTitle;
+                        titleElement.title = finalTitle;
                         const dateElement = titleElement.closest('.history-item')?.querySelector('.updated-date');
                         if(dateElement) dateElement.textContent = `更新: ${uiUtils.formatDate(Date.now())}`;
 
-                        if (state.currentChatId === chatId) { // 現在表示中のチャットならタイトルも更新
+                        if (state.currentChatId === chatId) {
                             uiUtils.updateChatTitle(finalTitle);
                         }
                     } catch (error) {
@@ -6149,29 +6098,29 @@
                 const speed = state.settings.streamingSpeed;
                 let accumulatedRawContent = prefix;
                 state.partialStreamContent = prefix;
-
                 if (prefix) {
                     uiUtils.updateStreamingMessage(messageIndex, '');
                 }
 
                 if (!speed || speed <= 0) {
-                    accumulatedRawContent = prefix + processedChunks.join(''); // ★★★ 修正: 単純結合 ★★★
+                    accumulatedRawContent = prefix + processedChunks.map(chunk => chunk === null ? '\n\n' : chunk).join('');
                     state.partialStreamContent = accumulatedRawContent;
                     uiUtils.updateStreamingMessage(messageIndex, '');
                     return accumulatedRawContent;
                 }
 
-                // console.log(`タイピングエフェクト速度: ${speed}ms`); // デバッグ用ログ
                 for (const chunk of processedChunks) {
                     if (signal.aborted) {
-                        // console.log("タイピング中断"); // デバッグ用ログ
                         return accumulatedRawContent;
                     }
-                    // ★★★ 修正箇所: chunk === null の分岐を削除 ★★★
-                    if (typeof chunk === 'string') { // 文字列チャンクのみ処理
+                    if (chunk === null) {
+                        const separator = '\n\n';
+                        accumulatedRawContent += separator;
+                        state.partialStreamContent = accumulatedRawContent;
+                        uiUtils.updateStreamingMessage(messageIndex, '');
+                    } else if (typeof chunk === 'string') {
                         for (const char of chunk) {
                             if (signal.aborted) {
-                                // console.log("タイピング中断"); // デバッグ用ログ
                                 return accumulatedRawContent;
                             }
                             accumulatedRawContent += char;
@@ -6180,9 +6129,7 @@
                             await sleep(speed);
                         }
                     }
-                    // ★★★ 修正ここまで ★★★
                 }
-                // console.log("タイピングエフェクト完了"); // デバッグ用ログ
                 return accumulatedRawContent;
             },
             async handleSend(isRetry = false, retryUserMessageIndex = -1) {
@@ -6195,48 +6142,45 @@
                 if (isRetry) {
                     const retryUserMessage = state.currentMessages[retryUserMessageIndex];
                     if (!retryUserMessage || retryUserMessage.role !== 'user') {
-                        uiUtils.setSendingState(false); // 何らかの理由でリトライ対象が見つからない
+                        uiUtils.setSendingState(false);
                         return;
                     }
                     text = retryUserMessage.content || '';
                     attachmentsToSend = retryUserMessage.attachments ? [...retryUserMessage.attachments] : [];
                 } else {
                     text = elements.userInput.value.trim();
-                    attachmentsToSend = [...state.pendingAttachments]; // 保留中の添付ファイルを使用
+                    attachmentsToSend = [...state.pendingAttachments];
                 }
 
-                if (state.isSending || (!text && attachmentsToSend.length === 0)) { // 送信中か、内容が空なら何もしない
+                if (state.isSending || (!text && attachmentsToSend.length === 0)) {
                     return;
                 }
                 if (!state.settings.apiKey) { await uiUtils.showCustomAlert("APIキーが設定されていません。設定画面を開きます。"); uiUtils.showScreen('settings'); return; }
 
                 uiUtils.setSendingState(true);
-                state.partialStreamContent = ''; // ストリーミング用部分コンテンツをリセット
+                state.partialStreamContent = '';
 
                 let userMessageIndex = isRetry ? retryUserMessageIndex : -1;
                 let existingSiblingGroupId = null;
-                let firstResponseIndexForRetry = -1; // リトライ時に既存の応答グループIDを引き継ぐための変数
+                let firstResponseIndexForRetry = -1;
                 let siblingGroupIdToUse = null;
 
                 if (!isRetry) {
-                    // 通常送信の場合、新しいユーザーメッセージを作成
                     const userMessage = {
                         role: 'user', content: text, timestamp: Date.now(),
-                        attachments: attachmentsToSend // 添付ファイルを含める
+                        attachments: attachmentsToSend
                     };
                     state.currentMessages.push(userMessage);
                     userMessageIndex = state.currentMessages.length - 1;
-                    state.messageCollapsedStates.set(userMessageIndex, false); // 新規メッセージは展開状態
+                    state.messageCollapsedStates.set(userMessageIndex, false);
                     uiUtils.appendMessage(userMessage.role, userMessage.content, userMessageIndex, false, null, userMessage.attachments);
-                    elements.userInput.value = ''; // 入力欄をクリア
-                    state.pendingAttachments = []; // 保留中の添付ファイルをクリア
+                    elements.userInput.value = '';
+                    state.pendingAttachments = [];
                     uiUtils.adjustTextareaHeight();
-                    // 修正: 自動スクロールオプションをチェック
                     if (state.settings.autoScrollOnNewMessage) {
                         uiUtils.scrollToBottom();
                     }
-                } else { // リトライの場合
-                    // リトライ対象のユーザーメッセージの次にある最初のモデル応答を探す
+                } else {
                     let siblingStartIndex = userMessageIndex + 1;
                     while (siblingStartIndex < state.currentMessages.length && state.currentMessages[siblingStartIndex].role !== 'model') {
                         siblingStartIndex++;
@@ -6246,32 +6190,27 @@
                          const firstResponse = state.currentMessages[firstResponseIndexForRetry];
                          if (firstResponse.isCascaded && firstResponse.siblingGroupId) {
                              existingSiblingGroupId = firstResponse.siblingGroupId;
-                             // 同じグループ内の他の応答を非選択にする
                              state.currentMessages.forEach(msg => {
                                  if (msg.siblingGroupId === existingSiblingGroupId) {
                                      msg.isSelected = false;
                                  }
                              });
-                             // 新しい応答はこのグループに追加する
                              siblingGroupIdToUse = existingSiblingGroupId;
                          }
                     }
-                    // リトライ時は、既存の応答より未来の会話履歴は削除される（handleSendの呼び出し元で処理済みのはず）
                 }
 
-                // APIに送信するメッセージ履歴を準備
                 const messagesToProcess = isRetry
-                    ? state.currentMessages.slice(0, userMessageIndex + 1) // リトライ時はそこまでの履歴
-                    : [...state.currentMessages]; // 通常時は全履歴
+                    ? state.currentMessages.slice(0, userMessageIndex + 1)
+                    : [...state.currentMessages];
 
-                // チャットを保存（タイトルも考慮）
                 try {
                     let titleToSave = null;
-                    if(state.currentChatId) { // 既存チャットならタイトル取得
+                    if(state.currentChatId) {
                         const currentChat = await dbUtils.getChat(state.currentChatId);
                         if(currentChat) titleToSave = currentChat.title;
                     }
-                    if (!titleToSave) { // 新規チャットか、タイトルがまだない場合
+                    if (!titleToSave) {
                         const firstUserMsg = state.currentMessages.find(m => m.role === 'user');
                         if(firstUserMsg) {
                             titleToSave = firstUserMsg.content.substring(0, 50);
@@ -6284,17 +6223,16 @@
                 }
 
                 const apiMessages = messagesToProcess
-                    .filter(msg => { // APIに送信するメッセージを選別
+                    .filter(msg => {
                         if (msg.role === 'user') return true;
-                        if (msg.role === 'model') return !msg.isCascaded || (msg.isCascaded && msg.isSelected); // カスケードの場合は選択中のもののみ
-                        return false; // エラーメッセージなどは送信しない
+                        if (msg.role === 'model') return !msg.isCascaded || (msg.isCascaded && msg.isSelected);
+                        return false;
                     })
                     .map(msg => {
                         const parts = [];
                         if (msg.content && msg.content.trim() !== '') {
                             parts.push({ text: msg.content });
                         }
-                        // ユーザーメッセージの添付ファイルをpartsに追加
                         if (msg.role === 'user' && msg.attachments && msg.attachments.length > 0) {
                             msg.attachments.forEach(att => {
                                 parts.push({
@@ -6308,7 +6246,6 @@
                         return { role: msg.role, parts: parts };
                     });
 
-                // ダミープロンプトの追加
                 const dummyUserText = state.settings.dummyUser?.trim();
                 const dummyModelText = state.settings.dummyModel?.trim();
                 if (dummyUserText) apiMessages.push({ role: 'user', parts: [{ text: dummyUserText }] });
@@ -6337,9 +6274,9 @@
                     const response = await apiUtils.callGeminiApi(apiMessages, generationConfig, systemInstruction);
                     const dummyModelPrefix = (state.settings.concatDummyModel && state.settings.dummyModel) ? state.settings.dummyModel : '';
 
-                    if (state.settings.streamingOutput && !state.settings.pseudoStreaming) { // ストリーミング処理
+                    if (state.settings.streamingOutput && !state.settings.pseudoStreaming) {
                         const tempPlaceholderIndex = state.currentMessages.length;
-                        uiUtils.appendMessage('model', '', tempPlaceholderIndex, true); // 仮のメッセージ要素を追加
+                        uiUtils.appendMessage('model', '', tempPlaceholderIndex, true);
                         const streamResult = await apiUtils.handleStreamingResponse(response);
                         modelResponseMetadata = { finishReason: streamResult.finishReason, safetyRatings: streamResult.safetyRatings };
                         groundingMetadata = streamResult.groundingMetadata;
@@ -6350,10 +6287,9 @@
                         if (modelResponseMetadata.finishReason === 'ABORTED' || state.abortController?.signal.aborted) {
                             throw new Error("リクエストがキャンセルされました。");
                         }
-                        // ストリーミング完了後、仮の要素を削除
                         const placeholderElement = document.getElementById(`streaming-message-${tempPlaceholderIndex}`);
                         if (placeholderElement) placeholderElement.remove();
-                    } else { // 非ストリーミング処理
+                    } else {
                         const data = await response.json();
                         const candidate = data.candidates?.[0];
                         let rawContentFromApi = "";
@@ -6366,10 +6302,10 @@
                             if (candidate.finishReason && candidate.finishReason !== "STOP" && candidate.finishReason !== "MAX_TOKENS") {
                                 rawContentFromApi += `\n\n(理由: ${candidate.finishReason})`;
                             }
-                            if (!rawContentFromApi && candidate.finishReason === "STOP") { // 空応答の場合
+                            if (!rawContentFromApi && candidate.finishReason === "STOP") {
                                 rawContentFromApi = "(応答が空です)";
                             }
-                        } else { // 候補がない場合 (ブロックなど)
+                        } else {
                             rawContentFromApi = "応答候補がありません";
                             if(data.promptFeedback) {
                                 rawContentFromApi += ` (理由: ${data.promptFeedback.blockReason || '不明'})`;
@@ -6383,56 +6319,53 @@
                         modelResponseRawContent = dummyModelPrefix + rawContentFromApi;
                     }
 
-                    if (modelResponseRawContent || modelResponseMetadata.finishReason) { // 何らかの応答があった場合
+                    if (modelResponseRawContent || modelResponseMetadata.finishReason) {
                          const newModelMessage = {
                              role: 'model', content: modelResponseRawContent, timestamp: Date.now(),
                              ...modelResponseMetadata, groundingMetadata: groundingMetadata, usageMetadata: usageMetadata
                          };
 
-                         const targetUserIndexForCascade = userMessageIndex; // このユーザーメッセージに対する応答としてカスケードする
-                         if (targetUserIndexForCascade !== -1) { // 適切なユーザーメッセージが見つかった場合
-                             if (siblingGroupIdToUse === null) { // 新規グループ
+                         const targetUserIndexForCascade = userMessageIndex;
+                         if (targetUserIndexForCascade !== -1) {
+                             if (siblingGroupIdToUse === null) {
                                  siblingGroupIdToUse = `gid-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
                              }
                              newModelMessage.isCascaded = true;
-                             newModelMessage.isSelected = true; // 新しい応答を選択状態に
+                             newModelMessage.isSelected = true;
                              newModelMessage.siblingGroupId = siblingGroupIdToUse;
 
-                             // リトライ時、元の最初の応答もカスケードグループに含める
                              if (isRetry && firstResponseIndexForRetry !== -1 && state.currentMessages[firstResponseIndexForRetry] && !state.currentMessages[firstResponseIndexForRetry].isCascaded) {
                                  state.currentMessages[firstResponseIndexForRetry].isCascaded = true;
                                  state.currentMessages[firstResponseIndexForRetry].siblingGroupId = siblingGroupIdToUse;
-                                 // isSelected は新しい応答が true なので、元のは false のまま
                              }
                          }
 
                          const newModelIndex = state.currentMessages.length;
                          state.currentMessages.push(newModelMessage);
                          state.messageCollapsedStates.set(newModelIndex, false);
-                         uiUtils.renderChatMessages(); // UI更新
-                         await dbUtils.saveChat(); // チャット保存
+                         uiUtils.renderChatMessages();
+                         await dbUtils.saveChat();
                     }
                 } catch (error) {
                     console.error("Error during API call or response handling:", error);
                     const isAbort = error.message === "リクエストがキャンセルされました。";
                     const displayErrorMessage = isAbort ? error.message : (error.message || "不明なエラーが発生しました");
-                    const partialRawContent = state.partialStreamContent || error.cause?.partialChunks?.join(''); // 中断時の部分的なコンテンツ
+                    const partialRawContent = state.partialStreamContent || error.cause?.partialChunks?.join('');
 
-                    if (partialRawContent && (state.settings.streamingOutput && !state.settings.pseudoStreaming)) { // ストリーミング中で部分的なコンテンツがある場合
+                    if (partialRawContent && (state.settings.streamingOutput && !state.settings.pseudoStreaming)) {
                          const finalPartialContent = partialRawContent + `\n\n(${isAbort ? '中断されました' : 'エラーが発生しました'})`;
                          const partialMessage = {
                              role: 'model', content: finalPartialContent, timestamp: Date.now(), error: true,
                              finishReason: isAbort ? 'ABORTED' : (modelResponseMetadata.finishReason || 'ERROR'),
                              ...(modelResponseMetadata.safetyRatings && { safetyRatings: modelResponseMetadata.safetyRatings })
                          };
-                         // 中断された応答もカスケードグループに含めるか検討 (ここでは含める)
                          if (isRetry && isAbort) {
                              if (siblingGroupIdToUse === null) {
                                  siblingGroupIdToUse = `gid-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
                              }
                              partialMessage.isCascaded = true;
                              partialMessage.siblingGroupId = siblingGroupIdToUse;
-                             partialMessage.isSelected = true; // 中断されたものを選択状態に
+                             partialMessage.isSelected = true;
                              if (firstResponseIndexForRetry !== -1 && state.currentMessages[firstResponseIndexForRetry] && !state.currentMessages[firstResponseIndexForRetry].isCascaded) {
                                  state.currentMessages[firstResponseIndexForRetry].isCascaded = true;
                                  state.currentMessages[firstResponseIndexForRetry].siblingGroupId = siblingGroupIdToUse;
@@ -6447,16 +6380,15 @@
                              uiUtils.renderChatMessages();
                          } catch (saveError) {
                              console.error("Error saving chat after partial response:", saveError);
-                             uiUtils.displayError(displayErrorMessage, !isAbort); // 保存失敗でもエラーは表示
+                             uiUtils.displayError(displayErrorMessage, !isAbort);
                          }
                     } else {
-                        uiUtils.displayError(displayErrorMessage, !isAbort); // APIエラー（非ストリーミング時やストリーミング開始前エラー）
+                        uiUtils.displayError(displayErrorMessage, !isAbort);
                     }
                 } finally {
                     uiUtils.setSendingState(false);
                     state.abortController = null;
                     state.partialStreamContent = '';
-                    // 修正: 自動スクロールオプションをチェック
                     if (state.settings.autoScrollOnNewMessage) {
                         uiUtils.scrollToBottom();
                     }
@@ -6487,34 +6419,32 @@
                             return;
                         }
 
-                        // インポートされたメッセージのカスケード情報を再構築
                         let currentGroupId = null;
-                        let lastUserIndex = -1; // カスケードの起点となるユーザーメッセージのインデックス
+                        let lastUserIndex = -1;
                         for (let i = 0; i < importedMessages.length; i++) {
                             const msg = importedMessages[i];
                             if (msg.role === 'user') {
                                 lastUserIndex = i;
-                                currentGroupId = null; // ユーザーメッセージでグループリセット
+                                currentGroupId = null;
                             } else if (msg.role === 'model' && msg.isCascaded) {
-                                if (currentGroupId === null && lastUserIndex !== -1) { // 新しいカスケードグループを開始
+                                if (currentGroupId === null && lastUserIndex !== -1) {
                                     currentGroupId = `imp-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
                                 }
                                 if (currentGroupId) {
                                     msg.siblingGroupId = currentGroupId;
                                 }
-                            } else { // カスケードでないモデルメッセージや他のロール
+                            } else {
                                 currentGroupId = null;
                             }
                         }
-                        // 各グループ内で isSelected を再設定
                         const groupIds = new Set(importedMessages.filter(m => m.siblingGroupId).map(m => m.siblingGroupId));
                         groupIds.forEach(gid => {
                             const siblings = importedMessages.filter(m => m.siblingGroupId === gid);
                             const selected = siblings.filter(m => m.isSelected);
-                            if (selected.length === 0 && siblings.length > 0) { // 選択がない
-                                siblings[siblings.length - 1].isSelected = true; // 最後を選択
-                            } else if (selected.length > 1) { // 複数選択されている
-                                selected.slice(0, -1).forEach(m => m.isSelected = false); // 最後以外を非選択
+                            if (selected.length === 0 && siblings.length > 0) {
+                                siblings[siblings.length - 1].isSelected = true;
+                            } else if (selected.length > 1) {
+                                selected.slice(0, -1).forEach(m => m.isSelected = false);
                             }
                         });
 
@@ -6524,8 +6454,8 @@
 
                         const newChatData = {
                             messages: importedMessages, systemPrompt: importedSystemPrompt || '',
-                            updatedAt: Date.now(), createdAt: Date.now(), // インポート時は新規作成
-                            title: newTitle.substring(0, 100) // タイトル長制限
+                            updatedAt: Date.now(), createdAt: Date.now(),
+                            title: newTitle.substring(0, 100)
                         };
                         const newChatId = await new Promise((resolve, reject) => {
                             const store = dbUtils._getStore(CHATS_STORE, 'readwrite');
@@ -6534,7 +6464,7 @@
                             request.onerror = (event) => reject(event.target.error);
                         });
                         await uiUtils.showCustomAlert(`履歴「${newChatData.title}」をインポートしました。`);
-                        uiUtils.renderHistoryList(); // 履歴リストを更新
+                        uiUtils.renderHistoryList();
                     } catch (error) {
                         console.error("History import error:", error);
                         await uiUtils.showCustomAlert(`履歴のインポート中にエラーが発生しました: ${error.message}`);
@@ -6554,7 +6484,7 @@
 
                 while ((match = blockRegex.exec(text)) !== null) {
                     const role = match[1];
-                    const attributesString = match[2].trim(); // 属性文字列
+                    const attributesString = match[2].trim();
                     const content = match[3].trim();
 
                     if (role === 'system' && content) {
@@ -6563,7 +6493,6 @@
                         const messageData = {
                             role: role, content: content, timestamp: Date.now(), attachments: []
                         };
-                        // 属性のパース
                         const attributes = {};
                         attributesString.split(/\s+/).forEach(attr => {
                             const eqIndex = attr.indexOf('=');
@@ -6573,8 +6502,8 @@
                                 if (value.startsWith('"') && value.endsWith('"')) {
                                     value = value.substring(1, value.length - 1);
                                 }
-                                attributes[key] = value.replace(/&quot;/g, '"'); 
-                            } else if (attr) { // 値なし属性 (例: isCascaded)
+                                attributes[key] = value.replace(/&quot;/g, '"');
+                            } else if (attr) {
                                 attributes[attr] = true;
                             }
                         });
@@ -6582,13 +6511,11 @@
                         if (role === 'model') {
                             messageData.isCascaded = attributes['isCascaded'] === true;
                             messageData.isSelected = attributes['isSelected'] === true;
-                            // siblingGroupId はインポート時に再生成するのでここでは読み込まない
                         }
                         if (role === 'user' && attributes['attachments']) {
                             const fileNames = attributes['attachments'].split(';');
-                            // 添付ファイルは名前とMIMEタイプのみ保持 (データは復元不可)
                             messageData.attachments = fileNames.map(name => ({
-                                name: name, mimeType: 'unknown/unknown', base64Data: '' // base64Dataは空
+                                name: name, mimeType: 'unknown/unknown', base64Data: ''
                             }));
                         }
                         messages.push(messageData);
@@ -6601,7 +6528,7 @@
                 if (!confirmed) return;
 
                 try {
-                    const chats = await dbUtils.getAllChats(); // ソート順はデフォルト(更新順)で良い
+                    const chats = await dbUtils.getAllChats();
                     if (!chats || chats.length === 0) {
                         await uiUtils.showCustomAlert("エクスポートするセッションがありません。");
                         return;
@@ -6616,13 +6543,11 @@
                                 content: msg.content,
                                 timestamp: msg.timestamp,
                             };
-                            // 必要なメタデータのみエクスポート
                             if (msg.isCascaded !== undefined) messageExport.isCascaded = msg.isCascaded;
                             if (msg.isSelected !== undefined) messageExport.isSelected = msg.isSelected;
                             if (msg.siblingGroupId !== undefined) messageExport.siblingGroupId = msg.siblingGroupId;
                             if (msg.groundingMetadata) messageExport.groundingMetadata = msg.groundingMetadata;
                             if (msg.usageMetadata) messageExport.usageMetadata = msg.usageMetadata;
-                            // 添付ファイルは名前とMIMEタイプのみ (データはエクスポートしない)
                             if (msg.attachments && msg.attachments.length > 0) {
                                 messageExport.attachments = msg.attachments.map(att => ({ name: att.name, mimeType: att.mimeType }));
                             }
@@ -6632,11 +6557,11 @@
                         updatedAt: chat.updatedAt
                     }));
 
-                    const jsonString = JSON.stringify(exportableChats, null, 2); // 整形して出力
+                    const jsonString = JSON.stringify(exportableChats, null, 2);
                     const blob = new Blob([jsonString], { type: 'application/json;charset=utf-8' });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
-                    const timestamp = new Date().toISOString().slice(0, 10).replace(/-/g, ''); // YYYYMMDD形式
+                    const timestamp = new Date().toISOString().slice(0, 10).replace(/-/g, '');
                     a.href = url;
                     a.download = `gemini_pwa_all_sessions_${timestamp}.json`;
                     document.body.appendChild(a);
@@ -6680,47 +6605,44 @@
 
                         let importedCount = 0;
                         let skippedCount = 0;
-                        const importTimestamp = Date.now(); // インポート時刻
+                        const importTimestamp = Date.now();
 
                         for (const chatData of importedData) {
-                            // 基本的なバリデーション
                             if (typeof chatData.title !== 'string' || !Array.isArray(chatData.messages)) {
                                 skippedCount++;
                                 continue;
                             }
 
                             const newChat = {
-                                title: `${IMPORT_PREFIX}(全) ${chatData.title}`.substring(0,100), // インポートプレフィックスと長さ制限
+                                title: `${IMPORT_PREFIX}(全) ${chatData.title}`.substring(0,100),
                                 systemPrompt: chatData.systemPrompt || '',
                                 messages: (chatData.messages || []).map(msg => ({
                                     role: msg.role,
-                                    content: msg.content || '', // contentがない場合は空文字
-                                    timestamp: typeof msg.timestamp === 'number' ? msg.timestamp : importTimestamp, // タイムスタンプがなければインポート時刻
-                                    isCascaded: msg.isCascaded === true, // booleanに変換
-                                    isSelected: msg.isSelected === true, // booleanに変換
-                                    siblingGroupId: msg.siblingGroupId || undefined, // なければundefined
-                                    attachments: (msg.attachments || []).map(att => ({ // 添付ファイルは名前とMIMEタイプのみ
+                                    content: msg.content || '',
+                                    timestamp: typeof msg.timestamp === 'number' ? msg.timestamp : importTimestamp,
+                                    isCascaded: msg.isCascaded === true,
+                                    isSelected: msg.isSelected === true,
+                                    siblingGroupId: msg.siblingGroupId || undefined,
+                                    attachments: (msg.attachments || []).map(att => ({
                                         name: att.name || 'imported_file',
                                         mimeType: att.mimeType || 'application/octet-stream',
-                                        base64Data: '' // データは復元しない
+                                        base64Data: ''
                                     })),
                                     groundingMetadata: msg.groundingMetadata || undefined,
                                     usageMetadata: msg.usageMetadata || undefined,
-                                    error: msg.error || undefined, // エラー情報もインポート
+                                    error: msg.error || undefined,
                                 })),
                                 createdAt: typeof chatData.createdAt === 'number' ? chatData.createdAt : importTimestamp,
                                 updatedAt: typeof chatData.updatedAt === 'number' ? chatData.updatedAt : importTimestamp,
                             };
 
-                            // インポートされたカスケードメッセージの isSelected の整合性を再確認
                             const groupIds = new Set(newChat.messages.filter(m => m.siblingGroupId).map(m => m.siblingGroupId));
                             groupIds.forEach(gid => {
                                 const siblings = newChat.messages.filter(m => m.siblingGroupId === gid);
                                 const selectedSiblings = siblings.filter(m => m.isSelected);
                                 if (selectedSiblings.length === 0 && siblings.length > 0) {
-                                    siblings[siblings.length - 1].isSelected = true; // 選択がなければ最後を選択
+                                    siblings[siblings.length - 1].isSelected = true;
                                 } else if (selectedSiblings.length > 1) {
-                                    // 複数選択されていれば、最後のもの以外は非選択に
                                     for (let i = 0; i < selectedSiblings.length - 1; i++) {
                                         selectedSiblings[i].isSelected = false;
                                     }
@@ -6730,7 +6652,7 @@
                             try {
                                 await new Promise((resolve, reject) => {
                                     const store = dbUtils._getStore(CHATS_STORE, 'readwrite');
-                                    const request = store.add(newChat); // 新規として追加
+                                    const request = store.add(newChat);
                                     request.onsuccess = () => {
                                         importedCount++;
                                         resolve();
@@ -6738,7 +6660,7 @@
                                     request.onerror = (e) => {
                                         console.error("Failed to import session:", chatData.title, e.target.error);
                                         skippedCount++;
-                                        resolve(); // エラーでも次の処理へ
+                                        resolve();
                                     };
                                 });
                             } catch (e) {
@@ -6753,7 +6675,7 @@
                         }
                         await uiUtils.showCustomAlert(message);
                         if (importedCount > 0) {
-                            uiUtils.renderHistoryList(); // 履歴リストを更新
+                            uiUtils.renderHistoryList();
                         }
 
                     } catch (error) {
@@ -6761,13 +6683,13 @@
                         console.error("Error importing all sessions:", error);
                     }
                 };
-                reader.onerror = async () => { // ファイル読み込み自体のエラー
+                reader.onerror = async () => {
                     await uiUtils.showCustomAlert("ファイルの読み込みに失敗しました。");
                 };
                 reader.readAsText(file);
             },
              async handleBackgroundImageUpload(file) {
-                 const maxSize = 5 * 1024 * 1024; // 5MB
+                 const maxSize = 5 * 1024 * 1024;
                  if (file.size > maxSize) {
                      await uiUtils.showCustomAlert(`画像サイズが大きすぎます (${(maxSize / 1024 / 1024).toFixed(1)}MB以下にしてください)`);
                      return;
@@ -6778,19 +6700,19 @@
                  }
 
                  try {
-                     uiUtils.revokeExistingObjectUrl(); // 古いURLを解放
-                     const blob = file; // FileReader は不要、File オブジェクトは Blob の一種
+                     uiUtils.revokeExistingObjectUrl();
+                     const blob = file;
                      await dbUtils.saveSetting('backgroundImageBlob', blob);
-                     state.settings.backgroundImageBlob = blob; // stateにも保存
-                     state.backgroundImageUrl = URL.createObjectURL(blob); // 新しいURLを生成
+                     state.settings.backgroundImageBlob = blob;
+                     state.backgroundImageUrl = URL.createObjectURL(blob);
                      document.documentElement.style.setProperty('--chat-background-image', `url(${state.backgroundImageUrl})`);
-                     uiUtils.updateBackgroundSettingsUI(); // UIのプレビューを更新
+                     uiUtils.updateBackgroundSettingsUI();
                  } catch (error) {
                      console.error("Background image upload error:", error);
                      await uiUtils.showCustomAlert(`背景画像の処理中にエラーが発生しました: ${error}`);
-                     uiUtils.revokeExistingObjectUrl(); // エラー時はURL解放
+                     uiUtils.revokeExistingObjectUrl();
                      document.documentElement.style.setProperty('--chat-background-image', 'none');
-                     state.settings.backgroundImageBlob = null; // DBからも削除するならここ
+                     state.settings.backgroundImageBlob = null;
                      uiUtils.updateBackgroundSettingsUI();
                  }
              },
@@ -6802,18 +6724,18 @@
              },
              async handleBackgroundImageDelete() {
                  try {
-                     uiUtils.revokeExistingObjectUrl(); // URL解放
-                     await dbUtils.saveSetting('backgroundImageBlob', null); // DBから削除
-                     state.settings.backgroundImageBlob = null; // stateも更新
-                     document.documentElement.style.setProperty('--chat-background-image', 'none'); // CSS変数をリセット
-                     uiUtils.updateBackgroundSettingsUI(); // UI更新
+                     uiUtils.revokeExistingObjectUrl();
+                     await dbUtils.saveSetting('backgroundImageBlob', null);
+                     state.settings.backgroundImageBlob = null;
+                     document.documentElement.style.setProperty('--chat-background-image', 'none');
+                     uiUtils.updateBackgroundSettingsUI();
                  } catch (error) {
                      console.error("Background image delete error:", error);
                      await uiUtils.showCustomAlert(`背景画像の削除中にエラーが発生しました: ${error}`);
                  }
              },
-            async handleIconUpload(type, file) { // type は 'user' または 'ai'
-                 const maxSize = 1 * 1024 * 1024; // 1MB 制限
+            async handleIconUpload(type, file) {
+                 const maxSize = 1 * 1024 * 1024;
                  if (file.size > maxSize) {
                      await uiUtils.showCustomAlert(`画像サイズが大きすぎます (${(maxSize / 1024 / 1024).toFixed(1)}MB以下)。`);
                      return;
@@ -6826,7 +6748,7 @@
                  try {
                      const blob = file;
                      if (type === 'user') {
-                         if(state.userIconUrl) URL.revokeObjectURL(state.userIconUrl); // 古いURL解放
+                         if(state.userIconUrl) URL.revokeObjectURL(state.userIconUrl);
                          await dbUtils.saveSetting('userIconBlob', blob);
                          state.settings.userIconBlob = blob;
                          state.userIconUrl = URL.createObjectURL(blob);
@@ -6836,8 +6758,8 @@
                          state.settings.aiIconBlob = blob;
                          state.aiIconUrl = URL.createObjectURL(blob);
                      }
-                     uiUtils.updateIconSettingsUI(); // 設定画面のプレビュー更新
-                     uiUtils.renderChatMessages(true); // チャット画面のアイコンも更新
+                     uiUtils.updateIconSettingsUI();
+                     uiUtils.renderChatMessages(true);
                  } catch (error) {
                      console.error(`${type} icon upload error:`, error);
                      await uiUtils.showCustomAlert(`${type === 'user' ? 'ユーザー' : 'AI'}アイコンの処理エラー: ${error}`);
@@ -6864,7 +6786,7 @@
                          await dbUtils.saveSetting('aiIconBlob', null);
                      }
                      uiUtils.updateIconSettingsUI();
-                     uiUtils.renderChatMessages(true); // チャット画面のアイコンも更新
+                     uiUtils.renderChatMessages(true);
                  } catch (error) {
                      console.error(`${type} icon delete error:`, error);
                      await uiUtils.showCustomAlert(`${type === 'user' ? 'ユーザー' : 'AI'}アイコンの削除エラー: ${error}`);
@@ -6890,7 +6812,7 @@
                      additionalModels: elements.additionalModelsTextarea.value.trim(),
                      pseudoStreaming: elements.pseudoStreamingCheckbox.checked,
                      enterToSend: elements.enterToSendCheckbox.checked,
-                     autoScrollOnNewMessage: elements.autoScrollOnNewMessageCheckbox.checked, // 追加: 自動スクロール設定の保存
+                     autoScrollOnNewMessage: elements.autoScrollOnNewMessageCheckbox.checked,
                      historySortOrder: elements.historySortOrderSelect.value,
                      theme: elements.themeSelect.value,
                      fontFamily: elements.fontFamilyInput.value.trim(),
@@ -6908,7 +6830,7 @@
                      showMemoButton: elements.showMemoButtonToggle.checked,
                      memoHeight: elements.memoHeightInput.value.trim() || DEFAULT_MEMO_HEIGHT,
                      showClipboardStackButton: elements.showClipboardStackButtonToggle.checked,
-                     clipboardStackHeight: state.settings.clipboardStackHeight, // This should be read from input if one exists, or set default
+                     clipboardStackHeight: state.settings.clipboardStackHeight,
                      showUserIcon: elements.showUserIconToggle.checked,
                      showUserName: elements.showUserNameToggle.checked,
                      userName: elements.userNameInput.value.trim() || DEFAULT_USER_NAME,
@@ -6931,12 +6853,11 @@
                      toggleButtonBottomTextExpand: elements.toggleButtonBottomTextExpandInput.value.trim() || DEFAULT_TOGGLE_BUTTON_BOTTOM_TEXT_EXPAND,
                  };
 
-                 // バリデーション (数値など)
                  if (isNaN(newSettings.streamingSpeed) || newSettings.streamingSpeed < 0) {
                      newSettings.streamingSpeed = DEFAULT_STREAMING_SPEED;
                  }
                  if (newSettings.temperature !== null && (isNaN(newSettings.temperature) || newSettings.temperature < 0 || newSettings.temperature > 2)) {
-                     newSettings.temperature = null; // 無効な場合はnull（APIデフォルト）
+                     newSettings.temperature = null;
                  }
                  if (newSettings.maxTokens !== null && (isNaN(newSettings.maxTokens) || newSettings.maxTokens < 1)) {
                      newSettings.maxTokens = null;
@@ -6959,13 +6880,13 @@
                  if (newSettings.messageIconSize !== null && (isNaN(newSettings.messageIconSize) || newSettings.messageIconSize < 16 || newSettings.messageIconSize > 64)) {
                      newSettings.messageIconSize = DEFAULT_MESSAGE_ICON_SIZE;
                  }
-                 if (newSettings.messageIconOffsetY !== null && (isNaN(newSettings.messageIconOffsetY) || newSettings.messageIconOffsetY < -50 || newSettings.messageIconOffsetY > 50)) { // internal value check
+                 if (newSettings.messageIconOffsetY !== null && (isNaN(newSettings.messageIconOffsetY) || newSettings.messageIconOffsetY < -50 || newSettings.messageIconOffsetY > 50)) {
                      newSettings.messageIconOffsetY = DEFAULT_MESSAGE_ICON_OFFSET_Y;
                  }
                  if (newSettings.iconNameFontSize !== null && (isNaN(newSettings.iconNameFontSize) || newSettings.iconNameFontSize < 6 || newSettings.iconNameFontSize > 16)) {
                      newSettings.iconNameFontSize = DEFAULT_ICON_NAME_FONT_SIZE;
                  }
-                 if (newSettings.iconNameOffsetY !== null && (isNaN(newSettings.iconNameOffsetY) || newSettings.iconNameOffsetY < -20 || newSettings.iconNameOffsetY > 20)) { // internal value check
+                 if (newSettings.iconNameOffsetY !== null && (isNaN(newSettings.iconNameOffsetY) || newSettings.iconNameOffsetY < -20 || newSettings.iconNameOffsetY > 20)) {
                      newSettings.iconNameOffsetY = DEFAULT_ICON_NAME_OFFSET_Y;
                  }
                  if (newSettings.messageBubbleOpacity !== null && (isNaN(newSettings.messageBubbleOpacity) || newSettings.messageBubbleOpacity < 0 || newSettings.messageBubbleOpacity > 1)) {
@@ -6987,17 +6908,14 @@
 
                  try {
                      const oldSortOrder = state.settings.historySortOrder;
-                     // Blobは直接保存せず、現在のstateのものを維持する
                      const { memoWidth, backgroundImageBlob, userIconBlob, aiIconBlob, ...settingsToSave } = newSettings;
 
                      const promises = Object.entries(settingsToSave).map(([key, value]) =>
                          dbUtils.saveSetting(key, value)
                      );
 
-                     // Blobは別途保存 (変更があった場合のみ保存するロジックでも良いが、ここでは毎回保存)
-                     // Blobは現在のstateから取得する（UIの変更は直接state.settings.backgroundImageBlob などに反映されないため）
-                     const currentSettingsFromDB = await dbUtils.loadSettings(); // DBの最新状態を取得
-                     if (state.settings.backgroundImageBlob !== currentSettingsFromDB.backgroundImageBlob) { // 変更があった場合のみ
+                     const currentSettingsFromDB = await dbUtils.loadSettings();
+                     if (state.settings.backgroundImageBlob !== currentSettingsFromDB.backgroundImageBlob) {
                          promises.push(dbUtils.saveSetting('backgroundImageBlob', state.settings.backgroundImageBlob));
                      }
                      if (state.settings.userIconBlob !== currentSettingsFromDB.userIconBlob) {
@@ -7009,25 +6927,23 @@
 
                      await Promise.all(promises);
 
-                     // state.settings を更新 (Blobは現在のstateのものを保持)
                      const currentBgBlob = state.settings.backgroundImageBlob;
                      const currentUserIconBlob = state.settings.userIconBlob;
                      const currentAiIconBlob = state.settings.aiIconBlob;
 
-                     state.settings = { ...state.settings, ...settingsToSave }; // 新しい設定で上書き
+                     state.settings = { ...state.settings, ...settingsToSave };
 
-                     // Blobを再設定
                      state.settings.backgroundImageBlob = currentBgBlob;
                      state.settings.userIconBlob = currentUserIconBlob;
                      state.settings.aiIconBlob = currentAiIconBlob;
 
-                     uiUtils.applySettingsToUI(); // UIに再反映
+                     uiUtils.applySettingsToUI();
                      await uiUtils.showCustomAlert("設定を保存しました。");
 
                      if (newSettings.historySortOrder !== oldSortOrder && state.currentScreen === 'history') {
-                         uiUtils.renderHistoryList(); // ソート順が変わったら履歴リストを再描画
+                         uiUtils.renderHistoryList();
                      }
-                     uiUtils.renderChatMessages(true); // アイコン名などの変更を反映
+                     uiUtils.renderChatMessages(true);
                  } catch (error) {
                      console.error("Save settings error:", error);
                      await uiUtils.showCustomAlert(`設定の保存中にエラーが発生しました: ${error}`);
@@ -7042,9 +6958,8 @@
                 if (confirmed) {
                     navigator.serviceWorker.ready.then(reg => {
                         if (reg.active) {
-                            reg.active.postMessage({ action: 'clearCache' }); // Service Worker にキャッシュクリアを指示
+                            reg.active.postMessage({ action: 'clearCache' });
                         } else {
-                            // 通常は発生しないはず
                             uiUtils.showCustomAlert("アクティブなService Workerが見つかりません。手動でリロードが必要かもしれません。");
                         }
                     }).catch(async err => {
@@ -7057,12 +6972,11 @@
                 const confirmed = await uiUtils.showCustomConfirm("本当にすべてのデータ（チャット履歴と設定）を削除しますか？この操作は元に戻せません。");
                 if (confirmed) {
                     try {
-                        uiUtils.revokeExistingObjectUrl(); // 背景画像のURL解放
-                        uiUtils.revokeExistingIconUrls(); // アイコン画像のURL解放
+                        uiUtils.revokeExistingObjectUrl();
+                        uiUtils.revokeExistingIconUrls();
                         await dbUtils.clearAllData();
                         await uiUtils.showCustomAlert("すべてのデータが削除されました。アプリをリセットします。");
 
-                        // stateを初期状態に戻す
                         state.currentChatId = null;
                         state.currentMessages = [];
                         state.currentSystemPrompt = '';
@@ -7074,7 +6988,6 @@
                         elements.clipboardStackArea.classList.add('hidden');
                         state.clipboardStackContent = '';
 
-                        // settings もデフォルトに戻す
                         state.settings = {
                             apiKey: '', modelName: DEFAULT_MODEL, streamingOutput: true,
                             streamingSpeed: DEFAULT_STREAMING_SPEED, systemPrompt: '',
@@ -7082,9 +6995,9 @@
                             presencePenalty: null, frequencyPenalty: null, thinkingBudget: null,
                             dummyUser: '', dummyModel: '', concatDummyModel: false,
                             additionalModels: '', pseudoStreaming: false, enterToSend: true,
-                            autoScrollOnNewMessage: DEFAULT_AUTO_SCROLL_ON_NEW_MESSAGE, // 追加
+                            autoScrollOnNewMessage: DEFAULT_AUTO_SCROLL_ON_NEW_MESSAGE,
                             historySortOrder: 'updatedAt',
-                            theme: window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light', // OS設定を優先
+                            theme: window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
                             backgroundImageBlob: null, fontFamily: '',
                             hideSystemPromptInChat: false, enableSwipeNavigation: true,
                             showNewChatButton: true,
@@ -7121,17 +7034,17 @@
                             toggleButtonBottomTextCollapse: DEFAULT_TOGGLE_BUTTON_BOTTOM_TEXT_COLLAPSE,
                             toggleButtonBottomTextExpand: DEFAULT_TOGGLE_BUTTON_BOTTOM_TEXT_EXPAND,
                         };
-                        state.backgroundImageUrl = null; // URLもリセット
+                        state.backgroundImageUrl = null;
                         state.userIconUrl = null;
                         state.aiIconUrl = null;
                         state.areAllMessagesHidden = false;
                         state.messageCollapsedStates.clear();
 
-                        document.documentElement.style.setProperty('--chat-background-image', 'none'); // CSS変数リセット
-                        uiUtils.applySettingsToUI(); // UIを初期状態に
+                        document.documentElement.style.setProperty('--chat-background-image', 'none');
+                        uiUtils.applySettingsToUI();
                         uiUtils.updateAttachmentBadgeVisibility();
-                        this.startNewChat(); // 新規チャット開始
-                        uiUtils.showScreen('chat', true); // チャット画面へ（履歴を汚さない）
+                        this.startNewChat();
+                        uiUtils.showScreen('chat', true);
                     } catch (error) {
                         console.error("Clear all data error:", error);
                         await uiUtils.showCustomAlert(`データ削除中にエラーが発生しました: ${error}`);
@@ -7139,7 +7052,7 @@
                 }
             },
             startEditSystemPrompt() {
-                if (state.isSending) return; // 送信中は編集不可
+                if (state.isSending) return;
                 state.isEditingSystemPrompt = true;
                 elements.systemPromptEditor.value = state.currentSystemPrompt;
                 uiUtils.adjustTextareaHeight(elements.systemPromptEditor, 200);
@@ -7150,18 +7063,18 @@
                 if (newPrompt !== state.currentSystemPrompt) {
                     state.currentSystemPrompt = newPrompt;
                     try {
-                        await dbUtils.saveChat(); // 現在のチャットにシステムプロンプトを保存
+                        await dbUtils.saveChat();
                     } catch (error) {
                         console.error("Error saving system prompt:", error);
                         await uiUtils.showCustomAlert("システムプロンプトの保存に失敗しました。");
                     }
                 }
                 state.isEditingSystemPrompt = false;
-                elements.systemPromptDetails.removeAttribute('open'); // detailsを閉じる
+                elements.systemPromptDetails.removeAttribute('open');
             },
             cancelEditSystemPrompt() {
                 state.isEditingSystemPrompt = false;
-                elements.systemPromptEditor.value = state.currentSystemPrompt; // 元のプロンプトに戻す
+                elements.systemPromptEditor.value = state.currentSystemPrompt;
                 elements.systemPromptDetails.removeAttribute('open');
                 uiUtils.adjustTextareaHeight(elements.systemPromptEditor, 200);
             },
@@ -7178,7 +7091,7 @@
                      await uiUtils.showCustomAlert("システムプロンプト編集中です。");
                      return;
                  }
-                 if (state.editingMessageIndex === index) { // 既に編集中ならフォーカス
+                 if (state.editingMessageIndex === index) {
                      messageElement.querySelector('.edit-textarea')?.focus();
                      return;
                  }
@@ -7193,9 +7106,8 @@
                  const editArea = messageElement.querySelector('.message-edit-area');
                  const cascadeControls = messageElement.querySelector('.message-cascade-controls');
 
-                 editArea.innerHTML = ''; // 編集エリアをクリア
+                 editArea.innerHTML = '';
 
-                 // メッセージ要素のパディングを考慮して幅を調整（編集エリアがはみ出ないように）
                  let horizontalPadding = 0;
                  try {
                      const computedStyle = window.getComputedStyle(messageElement);
@@ -7205,15 +7117,14 @@
                  } catch (e) {
                      console.warn("Could not get computed style for message element padding.");
                  }
-                 // スクロールバーの幅も考慮 (約17px)
                  messageElement.style.width = `calc(var(--message-max-width) + ${horizontalPadding}px + 17px)`;
 
 
                  const textarea = document.createElement('textarea');
                  textarea.value = rawContent;
                  textarea.classList.add('edit-textarea');
-                 textarea.rows = 3; // 初期行数
-                 textarea.oninput = () => uiUtils.adjustTextareaHeight(textarea, 400); // 最大400px
+                 textarea.rows = 3;
+                 textarea.oninput = () => uiUtils.adjustTextareaHeight(textarea, 400);
 
                  const actionsDiv = document.createElement('div');
                  actionsDiv.classList.add('message-edit-actions');
@@ -7232,67 +7143,65 @@
                  editArea.appendChild(actionsDiv);
 
                  messageElement.classList.add('editing');
-                 if(contentDiv) contentDiv.classList.add('hidden'); // 元のコンテンツを隠す
-                 if(cascadeControls) cascadeControls.classList.add('hidden'); // カスケードコントロールも隠す
-                 editArea.classList.remove('hidden'); // 編集エリアを表示
+                 if(contentDiv) contentDiv.classList.add('hidden');
+                 if(cascadeControls) cascadeControls.classList.add('hidden');
+                 editArea.classList.remove('hidden');
 
                  uiUtils.adjustTextareaHeight(textarea, 400);
                  textarea.focus();
-                 textarea.select(); // テキスト全体を選択
+                 textarea.select();
 
-                 this.uncollapseMessage(index, messageElement); // 編集中は展開状態にする
+                 this.uncollapseMessage(index, messageElement);
             },
             async saveEditMessage(index, messageElement) {
                 const textarea = messageElement.querySelector('.edit-textarea');
-                if (!textarea) { // textarea がなければキャンセル扱い
+                if (!textarea) {
                     this.cancelEditMessage(index, messageElement);
                     return;
                 }
-                const newRawContent = textarea.value.trim(); // 前後の空白を除去
+                const newRawContent = textarea.value.trim();
                 const originalMessage = state.currentMessages[index];
 
-                if (newRawContent === originalMessage.content) { // 変更がなければキャンセルと同じ
+                if (newRawContent === originalMessage.content) {
                     this.cancelEditMessage(index, messageElement);
                     return;
                 }
 
                 originalMessage.content = newRawContent;
-                originalMessage.timestamp = Date.now(); // 更新日時を更新
-                delete originalMessage.error; // エラーフラグがあれば削除
+                originalMessage.timestamp = Date.now();
+                delete originalMessage.error;
 
-                // UI更新
                 const contentDiv = messageElement.querySelector('.message-content');
                 if (contentDiv && typeof marked !== 'undefined' && originalMessage.role === 'model') {
                     try {
                         contentDiv.innerHTML = marked.parse(newRawContent || '');
                     } catch (e) {
                         console.error("Markdown parse error on save edit:", e);
-                        contentDiv.textContent = newRawContent; // パースエラー時は生テキスト
+                        contentDiv.textContent = newRawContent;
                     }
-                } else if (contentDiv) { // userメッセージやmarkedがない場合
+                } else if (contentDiv) {
                     const pre = contentDiv.querySelector('pre') || document.createElement('pre');
                     pre.textContent = newRawContent;
-                    if (!contentDiv.querySelector('pre')) { // preがなければ追加
+                    if (!contentDiv.querySelector('pre')) {
                         contentDiv.innerHTML = '';
                         contentDiv.appendChild(pre);
                     }
                 }
 
-                this.finishEditing(messageElement); // 編集状態を終了
-                this.uncollapseMessage(index, messageElement); // 保存後は展開状態を維持
+                this.finishEditing(messageElement);
+                this.uncollapseMessage(index, messageElement);
 
                 const isFirstUserMessage = (index === state.currentMessages.findIndex(m => m.role === 'user'));
                 let titleForSave = null;
-                if (isFirstUserMessage) { // 最初のユーザーメッセージが編集されたらタイトルも更新
+                if (isFirstUserMessage) {
                     titleForSave = newRawContent.substring(0, 50) || "無題のチャット";
                 }
 
                 try {
-                    await dbUtils.saveChat(titleForSave); // タイトルも渡して保存
+                    await dbUtils.saveChat(titleForSave);
                     if (isFirstUserMessage) {
                         uiUtils.updateChatTitle(titleForSave);
                     }
-                    // メッセージが空になってチャット自体が空になった場合の処理
                     if (state.currentMessages.length === 0 && !state.currentSystemPrompt && state.currentChatId) {
                         this.startNewChat();
                     }
@@ -7302,12 +7211,12 @@
                 }
             },
             cancelEditMessage(index, messageElement = null) {
-                  if (!messageElement) { // 要素が渡されなければDOMから検索
+                  if (!messageElement) {
                       messageElement = elements.messageContainer.querySelector(`.message[data-index="${index}"]`);
                   }
                   if (messageElement) {
-                      this.finishEditing(messageElement); // 編集状態を終了
-                  } else if (state.editingMessageIndex === index) { // 要素が見つからなくてもstateはリセット
+                      this.finishEditing(messageElement);
+                  } else if (state.editingMessageIndex === index) {
                       state.editingMessageIndex = null;
                   }
             },
@@ -7317,17 +7226,17 @@
                 const contentDiv = messageElement.querySelector('.message-content');
                 const cascadeControls = messageElement.querySelector('.message-cascade-controls');
 
-                messageElement.style.removeProperty('width'); // 幅を元に戻す
+                messageElement.style.removeProperty('width');
                 messageElement.classList.remove('editing');
                 if(contentDiv) contentDiv.classList.remove('hidden');
                 if(cascadeControls) cascadeControls.classList.remove('hidden');
                 if(editArea) {
                     editArea.classList.add('hidden');
-                    editArea.innerHTML = ''; // 編集エリアを空にする
+                    editArea.innerHTML = '';
                 }
 
                 const index = parseInt(messageElement.dataset.index, 10);
-                if (state.editingMessageIndex === index) { // stateをリセット
+                if (state.editingMessageIndex === index) {
                     state.editingMessageIndex = null;
                 }
             },
@@ -7336,16 +7245,14 @@
                 if (!message) return;
 
                 let textToCopy = message.content;
-                // ユーザーメッセージでテキストがなく添付ファイルのみの場合の処理
                 if (!textToCopy && message.role === 'user' && message.attachments && message.attachments.length > 0) {
                     textToCopy = `[添付ファイル: ${message.attachments.map(a => a.name).join(', ')}]`;
-                } else if (!textToCopy) { // それでも空なら空文字
+                } else if (!textToCopy) {
                     textToCopy = "";
                 }
 
                 try {
                     await navigator.clipboard.writeText(textToCopy);
-                    // ボタンのテキスト変更でフィードバック
                     const originalText = buttonElement.textContent;
                     buttonElement.textContent = 'コピー完了!';
                     buttonElement.disabled = true;
@@ -7358,16 +7265,15 @@
                     uiUtils.showCustomAlert("OSクリップボードへのコピーに失敗しました。");
                 }
 
-                // クリップボードスタックへの追加
                 const currentStackContent = elements.clipboardStackEditor.value;
                 const separator = currentStackContent.length > 0 && !currentStackContent.endsWith('\n\n') ? "\n\n" : "";
                 const messagePrefix = message.role === 'user' ? "User:" : "Model:";
                 elements.clipboardStackEditor.value += separator + `${messagePrefix}\n${textToCopy}`;
-                state.clipboardStackContent = elements.clipboardStackEditor.value; // stateも更新
-                elements.clipboardStackEditor.scrollTop = elements.clipboardStackEditor.scrollHeight; // スタックの最下部へ
+                state.clipboardStackContent = elements.clipboardStackEditor.value;
+                elements.clipboardStackEditor.scrollTop = elements.clipboardStackEditor.scrollHeight;
             },
             async deleteMessage(index) {
-                if (state.editingMessageIndex === index) { // 編集中ならキャンセル
+                if (state.editingMessageIndex === index) {
                     this.cancelEditMessage(index);
                 }
                 if (state.isSending) {
@@ -7378,7 +7284,7 @@
                     await uiUtils.showCustomAlert("システムプロンプト編集中は削除できません。");
                     return;
                 }
-                if (index < 0 || index >= state.currentMessages.length) { // 無効なインデックス
+                if (index < 0 || index >= state.currentMessages.length) {
                      return;
                 }
 
@@ -7388,14 +7294,13 @@
                 let indicesToDelete = [];
 
                 if (messageToDelete.role === 'model' && messageToDelete.isCascaded && messageToDelete.siblingGroupId) {
-                    // カスケードグループ全体の削除
                     const groupId = messageToDelete.siblingGroupId;
                     const siblings = state.currentMessages.filter(msg => msg.role === 'model' && msg.isCascaded && msg.siblingGroupId === groupId);
                     indicesToDelete = state.currentMessages
                         .map((msg, i) => (msg.role === 'model' && msg.isCascaded && msg.siblingGroupId === groupId) ? i : -1)
                         .filter(i => i !== -1);
                     confirmMessage = `「${messageContentPreview}」を含む応答グループ全体 (${siblings.length}件) を削除しますか？`;
-                } else { // 単一メッセージの削除
+                } else {
                     indicesToDelete.push(index);
                     confirmMessage = `メッセージ「${messageContentPreview}」(${messageToDelete.role}) を削除しますか？`;
                 }
@@ -7404,30 +7309,27 @@
                 if (confirmed) {
                     const originalFirstUserMsgIndex = state.currentMessages.findIndex(m => m.role === 'user');
 
-                    // 逆順で削除してインデックスのズレを防ぐ
                     indicesToDelete.sort((a, b) => b - a).forEach(idx => {
                         state.currentMessages.splice(idx, 1);
-                        state.messageCollapsedStates.delete(idx); // 折りたたみ状態も削除
+                        state.messageCollapsedStates.delete(idx);
                     });
 
-                    // 折りたたみ状態のインデックスを再マッピング
                     const oldCollapsedStates = new Map(state.messageCollapsedStates);
                     state.messageCollapsedStates.clear();
                      state.currentMessages.forEach((msg, newIdx) => {
-                        // 削除された要素より後ろの要素の古いインデックスを計算
                         const oldIdxEquivalent = newIdx >= Math.min(...indicesToDelete) ? newIdx + indicesToDelete.filter(i => i <= newIdx).length : newIdx;
                         if (oldCollapsedStates.has(oldIdxEquivalent)) {
                             state.messageCollapsedStates.set(newIdx, oldCollapsedStates.get(oldIdxEquivalent));
                         } else {
-                            state.messageCollapsedStates.set(newIdx, false); // デフォルトは展開
+                            state.messageCollapsedStates.set(newIdx, false);
                         }
                     });
 
 
-                    uiUtils.renderChatMessages(); // UIを再描画
+                    uiUtils.renderChatMessages();
 
                     const newFirstUserMsgIndex = state.currentMessages.findIndex(m => m.role === 'user');
-                    let requiresTitleUpdate = indicesToDelete.includes(originalFirstUserMsgIndex); // 最初のユーザーメッセージが削除されたか
+                    let requiresTitleUpdate = indicesToDelete.includes(originalFirstUserMsgIndex);
 
                     try {
                         let newTitleForSave = null;
@@ -7436,7 +7338,7 @@
                         if (requiresTitleUpdate) {
                             const newFirstUserMessage = newFirstUserMsgIndex !== -1 ? state.currentMessages[newFirstUserMsgIndex] : null;
                             newTitleForSave = newFirstUserMessage ? newFirstUserMessage.content.substring(0, 50) : "無題のチャット";
-                        } else if (currentChatData) { // タイトル更新不要でも、DBには最新のメッセージを保存
+                        } else if (currentChatData) {
                             newTitleForSave = currentChatData.title;
                         }
 
@@ -7444,7 +7346,6 @@
                         if (requiresTitleUpdate) {
                             uiUtils.updateChatTitle(newTitleForSave);
                         }
-                        // チャットが空になった場合の処理
                         if (state.currentMessages.length === 0 && !state.currentSystemPrompt && state.currentChatId) {
                             this.startNewChat();
                         }
@@ -7460,7 +7361,7 @@
                         return i;
                     }
                 }
-                return -1; // 見つからなければ -1
+                return -1;
             },
             async retryFromMessage(index) {
                 if (state.editingMessageIndex !== null) {
@@ -7477,21 +7378,20 @@
                 }
 
                 const userMessage = state.currentMessages[index];
-                if (!userMessage || userMessage.role !== 'user') return; // ユーザーメッセージ以外からはリトライ不可
+                if (!userMessage || userMessage.role !== 'user') return;
 
                 const messageContentPreview = userMessage.content.substring(0, 30) + "...";
                 const confirmed = await uiUtils.showCustomConfirm(`「${messageContentPreview}」から再生成しますか？\n(この入力に対する既存の応答は保持されますが、**これより未来の会話履歴は削除されます**)`);
                 if (confirmed) {
                     let deleteStartIndex = -1;
-                    let scanIndex = index + 1; // 削除開始インデックスの探索開始位置
-                    let targetSiblingGroupId = null; // 既存の応答グループID
+                    let scanIndex = index + 1;
+                    let targetSiblingGroupId = null;
 
-                    // リトライ対象のユーザーメッセージの直後にあるモデル応答のグループIDを取得
                     if (scanIndex < state.currentMessages.length && state.currentMessages[scanIndex].role === 'model') {
                         targetSiblingGroupId = state.currentMessages[scanIndex].siblingGroupId || null;
                     }
 
-                    if (targetSiblingGroupId !== null) { // グループIDがあれば、そのグループの最後までスキャン
+                    if (targetSiblingGroupId !== null) {
                         while (
                             scanIndex < state.currentMessages.length &&
                             state.currentMessages[scanIndex].role === 'model' &&
@@ -7499,41 +7399,38 @@
                         ) {
                             scanIndex++;
                         }
-                    } else { // グループIDがなければ、最初のモデル応答の次から削除
+                    } else {
                          if (scanIndex < state.currentMessages.length && state.currentMessages[scanIndex].role === 'model') {
-                            scanIndex++; // 最初のモデル応答は残すので、その次から
+                            scanIndex++;
                         }
                     }
 
-                    if (scanIndex < state.currentMessages.length) { // スキャンした結果、削除するべきメッセージがあれば
+                    if (scanIndex < state.currentMessages.length) {
                         deleteStartIndex = scanIndex;
                     }
 
-                    if (deleteStartIndex !== -1) { // 削除するメッセージがある場合
-                        // 折りたたみ状態も削除
+                    if (deleteStartIndex !== -1) {
                         for(let i = deleteStartIndex; i < state.currentMessages.length; i++) {
                             state.messageCollapsedStates.delete(i);
                         }
-                        state.currentMessages.splice(deleteStartIndex); // 未来の会話履歴を削除
+                        state.currentMessages.splice(deleteStartIndex);
                     }
 
-                    uiUtils.renderChatMessages(); // UI更新
-                    if (state.settings.autoScrollOnNewMessage) uiUtils.scrollToBottom(); // スクロール
+                    uiUtils.renderChatMessages();
+                    if (state.settings.autoScrollOnNewMessage) uiUtils.scrollToBottom();
 
-                    // リトライ時に既存の応答を一時的に隠す（UXのため）
                     const elementsToHide = [];
                     const messageContainer = elements.messageContainer;
-                    if (targetSiblingGroupId) { // グループIDがある場合
+                    if (targetSiblingGroupId) {
                         messageContainer.querySelectorAll(`.message.model[data-index]`).forEach(el => {
                             const msgIndex = parseInt(el.dataset.index, 10);
-                            const potentialMsg = state.currentMessages[msgIndex]; // splice後のインデックスで判断
+                            const potentialMsg = state.currentMessages[msgIndex];
                             if (potentialMsg && potentialMsg.role === 'model' && potentialMsg.siblingGroupId === targetSiblingGroupId) {
-                                 el.classList.add('retrying-hidden'); // CSSで非表示にするクラス
+                                 el.classList.add('retrying-hidden');
                                  elementsToHide.push(el);
                             }
                         });
                     } else if (index + 1 < state.currentMessages.length && state.currentMessages[index + 1]?.role === 'model') {
-                        // グループ化されていない最初の応答
                         const element = messageContainer.querySelector(`.message.model[data-index="${index + 1}"]`);
                         if (element) {
                             element.classList.add('retrying-hidden');
@@ -7541,38 +7438,34 @@
                         }
                     }
 
-                    await this.handleSend(true, index); // リトライとして送信処理を実行
-
-                    // リトライ完了後、一時的に隠した要素を再表示（もしあれば）
-                    // elementsToHide.forEach(el => el.classList.remove('retrying-hidden')); // handleSend の finally で再描画されるので不要かも
+                    await this.handleSend(true, index);
                 }
             },
             getCascadedSiblings(index, includeSelf = false) {
                 const targetMsg = state.currentMessages[index];
                 if (!targetMsg || !targetMsg.isCascaded || !targetMsg.siblingGroupId) {
-                    return []; // 対象外なら空配列
+                    return [];
                 }
                 const groupId = targetMsg.siblingGroupId;
                 const siblings = state.currentMessages.filter((msg, i) =>
                     msg.role === 'model' &&
                     msg.isCascaded &&
                     msg.siblingGroupId === groupId &&
-                    (includeSelf || i !== index) // includeSelfがtrueなら自身も含む
+                    (includeSelf || i !== index)
                 );
                 return siblings;
             },
             async navigateCascade(currentIndex, direction) {
                 const currentMsg = state.currentMessages[currentIndex];
-                if (!currentMsg || !currentMsg.isCascaded || !currentMsg.siblingGroupId) return; // 対象外
+                if (!currentMsg || !currentMsg.isCascaded || !currentMsg.siblingGroupId) return;
 
                 const groupId = currentMsg.siblingGroupId;
-                // 同じグループIDを持つメッセージとその元のインデックスをペアで取得
                 const siblingsWithIndices = state.currentMessages
                     .map((msg, i) => ({ msg, originalIndex: i }))
                     .filter(item => item.msg.role === 'model' && item.msg.isCascaded && item.msg.siblingGroupId === groupId);
 
                 const currentSiblingIndexInGroup = siblingsWithIndices.findIndex(item => item.originalIndex === currentIndex);
-                if (currentSiblingIndexInGroup === -1) return; // グループ内に見つからない(ありえないはずだが)
+                if (currentSiblingIndexInGroup === -1) return;
 
                 let targetSiblingIndexInGroup = -1;
                 if (direction === 'prev' && currentSiblingIndexInGroup > 0) {
@@ -7581,15 +7474,14 @@
                     targetSiblingIndexInGroup = currentSiblingIndexInGroup + 1;
                 }
 
-                if (targetSiblingIndexInGroup !== -1) { // 移動先がある場合
-                    currentMsg.isSelected = false; // 現在のメッセージを非選択に
+                if (targetSiblingIndexInGroup !== -1) {
+                    currentMsg.isSelected = false;
                     const newlySelectedMessage = siblingsWithIndices[targetSiblingIndexInGroup].msg;
-                    newlySelectedMessage.isSelected = true; // 新しいメッセージを選択状態に
+                    newlySelectedMessage.isSelected = true;
                     const newlySelectedIndex = siblingsWithIndices[targetSiblingIndexInGroup].originalIndex;
 
-                    uiUtils.renderChatMessages(); // UIを再描画して表示を切り替え
+                    uiUtils.renderChatMessages();
 
-                    // 新しく選択されたメッセージのアクションを表示する (UX向上)
                     requestAnimationFrame(() => {
                         const newlySelectedElement = elements.messageContainer.querySelector(`.message[data-index="${newlySelectedIndex}"]`);
                         if (newlySelectedElement && !newlySelectedElement.classList.contains('editing')) {
@@ -7602,7 +7494,7 @@
                     });
 
                     try {
-                        await dbUtils.saveChat(); // 状態を保存
+                        await dbUtils.saveChat();
                     } catch (error) {
                         console.error("Error saving cascade navigation:", error);
                         await uiUtils.showCustomAlert("応答の切り替え状態の保存に失敗しました。");
@@ -7612,27 +7504,26 @@
             async confirmDeleteCascadeResponse(indexToDelete) {
                 const msgToDelete = state.currentMessages[indexToDelete];
                 if (!msgToDelete || msgToDelete.role !== 'model' || !msgToDelete.isCascaded || !msgToDelete.siblingGroupId) {
-                    return; // 対象外
+                    return;
                 }
                 if (state.editingMessageIndex !== null) { await uiUtils.showCustomAlert("編集中は削除できません。"); return; }
                 if (state.isSending) { await uiUtils.showCustomAlert("送信中は削除できません。"); return; }
                 if (state.isEditingSystemPrompt) { await uiUtils.showCustomAlert("システムプロンプト編集中は削除できません。"); return; }
 
-                const siblings = this.getCascadedSiblings(indexToDelete, true); // 自身を含む兄弟を取得
-                const currentIndexInGroup = siblings.findIndex(m => m === msgToDelete) + 1; // グループ内でのインデックス(1-based)
+                const siblings = this.getCascadedSiblings(indexToDelete, true);
+                const currentIndexInGroup = siblings.findIndex(m => m === msgToDelete) + 1;
                 const totalSiblings = siblings.length;
                 const contentPreview = msgToDelete.content.substring(0, 30) + "...";
                 const confirmMsg = `この応答 (${currentIndexInGroup}/${totalSiblings})「${contentPreview}」を削除しますか？\n(この応答のみが削除されます)`;
 
                 const confirmed = await uiUtils.showCustomConfirm(confirmMsg);
                 if (confirmed) {
-                    const wasSelected = msgToDelete.isSelected; // 削除対象が選択されていたか
-                    const groupId = msgToDelete.siblingGroupId; // グループIDを保持
+                    const wasSelected = msgToDelete.isSelected;
+                    const groupId = msgToDelete.siblingGroupId;
 
-                    state.currentMessages.splice(indexToDelete, 1); // メッセージ配列から削除
-                    state.messageCollapsedStates.delete(indexToDelete); // 折りたたみ状態も削除
+                    state.currentMessages.splice(indexToDelete, 1);
+                    state.messageCollapsedStates.delete(indexToDelete);
 
-                    // 折りたたみ状態のインデックスを再マッピング
                     const oldCollapsedStates = new Map(state.messageCollapsedStates);
                     state.messageCollapsedStates.clear();
                      state.currentMessages.forEach((msg, newIdx) => {
@@ -7645,32 +7536,29 @@
                     });
 
 
-                    let newlySelectedIndex = -1; // 新しく選択されるメッセージのインデックス
+                    let newlySelectedIndex = -1;
                     const remainingSiblingsWithIndices = state.currentMessages.map((msg, i) => ({ msg, originalIndex: i }))
                     .filter(item => item.msg.role === 'model' && item.msg.isCascaded && item.msg.siblingGroupId === groupId);
 
                     if (remainingSiblingsWithIndices.length > 0) {
-                        if (wasSelected) { // 削除されたものが選択されていた場合
-                            // 残った兄弟の最後のものを選択する
+                        if (wasSelected) {
                             const lastSiblingItem = remainingSiblingsWithIndices[remainingSiblingsWithIndices.length - 1];
-                            if (!lastSiblingItem.msg.isSelected) { // まだ選択されていなければ
+                            if (!lastSiblingItem.msg.isSelected) {
                                 lastSiblingItem.msg.isSelected = true;
                                 newlySelectedIndex = lastSiblingItem.originalIndex;
-                            } else { // 既に選択されている (例: 最後の要素を削除した場合など)
-                                newlySelectedIndex = lastSiblingItem.originalIndex; // そのまま
+                            } else {
+                                newlySelectedIndex = lastSiblingItem.originalIndex;
                             }
-                        } else { // 削除されたものが選択されていなかった場合
-                             // 既に選択されているものを探す
+                        } else {
                              const stillSelectedItem = remainingSiblingsWithIndices.find(item => item.msg.isSelected);
                              if (stillSelectedItem) {
                                  newlySelectedIndex = stillSelectedItem.originalIndex;
                              }
                         }
-                    } // 残りの兄弟がなければ何もしない (グループが消滅)
+                    }
 
-                    uiUtils.renderChatMessages(); // UIを再描画
+                    uiUtils.renderChatMessages();
 
-                    // 必要であれば、新しく選択されたメッセージのアクションを表示
                     requestAnimationFrame(() => {
                          if (newlySelectedIndex !== -1) {
                              const elementToShowActions = elements.messageContainer.querySelector(`.message[data-index="${newlySelectedIndex}"]`);
@@ -7685,7 +7573,7 @@
                     });
 
                     try {
-                        await dbUtils.saveChat(); // 変更を保存
+                        await dbUtils.saveChat();
                     } catch (error) {
                         console.error("Error saving chat after cascade delete:", error);
                         await uiUtils.showCustomAlert("応答削除後のチャット状態の保存に失敗しました。");
@@ -7700,7 +7588,7 @@
                 let skippedCount = 0;
                 let sizeError = false;
 
-                elements.selectFilesBtn.disabled = true; // 処理中はボタンを無効化
+                elements.selectFilesBtn.disabled = true;
                 elements.selectFilesBtn.textContent = '処理中...';
 
                 for (const file of newFiles) {
@@ -7710,13 +7598,11 @@
                         continue;
                     }
                     if (currentTotalSize + file.size > MAX_TOTAL_ATTACHMENT_SIZE) {
-                        sizeError = true; // 合計サイズオーバー
+                        sizeError = true;
                         skippedCount++;
                         continue;
                     }
-                    // 重複ファイルチェック (ファイル名で簡易的に)
                     if (state.selectedFilesForUpload.some(item => item.file.name === file.name)) {
-                        // await uiUtils.showCustomAlert(`ファイル "${file.name}" は既に追加されています。`); // 必要なら通知
                         skippedCount++;
                         continue;
                     }
@@ -7725,30 +7611,30 @@
                     currentTotalSize += file.size;
                     addedCount++;
                 }
-                elements.selectFilesBtn.disabled = false; // ボタンを有効化
+                elements.selectFilesBtn.disabled = false;
                 elements.selectFilesBtn.textContent = 'ファイルを選択';
 
                 if (sizeError) {
                     await uiUtils.showCustomAlert(`合計ファイルサイズの上限 (${formatFileSize(MAX_TOTAL_ATTACHMENT_SIZE)}) を超えるため、一部のファイルは追加されませんでした。`);
                 }
-                uiUtils.updateSelectedFilesUI(); // UIを更新
+                uiUtils.updateSelectedFilesUI();
             },
             removeSelectedFile(indexToRemove) {
                 if (indexToRemove >= 0 && indexToRemove < state.selectedFilesForUpload.length) {
                     const removedFile = state.selectedFilesForUpload.splice(indexToRemove, 1)[0];
-                    uiUtils.updateSelectedFilesUI(); // UIを更新
+                    uiUtils.updateSelectedFilesUI();
                 }
             },
             async confirmAttachment() {
-                if (state.selectedFilesForUpload.length === 0) { // 添付ファイルがない場合は何もしない
+                if (state.selectedFilesForUpload.length === 0) {
                     state.pendingAttachments = [];
-                    elements.fileUploadDialog.close('ok'); // ダイアログを閉じる
-                    uiUtils.adjustTextareaHeight(); // 送信ボタンの状態更新のため
+                    elements.fileUploadDialog.close('ok');
+                    uiUtils.adjustTextareaHeight();
                     uiUtils.updateAttachmentBadgeVisibility();
                     return;
                 }
 
-                elements.confirmAttachBtn.disabled = true; // 処理中は無効化
+                elements.confirmAttachBtn.disabled = true;
                 elements.confirmAttachBtn.textContent = '処理中...';
 
                 const attachmentsToAdd = [];
@@ -7757,27 +7643,26 @@
                 for (const item of state.selectedFilesForUpload) {
                     try {
                         const base64Data = await fileToBase64(item.file);
-                        let browserMimeType = item.file.type || ''; // ブラウザが推測したMIMEタイプ
+                        let browserMimeType = item.file.type || '';
                         const fileName = item.file.name;
-                        const fileExtension = fileName.slice(((fileName.lastIndexOf(".") - 1) >>> 0) + 2).toLowerCase(); // 拡張子取得
+                        const fileExtension = fileName.slice(((fileName.lastIndexOf(".") - 1) >>> 0) + 2).toLowerCase();
 
-                        let guessedMimeType = null; // 拡張子から推測するMIMEタイプ
+                        let guessedMimeType = null;
                         if (fileExtension && extensionToMimeTypeMap[fileExtension]) {
                             guessedMimeType = extensionToMimeTypeMap[fileExtension];
                         }
 
-                        // MIMEタイプの優先順位: 拡張子からの推測 > ブラウザの推測 > デフォルト
                         let finalMimeType;
                         if (guessedMimeType) {
                             finalMimeType = guessedMimeType;
                         } else if (browserMimeType) {
                             finalMimeType = browserMimeType;
                         } else {
-                            finalMimeType = 'application/octet-stream'; // 不明な場合は汎用タイプ
+                            finalMimeType = 'application/octet-stream';
                         }
 
                         attachmentsToAdd.push({
-                            file: item.file, // Fileオブジェクト自体も保持 (ダイアログ再表示用)
+                            file: item.file,
                             name: fileName,
                             mimeType: finalMimeType,
                             base64Data: base64Data
@@ -7786,24 +7671,24 @@
                         console.error("File encoding error:", error);
                         encodingError = true;
                         await uiUtils.showCustomAlert(`ファイル "${item.file.name}" の処理中にエラーが発生しました。`);
-                        break; // エラーが発生したら中断
+                        break;
                     }
                 }
 
-                elements.confirmAttachBtn.disabled = false; // ボタンを再度有効化
+                elements.confirmAttachBtn.disabled = false;
                 elements.confirmAttachBtn.textContent = '添付して閉じる';
 
                 if (!encodingError) {
-                    state.pendingAttachments = attachmentsToAdd; // 処理済みの添付ファイルをstateに保存
-                    elements.fileUploadDialog.close('ok'); // ダイアログを閉じる
-                    uiUtils.adjustTextareaHeight(); // 送信ボタンの状態更新のため
-                    uiUtils.updateAttachmentBadgeVisibility(); // バッジを更新
+                    state.pendingAttachments = attachmentsToAdd;
+                    elements.fileUploadDialog.close('ok');
+                    uiUtils.adjustTextareaHeight();
+                    uiUtils.updateAttachmentBadgeVisibility();
                 }
             },
             cancelAttachment() {
-                state.selectedFilesForUpload = []; // 選択中リストをクリア
-                elements.fileUploadDialog.close('cancel'); // ダイアログを閉じる
-                uiUtils.updateAttachmentBadgeVisibility(); // バッジの状態を元に戻す
+                state.selectedFilesForUpload = [];
+                elements.fileUploadDialog.close('cancel');
+                uiUtils.updateAttachmentBadgeVisibility();
             },
             toggleMessageCollapse(index) {
                 const messageElement = elements.messageContainer.querySelector(`.message[data-index="${index}"]`);
@@ -7812,15 +7697,14 @@
 
                 if (contentDiv && toggleButtons && toggleButtons.length > 0) {
                     const isCollapsed = contentDiv.classList.toggle('collapsed');
-                    state.messageCollapsedStates.set(index, isCollapsed); // 状態を保存
+                    state.messageCollapsedStates.set(index, isCollapsed);
 
-                    // 上下両方のボタンのテキストとタイトルを更新
                     toggleButtons.forEach(button => {
                         let textCollapse, textExpand, baseTitle;
                         if (button.classList.contains('top')) {
                             textCollapse = state.settings.toggleButtonTopTextCollapse;
                             textExpand = state.settings.toggleButtonTopTextExpand;
-                        } else { // bottom button
+                        } else {
                             textCollapse = state.settings.toggleButtonBottomTextCollapse;
                             textExpand = state.settings.toggleButtonBottomTextExpand;
                         }
@@ -7832,22 +7716,22 @@
                 }
             },
             uncollapseMessage(index, messageElement = null) {
-                 if (!messageElement) { // 要素が渡されなければDOMから検索
+                 if (!messageElement) {
                      messageElement = elements.messageContainer.querySelector(`.message[data-index="${index}"]`);
                  }
                  const contentDiv = messageElement?.querySelector('.message-content');
                  const toggleButtons = messageElement?.querySelectorAll('.message-toggle-button[data-action="toggle-collapse"]');
 
-                 if (contentDiv && contentDiv.classList.contains('collapsed')) { // 折りたたまれていたら展開
+                 if (contentDiv && contentDiv.classList.contains('collapsed')) {
                      contentDiv.classList.remove('collapsed');
-                     state.messageCollapsedStates.set(index, false); // 状態を更新
+                     state.messageCollapsedStates.set(index, false);
 
                      if (toggleButtons) {
                          toggleButtons.forEach(button => {
-                            let textCollapse; // 展開時は「折りたたむ」テキスト
+                            let textCollapse;
                             if (button.classList.contains('top')) {
                                 textCollapse = state.settings.toggleButtonTopTextCollapse;
-                            } else { // bottom button
+                            } else {
                                 textCollapse = state.settings.toggleButtonBottomTextCollapse;
                             }
                             button.textContent = textCollapse;
@@ -7872,11 +7756,10 @@
                  }
 
                 state.areAllMessagesHidden = !state.areAllMessagesHidden;
-                uiUtils.updateToggleAllContentButton(); // ボタンの表示を更新
+                uiUtils.updateToggleAllContentButton();
 
-                const messages = elements.messageContainer.querySelectorAll('.message:not(.message-error)'); // エラーメッセージは対象外
+                const messages = elements.messageContainer.querySelectorAll('.message:not(.message-error)');
                 messages.forEach(msgElement => {
-                    // ストリーミング中のプレースホルダーは非表示にしない
                     if (msgElement.id && msgElement.id.startsWith('streaming-message-')) {
                         msgElement.classList.remove('message-hidden-by-toggle');
                         return;
@@ -7884,9 +7767,7 @@
                     msgElement.classList.toggle('message-hidden-by-toggle', state.areAllMessagesHidden);
                 });
 
-                // 表示/非表示切り替え後は最下部にスクロール (ユーザーの意図に沿うか要検討)
                 requestAnimationFrame(() => {
-                    // 修正: 自動スクロールオプションをチェック
                     if (state.settings.autoScrollOnNewMessage) {
                         uiUtils.scrollToBottom();
                     }
@@ -7895,144 +7776,216 @@
         };
 
         const apiUtils = {
-            async callGeminiApi(messages, generationConfig, systemInstruction) {
+            async callGeminiApi(messagesForApi, generationConfig, systemInstruction) {
+                if (!state.settings.apiKey) {
+                    throw new Error("APIキーが設定されていません。");
+                }
                 state.abortController = new AbortController();
+                const { signal } = state.abortController;
+
+                const useStreaming = state.settings.streamingOutput;
+                const usePseudo = state.settings.pseudoStreaming;
+                const model = state.settings.modelName || DEFAULT_MODEL;
                 const apiKey = state.settings.apiKey;
-                const modelName = state.settings.modelName;
-                const streamParam = (state.settings.streamingOutput && !state.settings.pseudoStreaming) ? 'streamGenerateContent' : 'generateContent';
-                const url = `${GEMINI_API_BASE_URL}${modelName}:${streamParam}?key=${apiKey}`;
+
+                let endpointMethod = useStreaming
+                    ? (usePseudo ? 'generateContent?alt=sse&' : 'streamGenerateContent?alt=sse&') // 修正: ここに alt=sse を追加
+                    : 'generateContent?';
+                if (!endpointMethod.endsWith('&') && !endpointMethod.endsWith('?')) { // keyの前にセパレータがない場合
+                    endpointMethod += endpointMethod.includes('?') ? '&' : '?';
+                }
+
+
+                const endpoint = `${GEMINI_API_BASE_URL}${model}:${endpointMethod}key=${apiKey}`;
+
+                const finalGenerationConfig = { ...generationConfig };
+                if (state.settings.presencePenalty !== null) finalGenerationConfig.presencePenalty = state.settings.presencePenalty;
+                if (state.settings.frequencyPenalty !== null) finalGenerationConfig.frequencyPenalty = state.settings.frequencyPenalty;
+
+                if (state.settings.thinkingBudget !== null && Number.isInteger(state.settings.thinkingBudget) && state.settings.thinkingBudget >= 0) {
+                    finalGenerationConfig.thinkingConfig = {
+                        "thinkingBudget": state.settings.thinkingBudget,
+                    };
+                }
+
+                const requestBody = {
+                    contents: messagesForApi,
+                    ...(Object.keys(finalGenerationConfig).length > 0 && { generationConfig: finalGenerationConfig }),
+                    ...(systemInstruction && systemInstruction.parts && systemInstruction.parts.length > 0 && systemInstruction.parts[0].text && { systemInstruction }),
+                     safetySettings : [
+                         { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
+                         { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
+                         { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
+                         { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' }
+                     ]
+                };
 
                 const tools = [];
                 if (state.settings.enableGrounding) {
-                    tools.push({ "googleSearchRetrieval": {} });
+                    tools.push({ "googleSearchRetrieval": {} }); // 修正: google_search -> googleSearchRetrieval
                 }
 
-                const body = {
-                    contents: messages,
-                    generationConfig: generationConfig,
-                    ...(tools.length > 0 && { tools: tools }),
-                    ...(systemInstruction && { systemInstruction: systemInstruction }),
-                };
+                if (tools.length > 0) {
+                    requestBody.tools = tools;
+                }
 
                 try {
-                    const response = await fetch(url, {
+                    const response = await fetch(endpoint, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(body),
-                        signal: state.abortController.signal
+                        body: JSON.stringify(requestBody),
+                        signal
                     });
+
                     if (!response.ok) {
-                        let errorData;
-                        try { errorData = await response.json(); } catch (e) {} // エラーレスポンスのJSONパース試行
-                        const errorMessage = errorData?.error?.message || `HTTPエラー: ${response.status}`;
-                        const errorDetails = errorData?.error?.details ? ` 詳細: ${JSON.stringify(errorData.error.details)}` : '';
-                        throw new Error(errorMessage + errorDetails);
+                        let errorMsg = `APIエラー (${response.status}): ${response.statusText}`;
+                        try {
+                            const errorData = await response.json();
+                            if (errorData.error && errorData.error.message) {
+                                errorMsg = `APIエラー (${response.status}): ${errorData.error.message}`;
+                            }
+                        } catch (e) { /* ignore json parse error */ }
+                        throw new Error(errorMsg);
                     }
                     return response;
                 } catch (error) {
-                    if (error.name === 'AbortError') { // fetchが中断された場合
+                    if (error.name === 'AbortError') {
                          throw new Error("リクエストがキャンセルされました。");
                     }
-                    console.error("Gemini API call error:", error);
-                    throw error; // その他のエラーはそのままスロー
+                    throw error;
                 }
             },
             async handleStreamingResponse(response) {
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
-                let buffer = '';
-                let processedChunks = [];
-                let finalFinishReason = null;
-                let finalSafetyRatings = null;
-                let finalGroundingMetadata = null;
-                let finalUsageMetadata = null;
-                let firstChunk = true;
+                 if (!response.body) {
+                     throw new Error("レスポンスボディがありません。");
+                 }
+                 const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
+                 let buffer = '';
+                 let lastCandidateInfo = null;
+                 const processedChunks = [];
+                 let isCancelled = false;
+                 let groundingMetadata = null;
+                 let currentPartIndex = -1;
+                 let finalUsageMetadata = null;
 
-                try {
-                    while (true) {
-                        const { value, done } = await reader.read();
-                        if (done || state.abortController?.signal.aborted) {
-                            if (state.abortController?.signal.aborted && !finalFinishReason) {
-                                finalFinishReason = 'ABORTED';
-                            }
-                            break;
-                        }
-                        buffer += decoder.decode(value, { stream: true });
-                        let boundary = buffer.indexOf('\n');
-                        while (boundary !== -1) {
-                            const chunkString = buffer.substring(0, boundary).trim();
-                            buffer = buffer.substring(boundary + 1);
+                 try {
+                     while (true) {
+                         if (state.abortController?.signal.aborted && !isCancelled) {
+                             isCancelled = true;
+                             await reader.cancel("User aborted");
+                             throw new Error("リクエストがキャンセルされました。");
+                         }
 
-                            if (chunkString.startsWith("data: ")) {
-                                try {
-                                    const jsonData = JSON.parse(chunkString.substring(6));
-                                    if (jsonData.candidates && jsonData.candidates.length > 0) {
-                                        const candidate = jsonData.candidates[0];
-                                        if (candidate.content && candidate.content.parts) {
-                                            // ★★★ 修正箇所 ★★★
-                                            const combinedTextFromParts = candidate.content.parts
-                                                .map(part => part.text || "") // part.text がなければ空文字
-                                                .join(""); // parts内のテキストを単純結合
-                                            if (combinedTextFromParts) { // 空のテキストは追加しない
-                                                processedChunks.push(combinedTextFromParts);
-                                            }
-                                            // ★★★ 修正ここまで ★★★
-                                        }
-                                        if (candidate.finishReason) finalFinishReason = candidate.finishReason;
-                                        if (candidate.safetyRatings) finalSafetyRatings = candidate.safetyRatings;
-                                        if (candidate.groundingMetadata) finalGroundingMetadata = candidate.groundingMetadata;
-                                    }
-                                    if (jsonData.usageMetadata) finalUsageMetadata = jsonData.usageMetadata;
+                         let readResult;
+                         try {
+                             readResult = await reader.read();
+                         } catch (readError) {
+                             if (readError.name === 'AbortError' || readError.message === "User aborted" || readError.message.includes("aborted")) {
+                                 if (!isCancelled) {
+                                     isCancelled = true;
+                                     throw new Error("リクエストがキャンセルされました。");
+                                 }
+                                 break;
+                             }
+                             throw readError;
+                         }
 
-                                    if (firstChunk && jsonData.promptFeedback && jsonData.promptFeedback.blockReason) {
-                                       throw new Error(`ストリーミング開始エラー (ブロック理由: ${jsonData.promptFeedback.blockReason})`);
-                                   }
-                                } catch (e) {
-                                    console.error("ストリーミングJSONパースエラー:", e, "Chunk:", chunkString);
-                                    processedChunks.push(` [パースエラー: ${e.message}] `);
-                                }
-                            }
-                            firstChunk = false;
-                            boundary = buffer.indexOf('\n');
-                        }
-                    }
-                } catch (error) {
-                    console.error("Error handling streaming response:", error);
-                    if (state.abortController?.signal.aborted) {
-                         finalFinishReason = 'ABORTED';
-                    } else {
-                        throw error;
-                    }
-                } finally {
-                    if (buffer.trim().startsWith("data: ")) {
-                        try {
-                            const jsonData = JSON.parse(buffer.trim().substring(6));
-                            if (jsonData.candidates && jsonData.candidates.length > 0) {
-                                const candidate = jsonData.candidates[0];
-                                if (candidate.content && candidate.content.parts) {
-                                    // ★★★ 修正箇所 (finallyブロックにも適用) ★★★
-                                    const combinedTextFromParts = candidate.content.parts
-                                        .map(part => part.text || "")
-                                        .join("");
-                                    if (combinedTextFromParts) {
-                                        processedChunks.push(combinedTextFromParts);
-                                    }
-                                     // ★★★ 修正ここまで ★★★
-                                }
-                                if (candidate.finishReason) finalFinishReason = candidate.finishReason;
-                                if (candidate.safetyRatings) finalSafetyRatings = candidate.safetyRatings;
-                                if (candidate.groundingMetadata) finalGroundingMetadata = candidate.groundingMetadata;
-                            }
-                            if (jsonData.usageMetadata) finalUsageMetadata = jsonData.usageMetadata;
-                        } catch (e) {
-                            console.warn("Error parsing final buffered chunk:", e);
-                        }
-                    }
-                    if (state.abortController?.signal.aborted && !finalFinishReason) {
-                        finalFinishReason = 'ABORTED';
-                    }
-                }
-                return { processedChunks, finishReason: finalFinishReason, safetyRatings: finalSafetyRatings, groundingMetadata: finalGroundingMetadata, usageMetadata: finalUsageMetadata };
+                         const { value, done } = readResult;
+
+                         if (done) {
+                             if (buffer.trim()) {
+                                 processBuffer(buffer, true);
+                             }
+                             break;
+                         }
+
+                         buffer += value;
+                         buffer = processBuffer(buffer, false);
+                     }
+
+                     const finishReason = lastCandidateInfo?.finishReason;
+                     const safetyRatings = lastCandidateInfo?.safetyRatings;
+                     const finalGroundingMetadata = groundingMetadata;
+
+                     if (!isCancelled && processedChunks.length === 0 && (!finishReason || finishReason === "STOP")) {
+                         // console.warn("ストリーミングがコンテンツなしで終了しました。");
+                     }
+
+                     return {
+                         processedChunks: processedChunks,
+                         finishReason: isCancelled ? 'ABORTED' : finishReason,
+                         safetyRatings,
+                         groundingMetadata: finalGroundingMetadata,
+                         usageMetadata: finalUsageMetadata
+                     };
+                 } catch (error) {
+                     // console.error("ストリームの読み取り/処理エラー:", error);
+                     const partialChunksOnError = (error.message !== "リクエストがキャンセルされました.") ? processedChunks : [];
+                     throw new Error(`${error.message || error}`, { cause: { originalError: error, partialChunks: partialChunksOnError } });
+                 } finally {
+                     if (!reader.closed && !isCancelled) {
+                         try { await reader.cancel("Cleanup cancellation"); } catch(e) { /* ignore */ }
+                     }
+                 }
+
+                 function processBuffer(currentBuffer, isFinalChunk) {
+                     let remainingBuffer = currentBuffer;
+                     while (true) {
+                         const newlineIndex = remainingBuffer.indexOf('\n');
+                         if (newlineIndex === -1) {
+                             if (isFinalChunk && remainingBuffer.trim().startsWith('data: ')) {
+                                 parseSseData(remainingBuffer.trim().substring(6));
+                                 remainingBuffer = '';
+                             }
+                             break;
+                         }
+                         const line = remainingBuffer.substring(0, newlineIndex).trim();
+                         remainingBuffer = remainingBuffer.substring(newlineIndex + 1);
+
+                         if (line.startsWith('data: ')) {
+                             parseSseData(line.substring(6));
+                         } else if (line !== '') {
+                            // console.warn("データ以外のSSE行を無視:", line);
+                         }
+                     }
+                     return remainingBuffer;
+                 }
+
+                 function parseSseData(jsonString) {
+                     try {
+                         const chunkData = JSON.parse(jsonString);
+                         if (chunkData.error) {
+                             const errorMsg = `モデルエラー: ${chunkData.error.message || JSON.stringify(chunkData.error)}`;
+                             lastCandidateInfo = { error: chunkData.error, finishReason: 'ERROR' };
+                             throw new Error(errorMsg);
+                         }
+                         if (chunkData.candidates && chunkData.candidates.length > 0) {
+                             lastCandidateInfo = chunkData.candidates[0];
+                             if (lastCandidateInfo?.content?.parts) {
+                                 lastCandidateInfo.content.parts.forEach((part, partIndex) => {
+                                     const textChunk = part.text;
+                                     if (typeof textChunk === 'string') {
+                                         if (partIndex > currentPartIndex && currentPartIndex !== -1) {
+                                             processedChunks.push(null);
+                                         }
+                                         processedChunks.push(textChunk);
+                                         currentPartIndex = partIndex;
+                                     }
+                                 });
+                             }
+                             if (lastCandidateInfo.groundingMetadata) {
+                                 groundingMetadata = lastCandidateInfo.groundingMetadata;
+                             }
+                         } else if (chunkData.promptFeedback) {
+                             lastCandidateInfo = { finishReason: 'SAFETY', safetyRatings: chunkData.promptFeedback.safetyRatings };
+                         }
+                         if (chunkData.usageMetadata) {
+                             finalUsageMetadata = chunkData.usageMetadata;
+                         }
+                     } catch (parseError) {
+                        // console.warn("ストリーム内の不正なJSONをスキップ:", jsonString, parseError);
+                     }
+                 }
             }
         };
 
