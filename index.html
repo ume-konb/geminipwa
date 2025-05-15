@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -3578,7 +3577,7 @@
                         state.settings = { ...defaultSettings };
 
                         if (loadedSettings.hasOwnProperty('darkMode') && !loadedSettings.hasOwnProperty('theme')) {
-                            state.settings.theme = loadedSettings.darkMode === true ? 'dark' : 'light';
+                            state.settings.theme = loadedSettings.darkMode === false ? 'dark' : 'light';
                         }
 
                         for (const key in loadedSettings) {
@@ -7064,7 +7063,7 @@
                             additionalModels: '', pseudoStreaming: false, enterToSend: true,
                             autoScrollOnNewMessage: DEFAULT_AUTO_SCROLL_ON_NEW_MESSAGE,
                             historySortOrder: 'updatedAt',
-                            theme: 'light',
+                            theme: window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
                             backgroundImageBlob: null, fontFamily: '',
                             hideSystemPromptInChat: false, enableSwipeNavigation: true,
                             showNewChatButton: true,
