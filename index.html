@@ -6449,7 +6449,7 @@
                     await navigator.clipboard.writeText(sessionText.trim());
                     const buttonElement = elements.copySessionBtn;
                     const originalText = buttonElement.textContent;
-                    buttonElement.textContent = '✓!';
+                    buttonElement.textContent = '✓';
                     buttonElement.disabled = true;
                     setTimeout(() => {
                         buttonElement.textContent = originalText;
@@ -7778,7 +7778,7 @@
                 try {
                     await navigator.clipboard.writeText(textToCopy);
                     const originalText = buttonElement.textContent;
-                    buttonElement.textContent = '完了!';
+                    buttonElement.textContent = '完了！';
                     buttonElement.disabled = true;
                     setTimeout(() => {
                         buttonElement.textContent = originalText;
