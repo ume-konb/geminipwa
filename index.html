@@ -2673,9 +2673,9 @@
             <header class="app-header">
                 <button id="goto-history-btn" class="header-button" aria-label="履歴一覧へ">☰</button>
                 <h1 id="chat-title">新規チャット</h1>
-                <button id="new-chat-btn" class="new-chat-button" title="新規チャットを開始">新規</button>
-                <button id="delete-session-btn" class="action-button-in-header" title="現在のチャットを削除">全削除</button>
-                <button id="copy-session-btn" class="action-button-in-header" title="チャット全体をコピー">全コピー</button>
+                <button id="new-chat-btn" class="new-chat-button" title="新規チャットを開始">新</button>
+                <button id="delete-session-btn" class="action-button-in-header" title="現在のチャットを削除">削</button>
+                <button id="copy-session-btn" class="action-button-in-header" title="チャット全体をコピー">コ</button>
                 <button id="scroll-to-top-btn" class="header-button scroll-jump-button" aria-label="最上部へスクロール" title="最上部へ">🔼</button>
                 <button id="scroll-to-bottom-btn" class="header-button scroll-jump-button" aria-label="最下部へスクロール" title="最下部へ">🔽</button>
                 <button id="toggle-all-content-btn" class="header-button" aria-label="全メッセージ表示切替" title="全メッセージの表示/非表示を切り替え">🖼️</button>
@@ -3060,15 +3060,15 @@
                    <p style="height:10px"></p>
                    <label class="checkbox-label">
                        <input type="checkbox" id="show-new-chat-button-toggle">
-                       ヘッダーに「新規」ボタンを表示する
+                       ヘッダーに「新規」ボタンを表示する（「新」ボタン）
                    </label>
                    <label class="checkbox-label">
                        <input type="checkbox" id="show-delete-session-button-toggle">
-                       ヘッダーに「全削除」ボタンを表示する
+                       ヘッダーに「全削除」ボタンを表示する（「削」ボタン）
                    </label>
                    <label class="checkbox-label">
                        <input type="checkbox" id="show-copy-session-button-toggle">
-                       ヘッダーに「全コピー」ボタンを表示する
+                       ヘッダーに「全コピー」ボタンを表示する（「コ」ボタン）
                    </label>
                    <label class="checkbox-label">
                        <input type="checkbox" id="show-scroll-to-top-button-toggle">
@@ -3091,7 +3091,7 @@
                        フッターに「貼付け」ボタンを表示する
                    </label>
                    <p style="font-size: 11px; color: var(--text-secondary); margin-top: -5px; margin-bottom: 10px;">
-                       ※ 以上のボタン類は必要な物のみオンにしてください。（ヘッダーを圧迫し溢れるため）
+                       ※ 以上のボタン類は必要な物のみオンにしてください。（ヘッダーを圧迫し⚙ボタンが画面から溢れ、“チャット画面から左右スワイプで画面移動”オプションもオフにしている場合、設定画面に入れなくなる恐れがあります）
                    <p style="height:10px"></p>
                    <label class="checkbox-label">
                        <input type="checkbox" id="hide-system-prompt-toggle">
@@ -3166,7 +3166,7 @@
                 <div class="danger-zone">
 
                      <p style="text-align: center; color: var(--text-secondary); font-size: 12px; margin-bottom: 10px;">
-                         バージョン: <span id="app-version"></span>ti
+                         バージョン: <span id="app-version"></span>
                      </p>
                      <button id="update-app-btn">アプリを更新 (キャッシュクリア)</button>
                      <p style="font-size: 11px; color: var(--text-secondary); margin-top: -5px; margin-bottom: 10px; text-align:center;">
@@ -5875,7 +5875,7 @@
                 try {
                     await navigator.clipboard.writeText(memoText);
                     const originalText = elements.copyMemoBtn.textContent;
-                    elements.copyMemoBtn.textContent = "コピー完了!";
+                    elements.copyMemoBtn.textContent = "✓";
                     elements.copyMemoBtn.disabled = true;
                     setTimeout(() => { elements.copyMemoBtn.textContent = originalText; elements.copyMemoBtn.disabled = false; }, 1500);
                 } catch (err) {
