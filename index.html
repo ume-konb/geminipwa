@@ -3,7 +3,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale-1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GeminiPWA</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" id="theme-color-meta" content="#4a90e2">
@@ -43,7 +43,6 @@
             --bg-button-update: #1976d2;
             --bg-button-update-hover: #115293;
             --bg-header: #4a90e2;
-            --bg-message-actions-rgb: 255, 255, 255;
             --overlay-base-rgb: 255, 255, 255;
             --chat-overlay-alpha: 0.65;
             --bg-cascade-button: var(--bg-button-action);
@@ -129,6 +128,9 @@
             --message-toggle-button-bottom-font-size: 14px;
             --message-toggle-button-bottom-text-collapse: "非表示";
             --message-toggle-button-bottom-text-expand: "表示";
+
+            --message-actions-base-rgb: 255, 255, 255;
+            --message-actions-bg-opacity: 0.8;
         }
 
         body.dark-mode {
@@ -166,7 +168,6 @@
             --bg-button-update: #0a84ff;
             --bg-button-update-hover: #0069d1;
             --bg-header: #007aff;
-            --bg-message-actions-rgb: 50, 50, 50;
             --overlay-base-rgb: 30, 30, 30;
             --bg-memo: #2c2c2e;
             --bg-cascade-button: var(--bg-button-action);
@@ -208,6 +209,8 @@
             --bg-button-purple: #6a0dad;
             --bg-button-purple-hover: #8a2be2;
             --text-button-purple: #ffffff;
+
+            --message-actions-base-rgb: 50, 50, 50;
         }
 
 
@@ -246,7 +249,6 @@
             --bg-button-update: #ff9a8b;
             --bg-button-update-hover: #ff8773;
             --bg-header: #ff8fab;
-            --bg-message-actions-rgb: 255, 230, 234;
             --overlay-base-rgb: 255, 245, 248;
             --bg-memo: #fffafb;
             --bg-cascade-button: var(--bg-button-action);
@@ -304,6 +306,8 @@
             --bg-button-purple: #d9a7e0;
             --bg-button-purple-hover: #c790d0;
             --text-button-purple: #ffffff;
+
+            --message-actions-base-rgb: 255, 230, 234;
         }
 
 
@@ -342,7 +346,6 @@
             --bg-button-update: #89cff0;
             --bg-button-update-hover: #70c0e0;
             --bg-header: #87cefa;
-            --bg-message-actions-rgb: 224, 240, 255;
             --overlay-base-rgb: 240, 248, 255;
             --bg-memo: #f5faff;
             --bg-cascade-button: var(--bg-button-action);
@@ -401,6 +404,8 @@
             --bg-button-purple: #c1b2d7;
             --bg-button-purple-hover: #b0a0cb;
             --text-button-purple: #ffffff;
+
+            --message-actions-base-rgb: 224, 240, 255;
         }
 
 
@@ -439,7 +444,6 @@
             --bg-button-update: #ffcc5c;
             --bg-button-update-hover: #ffbf40;
             --bg-header: #ffd700;
-            --bg-message-actions-rgb: 255, 250, 205;
             --overlay-base-rgb: 255, 254, 250;
             --bg-memo: #fffef0;
             --bg-cascade-button: var(--bg-button-action);
@@ -481,6 +485,8 @@
             --bg-button-purple: #e6e6fa;
             --bg-button-purple-hover: #d8bfd8;
             --text-button-purple: #4b0082;
+
+            --message-actions-base-rgb: 255, 250, 205;
         }
 
 
@@ -519,7 +525,6 @@
             --bg-button-update: #7986cb;
             --bg-button-update-hover: #5c6bc0;
             --bg-header: #ab47bc;
-            --bg-message-actions-rgb: 225, 190, 231;
             --overlay-base-rgb: 243, 229, 245;
             --bg-memo: #fbfaff;
             --bg-cascade-button: var(--bg-button-action);
@@ -561,6 +566,8 @@
             --bg-button-purple: var(--bg-button);
             --bg-button-purple-hover: var(--bg-button-hover);
             --text-button-purple: var(--text-light);
+
+            --message-actions-base-rgb: 225, 190, 231;
         }
 
 
@@ -599,7 +606,6 @@
             --bg-button-update: #80c0ff;
             --bg-button-update-hover: #60a0e0;
             --bg-header: linear-gradient(to right, #ffadad, #ffd6a5, #fdffb6, #caffbf, #9bf6ff, #a0c4ff, #bdb2ff, #ffc6ff, #ffadad);
-            --bg-message-actions-rgb: 245, 245, 245;
             --overlay-base-rgb: 253, 253, 253;
             --bg-memo: #f0fff0;
 
@@ -653,6 +659,8 @@
             --bg-toggle-button: var(--bg-button-action);
             --bg-toggle-button-hover: var(--bg-button-action-hover);
             --text-toggle-button: var(--text-light);
+
+            --message-actions-base-rgb: 245, 245, 245;
         }
 
 
@@ -1549,7 +1557,7 @@
             display: none;
             flex-wrap: nowrap;
             gap: 5px;
-            background-color: rgba(var(--bg-message-actions-rgb), var(--message-bubble-opacity, 1));
+            background-color: rgba(var(--message-actions-base-rgb), var(--message-actions-bg-opacity));
             padding: 2px 2px 1px 2px;
             border-radius: 5px;
             box-shadow: 0 1px 3px var(--shadow-primary);
@@ -1607,7 +1615,7 @@
             align-items: center;
             flex-wrap: nowrap;
             gap: 5px;
-            background-color: rgba(var(--bg-message-actions-rgb), var(--message-bubble-opacity, 1));
+            background-color: rgba(var(--message-actions-base-rgb), var(--message-actions-bg-opacity));
             padding: 5px 8px 10px 8px;
             border-radius: 5px;
             box-shadow: 0 -1px 3px var(--shadow-primary);
@@ -2557,7 +2565,7 @@
             background-color: var(--bg-dialog-button-cancel);
         }
         #fileUploadDialog .dialog-actions #cancel-attach-btn:hover:not(:disabled) {
-            background-color: var(--bg-dialog-button-cancel-hover);
+            background-color: var(--bg-button-cancel-hover);
         }
         .orange-button {
             background-color: var(--bg-button-edit);
@@ -3040,6 +3048,8 @@
                    <input type="number" id="chat-overlay-opacity" min="0" max="1" step="0.05" placeholder="例: 0.6" aria-label="チャット背景オーバーレイの透明度">
                    <label for="header-footer-opacity">ヘッダー/フッターの透明度 (0.0-1.0):</label>
                    <input type="number" id="header-footer-opacity" min="0" max="1" step="0.05" placeholder="例: 0.9" aria-label="ヘッダー/フッターの透明度">
+                   <label for="message-actions-background-opacity">メッセージツールバー背景の透明度 (0.0-1.0):</label>
+                   <input type="number" id="message-actions-background-opacity" min="0" max="1" step="0.05" placeholder="例: 0.8" aria-label="メッセージツールバー背景の透明度">
                 </div>
 
                 <div class="danger-zone">
@@ -3198,6 +3208,7 @@
         const DEFAULT_MESSAGE_BUBBLE_OPACITY = 0.9;
         const DEFAULT_HEADER_FOOTER_OPACITY = 0.35;
         const DEFAULT_CHAT_OVERLAY_OPACITY = 0.7;
+        const DEFAULT_MESSAGE_ACTIONS_BACKGROUND_OPACITY = 0.8;
 
         const DEFAULT_TOGGLE_BUTTON_TOP_FONT_SIZE = 6;
         const DEFAULT_TOGGLE_BUTTON_TOP_TEXT_COLLAPSE = "-";
@@ -3277,6 +3288,7 @@
             messageBubbleOpacityInput: document.getElementById('message-bubble-opacity'),
             chatOverlayOpacityInput: document.getElementById('chat-overlay-opacity'),
             headerFooterOpacityInput: document.getElementById('header-footer-opacity'),
+            messageActionsBackgroundOpacityInput: document.getElementById('message-actions-background-opacity'),
             appVersionSpan: document.getElementById('app-version'),
             backgroundImageInput: document.getElementById('background-image-input'),
             uploadBackgroundBtn: document.getElementById('upload-background-btn'),
@@ -3423,6 +3435,7 @@
                 messageBubbleOpacity: DEFAULT_MESSAGE_BUBBLE_OPACITY,
                 chatOverlayOpacity: DEFAULT_CHAT_OVERLAY_OPACITY,
                 headerFooterOpacity: DEFAULT_HEADER_FOOTER_OPACITY,
+                messageActionsBackgroundOpacity: DEFAULT_MESSAGE_ACTIONS_BACKGROUND_OPACITY,
                 toggleButtonTopFontSize: DEFAULT_TOGGLE_BUTTON_TOP_FONT_SIZE,
                 toggleButtonTopTextCollapse: DEFAULT_TOGGLE_BUTTON_TOP_TEXT_COLLAPSE,
                 toggleButtonTopTextExpand: DEFAULT_TOGGLE_BUTTON_TOP_TEXT_EXPAND,
@@ -3624,13 +3637,20 @@
                                     state.settings[key] = typeof loadedValue === 'string' && loadedValue.trim() !== '' ? loadedValue : defaultValue;
                                 } else if (typeof defaultValue === 'number' || defaultValue === null) {
                                      let num;
-                                     if (key === 'temperature' || key === 'topP' || key === 'presencePenalty' || key === 'frequencyPenalty' || key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity' || key === 'messageIconSize' || key === 'messageIconOffsetY' || key === 'iconNameFontSize' || key === 'iconNameOffsetY') {
+                                     if (key === 'temperature' || key === 'topP' || key === 'presencePenalty' || key === 'frequencyPenalty' ||
+                                         key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity' ||
+                                         key === 'messageActionsBackgroundOpacity' ||
+                                         key === 'messageIconSize' || key === 'messageIconOffsetY' || key === 'iconNameFontSize' || key === 'iconNameOffsetY') {
                                          num = parseFloat(loadedValue);
                                      } else {
                                          num = parseInt(loadedValue, 10);
                                      }
                                      if (isNaN(num)) {
-                                         if ((key === 'temperature' || key === 'maxTokens' || key === 'topK' || key === 'topP' || key === 'presencePenalty' || key === 'frequencyPenalty' || key === 'thinkingBudget' || key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity') && (loadedValue === null || loadedValue === '')) {
+                                         if ((key === 'temperature' || key === 'maxTokens' || key === 'topK' || key === 'topP' ||
+                                             key === 'presencePenalty' || key === 'frequencyPenalty' || key === 'thinkingBudget' ||
+                                             key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity' ||
+                                             key === 'messageActionsBackgroundOpacity'
+                                             ) && (loadedValue === null || loadedValue === '')) {
                                               state.settings[key] = null;
                                          } else {
                                               state.settings[key] = defaultValue;
@@ -3643,7 +3663,9 @@
                                           if (key === 'streamingSpeed' && num < 0) num = defaultValue;
                                           if ((key === 'presencePenalty' || key === 'frequencyPenalty') && (num < -2.0 || num >= 2.0)) num = defaultValue;
                                           if (key === 'thinkingBudget' && (num < 0 || !Number.isInteger(num))) num = defaultValue;
-                                          if ((key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity') && (num < 0 || num > 1)) num = defaultValue;
+                                          if ((key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity' ||
+                                              key === 'messageActionsBackgroundOpacity'
+                                              ) && (num < 0 || num > 1)) num = defaultValue;
                                           if (key === 'messageIconSize' && (num < 16 || num > 64)) num = defaultValue;
                                           if (key === 'messageIconOffsetY' && (num < -50 || num > 50)) num = defaultValue;
                                           if (key === 'iconNameFontSize' && (num < 6 || num > 16)) num = defaultValue;
@@ -4466,6 +4488,7 @@
                 document.documentElement.style.setProperty('--message-bubble-opacity', state.settings.messageBubbleOpacity);
                 document.documentElement.style.setProperty('--header-footer-opacity', state.settings.headerFooterOpacity);
                 document.documentElement.style.setProperty('--chat-overlay-alpha', state.settings.chatOverlayOpacity);
+                document.documentElement.style.setProperty('--message-actions-bg-opacity', state.settings.messageActionsBackgroundOpacity);
 
                 let headerColor, secondaryColor, userMessageColor, modelMessageColor, overlayBaseColor;
 
@@ -4641,6 +4664,7 @@
                 elements.messageBubbleOpacityInput.value = state.settings.messageBubbleOpacity ?? DEFAULT_MESSAGE_BUBBLE_OPACITY;
                 elements.chatOverlayOpacityInput.value = state.settings.chatOverlayOpacity ?? DEFAULT_CHAT_OVERLAY_OPACITY;
                 elements.headerFooterOpacityInput.value = state.settings.headerFooterOpacity ?? DEFAULT_HEADER_FOOTER_OPACITY;
+                elements.messageActionsBackgroundOpacityInput.value = state.settings.messageActionsBackgroundOpacity ?? DEFAULT_MESSAGE_ACTIONS_BACKGROUND_OPACITY;
 
                 elements.showMemoButtonToggle.checked = state.settings.showMemoButton;
                 elements.memoHeightInput.value = state.settings.memoHeight || '';
@@ -4800,6 +4824,7 @@
                     screen.classList.remove('active');
                     screen.inert = true;
                 });
+
                 if (screenName === 'chat') {
                     activeScreen = elements.chatScreen;
                     elements.chatScreen.style.transform = 'translateX(0)';
@@ -5326,6 +5351,14 @@
                         document.documentElement.style.setProperty('--header-footer-opacity', DEFAULT_HEADER_FOOTER_OPACITY);
                     }
                 });
+                elements.messageActionsBackgroundOpacityInput.addEventListener('input', () => {
+                    const opacity = parseFloat(elements.messageActionsBackgroundOpacityInput.value);
+                    if (!isNaN(opacity) && opacity >= 0 && opacity <= 1) {
+                        document.documentElement.style.setProperty('--message-actions-bg-opacity', opacity);
+                    } else if (elements.messageActionsBackgroundOpacityInput.value === '') {
+                        document.documentElement.style.setProperty('--message-actions-bg-opacity', DEFAULT_MESSAGE_ACTIONS_BACKGROUND_OPACITY);
+                    }
+                });
                 elements.showCollapseButtonsToggle.addEventListener('change', () => {
                     state.settings.showCollapseButtons = elements.showCollapseButtonsToggle.checked;
                     uiUtils.renderChatMessages(true);
@@ -5799,8 +5832,8 @@
                 elements.clipboardStackArea.classList.add('hidden');
                 state.areAllMessagesHidden = false;
                 uiUtils.updateToggleAllContentButton();
-                uiUtils.updateSystemPromptUI();
                 state.messageCollapsedStates.clear();
+                uiUtils.updateSystemPromptUI();
                 uiUtils.renderChatMessages();
                 uiUtils.updateChatTitle();
                 elements.userInput.value = '';
@@ -6911,6 +6944,7 @@
                      messageBubbleOpacity: elements.messageBubbleOpacityInput.value === '' ? DEFAULT_MESSAGE_BUBBLE_OPACITY : parseFloat(elements.messageBubbleOpacityInput.value),
                      chatOverlayOpacity: elements.chatOverlayOpacityInput.value === '' ? DEFAULT_CHAT_OVERLAY_OPACITY : parseFloat(elements.chatOverlayOpacityInput.value),
                      headerFooterOpacity: elements.headerFooterOpacityInput.value === '' ? DEFAULT_HEADER_FOOTER_OPACITY : parseFloat(elements.headerFooterOpacityInput.value),
+                     messageActionsBackgroundOpacity: elements.messageActionsBackgroundOpacityInput.value === '' ? DEFAULT_MESSAGE_ACTIONS_BACKGROUND_OPACITY : parseFloat(elements.messageActionsBackgroundOpacityInput.value),
                      toggleButtonTopFontSize: parseInt(elements.toggleButtonTopFontSizeInput.value, 10) || DEFAULT_TOGGLE_BUTTON_TOP_FONT_SIZE,
                      toggleButtonTopTextCollapse: elements.toggleButtonTopTextCollapseInput.value.trim() || DEFAULT_TOGGLE_BUTTON_TOP_TEXT_COLLAPSE,
                      toggleButtonTopTextExpand: elements.toggleButtonTopTextExpandInput.value.trim() || DEFAULT_TOGGLE_BUTTON_TOP_TEXT_EXPAND,
@@ -6963,6 +6997,9 @@
                  }
                  if (newSettings.headerFooterOpacity !== null && (isNaN(newSettings.headerFooterOpacity) || newSettings.headerFooterOpacity < 0 || newSettings.headerFooterOpacity > 1)) {
                     newSettings.headerFooterOpacity = DEFAULT_HEADER_FOOTER_OPACITY;
+                 }
+                 if (newSettings.messageActionsBackgroundOpacity !== null && (isNaN(newSettings.messageActionsBackgroundOpacity) || newSettings.messageActionsBackgroundOpacity < 0 || newSettings.messageActionsBackgroundOpacity > 1)) {
+                    newSettings.messageActionsBackgroundOpacity = DEFAULT_MESSAGE_ACTIONS_BACKGROUND_OPACITY;
                  }
                  if (isNaN(newSettings.toggleButtonTopFontSize) || newSettings.toggleButtonTopFontSize < 4 || newSettings.toggleButtonTopFontSize > 20) {
                      newSettings.toggleButtonTopFontSize = DEFAULT_TOGGLE_BUTTON_TOP_FONT_SIZE;
@@ -7093,6 +7130,7 @@
                             messageBubbleOpacity: DEFAULT_MESSAGE_BUBBLE_OPACITY,
                             chatOverlayOpacity: DEFAULT_CHAT_OVERLAY_OPACITY,
                             headerFooterOpacity: DEFAULT_HEADER_FOOTER_OPACITY,
+                            messageActionsBackgroundOpacity: DEFAULT_MESSAGE_ACTIONS_BACKGROUND_OPACITY,
                             toggleButtonTopFontSize: DEFAULT_TOGGLE_BUTTON_TOP_FONT_SIZE,
                             toggleButtonTopTextCollapse: DEFAULT_TOGGLE_BUTTON_TOP_TEXT_COLLAPSE,
                             toggleButtonTopTextExpand: DEFAULT_TOGGLE_BUTTON_TOP_TEXT_EXPAND,
