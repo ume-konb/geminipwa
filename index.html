@@ -123,6 +123,7 @@
             --message-toggle-button-top-width: 6px;
             --message-toggle-button-top-height: 40px;
             --message-toggle-button-top-font-size: 12px;
+            --message-toggle-button-top-opacity: 0.6;
             --message-toggle-button-top-text-collapse: "-";
             --message-toggle-button-top-text-expand: "□";
 
@@ -1528,7 +1529,7 @@
         }
         .message:hover .message-toggle-button.top,
         .message.show-actions .message-toggle-button.top {
-            opacity: 0.6;
+             opacity: calc(var(--message-toggle-button-top-opacity) + 0.1);
         }
         .message:hover .message-toggle-button.bottom,
         .message.show-actions .message-toggle-button.bottom {
@@ -1548,6 +1549,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            opacity: var(--message-toggle-button-top-opacity);
         }
 
         .message-toggle-button.bottom {
@@ -2183,7 +2185,7 @@
         }
         .message:hover .message-toggle-button.top,
         .message.show-actions .message-toggle-button.top {
-             opacity: 0.3;
+             opacity: calc(var(--message-toggle-button-top-opacity) + 0.1);
         }
         .message:hover .message-toggle-button.bottom,
         .message.show-actions .message-toggle-button.bottom {
@@ -3074,6 +3076,8 @@
                             <input type="number" id="chat-overlay-opacity" min="0" max="1" step="0.05" placeholder="例: 0.6" aria-label="チャット背景オーバーレイの透明度">
                             <label for="header-footer-opacity">ヘッダー/フッターの透明度 (0.0-1.0):</label>
                             <input type="number" id="header-footer-opacity" min="0" max="1" step="0.05" placeholder="例: 0.9" aria-label="ヘッダー/フッターの透明度">
+                            <label for="toggle-button-top-opacity">右上折りたたみボタンの透明度 (0.0-1.0):</label>
+                            <input type="number" id="toggle-button-top-opacity" min="0" max="1" step="0.05" placeholder="例: 0.6" aria-label="右上折りたたみボタンの透明度">
                         </div>
                    </details>
                 </div>
@@ -3240,6 +3244,7 @@
         const DEFAULT_TOGGLE_BUTTON_TOP_WIDTH = 6;
         const DEFAULT_TOGGLE_BUTTON_TOP_HEIGHT = 40;
         const DEFAULT_TOGGLE_BUTTON_TOP_FONT_SIZE = 12;
+        const DEFAULT_TOGGLE_BUTTON_TOP_OPACITY = 0.6;
         const DEFAULT_TOGGLE_BUTTON_TOP_TEXT_COLLAPSE = "-";
         const DEFAULT_TOGGLE_BUTTON_TOP_TEXT_EXPAND = "◻︎";
         const DEFAULT_TOGGLE_BUTTON_BOTTOM_FONT_SIZE = 14;
@@ -3405,6 +3410,7 @@
             toggleButtonBottomFontSizeInput: document.getElementById('toggle-button-bottom-font-size'),
             toggleButtonBottomTextCollapseInput: document.getElementById('toggle-button-bottom-text-collapse'),
             toggleButtonBottomTextExpandInput: document.getElementById('toggle-button-bottom-text-expand'),
+            toggleButtonTopOpacityInput: document.getElementById('toggle-button-top-opacity'),
         };
 
         const state = {
@@ -3472,6 +3478,7 @@
                 toggleButtonTopWidth: DEFAULT_TOGGLE_BUTTON_TOP_WIDTH,
                 toggleButtonTopHeight: DEFAULT_TOGGLE_BUTTON_TOP_HEIGHT,
                 toggleButtonTopFontSize: DEFAULT_TOGGLE_BUTTON_TOP_FONT_SIZE,
+                toggleButtonTopOpacity: DEFAULT_TOGGLE_BUTTON_TOP_OPACITY,
                 toggleButtonTopTextCollapse: DEFAULT_TOGGLE_BUTTON_TOP_TEXT_COLLAPSE,
                 toggleButtonTopTextExpand: DEFAULT_TOGGLE_BUTTON_TOP_TEXT_EXPAND,
                 toggleButtonBottomFontSize: DEFAULT_TOGGLE_BUTTON_BOTTOM_FONT_SIZE,
@@ -3676,7 +3683,7 @@
                                      let num;
                                      if (key === 'temperature' || key === 'topP' || key === 'presencePenalty' || key === 'frequencyPenalty' ||
                                          key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity' ||
-                                         key === 'messageActionsBackgroundOpacity' ||
+                                         key === 'messageActionsBackgroundOpacity' || key === 'toggleButtonTopOpacity' ||
                                          key === 'messageIconSize' || key === 'messageIconOffsetY' || key === 'iconNameFontSize' || key === 'iconNameOffsetY') {
                                          num = parseFloat(loadedValue);
                                      } else {
@@ -3686,7 +3693,7 @@
                                          if ((key === 'temperature' || key === 'maxTokens' || key === 'topK' || key === 'topP' ||
                                              key === 'presencePenalty' || key === 'frequencyPenalty' || key === 'thinkingBudget' ||
                                              key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity' ||
-                                             key === 'messageActionsBackgroundOpacity'
+                                             key === 'messageActionsBackgroundOpacity' || key === 'toggleButtonTopOpacity'
                                              ) && (loadedValue === null || loadedValue === '')) {
                                               state.settings[key] = null;
                                          } else {
@@ -3701,7 +3708,7 @@
                                           if ((key === 'presencePenalty' || key === 'frequencyPenalty') && (num < -2.0 || num >= 2.0)) num = defaultValue;
                                           if (key === 'thinkingBudget' && (num < 0 || !Number.isInteger(num))) num = defaultValue;
                                           if ((key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity' ||
-                                              key === 'messageActionsBackgroundOpacity'
+                                              key === 'messageActionsBackgroundOpacity' || key === 'toggleButtonTopOpacity'
                                               ) && (num < 0 || num > 1)) num = defaultValue;
                                           if (key === 'messageIconSize' && (num < 1 || num > 300)) num = defaultValue;
                                           if (key === 'messageIconOffsetY' && (num < -200 || num > 200)) num = defaultValue;
@@ -4739,6 +4746,7 @@
                 elements.toggleButtonTopWidthInput.value = state.settings.toggleButtonTopWidth ?? DEFAULT_TOGGLE_BUTTON_TOP_WIDTH;
                 elements.toggleButtonTopHeightInput.value = state.settings.toggleButtonTopHeight ?? DEFAULT_TOGGLE_BUTTON_TOP_HEIGHT;
                 elements.toggleButtonTopFontSizeInput.value = state.settings.toggleButtonTopFontSize ?? DEFAULT_TOGGLE_BUTTON_TOP_FONT_SIZE;
+                elements.toggleButtonTopOpacityInput.value = state.settings.toggleButtonTopOpacity ?? DEFAULT_TOGGLE_BUTTON_TOP_OPACITY;
                 elements.toggleButtonTopTextCollapseInput.value = state.settings.toggleButtonTopTextCollapse || DEFAULT_TOGGLE_BUTTON_TOP_TEXT_COLLAPSE;
                 elements.toggleButtonTopTextExpandInput.value = state.settings.toggleButtonTopTextExpand || DEFAULT_TOGGLE_BUTTON_TOP_TEXT_EXPAND;
                 elements.toggleButtonBottomFontSizeInput.value = state.settings.toggleButtonBottomFontSize ?? DEFAULT_TOGGLE_BUTTON_BOTTOM_FONT_SIZE;
@@ -4748,6 +4756,7 @@
                 document.documentElement.style.setProperty('--message-toggle-button-top-width', `${state.settings.toggleButtonTopWidth || DEFAULT_TOGGLE_BUTTON_TOP_WIDTH}px`);
                 document.documentElement.style.setProperty('--message-toggle-button-top-height', `${state.settings.toggleButtonTopHeight || DEFAULT_TOGGLE_BUTTON_TOP_HEIGHT}px`);
                 document.documentElement.style.setProperty('--message-toggle-button-top-font-size', `${state.settings.toggleButtonTopFontSize || DEFAULT_TOGGLE_BUTTON_TOP_FONT_SIZE}px`);
+                document.documentElement.style.setProperty('--message-toggle-button-top-opacity', state.settings.toggleButtonTopOpacity);
                 document.documentElement.style.setProperty('--message-toggle-button-bottom-font-size', `${state.settings.toggleButtonBottomFontSize || DEFAULT_TOGGLE_BUTTON_BOTTOM_FONT_SIZE}px`);
 
                 this.updateChatScreenElementVisibility();
@@ -5417,6 +5426,14 @@
                         document.documentElement.style.setProperty('--message-actions-bg-opacity', opacity);
                     } else if (elements.messageActionsBackgroundOpacityInput.value === '') {
                         document.documentElement.style.setProperty('--message-actions-bg-opacity', DEFAULT_MESSAGE_ACTIONS_BACKGROUND_OPACITY);
+                    }
+                });
+                elements.toggleButtonTopOpacityInput.addEventListener('input', () => {
+                    const opacity = parseFloat(elements.toggleButtonTopOpacityInput.value);
+                    if (!isNaN(opacity) && opacity >= 0 && opacity <= 1) {
+                        document.documentElement.style.setProperty('--message-toggle-button-top-opacity', opacity);
+                    } else if (elements.toggleButtonTopOpacityInput.value === '') {
+                        document.documentElement.style.setProperty('--message-toggle-button-top-opacity', DEFAULT_TOGGLE_BUTTON_TOP_OPACITY);
                     }
                 });
                 elements.showCollapseButtonsToggle.addEventListener('change', () => {
@@ -7009,6 +7026,7 @@
                      toggleButtonTopWidth: parseInt(elements.toggleButtonTopWidthInput.value, 10) || DEFAULT_TOGGLE_BUTTON_TOP_WIDTH,
                      toggleButtonTopHeight: parseInt(elements.toggleButtonTopHeightInput.value, 10) || DEFAULT_TOGGLE_BUTTON_TOP_HEIGHT,
                      toggleButtonTopFontSize: parseInt(elements.toggleButtonTopFontSizeInput.value, 10) || DEFAULT_TOGGLE_BUTTON_TOP_FONT_SIZE,
+                     toggleButtonTopOpacity: elements.toggleButtonTopOpacityInput.value === '' ? DEFAULT_TOGGLE_BUTTON_TOP_OPACITY : parseFloat(elements.toggleButtonTopOpacityInput.value),
                      toggleButtonTopTextCollapse: elements.toggleButtonTopTextCollapseInput.value.trim() || DEFAULT_TOGGLE_BUTTON_TOP_TEXT_COLLAPSE,
                      toggleButtonTopTextExpand: elements.toggleButtonTopTextExpandInput.value.trim() || DEFAULT_TOGGLE_BUTTON_TOP_TEXT_EXPAND,
                      toggleButtonBottomFontSize: parseInt(elements.toggleButtonBottomFontSizeInput.value, 10) || DEFAULT_TOGGLE_BUTTON_BOTTOM_FONT_SIZE,
@@ -7063,6 +7081,9 @@
                  }
                  if (newSettings.messageActionsBackgroundOpacity !== null && (isNaN(newSettings.messageActionsBackgroundOpacity) || newSettings.messageActionsBackgroundOpacity < 0 || newSettings.messageActionsBackgroundOpacity > 1)) {
                     newSettings.messageActionsBackgroundOpacity = DEFAULT_MESSAGE_ACTIONS_BACKGROUND_OPACITY;
+                 }
+                 if (newSettings.toggleButtonTopOpacity !== null && (isNaN(newSettings.toggleButtonTopOpacity) || newSettings.toggleButtonTopOpacity < 0 || newSettings.toggleButtonTopOpacity > 1)) {
+                    newSettings.toggleButtonTopOpacity = DEFAULT_TOGGLE_BUTTON_TOP_OPACITY;
                  }
                  if (isNaN(newSettings.toggleButtonTopWidth) || newSettings.toggleButtonTopWidth < 1 || newSettings.toggleButtonTopWidth > 100) {
                      newSettings.toggleButtonTopWidth = DEFAULT_TOGGLE_BUTTON_TOP_WIDTH;
@@ -7204,6 +7225,7 @@
                             toggleButtonTopWidth: DEFAULT_TOGGLE_BUTTON_TOP_WIDTH,
                             toggleButtonTopHeight: DEFAULT_TOGGLE_BUTTON_TOP_HEIGHT,
                             toggleButtonTopFontSize: DEFAULT_TOGGLE_BUTTON_TOP_FONT_SIZE,
+                            toggleButtonTopOpacity: DEFAULT_TOGGLE_BUTTON_TOP_OPACITY,
                             toggleButtonTopTextCollapse: DEFAULT_TOGGLE_BUTTON_TOP_TEXT_COLLAPSE,
                             toggleButtonTopTextExpand: DEFAULT_TOGGLE_BUTTON_TOP_TEXT_EXPAND,
                             toggleButtonBottomFontSize: DEFAULT_TOGGLE_BUTTON_BOTTOM_FONT_SIZE,
