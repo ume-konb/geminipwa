@@ -2907,7 +2907,7 @@
                         <div style="padding-left: 15px; margin-top: 10px;">
                             <div style="margin-top: 10px;">
                                 <label for="icon-name-font-size">アイコン下の名前の文字サイズ (px):</label>
-                                <input type="number" id="icon-name-font-size" min="1" max="26" step="1" placeholder="例: 10" aria-label="アイコン下の名前の文字サイズ（上限あり）">
+                                <input type="number" id="icon-name-font-size" min="1" max="46" step="1" placeholder="例: 10" aria-label="アイコン下の名前の文字サイズ（上限あり）">
                             </div>
                             <div style="margin-top: 10px;">
                                 <label for="icon-name-offset-y">名前の垂直オフセット (px, 上が正):</label>
@@ -2915,7 +2915,7 @@
                             </div>
                             <div style="margin-top: 20px;">
                                 <label for="message-icon-size">アイコン表示サイズ (px):</label>
-                                <input type="number" id="message-icon-size" min="1" max="164" step="1" placeholder="例: 28" aria-label="アイコン表示サイズ（上限あり）">
+                                <input type="number" id="message-icon-size" min="1" max="300" step="1" placeholder="例: 28" aria-label="アイコン表示サイズ（上限あり）">
                             </div>
                             <div style="margin-top: 15px;">
                                 <label for="message-icon-offset-y">アイコン垂直オフセット (px, 上が正):</label>
@@ -3040,11 +3040,11 @@
                         <summary style="cursor: pointer; font-weight: normal; font-size: 14px; color: var(--text-link);">折りたたみボタン詳細設定</summary>
                         <div style="padding-left: 15px; margin-top: 10px;">
                             <label for="toggle-button-top-width">右上ボタン 横幅 (px):</label>
-                            <input type="number" id="toggle-button-top-width" min="1" max="50" step="1" placeholder="例: 18">
+                            <input type="number" id="toggle-button-top-width" min="1" max="100" step="1" placeholder="例: 18">
                             <label for="toggle-button-top-height">右上ボタン 縦幅 (px):</label>
-                            <input type="number" id="toggle-button-top-height" min="1" max="50" step="1" placeholder="例: 18">
+                            <input type="number" id="toggle-button-top-height" min="1" max="100" step="1" placeholder="例: 18">
                             <label for="toggle-button-top-font-size">右上ボタン フォントサイズ (px):</label>
-                            <input type="number" id="toggle-button-top-font-size" min="1" max="20" step="1" placeholder="例: 6">
+                            <input type="number" id="toggle-button-top-font-size" min="1" max="50" step="1" placeholder="例: 6">
                             <label for="toggle-button-top-text-collapse">右上ボタン 折りたたみ時テキスト:</label>
                             <input type="text" id="toggle-button-top-text-collapse" placeholder="例: -">
                             <label for="toggle-button-top-text-expand">右上ボタン 展開時テキスト:</label>
@@ -3053,7 +3053,7 @@
                             <hr style="margin: 15px 0;">
 
                             <label for="toggle-button-bottom-font-size">下部ボタン フォントサイズ (px):</label>
-                            <input type="number" id="toggle-button-bottom-font-size" min="1" max="24" step="1" placeholder="例: 14">
+                            <input type="number" id="toggle-button-bottom-font-size" min="1" max="34" step="1" placeholder="例: 14">
                             <label for="toggle-button-bottom-text-collapse">下部ボタン 折りたたみ時テキスト:</label>
                             <input type="text" id="toggle-button-bottom-text-collapse" placeholder="例: 非表示">
                             <label for="toggle-button-bottom-text-expand">下部ボタン 展開時テキスト:</label>
@@ -7052,16 +7052,16 @@
                  if (newSettings.thinkingBudget !== null && (isNaN(newSettings.thinkingBudget) || newSettings.thinkingBudget < 0 || !Number.isInteger(newSettings.thinkingBudget))) {
                      newSettings.thinkingBudget = null;
                  }
-                 if (newSettings.messageIconSize !== null && (isNaN(newSettings.messageIconSize) || newSettings.messageIconSize < 16 || newSettings.messageIconSize > 64)) {
+                 if (newSettings.messageIconSize !== null && (isNaN(newSettings.messageIconSize) || newSettings.messageIconSize < 1 || newSettings.messageIconSize > 300)) {
                      newSettings.messageIconSize = DEFAULT_MESSAGE_ICON_SIZE;
                  }
-                 if (newSettings.messageIconOffsetY !== null && (isNaN(newSettings.messageIconOffsetY) || newSettings.messageIconOffsetY < -50 || newSettings.messageIconOffsetY > 50)) {
+                 if (newSettings.messageIconOffsetY !== null && (isNaN(newSettings.messageIconOffsetY) || newSettings.messageIconOffsetY < -200 || newSettings.messageIconOffsetY > 200)) {
                      newSettings.messageIconOffsetY = DEFAULT_MESSAGE_ICON_OFFSET_Y;
                  }
-                 if (newSettings.iconNameFontSize !== null && (isNaN(newSettings.iconNameFontSize) || newSettings.iconNameFontSize < 6 || newSettings.iconNameFontSize > 16)) {
+                 if (newSettings.iconNameFontSize !== null && (isNaN(newSettings.iconNameFontSize) || newSettings.iconNameFontSize < 1 || newSettings.iconNameFontSize > 46)) {
                      newSettings.iconNameFontSize = DEFAULT_ICON_NAME_FONT_SIZE;
                  }
-                 if (newSettings.iconNameOffsetY !== null && (isNaN(newSettings.iconNameOffsetY) || newSettings.iconNameOffsetY < -20 || newSettings.iconNameOffsetY > 20)) {
+                 if (newSettings.iconNameOffsetY !== null && (isNaN(newSettings.iconNameOffsetY) || newSettings.iconNameOffsetY < -200 || newSettings.iconNameOffsetY > 200)) {
                      newSettings.iconNameOffsetY = DEFAULT_ICON_NAME_OFFSET_Y;
                  }
                  if (newSettings.messageBubbleOpacity !== null && (isNaN(newSettings.messageBubbleOpacity) || newSettings.messageBubbleOpacity < 0 || newSettings.messageBubbleOpacity > 1)) {
@@ -7076,16 +7076,16 @@
                  if (newSettings.messageActionsBackgroundOpacity !== null && (isNaN(newSettings.messageActionsBackgroundOpacity) || newSettings.messageActionsBackgroundOpacity < 0 || newSettings.messageActionsBackgroundOpacity > 1)) {
                     newSettings.messageActionsBackgroundOpacity = DEFAULT_MESSAGE_ACTIONS_BACKGROUND_OPACITY;
                  }
-                 if (isNaN(newSettings.toggleButtonTopWidth) || newSettings.toggleButtonTopWidth < 10 || newSettings.toggleButtonTopWidth > 50) {
+                 if (isNaN(newSettings.toggleButtonTopWidth) || newSettings.toggleButtonTopWidth < 1 || newSettings.toggleButtonTopWidth > 100) {
                      newSettings.toggleButtonTopWidth = DEFAULT_TOGGLE_BUTTON_TOP_WIDTH;
                  }
-                 if (isNaN(newSettings.toggleButtonTopHeight) || newSettings.toggleButtonTopHeight < 10 || newSettings.toggleButtonTopHeight > 50) {
+                 if (isNaN(newSettings.toggleButtonTopHeight) || newSettings.toggleButtonTopHeight < 1 || newSettings.toggleButtonTopHeight > 100) {
                      newSettings.toggleButtonTopHeight = DEFAULT_TOGGLE_BUTTON_TOP_HEIGHT;
                  }
-                 if (isNaN(newSettings.toggleButtonTopFontSize) || newSettings.toggleButtonTopFontSize < 4 || newSettings.toggleButtonTopFontSize > 20) {
+                 if (isNaN(newSettings.toggleButtonTopFontSize) || newSettings.toggleButtonTopFontSize < 1 || newSettings.toggleButtonTopFontSize > 20) {
                      newSettings.toggleButtonTopFontSize = DEFAULT_TOGGLE_BUTTON_TOP_FONT_SIZE;
                  }
-                 if (isNaN(newSettings.toggleButtonBottomFontSize) || newSettings.toggleButtonBottomFontSize < 8 || newSettings.toggleButtonBottomFontSize > 24) {
+                 if (isNaN(newSettings.toggleButtonBottomFontSize) || newSettings.toggleButtonBottomFontSize < 1 || newSettings.toggleButtonBottomFontSize > 24) {
                      newSettings.toggleButtonBottomFontSize = DEFAULT_TOGGLE_BUTTON_BOTTOM_FONT_SIZE;
                  }
 
