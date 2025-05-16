@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -2956,6 +2957,8 @@
                        <input type="checkbox" id="smooth-scroll-non-streaming">
                        非ストリーミング時にスムーズスクロールを使用する
                    </label>
+                   <p style="font-size: 11px; color: var(--text-secondary); margin-top: -5px; margin-bottom: 10px;">
+                       ※ 自動スクロール適用時のみ。
                    <p style="height:10px"></p>
                    <label class="checkbox-label">
                        <input type="checkbox" id="swipe-navigation-toggle">
@@ -3088,7 +3091,7 @@
                 <div class="danger-zone">
 
                      <p style="text-align: center; color: var(--text-secondary); font-size: 12px; margin-bottom: 10px;">
-                         バージョン: <span id="app-version"></span>ti
+                         バージョン: <span id="app-version"></span>
                      </p>
                      <button id="update-app-btn">アプリを更新 (キャッシュクリア)</button>
                      <p style="font-size: 11px; color: var(--text-secondary); margin-top: -5px; margin-bottom: 10px; text-align:center;">
@@ -3388,7 +3391,7 @@
             deleteClipboardStackBtn: document.getElementById('delete-clipboard-stack-btn'),
             copyClipboardStackBtn: document.getElementById('copy-clipboard-stack-btn'),
             pasteClipboardStackBtn: document.getElementById('paste-clipboard-stack-btn'),
-            showClipboardstack-button-toggle'),
+            showClipboardStackButtonToggle: document.getElementById('show-clipboard-stack-button-toggle'),
             showUserIconToggle: document.getElementById('show-user-icon-toggle'),
             userIconInput: document.getElementById('user-icon-input'),
             uploadUserIconBtn: document.getElementById('upload-user-icon-btn'),
@@ -4369,23 +4372,15 @@
                 this.setSendingState(false);
                 this.scrollToBottom(false);
             },
-            scrollToTop() {
+            scrollToBottom(isStreaming = false) {
                 const mainContent = elements.chatScreen.querySelector('.main-content');
                 if (mainContent) {
-                    requestAnimationFrame(() => {
-                        mainContent.scrollTop = 0;
-                    });
-                }
-            },
-            scrollToBottom(useSmoothScroll = false) {
-                const mainContent = elements.chatScreen.querySelector('.main-content');
-                if (mainContent) {
-                    if (useSmoothScroll && state.settings.smoothScrollNonStreaming) {
-                        mainContent.scrollTo({ top: mainContent.scrollHeight, behavior: 'smooth' });
-                    } else {
+                    if (isStreaming || !state.settings.smoothScrollNonStreaming) {
                         requestAnimationFrame(() => {
                             mainContent.scrollTop = mainContent.scrollHeight;
                         });
+                    } else {
+                        mainContent.scrollTo({ top: mainContent.scrollHeight, behavior: 'smooth' });
                     }
                 }
             },
@@ -5209,7 +5204,7 @@
                 elements.pasteClipboardStackBtn.addEventListener('click', () => this.pasteIntoClipboardStack());
 
                 elements.scrollToTopBtn.addEventListener('click', () => this.scrollToTop());
-                elements.scrollToBottomBtn.addEventListener('click', () => this.scrollToBottom());
+                elements.scrollToBottomBtn.addEventListener('click', () => this.scrollToBottom(false));
                 elements.pasteToInputBtn.addEventListener('click', () => this.pasteToUserInput());
 
                 elements.newChatBtn.addEventListener('click', async () => {
@@ -5812,10 +5807,10 @@
                 }
             },
             scrollToTop() {
-                uiUtils.scrollToTop();
-            },
-            scrollToBottom() {
-                uiUtils.scrollToBottom(false);
+                const mainContent = elements.chatScreen.querySelector('.main-content');
+                if (mainContent) {
+                    mainContent.scrollTo({ top: 0, behavior: 'smooth' });
+                }
             },
             async pasteToUserInput() {
                 const button = elements.pasteToInputBtn;
@@ -6586,8 +6581,8 @@
                     state.abortController = null;
                     state.partialStreamContent = '';
                     if (state.settings.autoScrollOnNewMessage) {
-                        const isCurrentlyStreaming = state.settings.streamingOutput; // API応答後なので、ストリーミング設定自体を見る
-                        uiUtils.scrollToBottom(!isCurrentlyStreaming && state.settings.smoothScrollNonStreaming);
+                        const isCurrentlyStreaming = state.settings.streamingOutput && modelResponseMetadata.finishReason !== 'STOP' && modelResponseMetadata.finishReason !== 'MAX_TOKENS' && modelResponseMetadata.finishReason !== 'SAFETY';
+                        uiUtils.scrollToBottom(isCurrentlyStreaming);
                     }
                     uiUtils.updateAttachmentBadgeVisibility();
                 }
