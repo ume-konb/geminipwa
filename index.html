@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -2797,6 +2796,7 @@
                         <input type="checkbox" id="streaming-output">
                         ストリーミング出力を使用する
                     </label>
+
                     <label for="streaming-speed">文字送り速度 (ミリ秒/文字):</label>
                     <input type="number" id="streaming-speed" min="0" step="1" placeholder="例: 30 (0で無効)" aria-label="文字送り速度">
                 </div>
@@ -4646,49 +4646,49 @@
                 const userBubbleOpacity = state.settings.userNameBubbleOpacity ?? DEFAULT_USER_NAME_BUBBLE_OPACITY;
 
                 if (state.settings.showUserNameBubble) {
+                    let userRgb;
                     if (state.settings.userNameBubbleUseThemeColor) {
-                        const themeUserMsgColorValue = getComputedStyle(document.documentElement).getPropertyValue('--bg-user-message').trim();
-                        const userRgb = this.hexToRgb(themeUserMsgColorValue) || this.parseRgbCss(themeUserMsgColorValue) || this.hexToRgb(DEFAULT_USER_NAME_BUBBLE_COLOR) || {r:255,g:255,b:255};
-                        userBubbleFinalBg = `rgba(${userRgb.r}, ${userRgb.g}, ${userRgb.b}, ${userBubbleOpacity})`;
+                        const themeUserMsgRgbString = getComputedStyle(document.body).getPropertyValue('--current-theme-user-message-rgb').trim();
+                        const parts = themeUserMsgRgbString.split(',').map(s => parseInt(s.trim(), 10));
+                        userRgb = (parts.length === 3 && !parts.some(isNaN)) ? {r: parts[0], g: parts[1], b: parts[2]} : this.hexToRgb(DEFAULT_USER_NAME_BUBBLE_COLOR) || {r:255,g:255,b:255};
                     } else {
                         const customUserBubbleColor = state.settings.userNameBubbleColor;
-                        let userRgb;
                         if (customUserBubbleColor && /^#([0-9A-Fa-f]{3}){1,2}$/.test(customUserBubbleColor)) {
                             userRgb = this.hexToRgb(customUserBubbleColor);
                         } else {
-                            const defaultRgbString = getComputedStyle(document.documentElement).getPropertyValue('--default-user-name-bubble-custom-rgb').trim();
+                            const defaultRgbString = getComputedStyle(document.body).getPropertyValue('--default-user-name-bubble-custom-rgb').trim();
                             const parts = defaultRgbString.split(',').map(s => parseInt(s.trim(), 10));
                             userRgb = (parts.length === 3 && !parts.some(isNaN)) ? {r: parts[0], g: parts[1], b: parts[2]} : {r:255,g:255,b:255};
                         }
-                        userBubbleFinalBg = `rgba(${userRgb.r}, ${userRgb.g}, ${userRgb.b}, ${userBubbleOpacity})`;
                     }
-                    document.documentElement.style.setProperty('--user-name-bubble-bg', userBubbleFinalBg);
+                    userBubbleFinalBg = `rgba(${userRgb.r}, ${userRgb.g}, ${userRgb.b}, ${userBubbleOpacity})`;
                 } else {
-                    document.documentElement.style.setProperty('--user-name-bubble-bg', 'transparent');
+                     userBubbleFinalBg = 'transparent';
                 }
+                document.documentElement.style.setProperty('--user-name-bubble-bg', userBubbleFinalBg);
 
                 let aiBubbleFinalBg;
                 const aiBubbleOpacity = state.settings.aiNameBubbleOpacity ?? DEFAULT_AI_NAME_BUBBLE_OPACITY;
 
                 if (state.settings.showAiNameBubble) {
+                    let aiRgb;
                     if (state.settings.aiNameBubbleUseThemeColor) {
-                        const themeAiMsgColorValue = getComputedStyle(document.documentElement).getPropertyValue('--bg-model-message').trim();
-                        const aiRgb = this.hexToRgb(themeAiMsgColorValue) || this.parseRgbCss(themeAiMsgColorValue) || this.hexToRgb(DEFAULT_AI_NAME_BUBBLE_COLOR) || {r:255,g:255,b:255};
-                        aiBubbleFinalBg = `rgba(${aiRgb.r}, ${aiRgb.g}, ${aiRgb.b}, ${aiBubbleOpacity})`;
+                        const themeAiMsgRgbString = getComputedStyle(document.body).getPropertyValue('--current-theme-model-message-rgb').trim();
+                        const parts = themeAiMsgRgbString.split(',').map(s => parseInt(s.trim(), 10));
+                        aiRgb = (parts.length === 3 && !parts.some(isNaN)) ? {r: parts[0], g: parts[1], b: parts[2]} : this.hexToRgb(DEFAULT_AI_NAME_BUBBLE_COLOR) || {r:255,g:255,b:255};
                     } else {
                         const customAiBubbleColor = state.settings.aiNameBubbleColor;
-                        let aiRgb;
                         if (customAiBubbleColor && /^#([0-9A-Fa-f]{3}){1,2}$/.test(customAiBubbleColor)) {
                             aiRgb = this.hexToRgb(customAiBubbleColor);
                         } else {
-                            const defaultRgbString = getComputedStyle(document.documentElement).getPropertyValue('--default-ai-name-bubble-custom-rgb').trim();
+                            const defaultRgbString = getComputedStyle(document.body).getPropertyValue('--default-ai-name-bubble-custom-rgb').trim();
                             const parts = defaultRgbString.split(',').map(s => parseInt(s.trim(), 10));
                             aiRgb = (parts.length === 3 && !parts.some(isNaN)) ? {r: parts[0], g: parts[1], b: parts[2]} : {r:255,g:255,b:255};
                         }
-                        aiBubbleFinalBg = `rgba(${aiRgb.r}, ${aiRgb.g}, ${aiRgb.b}, ${aiBubbleOpacity})`;
                     }
+                    aiBubbleFinalBg = `rgba(${aiRgb.r}, ${aiRgb.g}, ${aiRgb.b}, ${aiBubbleOpacity})`;
                 } else {
-                     document.documentElement.style.setProperty('--ai-name-bubble-bg', 'transparent');
+                     aiBubbleFinalBg = 'transparent';
                 }
                 document.documentElement.style.setProperty('--ai-name-bubble-bg', aiBubbleFinalBg);
 
@@ -4840,31 +4840,45 @@
                 const theme = state.settings.theme;
                 document.body.classList.remove('dark-mode', 'light-mode-forced', 'pastel-pink-mode', 'pastel-blue-mode', 'pastel-yellow-mode', 'pastel-purple-mode', 'pastel-rainbow-mode');
                 let themeColorMetaValue;
+                let currentThemeUserMessageBgRgb = this.hexToRgb(LIGHT_MODE_USER_MESSAGE_COLOR) || {r:220,g:248,b:198};
+                let currentThemeModelMessageBgRgb = this.hexToRgb(LIGHT_MODE_MODEL_MESSAGE_COLOR) || {r:229,g:229,b:234};
 
                 switch (theme) {
                     case 'dark':
                         document.body.classList.add('dark-mode');
                         themeColorMetaValue = DARK_THEME_COLOR;
+                        currentThemeUserMessageBgRgb = this.hexToRgb(DARK_MODE_USER_MESSAGE_COLOR) || {r:5,g:97,b:98};
+                        currentThemeModelMessageBgRgb = this.hexToRgb(DARK_MODE_MODEL_MESSAGE_COLOR) || {r:58,g:58,b:60};
                         break;
                     case 'pastel-pink':
                         document.body.classList.add('pastel-pink-mode');
                         themeColorMetaValue = PASTEL_PINK_THEME_COLOR;
+                        currentThemeUserMessageBgRgb = this.hexToRgb(PASTEL_PINK_USER_MESSAGE_COLOR) || {r:255,g:221,b:238};
+                        currentThemeModelMessageBgRgb = this.hexToRgb(PASTEL_PINK_MODEL_MESSAGE_COLOR) || {r:243,g:232,b:255};
                         break;
                     case 'pastel-blue':
                         document.body.classList.add('pastel-blue-mode');
                         themeColorMetaValue = PASTEL_BLUE_THEME_COLOR;
+                        currentThemeUserMessageBgRgb = this.hexToRgb(PASTEL_BLUE_USER_MESSAGE_COLOR) || {r:207,g:241,b:239};
+                        currentThemeModelMessageBgRgb = this.hexToRgb(PASTEL_BLUE_MODEL_MESSAGE_COLOR) || {r:224,g:232,b:255};
                         break;
                     case 'pastel-yellow':
                         document.body.classList.add('pastel-yellow-mode');
                         themeColorMetaValue = PASTEL_YELLOW_THEME_COLOR;
+                        currentThemeUserMessageBgRgb = this.hexToRgb(PASTEL_YELLOW_USER_MESSAGE_COLOR) || {r:255,g:245,b:186};
+                        currentThemeModelMessageBgRgb = this.hexToRgb(PASTEL_YELLOW_MODEL_MESSAGE_COLOR) || {r:255,g:228,b:181};
                         break;
                     case 'pastel-purple':
                         document.body.classList.add('pastel-purple-mode');
                         themeColorMetaValue = PASTEL_PURPLE_THEME_COLOR;
+                        currentThemeUserMessageBgRgb = this.hexToRgb(PASTEL_PURPLE_USER_MESSAGE_COLOR) || {r:209,g:196,b:233};
+                        currentThemeModelMessageBgRgb = this.hexToRgb(PASTEL_PURPLE_MODEL_MESSAGE_COLOR) || {r:197,g:202,b:233};
                         break;
                     case 'pastel-rainbow':
                         document.body.classList.add('pastel-rainbow-mode');
                         themeColorMetaValue = PASTEL_RAINBOW_THEME_COLOR;
+                        currentThemeUserMessageBgRgb = this.hexToRgb(PASTEL_RAINBOW_USER_MESSAGE_COLOR) || {r:224,g:255,b:240};
+                        currentThemeModelMessageBgRgb = this.hexToRgb(PASTEL_RAINBOW_MODEL_MESSAGE_COLOR) || {r:224,g:240,b:255};
                         break;
                     case 'light':
                     default:
@@ -4875,6 +4889,10 @@
                 if (elements.themeColorMeta) {
                     elements.themeColorMeta.content = themeColorMetaValue;
                 }
+
+                document.documentElement.style.setProperty('--current-theme-user-message-rgb', `${currentThemeUserMessageBgRgb.r}, ${currentThemeUserMessageBgRgb.g}, ${currentThemeUserMessageBgRgb.b}`);
+                document.documentElement.style.setProperty('--current-theme-model-message-rgb', `${currentThemeModelMessageBgRgb.r}, ${currentThemeModelMessageBgRgb.g}, ${currentThemeModelMessageBgRgb.b}`);
+
                 this.applyOpacitySettings();
                 this.applyZoomPreventionSetting();
             },
@@ -5540,10 +5558,12 @@
                     uiUtils.renderChatMessages(true);
                 });
                 elements.userNameBubbleColorInput.addEventListener('input', () => {
+                    state.settings.userNameBubbleColor = elements.userNameBubbleColorInput.value.trim() || DEFAULT_USER_NAME_BUBBLE_COLOR;
                     uiUtils.applySidePanelSettingsToUI();
                     uiUtils.renderChatMessages(true);
                 });
                 elements.userNameBubbleOpacityInput.addEventListener('input', () => {
+                    state.settings.userNameBubbleOpacity = elements.userNameBubbleOpacityInput.value === '' ? DEFAULT_USER_NAME_BUBBLE_OPACITY : parseFloat(elements.userNameBubbleOpacityInput.value);
                     uiUtils.applySidePanelSettingsToUI();
                     uiUtils.renderChatMessages(true);
                 });
@@ -5558,10 +5578,12 @@
                     uiUtils.renderChatMessages(true);
                 });
                 elements.aiNameBubbleColorInput.addEventListener('input', () => {
+                    state.settings.aiNameBubbleColor = elements.aiNameBubbleColorInput.value.trim() || DEFAULT_AI_NAME_BUBBLE_COLOR;
                     uiUtils.applySidePanelSettingsToUI();
                     uiUtils.renderChatMessages(true);
                 });
                 elements.aiNameBubbleOpacityInput.addEventListener('input', () => {
+                    state.settings.aiNameBubbleOpacity = elements.aiNameBubbleOpacityInput.value === '' ? DEFAULT_AI_NAME_BUBBLE_OPACITY : parseFloat(elements.aiNameBubbleOpacityInput.value);
                     uiUtils.applySidePanelSettingsToUI();
                     uiUtils.renderChatMessages(true);
                 });
