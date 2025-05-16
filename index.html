@@ -212,8 +212,6 @@
             --text-button-purple: #ffffff;
 
             --message-actions-base-rgb: 50, 50, 50;
-            --message-toggle-button-top-width: 6px;
-            --message-toggle-button-top-height: 40px;
         }
 
 
@@ -311,8 +309,6 @@
             --text-button-purple: #ffffff;
 
             --message-actions-base-rgb: 255, 230, 234;
-            --message-toggle-button-top-width: 6px;
-            --message-toggle-button-top-height: 40px;
         }
 
 
@@ -411,8 +407,6 @@
             --text-button-purple: #ffffff;
 
             --message-actions-base-rgb: 224, 240, 255;
-            --message-toggle-button-top-width: 6px;
-            --message-toggle-button-top-height: 40px;
         }
 
 
@@ -494,8 +488,6 @@
             --text-button-purple: #4b0082;
 
             --message-actions-base-rgb: 255, 250, 205;
-            --message-toggle-button-top-width: 6px;
-            --message-toggle-button-top-height: 40px;
         }
 
 
@@ -577,8 +569,6 @@
             --text-button-purple: var(--text-light);
 
             --message-actions-base-rgb: 225, 190, 231;
-            --message-toggle-button-top-width: 6px;
-            --message-toggle-button-top-height: 40px;
         }
 
 
@@ -672,8 +662,6 @@
             --text-toggle-button: var(--text-light);
 
             --message-actions-base-rgb: 245, 245, 245;
-            --message-toggle-button-top-width: 6px;
-            --message-toggle-button-top-height: 40px;
         }
 
 
@@ -3040,11 +3028,11 @@
                         <summary style="cursor: pointer; font-weight: normal; font-size: 14px; color: var(--text-link);">折りたたみボタン詳細設定</summary>
                         <div style="padding-left: 15px; margin-top: 10px;">
                             <label for="toggle-button-top-width">右上ボタン 横幅 (px):</label>
-                            <input type="number" id="toggle-button-top-width" min="1" max="100" step="1" placeholder="例: 18">
+                            <input type="number" id="toggle-button-top-width" min="1" max="100" step="1" placeholder="例: 6">
                             <label for="toggle-button-top-height">右上ボタン 縦幅 (px):</label>
-                            <input type="number" id="toggle-button-top-height" min="1" max="100" step="1" placeholder="例: 18">
+                            <input type="number" id="toggle-button-top-height" min="1" max="100" step="1" placeholder="例: 40">
                             <label for="toggle-button-top-font-size">右上ボタン フォントサイズ (px):</label>
-                            <input type="number" id="toggle-button-top-font-size" min="1" max="50" step="1" placeholder="例: 6">
+                            <input type="number" id="toggle-button-top-font-size" min="1" max="50" step="1" placeholder="例: 12">
                             <label for="toggle-button-top-text-collapse">右上ボタン 折りたたみ時テキスト:</label>
                             <input type="text" id="toggle-button-top-text-collapse" placeholder="例: -">
                             <label for="toggle-button-top-text-expand">右上ボタン 展開時テキスト:</label>
@@ -3676,9 +3664,9 @@
                                     if (isNaN(num)) {
                                         state.settings[key] = defaultValue;
                                     } else {
-                                        if (key === 'toggleButtonTopFontSize' && (num < 4 || num > 20)) num = defaultValue;
-                                        if (key === 'toggleButtonBottomFontSize' && (num < 8 || num > 24)) num = defaultValue;
-                                        if ((key === 'toggleButtonTopWidth' || key === 'toggleButtonTopHeight') && (num < 10 || num > 50)) num = defaultValue;
+                                        if (key === 'toggleButtonTopFontSize' && (num < 1 || num > 50)) num = defaultValue;
+                                        if (key === 'toggleButtonBottomFontSize' && (num < 1 || num > 34)) num = defaultValue;
+                                        if ((key === 'toggleButtonTopWidth' || key === 'toggleButtonTopHeight') && (num < 1 || num > 100)) num = defaultValue;
                                         state.settings[key] = num;
                                     }
                                 } else if (key === 'toggleButtonTopTextCollapse' || key === 'toggleButtonTopTextExpand' ||
@@ -3715,10 +3703,10 @@
                                           if ((key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity' ||
                                               key === 'messageActionsBackgroundOpacity'
                                               ) && (num < 0 || num > 1)) num = defaultValue;
-                                          if (key === 'messageIconSize' && (num < 16 || num > 64)) num = defaultValue;
-                                          if (key === 'messageIconOffsetY' && (num < -50 || num > 50)) num = defaultValue;
-                                          if (key === 'iconNameFontSize' && (num < 6 || num > 16)) num = defaultValue;
-                                          if (key === 'iconNameOffsetY' && (num < -20 || num > 20)) num = defaultValue;
+                                          if (key === 'messageIconSize' && (num < 1 || num > 300)) num = defaultValue;
+                                          if (key === 'messageIconOffsetY' && (num < -200 || num > 200)) num = defaultValue;
+                                          if (key === 'iconNameFontSize' && (num < 1 || num > 46)) num = defaultValue;
+                                          if (key === 'iconNameOffsetY' && (num < -200 || num > 200)) num = defaultValue;
                                           state.settings[key] = num;
                                      }
                                 } else if (typeof defaultValue === 'string') {
@@ -7082,10 +7070,10 @@
                  if (isNaN(newSettings.toggleButtonTopHeight) || newSettings.toggleButtonTopHeight < 1 || newSettings.toggleButtonTopHeight > 100) {
                      newSettings.toggleButtonTopHeight = DEFAULT_TOGGLE_BUTTON_TOP_HEIGHT;
                  }
-                 if (isNaN(newSettings.toggleButtonTopFontSize) || newSettings.toggleButtonTopFontSize < 1 || newSettings.toggleButtonTopFontSize > 20) {
+                 if (isNaN(newSettings.toggleButtonTopFontSize) || newSettings.toggleButtonTopFontSize < 1 || newSettings.toggleButtonTopFontSize > 50) {
                      newSettings.toggleButtonTopFontSize = DEFAULT_TOGGLE_BUTTON_TOP_FONT_SIZE;
                  }
-                 if (isNaN(newSettings.toggleButtonBottomFontSize) || newSettings.toggleButtonBottomFontSize < 1 || newSettings.toggleButtonBottomFontSize > 24) {
+                 if (isNaN(newSettings.toggleButtonBottomFontSize) || newSettings.toggleButtonBottomFontSize < 1 || newSettings.toggleButtonBottomFontSize > 34) {
                      newSettings.toggleButtonBottomFontSize = DEFAULT_TOGGLE_BUTTON_BOTTOM_FONT_SIZE;
                  }
 
