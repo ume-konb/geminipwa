@@ -5875,7 +5875,7 @@
                 try {
                     await navigator.clipboard.writeText(memoText);
                     const originalText = elements.copyMemoBtn.textContent;
-                    elements.copyMemoBtn.textContent = "✓";
+                    elements.copyMemoBtn.textContent = "コピー完了";
                     elements.copyMemoBtn.disabled = true;
                     setTimeout(() => { elements.copyMemoBtn.textContent = originalText; elements.copyMemoBtn.disabled = false; }, 1500);
                 } catch (err) {
@@ -5978,7 +5978,7 @@
                 try {
                     await navigator.clipboard.writeText(stackText);
                     const originalText = elements.copyClipboardStackBtn.textContent;
-                    elements.copyClipboardStackBtn.textContent = "コピー完了!";
+                    elements.copyClipboardStackBtn.textContent = "コピー完了";
                     elements.copyClipboardStackBtn.disabled = true;
                     setTimeout(() => { elements.copyClipboardStackBtn.textContent = originalText; elements.copyClipboardStackBtn.disabled = false; }, 1500);
                 } catch (err) {
@@ -6449,7 +6449,7 @@
                     await navigator.clipboard.writeText(sessionText.trim());
                     const buttonElement = elements.copySessionBtn;
                     const originalText = buttonElement.textContent;
-                    buttonElement.textContent = 'コピー完了!';
+                    buttonElement.textContent = '✓!';
                     buttonElement.disabled = true;
                     setTimeout(() => {
                         buttonElement.textContent = originalText;
@@ -7778,7 +7778,7 @@
                 try {
                     await navigator.clipboard.writeText(textToCopy);
                     const originalText = buttonElement.textContent;
-                    buttonElement.textContent = 'コピー完了!';
+                    buttonElement.textContent = '完了!';
                     buttonElement.disabled = true;
                     setTimeout(() => {
                         buttonElement.textContent = originalText;
