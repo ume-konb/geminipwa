@@ -120,7 +120,8 @@
             --bg-button-purple-hover: #6A006A;
             --text-button-purple: #ffffff;
 
-
+            --message-toggle-button-top-width: 1px;
+            --message-toggle-button-top-height: 16px;
             --message-toggle-button-top-font-size: 6px;
             --message-toggle-button-top-text-collapse: "-";
             --message-toggle-button-top-text-expand: "□";
@@ -211,6 +212,8 @@
             --text-button-purple: #ffffff;
 
             --message-actions-base-rgb: 50, 50, 50;
+            --message-toggle-button-top-width: 1px;
+            --message-toggle-button-top-height: 16px;
         }
 
 
@@ -308,6 +311,8 @@
             --text-button-purple: #ffffff;
 
             --message-actions-base-rgb: 255, 230, 234;
+            --message-toggle-button-top-width: 18px;
+            --message-toggle-button-top-height: 18px;
         }
 
 
@@ -406,6 +411,8 @@
             --text-button-purple: #ffffff;
 
             --message-actions-base-rgb: 224, 240, 255;
+            --message-toggle-button-top-width: 18px;
+            --message-toggle-button-top-height: 18px;
         }
 
 
@@ -487,6 +494,8 @@
             --text-button-purple: #4b0082;
 
             --message-actions-base-rgb: 255, 250, 205;
+            --message-toggle-button-top-width: 18px;
+            --message-toggle-button-top-height: 18px;
         }
 
 
@@ -568,6 +577,8 @@
             --text-button-purple: var(--text-light);
 
             --message-actions-base-rgb: 225, 190, 231;
+            --message-toggle-button-top-width: 18px;
+            --message-toggle-button-top-height: 18px;
         }
 
 
@@ -661,6 +672,8 @@
             --text-toggle-button: var(--text-light);
 
             --message-actions-base-rgb: 245, 245, 245;
+            --message-toggle-button-top-width: 18px;
+            --message-toggle-button-top-height: 18px;
         }
 
 
@@ -1541,6 +1554,12 @@
             left: auto;
             z-index: 3;
             font-size: var(--message-toggle-button-top-font-size);
+            width: var(--message-toggle-button-top-width);
+            height: var(--message-toggle-button-top-height);
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .message-toggle-button.bottom {
@@ -2883,26 +2902,29 @@
                     <label for="ai-name-input">表示するAI名:</label>
                     <input type="text" id="ai-name-input" placeholder="例: Gemini" aria-label="表示するAI名">
 
-                    <div style="margin-top: 10px;">
-                        <label for="icon-name-font-size">アイコン下の名前の文字サイズ (px):</label>
-                        <input type="number" id="icon-name-font-size" min="6" max="16" step="1" placeholder="例: 10" aria-label="アイコン下の名前の文字サイズ（上限あり）">
-                    </div>
-                    <div style="margin-top: 10px;">
-                        <label for="icon-name-offset-y">名前の垂直オフセット (px, 上が正):</label>
-                        <input type="number" id="icon-name-offset-y" step="1" placeholder="例: 10" aria-label="名前の垂直オフセット（上限あり）">
-                    </div>
-
-
-                    <div style="margin-top: 20px;">
-                        <label for="message-icon-size">アイコン表示サイズ (px):</label>
-                        <input type="number" id="message-icon-size" min="16" max="64" step="1" placeholder="例: 28" aria-label="アイコン表示サイズ（上限あり）">
-                    </div>
-                    <div style="margin-top: 15px;">
-                        <label for="message-icon-offset-y">アイコン垂直オフセット (px, 上が正):</label>
-                        <input type="number" id="message-icon-offset-y" step="1" placeholder="例: 0 (上下に調整)" aria-label="アイコン垂直オフセット（上限あり）">
-                    </div>
-                    <p style="font-size: 11px; color: var(--text-secondary); margin-top: 8px;">
+                    <details style="margin-top: 15px;">
+                        <summary style="cursor: pointer; font-weight: normal; font-size: 14px; color: var(--text-link);">アイコン表示調整</summary>
+                        <div style="padding-left: 15px; margin-top: 10px;">
+                            <div style="margin-top: 10px;">
+                                <label for="icon-name-font-size">アイコン下の名前の文字サイズ (px):</label>
+                                <input type="number" id="icon-name-font-size" min="1" max="26" step="1" placeholder="例: 10" aria-label="アイコン下の名前の文字サイズ（上限あり）">
+                            </div>
+                            <div style="margin-top: 10px;">
+                                <label for="icon-name-offset-y">名前の垂直オフセット (px, 上が正):</label>
+                                <input type="number" id="icon-name-offset-y" step="1" placeholder="例: 10" aria-label="名前の垂直オフセット（上限あり）">
+                            </div>
+                            <div style="margin-top: 20px;">
+                                <label for="message-icon-size">アイコン表示サイズ (px):</label>
+                                <input type="number" id="message-icon-size" min="1" max="164" step="1" placeholder="例: 28" aria-label="アイコン表示サイズ（上限あり）">
+                            </div>
+                            <div style="margin-top: 15px;">
+                                <label for="message-icon-offset-y">アイコン垂直オフセット (px, 上が正):</label>
+                                <input type="number" id="message-icon-offset-y" step="1" placeholder="例: 0 (上下に調整)" aria-label="アイコン垂直オフセット（上限あり）">
+                            </div>
+                        </div>
+                     <p style="font-size: 11px; color: var(--text-secondary); margin-top: 8px;">
                        ※ プラス値で上に、マイナス値で下にアイコンが移動します。
+                    </details>
                      </p>
                      <p style="font-size: 11px; color: var(--text-secondary); margin-top: 15px;">
                        ※ アイコン画像はブラウザ内のデータベースに保存されます。<br>
@@ -2926,13 +2948,13 @@
                     </div>
                     <p style="font-size: 11px; color: var(--text-secondary); margin-top: 8px;">
                         ※ 高さはピクセル(px)またはビューポート高さ(vh)で指定できます。<br>
-                        ※ デフォルト: 300px。各エリアは縦方向にリサイズ可能です。
+                        ※ デフォルト: 300px。各エリアは縦方向にリサイズ可能です。（上限あり）
                     </p>
                 </div>
 
                 <div class="settings-group">
                    <h3>その他設定</h3>
-                    <label class="checkbox-label">
+                   <label class="checkbox-label">
                        <input type="checkbox" id="enter-to-send">
                        Enterキーで送信する
                    </label>
@@ -3017,8 +3039,12 @@
                    <details style="margin-top: 5px; margin-bottom: 15px;">
                         <summary style="cursor: pointer; font-weight: normal; font-size: 14px; color: var(--text-link);">折りたたみボタン詳細設定</summary>
                         <div style="padding-left: 15px; margin-top: 10px;">
+                            <label for="toggle-button-top-width">右上ボタン 横幅 (px):</label>
+                            <input type="number" id="toggle-button-top-width" min="1" max="50" step="1" placeholder="例: 18">
+                            <label for="toggle-button-top-height">右上ボタン 縦幅 (px):</label>
+                            <input type="number" id="toggle-button-top-height" min="1" max="50" step="1" placeholder="例: 18">
                             <label for="toggle-button-top-font-size">右上ボタン フォントサイズ (px):</label>
-                            <input type="number" id="toggle-button-top-font-size" min="4" max="20" step="1" placeholder="例: 6">
+                            <input type="number" id="toggle-button-top-font-size" min="1" max="20" step="1" placeholder="例: 6">
                             <label for="toggle-button-top-text-collapse">右上ボタン 折りたたみ時テキスト:</label>
                             <input type="text" id="toggle-button-top-text-collapse" placeholder="例: -">
                             <label for="toggle-button-top-text-expand">右上ボタン 展開時テキスト:</label>
@@ -3027,7 +3053,7 @@
                             <hr style="margin: 15px 0;">
 
                             <label for="toggle-button-bottom-font-size">下部ボタン フォントサイズ (px):</label>
-                            <input type="number" id="toggle-button-bottom-font-size" min="8" max="24" step="1" placeholder="例: 14">
+                            <input type="number" id="toggle-button-bottom-font-size" min="1" max="24" step="1" placeholder="例: 14">
                             <label for="toggle-button-bottom-text-collapse">下部ボタン 折りたたみ時テキスト:</label>
                             <input type="text" id="toggle-button-bottom-text-collapse" placeholder="例: 非表示">
                             <label for="toggle-button-bottom-text-expand">下部ボタン 展開時テキスト:</label>
@@ -3049,14 +3075,19 @@
                    <p style="font-size: 11px; color: var(--text-secondary); margin-top: -5px; margin-bottom: 10px;">
                        ※ 追加後は設定を保存の上、ページをリロード。
                    </p>
-                   <label for="message-bubble-opacity">メッセージバブルの透明度 (0.0-1.0):</label>
-                   <input type="number" id="message-bubble-opacity" min="0" max="1" step="0.05" placeholder="例: 0.8" aria-label="メッセージバブルの透明度">
-                   <label for="message-actions-background-opacity">メッセージツールバーの透明度（除ボタン） (0.0-1.0):</label>
-                   <input type="number" id="message-actions-background-opacity" min="0" max="1" step="0.05" placeholder="例: 0.8" aria-label="メッセージツールバーの透明度（除ボタン）">
-                   <label for="chat-overlay-opacity">チャット背景オーバーレイの透明度 (0.0-1.0):</label>
-                   <input type="number" id="chat-overlay-opacity" min="0" max="1" step="0.05" placeholder="例: 0.6" aria-label="チャット背景オーバーレイの透明度">
-                   <label for="header-footer-opacity">ヘッダー/フッターの透明度 (0.0-1.0):</label>
-                   <input type="number" id="header-footer-opacity" min="0" max="1" step="0.05" placeholder="例: 0.9" aria-label="ヘッダー/フッターの透明度">
+                   <details style="margin-top: 15px; margin-bottom: 15px;">
+                        <summary style="cursor: pointer; font-weight: normal; font-size: 14px; color: var(--text-link);">各種透明度設定</summary>
+                        <div style="padding-left: 15px; margin-top: 10px;">
+                            <label for="message-bubble-opacity">メッセージバブルの透明度 (0.0-1.0):</label>
+                            <input type="number" id="message-bubble-opacity" min="0" max="1" step="0.05" placeholder="例: 0.8" aria-label="メッセージバブルの透明度">
+                            <label for="message-actions-background-opacity">メッセージツールバーの透明度（除ボタン） (0.0-1.0):</label>
+                            <input type="number" id="message-actions-background-opacity" min="0" max="1" step="0.05" placeholder="例: 0.8" aria-label="メッセージツールバーの透明度（除ボタン）">
+                            <label for="chat-overlay-opacity">チャット背景オーバーレイの透明度 (0.0-1.0):</label>
+                            <input type="number" id="chat-overlay-opacity" min="0" max="1" step="0.05" placeholder="例: 0.6" aria-label="チャット背景オーバーレイの透明度">
+                            <label for="header-footer-opacity">ヘッダー/フッターの透明度 (0.0-1.0):</label>
+                            <input type="number" id="header-footer-opacity" min="0" max="1" step="0.05" placeholder="例: 0.9" aria-label="ヘッダー/フッターの透明度">
+                        </div>
+                   </details>
                 </div>
 
                 <div class="danger-zone">
@@ -3218,6 +3249,8 @@
         const DEFAULT_HEADER_FOOTER_OPACITY = 0.35;
         const DEFAULT_CHAT_OVERLAY_OPACITY = 0.7;
 
+        const DEFAULT_TOGGLE_BUTTON_TOP_WIDTH = 18;
+        const DEFAULT_TOGGLE_BUTTON_TOP_HEIGHT = 18;
         const DEFAULT_TOGGLE_BUTTON_TOP_FONT_SIZE = 6;
         const DEFAULT_TOGGLE_BUTTON_TOP_TEXT_COLLAPSE = "-";
         const DEFAULT_TOGGLE_BUTTON_TOP_TEXT_EXPAND = "◻︎";
@@ -3376,6 +3409,8 @@
             iconNameOffsetYInput: document.getElementById('icon-name-offset-y'),
             messageIconSizeInput: document.getElementById('message-icon-size'),
             messageIconOffsetYInput: document.getElementById('message-icon-offset-y'),
+            toggleButtonTopWidthInput: document.getElementById('toggle-button-top-width'),
+            toggleButtonTopHeightInput: document.getElementById('toggle-button-top-height'),
             toggleButtonTopFontSizeInput: document.getElementById('toggle-button-top-font-size'),
             toggleButtonTopTextCollapseInput: document.getElementById('toggle-button-top-text-collapse'),
             toggleButtonTopTextExpandInput: document.getElementById('toggle-button-top-text-expand'),
@@ -3446,6 +3481,8 @@
                 chatOverlayOpacity: DEFAULT_CHAT_OVERLAY_OPACITY,
                 headerFooterOpacity: DEFAULT_HEADER_FOOTER_OPACITY,
                 messageActionsBackgroundOpacity: DEFAULT_MESSAGE_ACTIONS_BACKGROUND_OPACITY,
+                toggleButtonTopWidth: DEFAULT_TOGGLE_BUTTON_TOP_WIDTH,
+                toggleButtonTopHeight: DEFAULT_TOGGLE_BUTTON_TOP_HEIGHT,
                 toggleButtonTopFontSize: DEFAULT_TOGGLE_BUTTON_TOP_FONT_SIZE,
                 toggleButtonTopTextCollapse: DEFAULT_TOGGLE_BUTTON_TOP_TEXT_COLLAPSE,
                 toggleButtonTopTextExpand: DEFAULT_TOGGLE_BUTTON_TOP_TEXT_EXPAND,
@@ -3634,13 +3671,14 @@
                                            key === 'streamingOutput' || key === 'pseudoStreaming' || key === 'enterToSend' ||
                                            key === 'concatDummyModel' || key === 'autoScrollOnNewMessage' ) {
                                      state.settings[key] = loadedValue === true;
-                                } else if (key === 'toggleButtonTopFontSize' || key === 'toggleButtonBottomFontSize') {
+                                } else if (key === 'toggleButtonTopFontSize' || key === 'toggleButtonBottomFontSize' || key === 'toggleButtonTopWidth' || key === 'toggleButtonTopHeight') {
                                     let num = parseInt(loadedValue, 10);
                                     if (isNaN(num)) {
                                         state.settings[key] = defaultValue;
                                     } else {
                                         if (key === 'toggleButtonTopFontSize' && (num < 4 || num > 20)) num = defaultValue;
                                         if (key === 'toggleButtonBottomFontSize' && (num < 8 || num > 24)) num = defaultValue;
+                                        if ((key === 'toggleButtonTopWidth' || key === 'toggleButtonTopHeight') && (num < 10 || num > 50)) num = defaultValue;
                                         state.settings[key] = num;
                                     }
                                 } else if (key === 'toggleButtonTopTextCollapse' || key === 'toggleButtonTopTextExpand' ||
@@ -4710,6 +4748,8 @@
 
                 elements.showCollapseButtonsToggle.checked = state.settings.showCollapseButtons;
 
+                elements.toggleButtonTopWidthInput.value = state.settings.toggleButtonTopWidth ?? DEFAULT_TOGGLE_BUTTON_TOP_WIDTH;
+                elements.toggleButtonTopHeightInput.value = state.settings.toggleButtonTopHeight ?? DEFAULT_TOGGLE_BUTTON_TOP_HEIGHT;
                 elements.toggleButtonTopFontSizeInput.value = state.settings.toggleButtonTopFontSize ?? DEFAULT_TOGGLE_BUTTON_TOP_FONT_SIZE;
                 elements.toggleButtonTopTextCollapseInput.value = state.settings.toggleButtonTopTextCollapse || DEFAULT_TOGGLE_BUTTON_TOP_TEXT_COLLAPSE;
                 elements.toggleButtonTopTextExpandInput.value = state.settings.toggleButtonTopTextExpand || DEFAULT_TOGGLE_BUTTON_TOP_TEXT_EXPAND;
@@ -4717,9 +4757,10 @@
                 elements.toggleButtonBottomTextCollapseInput.value = state.settings.toggleButtonBottomTextCollapse || DEFAULT_TOGGLE_BUTTON_BOTTOM_TEXT_COLLAPSE;
                 elements.toggleButtonBottomTextExpandInput.value = state.settings.toggleButtonBottomTextExpand || DEFAULT_TOGGLE_BUTTON_BOTTOM_TEXT_EXPAND;
 
+                document.documentElement.style.setProperty('--message-toggle-button-top-width', `${state.settings.toggleButtonTopWidth || DEFAULT_TOGGLE_BUTTON_TOP_WIDTH}px`);
+                document.documentElement.style.setProperty('--message-toggle-button-top-height', `${state.settings.toggleButtonTopHeight || DEFAULT_TOGGLE_BUTTON_TOP_HEIGHT}px`);
                 document.documentElement.style.setProperty('--message-toggle-button-top-font-size', `${state.settings.toggleButtonTopFontSize || DEFAULT_TOGGLE_BUTTON_TOP_FONT_SIZE}px`);
                 document.documentElement.style.setProperty('--message-toggle-button-bottom-font-size', `${state.settings.toggleButtonBottomFontSize || DEFAULT_TOGGLE_BUTTON_BOTTOM_FONT_SIZE}px`);
-
 
                 this.updateChatScreenElementVisibility();
                 this.updateHistoryHeaderButtonVisibility();
@@ -6977,6 +7018,8 @@
                      chatOverlayOpacity: elements.chatOverlayOpacityInput.value === '' ? DEFAULT_CHAT_OVERLAY_OPACITY : parseFloat(elements.chatOverlayOpacityInput.value),
                      headerFooterOpacity: elements.headerFooterOpacityInput.value === '' ? DEFAULT_HEADER_FOOTER_OPACITY : parseFloat(elements.headerFooterOpacityInput.value),
                      messageActionsBackgroundOpacity: elements.messageActionsBackgroundOpacityInput.value === '' ? DEFAULT_MESSAGE_ACTIONS_BACKGROUND_OPACITY : parseFloat(elements.messageActionsBackgroundOpacityInput.value),
+                     toggleButtonTopWidth: parseInt(elements.toggleButtonTopWidthInput.value, 10) || DEFAULT_TOGGLE_BUTTON_TOP_WIDTH,
+                     toggleButtonTopHeight: parseInt(elements.toggleButtonTopHeightInput.value, 10) || DEFAULT_TOGGLE_BUTTON_TOP_HEIGHT,
                      toggleButtonTopFontSize: parseInt(elements.toggleButtonTopFontSizeInput.value, 10) || DEFAULT_TOGGLE_BUTTON_TOP_FONT_SIZE,
                      toggleButtonTopTextCollapse: elements.toggleButtonTopTextCollapseInput.value.trim() || DEFAULT_TOGGLE_BUTTON_TOP_TEXT_COLLAPSE,
                      toggleButtonTopTextExpand: elements.toggleButtonTopTextExpandInput.value.trim() || DEFAULT_TOGGLE_BUTTON_TOP_TEXT_EXPAND,
@@ -7032,6 +7075,12 @@
                  }
                  if (newSettings.messageActionsBackgroundOpacity !== null && (isNaN(newSettings.messageActionsBackgroundOpacity) || newSettings.messageActionsBackgroundOpacity < 0 || newSettings.messageActionsBackgroundOpacity > 1)) {
                     newSettings.messageActionsBackgroundOpacity = DEFAULT_MESSAGE_ACTIONS_BACKGROUND_OPACITY;
+                 }
+                 if (isNaN(newSettings.toggleButtonTopWidth) || newSettings.toggleButtonTopWidth < 10 || newSettings.toggleButtonTopWidth > 50) {
+                     newSettings.toggleButtonTopWidth = DEFAULT_TOGGLE_BUTTON_TOP_WIDTH;
+                 }
+                 if (isNaN(newSettings.toggleButtonTopHeight) || newSettings.toggleButtonTopHeight < 10 || newSettings.toggleButtonTopHeight > 50) {
+                     newSettings.toggleButtonTopHeight = DEFAULT_TOGGLE_BUTTON_TOP_HEIGHT;
                  }
                  if (isNaN(newSettings.toggleButtonTopFontSize) || newSettings.toggleButtonTopFontSize < 4 || newSettings.toggleButtonTopFontSize > 20) {
                      newSettings.toggleButtonTopFontSize = DEFAULT_TOGGLE_BUTTON_TOP_FONT_SIZE;
@@ -7164,6 +7213,8 @@
                             chatOverlayOpacity: DEFAULT_CHAT_OVERLAY_OPACITY,
                             headerFooterOpacity: DEFAULT_HEADER_FOOTER_OPACITY,
                             messageActionsBackgroundOpacity: DEFAULT_MESSAGE_ACTIONS_BACKGROUND_OPACITY,
+                            toggleButtonTopWidth: DEFAULT_TOGGLE_BUTTON_TOP_WIDTH,
+                            toggleButtonTopHeight: DEFAULT_TOGGLE_BUTTON_TOP_HEIGHT,
                             toggleButtonTopFontSize: DEFAULT_TOGGLE_BUTTON_TOP_FONT_SIZE,
                             toggleButtonTopTextCollapse: DEFAULT_TOGGLE_BUTTON_TOP_TEXT_COLLAPSE,
                             toggleButtonTopTextExpand: DEFAULT_TOGGLE_BUTTON_TOP_TEXT_EXPAND,
