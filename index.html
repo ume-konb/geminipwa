@@ -2967,20 +2967,32 @@
                             <h4>ユーザー名の背景バブル</h4>
                             <label class="checkbox-label">
                                 <input type="checkbox" id="user-name-bubble-toggle">
-                                表示する
+                                バブルを表示する
                             </label>
-                            <label for="user-name-bubble-color">背景色:</label>
-                            <input type="text" id="user-name-bubble-color" placeholder="#FFFFFF">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="user-name-bubble-use-theme-color-toggle">
+                                テーマのメッセージ色に合わせる
+                            </label>
+                            <div id="user-name-bubble-custom-color-settings">
+                                <label for="user-name-bubble-color">背景色 (上記OFF時):</label>
+                                <input type="text" id="user-name-bubble-color" placeholder="#FFFFFF">
+                            </div>
                             <label for="user-name-bubble-opacity">透過度 (0.0-1.0):</label>
                             <input type="number" id="user-name-bubble-opacity" min="0" max="1" step="0.1" placeholder="0.8">
 
                             <h4 style="margin-top: 15px;">AI名の背景バブル</h4>
                             <label class="checkbox-label">
                                 <input type="checkbox" id="ai-name-bubble-toggle">
-                                表示する
+                                バブルを表示する
                             </label>
-                            <label for="ai-name-bubble-color">背景色:</label>
-                            <input type="text" id="ai-name-bubble-color" placeholder="#FFFFFF">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="ai-name-bubble-use-theme-color-toggle">
+                                テーマのメッセージ色に合わせる
+                            </label>
+                            <div id="ai-name-bubble-custom-color-settings">
+                                <label for="ai-name-bubble-color">背景色 (上記OFF時):</label>
+                                <input type="text" id="ai-name-bubble-color" placeholder="#FFFFFF">
+                            </div>
                             <label for="ai-name-bubble-opacity">透過度 (0.0-1.0):</label>
                             <input type="number" id="ai-name-bubble-opacity" min="0" max="1" step="0.1" placeholder="0.8">
                         </div>
@@ -3477,9 +3489,11 @@
             messageIconSizeInput: document.getElementById('message-icon-size'),
             messageIconOffsetYInput: document.getElementById('message-icon-offset-y'),
             userNameBubbleToggle: document.getElementById('user-name-bubble-toggle'),
+            userNameBubbleUseThemeColorToggle: document.getElementById('user-name-bubble-use-theme-color-toggle'),
             userNameBubbleColorInput: document.getElementById('user-name-bubble-color'),
             userNameBubbleOpacityInput: document.getElementById('user-name-bubble-opacity'),
             aiNameBubbleToggle: document.getElementById('ai-name-bubble-toggle'),
+            aiNameBubbleUseThemeColorToggle: document.getElementById('ai-name-bubble-use-theme-color-toggle'),
             aiNameBubbleColorInput: document.getElementById('ai-name-bubble-color'),
             aiNameBubbleOpacityInput: document.getElementById('ai-name-bubble-opacity'),
             toggleButtonTopWidthInput: document.getElementById('toggle-button-top-width'),
@@ -3551,9 +3565,11 @@
                 messageIconSize: DEFAULT_MESSAGE_ICON_SIZE,
                 messageIconOffsetY: DEFAULT_MESSAGE_ICON_OFFSET_Y,
                 showUserNameBubble: false,
+                userNameBubbleUseThemeColor: false,
                 userNameBubbleColor: DEFAULT_USER_NAME_BUBBLE_COLOR,
                 userNameBubbleOpacity: DEFAULT_USER_NAME_BUBBLE_OPACITY,
                 showAiNameBubble: false,
+                aiNameBubbleUseThemeColor: false,
                 aiNameBubbleColor: DEFAULT_AI_NAME_BUBBLE_COLOR,
                 aiNameBubbleOpacity: DEFAULT_AI_NAME_BUBBLE_OPACITY,
                 showCollapseButtons: true,
@@ -3751,7 +3767,8 @@
                                            key === 'showUserName' || key === 'showAiName' || key === 'showCollapseButtons' ||
                                            key === 'streamingOutput' || key === 'pseudoStreaming' || key === 'enterToSend' ||
                                            key === 'concatDummyModel' || key === 'autoScrollOnNewMessage' ||
-                                           key === 'showUserNameBubble' || key === 'showAiNameBubble') {
+                                           key === 'showUserNameBubble' || key === 'showAiNameBubble' ||
+                                           key === 'userNameBubbleUseThemeColor' || key === 'aiNameBubbleUseThemeColor') {
                                      state.settings[key] = loadedValue === true;
                                 } else if (key === 'toggleButtonTopFontSize' || key === 'toggleButtonBottomFontSize' || key === 'toggleButtonTopWidth' || key === 'toggleButtonTopHeight') {
                                     let num = parseInt(loadedValue, 10);
@@ -4626,15 +4643,80 @@
                 document.documentElement.style.setProperty('--icon-name-font-size', `${state.settings.iconNameFontSize || DEFAULT_ICON_NAME_FONT_SIZE}px`);
                 document.documentElement.style.setProperty('--icon-name-offset-y', `${state.settings.iconNameOffsetY || DEFAULT_ICON_NAME_OFFSET_Y}px`);
 
-                const userBubbleColor = state.settings.userNameBubbleColor || DEFAULT_USER_NAME_BUBBLE_COLOR;
+                let userBubbleFinalBg;
                 const userBubbleOpacity = state.settings.userNameBubbleOpacity ?? DEFAULT_USER_NAME_BUBBLE_OPACITY;
-                const userRgb = this.hexToRgb(userBubbleColor) || {r:255,g:255,b:255};
-                document.documentElement.style.setProperty('--user-name-bubble-bg', `rgba(${userRgb.r}, ${userRgb.g}, ${userRgb.b}, ${userBubbleOpacity})`);
 
-                const aiBubbleColor = state.settings.aiNameBubbleColor || DEFAULT_AI_NAME_BUBBLE_COLOR;
+                if (state.settings.showUserNameBubble) {
+                    if (state.settings.userNameBubbleUseThemeColor) {
+                        const themeUserMsgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-user-message').trim();
+                        const userRgb = this.hexToRgb(themeUserMsgColor) || this.parseRgbCss(themeUserMsgColor) || {r:220,g:248,b:198};
+                        userBubbleFinalBg = `rgba(${userRgb.r}, ${userRgb.g}, ${userRgb.b}, ${userBubbleOpacity})`;
+                    } else {
+                        const customUserBubbleColor = state.settings.userNameBubbleColor || DEFAULT_USER_NAME_BUBBLE_COLOR;
+                        const userRgb = this.hexToRgb(customUserBubbleColor) || {r:255,g:255,b:255};
+                        userBubbleFinalBg = `rgba(${userRgb.r}, ${userRgb.g}, ${userRgb.b}, ${userBubbleOpacity})`;
+                    }
+                    document.documentElement.style.setProperty('--user-name-bubble-bg', userBubbleFinalBg);
+                } else {
+                    document.documentElement.style.setProperty('--user-name-bubble-bg', 'transparent');
+                }
+
+                let aiBubbleFinalBg;
                 const aiBubbleOpacity = state.settings.aiNameBubbleOpacity ?? DEFAULT_AI_NAME_BUBBLE_OPACITY;
-                const aiRgb = this.hexToRgb(aiBubbleColor) || {r:255,g:255,b:255};
-                document.documentElement.style.setProperty('--ai-name-bubble-bg', `rgba(${aiRgb.r}, ${aiRgb.g}, ${aiRgb.b}, ${aiBubbleOpacity})`);
+
+                if (state.settings.showAiNameBubble) {
+                    if (state.settings.aiNameBubbleUseThemeColor) {
+                        const themeAiMsgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-model-message').trim();
+                        const aiRgb = this.hexToRgb(themeAiMsgColor) || this.parseRgbCss(themeAiMsgColor) || {r:229,g:229,b:234};
+                        aiBubbleFinalBg = `rgba(${aiRgb.r}, ${aiRgb.g}, ${aiRgb.b}, ${aiBubbleOpacity})`;
+                    } else {
+                        const customAiBubbleColor = state.settings.aiNameBubbleColor || DEFAULT_AI_NAME_BUBBLE_COLOR;
+                        const aiRgb = this.hexToRgb(customAiBubbleColor) || {r:255,g:255,b:255};
+                        aiBubbleFinalBg = `rgba(${aiRgb.r}, ${aiRgb.g}, ${aiRgb.b}, ${aiBubbleOpacity})`;
+                    }
+                    document.documentElement.style.setProperty('--ai-name-bubble-bg', aiBubbleFinalBg);
+                } else {
+                    document.documentElement.style.setProperty('--ai-name-bubble-bg', 'transparent');
+                }
+
+                if(elements.userNameBubbleToggle && elements.userNameBubbleUseThemeColorToggle && document.getElementById('user-name-bubble-custom-color-settings')) {
+                    const customColorDiv = document.getElementById('user-name-bubble-custom-color-settings');
+                    const colorInput = customColorDiv.querySelector('#user-name-bubble-color');
+                    if (colorInput) {
+                        colorInput.style.display = (state.settings.showUserNameBubble && !state.settings.userNameBubbleUseThemeColor) ? 'block' : 'none';
+                        const colorLabel = customColorDiv.querySelector('label[for="user-name-bubble-color"]');
+                        if (colorLabel) {
+                             colorLabel.style.display = (state.settings.showUserNameBubble && !state.settings.userNameBubbleUseThemeColor) ? 'block' : 'none';
+                        }
+                    }
+                    const opacityInput = elements.userNameBubbleOpacityInput;
+                     if (opacityInput) {
+                        opacityInput.style.display = state.settings.showUserNameBubble ? 'block' : 'none';
+                        const opacityLabel = document.querySelector('label[for="user-name-bubble-opacity"]');
+                        if (opacityLabel) {
+                             opacityLabel.style.display = state.settings.showUserNameBubble ? 'block' : 'none';
+                        }
+                    }
+                }
+                if(elements.aiNameBubbleToggle && elements.aiNameBubbleUseThemeColorToggle && document.getElementById('ai-name-bubble-custom-color-settings')) {
+                    const customColorDiv = document.getElementById('ai-name-bubble-custom-color-settings');
+                    const colorInput = customColorDiv.querySelector('#ai-name-bubble-color');
+                     if (colorInput) {
+                        colorInput.style.display = (state.settings.showAiNameBubble && !state.settings.aiNameBubbleUseThemeColor) ? 'block' : 'none';
+                        const colorLabel = customColorDiv.querySelector('label[for="ai-name-bubble-color"]');
+                        if (colorLabel) {
+                             colorLabel.style.display = (state.settings.showAiNameBubble && !state.settings.aiNameBubbleUseThemeColor) ? 'block' : 'none';
+                        }
+                    }
+                    const opacityInput = elements.aiNameBubbleOpacityInput;
+                     if (opacityInput) {
+                        opacityInput.style.display = state.settings.showAiNameBubble ? 'block' : 'none';
+                        const opacityLabel = document.querySelector('label[for="ai-name-bubble-opacity"]');
+                        if (opacityLabel) {
+                             opacityLabel.style.display = state.settings.showAiNameBubble ? 'block' : 'none';
+                        }
+                    }
+                }
             },
             applyOpacitySettings() {
                 document.documentElement.style.setProperty('--message-bubble-opacity', state.settings.messageBubbleOpacity);
@@ -4849,9 +4931,11 @@
                 elements.messageIconOffsetYInput.value = state.settings.messageIconOffsetY !== null ? (state.settings.messageIconOffsetY * -1) : (DEFAULT_MESSAGE_ICON_OFFSET_Y * -1);
 
                 elements.userNameBubbleToggle.checked = state.settings.showUserNameBubble;
+                elements.userNameBubbleUseThemeColorToggle.checked = state.settings.userNameBubbleUseThemeColor;
                 elements.userNameBubbleColorInput.value = state.settings.userNameBubbleColor || DEFAULT_USER_NAME_BUBBLE_COLOR;
                 elements.userNameBubbleOpacityInput.value = state.settings.userNameBubbleOpacity ?? DEFAULT_USER_NAME_BUBBLE_OPACITY;
                 elements.aiNameBubbleToggle.checked = state.settings.showAiNameBubble;
+                elements.aiNameBubbleUseThemeColorToggle.checked = state.settings.aiNameBubbleUseThemeColor;
                 elements.aiNameBubbleColorInput.value = state.settings.aiNameBubbleColor || DEFAULT_AI_NAME_BUBBLE_COLOR;
                 elements.aiNameBubbleOpacityInput.value = state.settings.aiNameBubbleOpacity ?? DEFAULT_AI_NAME_BUBBLE_OPACITY;
 
@@ -5448,6 +5532,11 @@
                     uiUtils.applySidePanelSettingsToUI();
                     uiUtils.renderChatMessages(true);
                 });
+                elements.userNameBubbleUseThemeColorToggle.addEventListener('change', () => {
+                    state.settings.userNameBubbleUseThemeColor = elements.userNameBubbleUseThemeColorToggle.checked;
+                    uiUtils.applySidePanelSettingsToUI();
+                    uiUtils.renderChatMessages(true);
+                });
                 elements.userNameBubbleColorInput.addEventListener('input', () => {
                     uiUtils.applySidePanelSettingsToUI();
                     uiUtils.renderChatMessages(true);
@@ -5458,6 +5547,11 @@
                 });
                 elements.aiNameBubbleToggle.addEventListener('change', () => {
                     state.settings.showAiNameBubble = elements.aiNameBubbleToggle.checked;
+                    uiUtils.applySidePanelSettingsToUI();
+                    uiUtils.renderChatMessages(true);
+                });
+                elements.aiNameBubbleUseThemeColorToggle.addEventListener('change', () => {
+                    state.settings.aiNameBubbleUseThemeColor = elements.aiNameBubbleUseThemeColorToggle.checked;
                     uiUtils.applySidePanelSettingsToUI();
                     uiUtils.renderChatMessages(true);
                 });
@@ -7166,9 +7260,11 @@
                      messageIconSize: parseInt(elements.messageIconSizeInput.value, 10) || DEFAULT_MESSAGE_ICON_SIZE,
                      messageIconOffsetY: (elements.messageIconOffsetYInput.value === '' ? DEFAULT_MESSAGE_ICON_OFFSET_Y : parseInt(elements.messageIconOffsetYInput.value, 10) * -1),
                      showUserNameBubble: elements.userNameBubbleToggle.checked,
+                     userNameBubbleUseThemeColor: elements.userNameBubbleUseThemeColorToggle.checked,
                      userNameBubbleColor: elements.userNameBubbleColorInput.value.trim() || DEFAULT_USER_NAME_BUBBLE_COLOR,
                      userNameBubbleOpacity: elements.userNameBubbleOpacityInput.value === '' ? DEFAULT_USER_NAME_BUBBLE_OPACITY : parseFloat(elements.userNameBubbleOpacityInput.value),
                      showAiNameBubble: elements.aiNameBubbleToggle.checked,
+                     aiNameBubbleUseThemeColor: elements.aiNameBubbleUseThemeColorToggle.checked,
                      aiNameBubbleColor: elements.aiNameBubbleColorInput.value.trim() || DEFAULT_AI_NAME_BUBBLE_COLOR,
                      aiNameBubbleOpacity: elements.aiNameBubbleOpacityInput.value === '' ? DEFAULT_AI_NAME_BUBBLE_OPACITY : parseFloat(elements.aiNameBubbleOpacityInput.value),
                      showCollapseButtons: elements.showCollapseButtonsToggle.checked,
@@ -7383,9 +7479,11 @@
                             messageIconSize: DEFAULT_MESSAGE_ICON_SIZE,
                             messageIconOffsetY: DEFAULT_MESSAGE_ICON_OFFSET_Y,
                             showUserNameBubble: false,
+                            userNameBubbleUseThemeColor: false,
                             userNameBubbleColor: DEFAULT_USER_NAME_BUBBLE_COLOR,
                             userNameBubbleOpacity: DEFAULT_USER_NAME_BUBBLE_OPACITY,
                             showAiNameBubble: false,
+                            aiNameBubbleUseThemeColor: false,
                             aiNameBubbleColor: DEFAULT_AI_NAME_BUBBLE_COLOR,
                             aiNameBubbleOpacity: DEFAULT_AI_NAME_BUBBLE_OPACITY,
                             showCollapseButtons: true,
@@ -7798,7 +7896,7 @@
                     }
 
                     if (targetSiblingGroupId !== null) {
-                        while (
+                    while (
                             scanIndex < state.currentMessages.length &&
                             state.currentMessages[scanIndex].role === 'model' &&
                             state.currentMessages[scanIndex].siblingGroupId === targetSiblingGroupId
