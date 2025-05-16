@@ -1558,7 +1558,7 @@
             flex-wrap: nowrap;
             gap: 5px;
             background-color: rgba(var(--message-actions-base-rgb), var(--message-actions-bg-opacity));
-            padding: 2px 2px 1px 2px;
+            padding: 1px 2px 1px 2px;
             border-radius: 5px;
             box-shadow: 0 1px 3px var(--shadow-primary);
             z-index: 2;
@@ -1616,7 +1616,7 @@
             flex-wrap: nowrap;
             gap: 5px;
             background-color: rgba(var(--message-actions-base-rgb), var(--message-actions-bg-opacity));
-            padding: 5px 8px 10px 8px;
+            padding: 1px 5px 8px 5px;
             border-radius: 5px;
             box-shadow: 0 -1px 3px var(--shadow-primary);
             z-index: 2;
@@ -3051,16 +3051,16 @@
                    </p>
                    <label for="message-bubble-opacity">メッセージバブルの透明度 (0.0-1.0):</label>
                    <input type="number" id="message-bubble-opacity" min="0" max="1" step="0.05" placeholder="例: 0.8" aria-label="メッセージバブルの透明度">
+                   <label for="message-actions-background-opacity">メッセージツールバーの透明度（除ボタン） (0.0-1.0):</label>
+                   <input type="number" id="message-actions-background-opacity" min="0" max="1" step="0.05" placeholder="例: 0.8" aria-label="メッセージツールバーの透明度（除ボタン）">
                    <label for="chat-overlay-opacity">チャット背景オーバーレイの透明度 (0.0-1.0):</label>
                    <input type="number" id="chat-overlay-opacity" min="0" max="1" step="0.05" placeholder="例: 0.6" aria-label="チャット背景オーバーレイの透明度">
                    <label for="header-footer-opacity">ヘッダー/フッターの透明度 (0.0-1.0):</label>
                    <input type="number" id="header-footer-opacity" min="0" max="1" step="0.05" placeholder="例: 0.9" aria-label="ヘッダー/フッターの透明度">
-                   <label for="message-actions-background-opacity">メッセージツールバー背景の透明度 (0.0-1.0):</label>
-                   <input type="number" id="message-actions-background-opacity" min="0" max="1" step="0.05" placeholder="例: 0.8" aria-label="メッセージツールバー背景の透明度">
                 </div>
 
                 <div class="danger-zone">
-```html
+
                      <p style="text-align: center; color: var(--text-secondary); font-size: 12px; margin-bottom: 10px;">
                          バージョン: <span id="app-version"></span>
                      </p>
@@ -3214,9 +3214,9 @@
         const MAX_TOTAL_ATTACHMENT_SIZE = 50 * 1024 * 1024;
         const COLLAPSED_HEIGHT = 50;
         const DEFAULT_MESSAGE_BUBBLE_OPACITY = 0.9;
+        const DEFAULT_MESSAGE_ACTIONS_BACKGROUND_OPACITY = 0.9;
         const DEFAULT_HEADER_FOOTER_OPACITY = 0.35;
         const DEFAULT_CHAT_OVERLAY_OPACITY = 0.7;
-        const DEFAULT_MESSAGE_ACTIONS_BACKGROUND_OPACITY = 0.8;
 
         const DEFAULT_TOGGLE_BUTTON_TOP_FONT_SIZE = 6;
         const DEFAULT_TOGGLE_BUTTON_TOP_TEXT_COLLAPSE = "-";
