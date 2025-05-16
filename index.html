@@ -6420,7 +6420,12 @@
                 if (state.settings.topP !== null) generationConfig.topP = state.settings.topP;
                 if (state.settings.presencePenalty !== null) generationConfig.presencePenalty = state.settings.presencePenalty;
                 if (state.settings.frequencyPenalty !== null) generationConfig.frequencyPenalty = state.settings.frequencyPenalty;
-                if (state.settings.thinkingBudget !== null) generationConfig.thinkingBudget = state.settings.thinkingBudget;
+
+                if (state.settings.thinkingBudget !== null && Number.isInteger(state.settings.thinkingBudget) && state.settings.thinkingBudget >= 0) {
+                    generationConfig.thinkingConfig = {
+                        "thinkingBudget": state.settings.thinkingBudget,
+                    };
+                }
 
                 const systemInstruction = state.currentSystemPrompt?.trim()
                     ? { role: "system", parts: [{ text: state.currentSystemPrompt.trim() }] }
@@ -7453,6 +7458,7 @@
                 const editArea = messageElement.querySelector('.message-edit-area');
                 const contentDiv = messageElement.querySelector('.message-content');
                 const cascadeControls = messageElement.querySelector('.message-cascade-controls');
+                const textarea = messageElement.querySelector('.edit-textarea');
 
                 messageElement.style.removeProperty('width');
                 messageElement.classList.remove('editing');
