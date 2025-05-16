@@ -2953,6 +2953,10 @@
                        <input type="checkbox" id="auto-scroll-on-new-message">
                        メッセージ送受信時に自動スクロールする
                    </label>
+                   <label class="checkbox-label">
+                       <input type="checkbox" id="smooth-scroll-non-streaming">
+                       非ストリーミング時にスムーズスクロールを使用する
+                   </label>
                    <p style="height:10px"></p>
                    <label class="checkbox-label">
                        <input type="checkbox" id="swipe-navigation-toggle">
@@ -3230,7 +3234,7 @@
         const LIGHT_MODE_PRIMARY_COLOR = '#ffffff';
 
 
-        const APP_VERSION = "0.25";
+        const APP_VERSION = "0.25ti";
         const SWIPE_THRESHOLD = 50;
         const ZOOM_THRESHOLD = 1.01;
         const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -3251,6 +3255,7 @@
         const DEFAULT_TOGGLE_BUTTON_BOTTOM_TEXT_COLLAPSE = "_";
         const DEFAULT_TOGGLE_BUTTON_BOTTOM_TEXT_EXPAND = "□";
         const DEFAULT_AUTO_SCROLL_ON_NEW_MESSAGE = true;
+        const DEFAULT_SMOOTH_SCROLL_NON_STREAMING = true;
 
         const extensionToMimeTypeMap = {
             'pdf': 'application/pdf', 'js': 'text/javascript', 'py': 'text/x-python',
@@ -3305,6 +3310,7 @@
             pseudoStreamingCheckbox: document.getElementById('pseudo-streaming'),
             enterToSendCheckbox: document.getElementById('enter-to-send'),
             autoScrollOnNewMessageCheckbox: document.getElementById('auto-scroll-on-new-message'),
+            smoothScrollNonStreamingCheckbox: document.getElementById('smooth-scroll-non-streaming'),
             historySortOrderSelect: document.getElementById('history-sort-order'),
             themeSelect: document.getElementById('theme-select'),
             fontFamilyInput: document.getElementById('font-family-input'),
@@ -3438,6 +3444,7 @@
                 pseudoStreaming: false,
                 enterToSend: true,
                 autoScrollOnNewMessage: DEFAULT_AUTO_SCROLL_ON_NEW_MESSAGE,
+                smoothScrollNonStreaming: DEFAULT_SMOOTH_SCROLL_NON_STREAMING,
                 historySortOrder: 'updatedAt',
                 theme: 'light',
                 backgroundImageBlob: null,
@@ -3664,7 +3671,7 @@
                                            key === 'showClipboardStackButton' || key === 'showUserIcon' || key === 'showAiIcon' ||
                                            key === 'showUserName' || key === 'showAiName' || key === 'showCollapseButtons' ||
                                            key === 'streamingOutput' || key === 'pseudoStreaming' || key === 'enterToSend' ||
-                                           key === 'concatDummyModel' || key === 'autoScrollOnNewMessage' ) {
+                                           key === 'concatDummyModel' || key === 'autoScrollOnNewMessage' || key === 'smoothScrollNonStreaming' ) {
                                      state.settings[key] = loadedValue === true;
                                 } else if (key === 'toggleButtonTopFontSize' || key === 'toggleButtonBottomFontSize' || key === 'toggleButtonTopWidth' || key === 'toggleButtonTopHeight') {
                                     let num = parseInt(loadedValue, 10);
@@ -4324,7 +4331,7 @@
                     }
                 }
                 if (state.settings.autoScrollOnNewMessage) {
-                    this.scrollToBottom();
+                    this.scrollToBottom(true);
                 }
             },
             finalizeStreamingMessage(index) {
@@ -4353,7 +4360,7 @@
                     }
                 }
                 if (state.settings.autoScrollOnNewMessage) {
-                    this.scrollToBottom();
+                    this.scrollToBottom(true);
                 }
             },
             displayError(message, isApiError = false) {
@@ -4361,12 +4368,18 @@
                 this.appendMessage('error', `エラー: ${message}`, errorIndex);
                 elements.loadingIndicator.classList.add('hidden');
                 this.setSendingState(false);
-                this.scrollToBottom();
+                this.scrollToBottom(false);
             },
-            scrollToBottom() {
+            scrollToBottom(isStreaming = false) {
                 const mainContent = elements.chatScreen.querySelector('.main-content');
                 if (mainContent) {
-                    mainContent.scrollTo({ top: mainContent.scrollHeight, behavior: 'smooth' });
+                    if (isStreaming || !state.settings.smoothScrollNonStreaming) {
+                        requestAnimationFrame(() => {
+                            mainContent.scrollTop = mainContent.scrollHeight;
+                        });
+                    } else {
+                        mainContent.scrollTo({ top: mainContent.scrollHeight, behavior: 'smooth' });
+                    }
                 }
             },
             updateChatTitle(definitiveTitle = null) {
@@ -4706,6 +4719,7 @@
                 elements.pseudoStreamingCheckbox.checked = state.settings.pseudoStreaming;
                 elements.enterToSendCheckbox.checked = state.settings.enterToSend;
                 elements.autoScrollOnNewMessageCheckbox.checked = state.settings.autoScrollOnNewMessage;
+                elements.smoothScrollNonStreamingCheckbox.checked = state.settings.smoothScrollNonStreaming;
                 elements.historySortOrderSelect.value = state.settings.historySortOrder || 'updatedAt';
                 if (elements.themeSelect) elements.themeSelect.value = state.settings.theme || 'light';
                 elements.fontFamilyInput.value = state.settings.fontFamily || '';
@@ -5168,7 +5182,7 @@
                     uiUtils.adjustTextareaHeight();
                     uiUtils.setSendingState(false);
                     if (state.settings.autoScrollOnNewMessage) {
-                        uiUtils.scrollToBottom();
+                        uiUtils.scrollToBottom(false);
                     }
                 }
             },
@@ -5188,7 +5202,7 @@
                 elements.pasteClipboardStackBtn.addEventListener('click', () => this.pasteIntoClipboardStack());
 
                 elements.scrollToTopBtn.addEventListener('click', () => this.scrollToTop());
-                elements.scrollToBottomBtn.addEventListener('click', () => this.scrollToBottom());
+                elements.scrollToBottomBtn.addEventListener('click', () => this.scrollToBottom(false));
                 elements.pasteToInputBtn.addEventListener('click', () => this.pasteToUserInput());
 
                 elements.newChatBtn.addEventListener('click', async () => {
@@ -5796,12 +5810,6 @@
                     mainContent.scrollTo({ top: 0, behavior: 'smooth' });
                 }
             },
-            scrollToBottom() {
-                const mainContent = elements.chatScreen.querySelector('.main-content');
-                if (mainContent) {
-                    mainContent.scrollTo({ top: mainContent.scrollHeight, behavior: 'smooth' });
-                }
-            },
             async pasteToUserInput() {
                 const button = elements.pasteToInputBtn;
                 const originalTextContent = button.textContent;
@@ -5918,7 +5926,7 @@
                 uiUtils.setSendingState(false);
                 uiUtils.updateAttachmentBadgeVisibility();
                 if (state.settings.autoScrollOnNewMessage) {
-                    uiUtils.scrollToBottom();
+                    uiUtils.scrollToBottom(false);
                 }
             },
             async loadChat(id) {
@@ -5987,7 +5995,7 @@
                         history.replaceState({ screen: 'chat' }, '', '#chat');
                         state.currentScreen = 'chat';
                         if (state.settings.autoScrollOnNewMessage && state.currentMessages.length > 0) {
-                            uiUtils.scrollToBottom();
+                            uiUtils.scrollToBottom(false);
                         }
                     } else {
                         await uiUtils.showCustomAlert("チャット履歴が見つかりませんでした。");
@@ -6339,7 +6347,7 @@
                     state.pendingAttachments = [];
                     uiUtils.adjustTextareaHeight();
                     if (state.settings.autoScrollOnNewMessage) {
-                        uiUtils.scrollToBottom();
+                        uiUtils.scrollToBottom(false);
                     }
                 } else {
                     let siblingStartIndex = userMessageIndex + 1;
@@ -6571,7 +6579,8 @@
                     state.abortController = null;
                     state.partialStreamContent = '';
                     if (state.settings.autoScrollOnNewMessage) {
-                        uiUtils.scrollToBottom();
+                        const isCurrentlyStreaming = state.settings.streamingOutput && modelResponseMetadata.finishReason !== 'STOP' && modelResponseMetadata.finishReason !== 'MAX_TOKENS' && modelResponseMetadata.finishReason !== 'SAFETY';
+                        uiUtils.scrollToBottom(isCurrentlyStreaming);
                     }
                     uiUtils.updateAttachmentBadgeVisibility();
                 }
@@ -6994,6 +7003,7 @@
                      pseudoStreaming: elements.pseudoStreamingCheckbox.checked,
                      enterToSend: elements.enterToSendCheckbox.checked,
                      autoScrollOnNewMessage: elements.autoScrollOnNewMessageCheckbox.checked,
+                     smoothScrollNonStreaming: elements.smoothScrollNonStreamingCheckbox.checked,
                      historySortOrder: elements.historySortOrderSelect.value,
                      theme: elements.themeSelect.value,
                      fontFamily: elements.fontFamilyInput.value.trim(),
@@ -7194,6 +7204,7 @@
                             dummyUser: '', dummyModel: '', concatDummyModel: false,
                             additionalModels: '', pseudoStreaming: false, enterToSend: true,
                             autoScrollOnNewMessage: DEFAULT_AUTO_SCROLL_ON_NEW_MESSAGE,
+                            smoothScrollNonStreaming: DEFAULT_SMOOTH_SCROLL_NON_STREAMING,
                             historySortOrder: 'updatedAt',
                             theme: window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
                             backgroundImageBlob: null, fontFamily: '',
@@ -7657,7 +7668,7 @@
                     }
 
                     uiUtils.renderChatMessages();
-                    if (state.settings.autoScrollOnNewMessage) uiUtils.scrollToBottom();
+                    if (state.settings.autoScrollOnNewMessage) uiUtils.scrollToBottom(false);
 
                     const elementsToHide = [];
                     const messageContainer = elements.messageContainer;
@@ -8009,7 +8020,7 @@
 
                 requestAnimationFrame(() => {
                     if (state.settings.autoScrollOnNewMessage) {
-                        uiUtils.scrollToBottom();
+                        uiUtils.scrollToBottom(false);
                     }
                 });
             }
