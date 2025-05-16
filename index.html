@@ -2797,7 +2797,6 @@
                         <input type="checkbox" id="streaming-output">
                         ストリーミング出力を使用する
                     </label>
-
                     <label for="streaming-speed">文字送り速度 (ミリ秒/文字):</label>
                     <input type="number" id="streaming-speed" min="0" step="1" placeholder="例: 30 (0で無効)" aria-label="文字送り速度">
                 </div>
@@ -4648,8 +4647,8 @@
 
                 if (state.settings.showUserNameBubble) {
                     if (state.settings.userNameBubbleUseThemeColor) {
-                        const themeUserMsgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-user-message').trim();
-                        const userRgb = this.hexToRgb(themeUserMsgColor) || this.parseRgbCss(themeUserMsgColor) || {r:220,g:248,b:198};
+                        const themeUserMsgColorValue = getComputedStyle(document.documentElement).getPropertyValue('--bg-user-message').trim();
+                        const userRgb = this.hexToRgb(themeUserMsgColorValue) || this.parseRgbCss(themeUserMsgColorValue) || this.hexToRgb(DEFAULT_USER_NAME_BUBBLE_COLOR) || {r:255,g:255,b:255};
                         userBubbleFinalBg = `rgba(${userRgb.r}, ${userRgb.g}, ${userRgb.b}, ${userBubbleOpacity})`;
                     } else {
                         const customUserBubbleColor = state.settings.userNameBubbleColor;
@@ -4673,8 +4672,8 @@
 
                 if (state.settings.showAiNameBubble) {
                     if (state.settings.aiNameBubbleUseThemeColor) {
-                        const themeAiMsgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-model-message').trim();
-                        const aiRgb = this.hexToRgb(themeAiMsgColor) || this.parseRgbCss(themeAiMsgColor) || {r:229,g:229,b:234};
+                        const themeAiMsgColorValue = getComputedStyle(document.documentElement).getPropertyValue('--bg-model-message').trim();
+                        const aiRgb = this.hexToRgb(themeAiMsgColorValue) || this.parseRgbCss(themeAiMsgColorValue) || this.hexToRgb(DEFAULT_AI_NAME_BUBBLE_COLOR) || {r:255,g:255,b:255};
                         aiBubbleFinalBg = `rgba(${aiRgb.r}, ${aiRgb.g}, ${aiRgb.b}, ${aiBubbleOpacity})`;
                     } else {
                         const customAiBubbleColor = state.settings.aiNameBubbleColor;
@@ -5065,7 +5064,7 @@
                      state.isMemoVisible = false;
                 }
                 if (state.isClipboardStackVisible && screenName !== 'chat') {
-                elements.clipboardStackArea.classList.add('hidden');
+                     elements.clipboardStackArea.classList.add('hidden');
                      state.isClipboardStackVisible = false;
                 }
 
