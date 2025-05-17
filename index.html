@@ -1,4 +1,11 @@
+はい、承知いたしました。ご指示の通り、以下の修正を適用した完全なコードを提示します。
 
+1.  メッセージバブルの上部・下部ツールバーの表示／非表示ロジックを改善し、下部ツールバーだけが残ってしまう現象を修正。
+2.  前回追加したメッセージ編集ツールバーの「貼付け」ボタンの表示設定（`showPasteButtonInEdit`）のデフォルト値を `false`（オフ）に変更。
+
+バージョン番号は現状のままで、コード内のコメントは削除してあります。
+
+```html
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -3558,7 +3565,7 @@
                 showToggleAllContentButton: false,
                 showBulkHistoryActions: true,
                 showPasteButtonInFooter: true,
-                showPasteButtonInEdit: true,
+                showPasteButtonInEdit: false,
                 showMemoButton: false,
                 memoHeight: DEFAULT_MEMO_HEIGHT,
                 showClipboardStackButton: false,
@@ -5677,7 +5684,7 @@
                     state.settings.showPasteButtonInFooter = elements.showPasteButtonInFooterToggle.checked;
                     uiUtils.updateChatScreenElementVisibility();
                 });
-                elements.showPasteButtonInEditToggle.addEventListener('change', () => {
+                 elements.showPasteButtonInEditToggle.addEventListener('change', () => {
                     state.settings.showPasteButtonInEdit = elements.showPasteButtonInEditToggle.checked;
                 });
                 elements.preventZoomToggle.addEventListener('change', () => {
@@ -5748,11 +5755,11 @@
 
                 elements.messageContainer.addEventListener('click', (event) => {
                     const clickedMessage = event.target.closest('.message');
-                    if (event.target.closest('.message-actions button, .message-cascade-controls button, .message-toggle-button, .interactive-title-content')) {
+                    if (event.target.closest('.message-actions button, .message-cascade-controls button, .message-toggle-button, .interactive-title-content, .message-edit-actions button')) {
                         return;
                     }
                     if (clickedMessage) {
-                        const currentlyShown = elements.messageContainer.querySelector('.message.show-actions');
+                        const currentlyShown = elements.messageContainer.querySelector('.message.show-actions:not(.editing)');
                         if (currentlyShown && currentlyShown !== clickedMessage) {
                             currentlyShown.classList.remove('show-actions');
                         }
@@ -5760,7 +5767,7 @@
                             clickedMessage.classList.toggle('show-actions');
                         }
                     } else {
-                        const currentlyShown = elements.messageContainer.querySelector('.message.show-actions');
+                        const currentlyShown = elements.messageContainer.querySelector('.message.show-actions:not(.editing)');
                         if (currentlyShown) {
                             currentlyShown.classList.remove('show-actions');
                         }
@@ -5771,7 +5778,7 @@
                         !elements.memoArea.contains(event.target) &&
                         !elements.clipboardStackArea.contains(event.target) &&
                         !event.target.closest('.custom-dialog')) {
-                        const currentlyShown = elements.messageContainer.querySelector('.message.show-actions');
+                        const currentlyShown = elements.messageContainer.querySelector('.message.show-actions:not(.editing)');
                         if (currentlyShown) {
                             currentlyShown.classList.remove('show-actions');
                         }
@@ -7536,7 +7543,7 @@
                             showToggleAllContentButton: false,
                             showBulkHistoryActions: true,
                             showPasteButtonInFooter: true,
-                            showPasteButtonInEdit: true,
+                            showPasteButtonInEdit: false,
                             showMemoButton: false,
                             memoHeight: DEFAULT_MEMO_HEIGHT,
                             showClipboardStackButton: false,
@@ -7706,6 +7713,7 @@
                     pasteButton.textContent = '貼付';
                     pasteButton.title = 'テキストエリアに貼り付け';
                     pasteButton.style.backgroundColor = 'var(--bg-button-paste)';
+                    pasteButton.style.color = 'var(--text-light)';
                     pasteButton.style.marginRight = 'auto';
                     pasteButton.onclick = async () => {
                         const originalText = pasteButton.textContent;
@@ -7773,7 +7781,7 @@
                  cancelButton.textContent = 'キャンセル';
                  cancelButton.classList.add('cancel-edit-btn');
                  cancelButton.onclick = () => this.cancelEditMessage(index, messageElement);
-                 actionsDiv.appendChild(saveButton);
+                                  actionsDiv.appendChild(saveButton);
                  actionsDiv.appendChild(cancelButton);
 
                  editArea.appendChild(textarea);
@@ -8590,7 +8598,7 @@
                          } else if (line !== '') {
                          }
                      }
-                                          return remainingBuffer;
+                     return remainingBuffer;
                  }
 
                  function parseSseData(jsonString) {
