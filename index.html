@@ -693,7 +693,6 @@
         }
 
 
-
         * {
             margin: 0;
             padding: 0;
@@ -2109,7 +2108,6 @@
             vertical-align: middle;
             margin-left: 10px;
         }
-
         @media (prefers-color-scheme: dark) {
           body:not(.light-mode-forced):not(.pastel-pink-mode):not(.pastel-blue-mode):not(.pastel-yellow-mode):not(.pastel-purple-mode):not(.pastel-rainbow-mode) {
             --bg-primary: #1a1a1a;
@@ -2314,6 +2312,35 @@
             background-color: var(--bg-secondary);
         }
 
+        .toggle-details-container {
+            display: inline;
+        }
+        .toggle-details-summary {
+            cursor: pointer;
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            color: var(--text-link);
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+        .toggle-details-summary:hover {
+            text-decoration-style: solid;
+        }
+        .toggle-details-content {
+            display: inline-block;
+            margin-left: 5px;
+            padding: 2px 5px;
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-secondary);
+            border-radius: 3px;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+        }
+        .toggle-details-content.hidden {
+            display: none !important;
+        }
 
         .message-actions .token-count-display {
             font-size: 0.7rem;
@@ -4176,7 +4203,6 @@
                             const pre = document.createElement('pre'); pre.textContent = content; contentDiv.innerHTML = ''; contentDiv.appendChild(pre);
                         }
                     } catch (e) {
-                         console.error("Markdown parse error:", e);
                          const pre = document.createElement('pre'); pre.textContent = content; contentDiv.innerHTML = ''; contentDiv.appendChild(pre);
                     }
                 }
@@ -4298,7 +4324,6 @@
                             contentDiv.appendChild(details);
                         }
                     } catch (e) {
-                        console.error("Error rendering grounding metadata:", e);
                     }
                 }
 
@@ -4430,7 +4455,6 @@
                         try {
                             contentDiv.innerHTML = marked.parse(state.partialStreamContent || '');
                         } catch (e) {
-                            console.error("Streaming markdown parse error:", e);
                             contentDiv.textContent = state.partialStreamContent;
                         }
                     }
@@ -4448,7 +4472,6 @@
                          try {
                              contentDiv.innerHTML = marked.parse(finalRawContent);
                          } catch (e) {
-                             console.error("Final markdown parse error:", e);
                              contentDiv.textContent = finalRawContent;
                          }
                     } else if (contentDiv) {
@@ -4525,7 +4548,6 @@
                 try {
                     return new Intl.DateTimeFormat('ja-JP', { year: '2-digit', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date(timestamp));
                 } catch (e) {
-                    console.warn("Intl.DateTimeFormat error, falling back:", e);
                     const d = new Date(timestamp);
                     return `${String(d.getFullYear()).slice(-2)}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
                 }
@@ -4572,7 +4594,6 @@
                         elements.historyTitle.textContent = '履歴一覧';
                     }
                 } catch (error) {
-                    console.error("Error rendering history list:", error);
                     elements.noHistoryMessage.textContent = "履歴の読み込み中にエラーが発生しました。";
                     elements.noHistoryMessage.classList.remove('hidden');
                     elements.historyTitle.textContent = '履歴一覧';
@@ -4580,17 +4601,17 @@
             },
             revokeExistingObjectUrl() {
                 if (state.backgroundImageUrl) {
-                    try { URL.revokeObjectURL(state.backgroundImageUrl); } catch (e) { console.warn("Error revoking object URL:", e); }
+                    try { URL.revokeObjectURL(state.backgroundImageUrl); } catch (e) { }
                     state.backgroundImageUrl = null;
                 }
             },
             revokeExistingIconUrls() {
                 if (state.userIconUrl) {
-                    try { URL.revokeObjectURL(state.userIconUrl); } catch (e) { console.warn("Error revoking user icon URL:", e); }
+                    try { URL.revokeObjectURL(state.userIconUrl); } catch (e) { }
                     state.userIconUrl = null;
                 }
                 if (state.aiIconUrl) {
-                    try { URL.revokeObjectURL(state.aiIconUrl); } catch (e) { console.warn("Error revoking AI icon URL:", e); }
+                    try { URL.revokeObjectURL(state.aiIconUrl); } catch (e) { }
                     state.aiIconUrl = null;
                 }
             },
@@ -5066,6 +5087,10 @@
                 elements.systemPromptArea.classList.toggle('hidden', shouldHide);
             },
             showScreen(screenName, fromPopState = false) {
+                if (state.isSending && screenName !== 'chat' && !fromPopState) {
+                    uiUtils.showCustomAlert("AI応答中です。操作を完了するか、応答を停止してから画面を移動してください。");
+                    return;
+                }
                 if (state.editingMessageIndex !== null) {
                      const messageElement = elements.messageContainer.querySelector(`.message[data-index="${state.editingMessageIndex}"]`);
                      if (messageElement) {
@@ -5325,8 +5350,23 @@
         const appLogic = {
             async initializeApp() {
                 if (typeof marked !== 'undefined') {
+                    const renderer = new marked.Renderer();
+                    renderer.link = function(href, title, text) {
+                        if (href === '#' && title) {
+                            return `<span class="toggle-details-container">` +
+                                   `<span class="toggle-details-summary" data-tooltip="${marked.escape(title)}">${text}</span>` +
+                                   `<span class="toggle-details-content hidden">${marked.escape(title)}</span>` +
+                                   `</span>`;
+                        }
+                        let out = '<a href="' + marked.escape(href) + '"';
+                        if (title) {
+                            out += ' title="' + marked.escape(title) + '"';
+                        }
+                        out += '>' + text + '</a>';
+                        return out;
+                    };
                     marked.setOptions({
-                        breaks: true, gfm: true, sanitize: true, smartypants: false
+                        breaks: true, gfm: true, sanitize: true, smartypants: false, renderer: renderer
                     });
                 }
                 elements.appVersionSpan.textContent = APP_VERSION;
@@ -5351,17 +5391,16 @@
                              state.backgroundImageUrl = URL.createObjectURL(state.settings.backgroundImageBlob);
                              document.documentElement.style.setProperty('--chat-background-image', `url(${state.backgroundImageUrl})`);
                         } catch (e) {
-                             console.error("Error creating object URL for background:", e);
                              document.documentElement.style.setProperty('--chat-background-image', 'none');
                         }
                     } else {
                         document.documentElement.style.setProperty('--chat-background-image', 'none');
                     }
                     if (state.settings.userIconBlob instanceof Blob) {
-                        try { state.userIconUrl = URL.createObjectURL(state.settings.userIconBlob); } catch (e) { console.error("Error creating user icon URL:", e); }
+                        try { state.userIconUrl = URL.createObjectURL(state.settings.userIconBlob); } catch (e) { }
                     }
                     if (state.settings.aiIconBlob instanceof Blob) {
-                        try { state.aiIconUrl = URL.createObjectURL(state.settings.aiIconBlob); } catch (e) { console.error("Error creating AI icon URL:", e); }
+                        try { state.aiIconUrl = URL.createObjectURL(state.settings.aiIconBlob); } catch (e) { }
                     }
 
                     uiUtils.applySettingsToUI();
@@ -5376,7 +5415,6 @@
                     state.currentScreen = 'chat';
 
                 } catch (error) {
-                    console.error("App initialization error:", error);
                     await uiUtils.showCustomAlert(`アプリの初期化に失敗しました: ${error}`);
                     elements.appContainer.innerHTML = `<p style="padding: 20px; text-align: center; color: red;">アプリの起動に失敗しました。</p>`;
                 } finally {
@@ -5762,6 +5800,19 @@
                         this.toggleMessageCollapse(index);
                     }
                 });
+                elements.messageContainer.addEventListener('click', function(event) {
+                    const summaryElement = event.target.closest('.toggle-details-summary');
+                    if (summaryElement) {
+                        event.preventDefault();
+                        const container = summaryElement.closest('.toggle-details-container');
+                        if (container) {
+                            const contentElement = container.querySelector('.toggle-details-content');
+                            if (contentElement) {
+                                contentElement.classList.toggle('hidden');
+                            }
+                        }
+                    }
+                });
             },
             handlePopState(event) {
                 const targetScreen = event.state?.screen || 'chat';
@@ -5879,7 +5930,6 @@
                     elements.copyMemoBtn.disabled = true;
                     setTimeout(() => { elements.copyMemoBtn.textContent = originalText; elements.copyMemoBtn.disabled = false; }, 1500);
                 } catch (err) {
-                    console.error("Copy memo error:", err);
                     const originalText = elements.copyMemoBtn.textContent;
                     elements.copyMemoBtn.textContent = "コピー失敗";
                     elements.copyMemoBtn.disabled = true;
@@ -5914,7 +5964,6 @@
                         setTimeout(() => { elements.pasteMemoBtn.textContent = originalText; elements.pasteMemoBtn.disabled = false; }, 1500);
                     }
                 } catch (err) {
-                    console.error("Paste memo error:", err);
                     if (err.name === 'NotAllowedError' || err.message.includes('Read permission denied')) {
                          const originalText = elements.pasteMemoBtn.textContent;
                          elements.pasteMemoBtn.textContent = "許可エラー";
@@ -5982,7 +6031,6 @@
                     elements.copyClipboardStackBtn.disabled = true;
                     setTimeout(() => { elements.copyClipboardStackBtn.textContent = originalText; elements.copyClipboardStackBtn.disabled = false; }, 1500);
                 } catch (err) {
-                    console.error("Copy clipboard stack error:", err);
                     const originalText = elements.copyClipboardStackBtn.textContent;
                     elements.copyClipboardStackBtn.textContent = "コピー失敗";
                     elements.copyClipboardStackBtn.disabled = true;
@@ -6017,7 +6065,6 @@
                         setTimeout(() => { elements.pasteClipboardStackBtn.textContent = originalText; elements.pasteClipboardStackBtn.disabled = false; }, 1500);
                     }
                 } catch (err) {
-                    console.error("Paste into clipboard stack error:", err);
                     if (err.name === 'NotAllowedError' || err.message.includes('Read permission denied')) {
                          const originalText = elements.pasteClipboardStackBtn.textContent;
                          elements.pasteClipboardStackBtn.textContent = "許可エラー";
@@ -6107,7 +6154,6 @@
                         }, 1500);
                     }
                 } catch (err) {
-                    console.error("Paste to user input error:", err);
                     if (err.name === 'NotAllowedError' || err.message.includes('Read permission denied')) {
                         button.textContent = "!";
                         button.title = "クリップボードの許可なし";
@@ -6151,7 +6197,6 @@
                     try {
                         await dbUtils.saveChat();
                     } catch (error) {
-                        console.error("Error saving current chat before new chat:", error);
                         const conf = await uiUtils.showCustomConfirm("現在のチャットの保存に失敗しました。新規チャットを開始しますか？");
                         if (!conf) return;
                     }
@@ -6257,7 +6302,6 @@
                         uiUtils.showScreen('chat');
                     }
                 } catch (error) {
-                    console.error("Error loading chat:", error);
                     await uiUtils.showCustomAlert(`チャットの読み込みエラー: ${error}`);
                     this.startNewChat();
                     uiUtils.showScreen('chat');
@@ -6267,7 +6311,7 @@
                 if (state.isSending) { const conf = await uiUtils.showCustomConfirm("送信中です。中断してチャットを複製しますか？"); if (!conf) return; this.abortRequest(); }
                 if (state.editingMessageIndex !== null) { const conf = await uiUtils.showCustomConfirm("編集中です。変更を破棄してチャットを複製しますか？"); if (!conf) return; const msgEl = elements.messageContainer.querySelector(`.message[data-index="${state.editingMessageIndex}"]`); this.cancelEditMessage(state.editingMessageIndex, msgEl); }
                 if (state.isEditingSystemPrompt) { const conf = await uiUtils.showCustomConfirm("システムプロンプト編集中です。変更を破棄してチャットを複製しますか？"); if (!conf) return; this.cancelEditSystemPrompt(); }
-                if ((state.currentMessages.length > 0 || state.currentSystemPrompt) && state.currentChatId && state.currentChatId !== id) { try { await dbUtils.saveChat(); } catch (error) { console.error("Error saving current chat before duplicate:", error); const conf = await uiUtils.showCustomConfirm("現在のチャット保存に失敗しました。複製を続行しますか？"); if (!conf) return; } }
+                if ((state.currentMessages.length > 0 || state.currentSystemPrompt) && state.currentChatId && state.currentChatId !== id) { try { await dbUtils.saveChat(); } catch (error) { const conf = await uiUtils.showCustomConfirm("現在のチャット保存に失敗しました。複製を続行しますか？"); if (!conf) return; } }
                 if (state.pendingAttachments.length > 0) {
                     const confirmedAttach = await uiUtils.showCustomConfirm("添付準備中のファイルがあります。破棄してチャットを複製しますか？");
                     if (!confirmedAttach) return;
@@ -6332,7 +6376,6 @@
                         await uiUtils.showCustomAlert("複製元のチャットが見つかりません。");
                     }
                 } catch (error) {
-                    console.error("Error duplicating chat:", error);
                     await uiUtils.showCustomAlert(`チャット複製エラー: ${error}`);
                 }
             },
@@ -6379,7 +6422,6 @@
                      document.body.removeChild(a);
                      URL.revokeObjectURL(url);
                  } catch (error) {
-                     console.error("Export chat error:", error);
                      await uiUtils.showCustomAlert(`エクスポートエラー: ${error}`);
                  }
             },
@@ -6417,7 +6459,6 @@
                     this.startNewChat();
                     await uiUtils.showCustomAlert("チャットを削除しました。");
                 } catch (error) {
-                    console.error("Error deleting current session:", error);
                     await uiUtils.showCustomAlert(`チャットの削除中にエラーが発生しました: ${error}`);
                 }
             },
@@ -6456,7 +6497,6 @@
                         buttonElement.disabled = false;
                     }, 1500);
                 } catch (err) {
-                    console.error("Copy session text error:", err);
                     await uiUtils.showCustomAlert("クリップボードへのコピーに失敗しました。\nお使いのブラウザが対応していないか、セキュリティ設定が原因の可能性があります。");
                     const buttonElement = elements.copySessionBtn;
                     const originalText = buttonElement.textContent;
@@ -6488,7 +6528,6 @@
                             }
                         }
                     } catch (error) {
-                        console.error("Confirm delete chat error:", error);
                         await uiUtils.showCustomAlert(`チャット削除エラー: ${error}`);
                         uiUtils.setSendingState(false);
                     }
@@ -6512,7 +6551,6 @@
                             uiUtils.updateChatTitle(finalTitle);
                         }
                     } catch (error) {
-                        console.error("Edit history title error:", error);
                         await uiUtils.showCustomAlert(`タイトル更新エラー: ${error}`);
                     }
                 }
@@ -6641,7 +6679,6 @@
                     }
                     await dbUtils.saveChat(titleToSave);
                 } catch (error) {
-                    console.error("Error saving chat before send:", error);
                     uiUtils.displayError("チャットの保存に失敗しましたが、送信を試みます。", false);
                 }
 
@@ -6790,7 +6827,6 @@
                          await dbUtils.saveChat();
                     }
                 } catch (error) {
-                    console.error("Error during API call or response handling:", error);
                     const isAbort = error.message === "リクエストがキャンセルされました。";
                     const displayErrorMessage = isAbort ? error.message : (error.message || "不明なエラーが発生しました");
                     const partialRawContent = state.partialStreamContent || error.cause?.partialChunks?.join('');
@@ -6822,7 +6858,6 @@
                              await dbUtils.saveChat();
                              uiUtils.renderChatMessages();
                          } catch (saveError) {
-                             console.error("Error saving chat after partial response:", saveError);
                              uiUtils.displayError(displayErrorMessage, !isAbort);
                          }
                     } else {
@@ -6909,12 +6944,10 @@
                         await uiUtils.showCustomAlert(`履歴「${newChatData.title}」をインポートしました。`);
                         uiUtils.renderHistoryList();
                     } catch (error) {
-                        console.error("History import error:", error);
                         await uiUtils.showCustomAlert(`履歴のインポート中にエラーが発生しました: ${error.message}`);
                     }
                 };
                 reader.onerror = async (event) => {
-                    console.error("File read error:", event.target.error);
                     await uiUtils.showCustomAlert("ファイルの読み込みに失敗しました。");
                 };
                 reader.readAsText(file);
@@ -7014,7 +7047,6 @@
                     await uiUtils.showCustomAlert(`${chats.length}件のセッションをエクスポートしました。`);
                 } catch (error) {
                     await uiUtils.showCustomAlert(`全セッションのエクスポート中にエラーが発生しました: ${error.message || error}`);
-                    console.error("Error exporting all sessions:", error);
                 }
             },
             async handleAllSessionsImport(file) {
@@ -7101,13 +7133,11 @@
                                         resolve();
                                     };
                                     request.onerror = (e) => {
-                                        console.error("Failed to import session:", chatData.title, e.target.error);
                                         skippedCount++;
                                         resolve();
                                     };
                                 });
                             } catch (e) {
-                                console.error("Error during DB operation for session:", chatData.title, e);
                                 skippedCount++;
                             }
                         }
@@ -7123,7 +7153,6 @@
 
                     } catch (error) {
                         await uiUtils.showCustomAlert(`全セッションのインポート中にエラーが発生しました: ${error.message || error}`);
-                        console.error("Error importing all sessions:", error);
                     }
                 };
                 reader.onerror = async () => {
@@ -7151,7 +7180,6 @@
                      document.documentElement.style.setProperty('--chat-background-image', `url(${state.backgroundImageUrl})`);
                      uiUtils.updateBackgroundSettingsUI();
                  } catch (error) {
-                     console.error("Background image upload error:", error);
                      await uiUtils.showCustomAlert(`背景画像の処理中にエラーが発生しました: ${error}`);
                      uiUtils.revokeExistingObjectUrl();
                      document.documentElement.style.setProperty('--chat-background-image', 'none');
@@ -7173,7 +7201,6 @@
                      document.documentElement.style.setProperty('--chat-background-image', 'none');
                      uiUtils.updateBackgroundSettingsUI();
                  } catch (error) {
-                     console.error("Background image delete error:", error);
                      await uiUtils.showCustomAlert(`背景画像の削除中にエラーが発生しました: ${error}`);
                  }
              },
@@ -7204,7 +7231,6 @@
                      uiUtils.updateIconSettingsUI();
                      uiUtils.renderChatMessages(true);
                  } catch (error) {
-                     console.error(`${type} icon upload error:`, error);
                      await uiUtils.showCustomAlert(`${type === 'user' ? 'ユーザー' : 'AI'}アイコンの処理エラー: ${error}`);
                  }
             },
@@ -7231,7 +7257,6 @@
                      uiUtils.updateIconSettingsUI();
                      uiUtils.renderChatMessages(true);
                  } catch (error) {
-                     console.error(`${type} icon delete error:`, error);
                      await uiUtils.showCustomAlert(`${type === 'user' ? 'ユーザー' : 'AI'}アイコンの削除エラー: ${error}`);
                  }
             },
@@ -7425,7 +7450,6 @@
                      }
                      uiUtils.renderChatMessages(true);
                  } catch (error) {
-                     console.error("Save settings error:", error);
                      await uiUtils.showCustomAlert(`設定の保存中にエラーが発生しました: ${error}`);
                  }
             },
@@ -7443,7 +7467,6 @@
                             uiUtils.showCustomAlert("アクティブなService Workerが見つかりません。手動でリロードが必要かもしれません。");
                         }
                     }).catch(async err => {
-                        console.error("Service Worker ready error:", err);
                         await uiUtils.showCustomAlert("Service Workerの準備中にエラーが発生しました。");
                     });
                 }
@@ -7539,7 +7562,6 @@
                         this.startNewChat();
                         uiUtils.showScreen('chat', true);
                     } catch (error) {
-                        console.error("Clear all data error:", error);
                         await uiUtils.showCustomAlert(`データ削除中にエラーが発生しました: ${error}`);
                     }
                 }
@@ -7570,7 +7592,6 @@
                         }
 
                     } catch (error) {
-                        console.error("Clear all history error:", error);
                         await uiUtils.showCustomAlert(`チャット履歴の削除中にエラーが発生しました: ${error}`);
                     }
                 }
@@ -7589,7 +7610,6 @@
                     try {
                         await dbUtils.saveChat();
                     } catch (error) {
-                        console.error("Error saving system prompt:", error);
                         await uiUtils.showCustomAlert("システムプロンプトの保存に失敗しました。");
                     }
                 }
@@ -7699,7 +7719,6 @@
                     try {
                         contentDiv.innerHTML = marked.parse(newRawContent || '');
                     } catch (e) {
-                        console.error("Markdown parse error on save edit:", e);
                         contentDiv.textContent = newRawContent;
                     }
                 } else if (contentDiv) {
@@ -7729,7 +7748,6 @@
                         this.startNewChat();
                     }
                 } catch (error) {
-                    console.error("Error saving chat after message edit:", error);
                     await uiUtils.showCustomAlert("メッセージ編集後のチャット保存に失敗しました。");
                 }
             },
@@ -7785,7 +7803,6 @@
                         buttonElement.disabled = false;
                     }, 1500);
                 } catch (err) {
-                    console.error("Copy message text to OS clipboard error:", err);
                     await uiUtils.showCustomAlert("OSクリップボードへのコピーに失敗しました。");
                     const originalText = buttonElement.textContent;
                     buttonElement.textContent = 'コピー失敗';
@@ -7880,7 +7897,6 @@
                             this.startNewChat();
                         }
                     } catch (error) {
-                        console.error("Error saving chat after message delete:", error);
                         await uiUtils.showCustomAlert("メッセージ削除後のチャット保存に失敗しました。");
                     }
                 }
@@ -8026,7 +8042,6 @@
                     try {
                         await dbUtils.saveChat();
                     } catch (error) {
-                        console.error("Error saving cascade navigation:", error);
                         await uiUtils.showCustomAlert("応答の切り替え状態の保存に失敗しました。");
                     }
                 }
@@ -8105,7 +8120,6 @@
                     try {
                         await dbUtils.saveChat();
                     } catch (error) {
-                        console.error("Error saving chat after cascade delete:", error);
                         await uiUtils.showCustomAlert("応答削除後のチャット状態の保存に失敗しました。");
                     }
                 }
@@ -8198,7 +8212,6 @@
                             base64Data: base64Data
                         });
                     } catch (error) {
-                        console.error("File encoding error:", error);
                         encodingError = true;
                         await uiUtils.showCustomAlert(`ファイル "${item.file.name}" の処理中にエラーが発生しました。`);
                         break;
