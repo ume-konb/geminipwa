@@ -7528,15 +7528,15 @@
                             theme: window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
                             backgroundImageBlob: null, fontFamily: '',
                             hideSystemPromptInChat: false, enableSwipeNavigation: true,
-                            preventZoom: false,
+                            preventZoom: true,
                             showNewChatButton: true,
                             showDeleteSessionButton: false, showCopySessionButton: false,
                             showScrollToTopButton: true,
                             showScrollToBottomButton: true,
                             showToggleAllContentButton: false,
                             showBulkHistoryActions: true,
-                            showPasteButtonInFooter: true,
-                            showPasteButtonInEdit: true,
+                            showPasteButtonInFooter: false,
+                            showPasteButtonInEdit: false,
                             showMemoButton: false,
                             memoHeight: DEFAULT_MEMO_HEIGHT,
                             showClipboardStackButton: false,
@@ -7703,7 +7703,7 @@
 
                  if (state.settings.showPasteButtonInEdit) {
                     const pasteButton = document.createElement('button');
-                    pasteButton.textContent = '貼付';
+                    pasteButton.textContent = '貼';
                     pasteButton.title = 'テキストエリアに貼り付け';
                     pasteButton.style.backgroundColor = 'var(--bg-button-paste)';
                     pasteButton.style.marginRight = 'auto';
