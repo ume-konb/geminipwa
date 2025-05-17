@@ -1,4 +1,6 @@
+はい、承知いたしました。ご指示いただいた「停止ボタンの強制力強化」の修正を適用し、コメントをすべて削除した状態の完全なHTMLコードを以下に示します。バージョンは現状の `0.25ti` のままです。
 
+```html
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -3612,6 +3614,7 @@
             isMemoVisible: false,
             isClipboardStackVisible: false,
             clipboardStackContent: "",
+            uiRenderingCancelled: false,
             areAllMessagesHidden: false,
             messageCollapsedStates: new Map(),
         };
@@ -6570,7 +6573,7 @@
                 }
 
                 for (const chunk of processedChunks) {
-                    if (signal.aborted) {
+                    if (signal.aborted || state.uiRenderingCancelled) {
                         return accumulatedRawContent;
                     }
                     if (chunk === null) {
@@ -6580,7 +6583,7 @@
                         uiUtils.updateStreamingMessage(messageIndex, '');
                     } else if (typeof chunk === 'string') {
                         for (const char of chunk) {
-                            if (signal.aborted) {
+                            if (signal.aborted || state.uiRenderingCancelled) {
                                 return accumulatedRawContent;
                             }
                             accumulatedRawContent += char;
@@ -6595,6 +6598,8 @@
             async handleSend(isRetry = false, retryUserMessageIndex = -1) {
                 if (state.editingMessageIndex !== null) { await uiUtils.showCustomAlert("他のメッセージを編集中です。"); return; }
                 if (state.isEditingSystemPrompt) { await uiUtils.showCustomAlert("システムプロンプトを編集中です。"); return; }
+
+                state.uiRenderingCancelled = false;
 
                 let text = '';
                 let attachmentsToSend = [];
@@ -6749,7 +6754,7 @@
 
                         modelResponseRawContent = await this.typeCharacterByCharacter(streamResult.processedChunks, tempPlaceholderIndex, state.abortController.signal, dummyModelPrefix);
 
-                        if (modelResponseMetadata.finishReason === 'ABORTED' || state.abortController?.signal.aborted) {
+                        if (modelResponseMetadata.finishReason === 'ABORTED' || state.abortController?.signal.aborted || state.uiRenderingCancelled) {
                             throw new Error("リクエストがキャンセルされました。");
                         }
                         const placeholderElement = document.getElementById(`streaming-message-${tempPlaceholderIndex}`);
@@ -6763,7 +6768,7 @@
                         usageMetadata = streamResult.usageMetadata;
                         modelResponseRawContent = await this.typeCharacterByCharacter(streamResult.processedChunks, tempPlaceholderIndex, state.abortController.signal, dummyModelPrefix);
 
-                        if (modelResponseMetadata.finishReason === 'ABORTED' || state.abortController?.signal.aborted) {
+                        if (modelResponseMetadata.finishReason === 'ABORTED' || state.abortController?.signal.aborted || state.uiRenderingCancelled) {
                             throw new Error("リクエストがキャンセルされました。");
                         }
                         const placeholderElement = document.getElementById(`streaming-message-${tempPlaceholderIndex}`);
@@ -6828,7 +6833,7 @@
                     }
                 } catch (error) {
                     console.error("Error during API call or response handling:", error);
-                    const isAbort = error.message === "リクエストがキャンセルされました。";
+                    const isAbort = error.message === "リクエストがキャンセルされました。" || state.uiRenderingCancelled;
                     const displayErrorMessage = isAbort ? error.message : (error.message || "不明なエラーが発生しました");
                     const partialRawContent = state.partialStreamContent || error.cause?.partialChunks?.join('');
 
@@ -6869,6 +6874,7 @@
                     uiUtils.setSendingState(false);
                     state.abortController = null;
                     state.partialStreamContent = '';
+                    state.uiRenderingCancelled = false;
                     if (state.settings.autoScrollOnNewMessage) {
                         uiUtils.scrollToBottom();
                     }
@@ -6878,6 +6884,7 @@
             abortRequest() {
                 if (state.abortController) {
                     state.abortController.abort();
+                    state.uiRenderingCancelled = true;
                 }
             },
             async handleHistoryImport(file) {
