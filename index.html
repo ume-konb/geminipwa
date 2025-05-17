@@ -1,4 +1,6 @@
+はい、承知いたしました。ご依頼いただいた通り、メッセージ編集時の下部ツールバー左端に水色の「貼付」ボタンを追加し、その表示・非表示を設定オプションで切り替えられるように修正した完全なコードを以下に示します。バージョン番号は現状のままで、コード内のコメントは削除してあります。
 
+```html
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -3052,6 +3054,10 @@
                    <p style="font-size: 11px; color: var(--text-secondary); margin-top: -5px; margin-bottom: 10px;">
                        ※ スマホ等でテキスト入力時に意図せずズームするのを防ぎます。
                    </p>
+                   <label class="checkbox-label">
+                        <input type="checkbox" id="show-paste-button-in-edit-toggle">
+                        メッセージ編集ツールバーに「貼付け」ボタンを表示する
+                    </label>
                    <p style="height:10px"></p>
                    <label for="theme-select">表示テーマ:</label>
                    <select id="theme-select" aria-label="表示テーマ">
@@ -3411,6 +3417,7 @@
             showToggleAllContentButtonToggle: document.getElementById('show-toggle-all-content-button-toggle'),
             showBulkHistoryActionsToggle: document.getElementById('show-bulk-history-actions-toggle'),
             showPasteButtonInFooterToggle: document.getElementById('show-paste-button-in-footer-toggle'),
+            showPasteButtonInEditToggle: document.getElementById('show-paste-button-in-edit-toggle'),
             messageBubbleOpacityInput: document.getElementById('message-bubble-opacity'),
             chatOverlayOpacityInput: document.getElementById('chat-overlay-opacity'),
             headerFooterOpacityInput: document.getElementById('header-footer-opacity'),
@@ -3553,6 +3560,7 @@
                 showToggleAllContentButton: false,
                 showBulkHistoryActions: true,
                 showPasteButtonInFooter: true,
+                showPasteButtonInEdit: true,
                 showMemoButton: false,
                 memoHeight: DEFAULT_MEMO_HEIGHT,
                 showClipboardStackButton: false,
@@ -3767,8 +3775,8 @@
                                            key === 'preventZoom' ||
                                            key === 'showNewChatButton' || key === 'showDeleteSessionButton' || key === 'showCopySessionButton' ||
                                            key === 'showScrollToTopButton' || key === 'showScrollToBottomButton' || key === 'showToggleAllContentButton' ||
-                                           key === 'showBulkHistoryActions' || key === 'showPasteButtonInFooter' || key === 'showMemoButton' ||
-                                           key === 'showClipboardStackButton' || key === 'showUserIcon' || key === 'showAiIcon' ||
+                                           key === 'showBulkHistoryActions' || key === 'showPasteButtonInFooter' || key === 'showPasteButtonInEdit' ||
+                                           key === 'showMemoButton' || key === 'showClipboardStackButton' || key === 'showUserIcon' || key === 'showAiIcon' ||
                                            key === 'showUserName' || key === 'showAiName' || key === 'showCollapseButtons' ||
                                            key === 'streamingOutput' || key === 'pseudoStreaming' || key === 'enterToSend' ||
                                            key === 'concatDummyModel' || key === 'autoScrollOnNewMessage' ||
@@ -4939,6 +4947,7 @@
                 elements.showToggleAllContentButtonToggle.checked = state.settings.showToggleAllContentButton;
                 elements.showBulkHistoryActionsToggle.checked = state.settings.showBulkHistoryActions;
                 elements.showPasteButtonInFooterToggle.checked = state.settings.showPasteButtonInFooter;
+                elements.showPasteButtonInEditToggle.checked = state.settings.showPasteButtonInEdit;
                 elements.messageBubbleOpacityInput.value = state.settings.messageBubbleOpacity ?? DEFAULT_MESSAGE_BUBBLE_OPACITY;
                 elements.chatOverlayOpacityInput.value = state.settings.chatOverlayOpacity ?? DEFAULT_CHAT_OVERLAY_OPACITY;
                 elements.headerFooterOpacityInput.value = state.settings.headerFooterOpacity ?? DEFAULT_HEADER_FOOTER_OPACITY;
@@ -5669,6 +5678,9 @@
                 elements.showPasteButtonInFooterToggle.addEventListener('change', () => {
                     state.settings.showPasteButtonInFooter = elements.showPasteButtonInFooterToggle.checked;
                     uiUtils.updateChatScreenElementVisibility();
+                });
+                elements.showPasteButtonInEditToggle.addEventListener('change', () => {
+                    state.settings.showPasteButtonInEdit = elements.showPasteButtonInEditToggle.checked;
                 });
                 elements.preventZoomToggle.addEventListener('change', () => {
                     state.settings.preventZoom = elements.preventZoomToggle.checked;
@@ -7308,6 +7320,7 @@
                      showToggleAllContentButton: elements.showToggleAllContentButtonToggle.checked,
                      showBulkHistoryActions: elements.showBulkHistoryActionsToggle.checked,
                      showPasteButtonInFooter: elements.showPasteButtonInFooterToggle.checked,
+                     showPasteButtonInEdit: elements.showPasteButtonInEditToggle.checked,
                      showMemoButton: elements.showMemoButtonToggle.checked,
                      memoHeight: elements.memoHeightInput.value.trim() || DEFAULT_MEMO_HEIGHT,
                      showClipboardStackButton: elements.showClipboardStackButtonToggle.checked,
@@ -7525,6 +7538,7 @@
                             showToggleAllContentButton: false,
                             showBulkHistoryActions: true,
                             showPasteButtonInFooter: true,
+                            showPasteButtonInEdit: true,
                             showMemoButton: false,
                             memoHeight: DEFAULT_MEMO_HEIGHT,
                             showClipboardStackButton: false,
@@ -7688,6 +7702,71 @@
 
                  const actionsDiv = document.createElement('div');
                  actionsDiv.classList.add('message-edit-actions');
+
+                 if (state.settings.showPasteButtonInEdit) {
+                    const pasteButton = document.createElement('button');
+                    pasteButton.textContent = '貼付';
+                    pasteButton.title = 'テキストエリアに貼り付け';
+                    pasteButton.style.backgroundColor = 'var(--bg-button-paste)';
+                    pasteButton.style.marginRight = 'auto';
+                    pasteButton.onclick = async () => {
+                        const originalText = pasteButton.textContent;
+                        const originalTitle = pasteButton.title;
+                        try {
+                            if (!navigator.clipboard || !navigator.clipboard.readText) {
+                                pasteButton.textContent = "!";
+                                pasteButton.title = "クリップボードAPI非対応";
+                                pasteButton.disabled = true;
+                                setTimeout(() => {
+                                    pasteButton.textContent = originalText;
+                                    pasteButton.title = originalTitle;
+                                    pasteButton.disabled = false;
+                                }, 2000);
+                                return;
+                            }
+                            const textToPaste = await navigator.clipboard.readText();
+                            if (textToPaste) {
+                                const currentText = textarea.value;
+                                const selectionStart = textarea.selectionStart;
+                                const selectionEnd = textarea.selectionEnd;
+                                textarea.value = currentText.substring(0, selectionStart) + textToPaste + currentText.substring(selectionEnd);
+                                textarea.selectionStart = textarea.selectionEnd = selectionStart + textToPaste.length;
+                                textarea.focus();
+                                uiUtils.adjustTextareaHeight(textarea, 400);
+                                pasteButton.textContent = "✓";
+                                pasteButton.title = "貼り付け完了";
+                                setTimeout(() => {
+                                    pasteButton.textContent = originalText;
+                                    pasteButton.title = originalTitle;
+                                }, 1500);
+                            } else {
+                                pasteButton.textContent = "空";
+                                pasteButton.title = "クリップボードは空です";
+                                setTimeout(() => {
+                                    pasteButton.textContent = originalText;
+                                    pasteButton.title = originalTitle;
+                                }, 1500);
+                            }
+                        } catch (err) {
+                             console.error("Paste to edit textarea error:", err);
+                             if (err.name === 'NotAllowedError' || err.message.includes('Read permission denied')) {
+                                pasteButton.textContent = "!";
+                                pasteButton.title = "クリップボードの許可なし";
+                             } else {
+                                pasteButton.textContent = "X";
+                                pasteButton.title = "貼り付け失敗";
+                             }
+                             pasteButton.disabled = true;
+                             setTimeout(() => {
+                                pasteButton.textContent = originalText;
+                                pasteButton.title = originalTitle;
+                                pasteButton.disabled = false;
+                             }, 2000);
+                        }
+                    };
+                    actionsDiv.appendChild(pasteButton);
+                 }
+
                  const saveButton = document.createElement('button');
                  saveButton.textContent = '保存';
                  saveButton.classList.add('save-edit-btn');
@@ -8513,7 +8592,7 @@
                          } else if (line !== '') {
                          }
                      }
-                     return remainingBuffer;
+                                          return remainingBuffer;
                  }
 
                  function parseSseData(jsonString) {
