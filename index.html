@@ -3558,7 +3558,7 @@
                 showToggleAllContentButton: false,
                 showBulkHistoryActions: true,
                 showPasteButtonInFooter: true,
-                showPasteButtonInEdit: true,
+                showPasteButtonInEdit: false,
                 showMemoButton: false,
                 memoHeight: DEFAULT_MEMO_HEIGHT,
                 showClipboardStackButton: false,
@@ -4742,7 +4742,8 @@
 
                 let headerColor, secondaryColor, userMessageColor, modelMessageColor, overlayBaseColor;
 
-                switch (state.settings.theme) {
+                switch (
+                state.settings.theme) {
                     case 'dark':
                         headerColor = DARK_THEME_COLOR;
                         secondaryColor = DARK_MODE_SECONDARY_COLOR;
@@ -5677,7 +5678,7 @@
                     state.settings.showPasteButtonInFooter = elements.showPasteButtonInFooterToggle.checked;
                     uiUtils.updateChatScreenElementVisibility();
                 });
-                elements.showPasteButtonInEditToggle.addEventListener('change', () => {
+                 elements.showPasteButtonInEditToggle.addEventListener('change', () => {
                     state.settings.showPasteButtonInEdit = elements.showPasteButtonInEditToggle.checked;
                 });
                 elements.preventZoomToggle.addEventListener('change', () => {
@@ -5760,10 +5761,10 @@
                             clickedMessage.classList.toggle('show-actions');
                         }
                     } else {
-                        const currentlyShown = elements.messageContainer.querySelector('.message.show-actions');
-                        if (currentlyShown) {
-                            currentlyShown.classList.remove('show-actions');
-                        }
+                        const messagesWithActions = elements.messageContainer.querySelectorAll('.message.show-actions');
+                        messagesWithActions.forEach(msgElement => {
+                            msgElement.classList.remove('show-actions');
+                        });
                     }
                 }, true);
                 document.body.addEventListener('click', (event) => {
@@ -5771,10 +5772,10 @@
                         !elements.memoArea.contains(event.target) &&
                         !elements.clipboardStackArea.contains(event.target) &&
                         !event.target.closest('.custom-dialog')) {
-                        const currentlyShown = elements.messageContainer.querySelector('.message.show-actions');
-                        if (currentlyShown) {
-                            currentlyShown.classList.remove('show-actions');
-                        }
+                        const messagesWithActions = elements.messageContainer.querySelectorAll('.message.show-actions');
+                        messagesWithActions.forEach(msgElement => {
+                            msgElement.classList.remove('show-actions');
+                        });
                     }
                 }, true);
 
@@ -7536,7 +7537,7 @@
                             showToggleAllContentButton: false,
                             showBulkHistoryActions: true,
                             showPasteButtonInFooter: true,
-                            showPasteButtonInEdit: true,
+                            showPasteButtonInEdit: false,
                             showMemoButton: false,
                             memoHeight: DEFAULT_MEMO_HEIGHT,
                             showClipboardStackButton: false,
@@ -8590,7 +8591,7 @@
                          } else if (line !== '') {
                          }
                      }
-                                          return remainingBuffer;
+                     return remainingBuffer;
                  }
 
                  function parseSseData(jsonString) {
