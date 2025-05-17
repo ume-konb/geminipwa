@@ -3612,7 +3612,6 @@
             isMemoVisible: false,
             isClipboardStackVisible: false,
             clipboardStackContent: "",
-            uiRenderingCancelled: false,
             areAllMessagesHidden: false,
             messageCollapsedStates: new Map(),
         };
@@ -6571,7 +6570,7 @@
                 }
 
                 for (const chunk of processedChunks) {
-                    if (signal.aborted || state.uiRenderingCancelled) {
+                    if (signal.aborted) {
                         return accumulatedRawContent;
                     }
                     if (chunk === null) {
@@ -6581,7 +6580,7 @@
                         uiUtils.updateStreamingMessage(messageIndex, '');
                     } else if (typeof chunk === 'string') {
                         for (const char of chunk) {
-                            if (signal.aborted || state.uiRenderingCancelled) {
+                            if (signal.aborted) {
                                 return accumulatedRawContent;
                             }
                             accumulatedRawContent += char;
@@ -6596,8 +6595,6 @@
             async handleSend(isRetry = false, retryUserMessageIndex = -1) {
                 if (state.editingMessageIndex !== null) { await uiUtils.showCustomAlert("他のメッセージを編集中です。"); return; }
                 if (state.isEditingSystemPrompt) { await uiUtils.showCustomAlert("システムプロンプトを編集中です。"); return; }
-
-                state.uiRenderingCancelled = false;
 
                 let text = '';
                 let attachmentsToSend = [];
@@ -6752,7 +6749,7 @@
 
                         modelResponseRawContent = await this.typeCharacterByCharacter(streamResult.processedChunks, tempPlaceholderIndex, state.abortController.signal, dummyModelPrefix);
 
-                        if (modelResponseMetadata.finishReason === 'ABORTED' || state.abortController?.signal.aborted || state.uiRenderingCancelled) {
+                        if (modelResponseMetadata.finishReason === 'ABORTED' || state.abortController?.signal.aborted) {
                             throw new Error("リクエストがキャンセルされました。");
                         }
                         const placeholderElement = document.getElementById(`streaming-message-${tempPlaceholderIndex}`);
@@ -6766,7 +6763,7 @@
                         usageMetadata = streamResult.usageMetadata;
                         modelResponseRawContent = await this.typeCharacterByCharacter(streamResult.processedChunks, tempPlaceholderIndex, state.abortController.signal, dummyModelPrefix);
 
-                        if (modelResponseMetadata.finishReason === 'ABORTED' || state.abortController?.signal.aborted || state.uiRenderingCancelled) {
+                        if (modelResponseMetadata.finishReason === 'ABORTED' || state.abortController?.signal.aborted) {
                             throw new Error("リクエストがキャンセルされました。");
                         }
                         const placeholderElement = document.getElementById(`streaming-message-${tempPlaceholderIndex}`);
@@ -6831,7 +6828,7 @@
                     }
                 } catch (error) {
                     console.error("Error during API call or response handling:", error);
-                    const isAbort = error.message === "リクエストがキャンセルされました。" || state.uiRenderingCancelled;
+                    const isAbort = error.message === "リクエストがキャンセルされました。";
                     const displayErrorMessage = isAbort ? error.message : (error.message || "不明なエラーが発生しました");
                     const partialRawContent = state.partialStreamContent || error.cause?.partialChunks?.join('');
 
@@ -6872,7 +6869,6 @@
                     uiUtils.setSendingState(false);
                     state.abortController = null;
                     state.partialStreamContent = '';
-                    state.uiRenderingCancelled = false;
                     if (state.settings.autoScrollOnNewMessage) {
                         uiUtils.scrollToBottom();
                     }
@@ -6882,7 +6878,6 @@
             abortRequest() {
                 if (state.abortController) {
                     state.abortController.abort();
-                    state.uiRenderingCancelled = true;
                 }
             },
             async handleHistoryImport(file) {
