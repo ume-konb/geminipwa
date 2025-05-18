@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -111,6 +112,7 @@
 
             --message-bubble-opacity: 1;
             --header-footer-opacity: 1;
+            --chat-screen-button-opacity: 1;
 
             --bg-button-gold: #FFD700;
             --bg-button-gold-hover: #FFC700;
@@ -716,7 +718,7 @@
             font-size: 14px;
             background-color: var(--bg-button);
             color: var(--text-light);
-            transition: background-color 0.2s ease, color 0.2s ease;
+            transition: background-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
             line-height: 1.4;
         }
         button:hover:not(:disabled) {
@@ -780,8 +782,9 @@
             position: sticky;
             top: 0;
             z-index: 10;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, opacity 0.3s ease;
             gap: 8px;
+            opacity: var(--chat-screen-button-opacity);
         }
         body.pastel-rainbow-mode .app-header {
             background: var(--bg-header);
@@ -823,7 +826,7 @@
             color: var(--text-light);
             box-shadow: none !important;
             border: 1px solid transparent;
-            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
         }
         .app-header #toggle-clipboard-stack-btn:hover,
         .app-header #toggle-memo-btn:hover,
@@ -864,10 +867,11 @@
             position: sticky;
             top: 0;
             z-index: 10;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, opacity 0.3s ease;
             gap: 10px;
             flex-direction: row-reverse;
             justify-content: flex-start;
+            opacity: 1;
         }
         body.pastel-rainbow-mode #history-screen .app-header {
             background: var(--bg-header);
@@ -1024,7 +1028,8 @@
             border-radius: 5px;
             border: none;
             cursor: pointer;
-            transition: background-color 0.2s ease;
+            transition: background-color 0.2s ease, opacity 0.2s ease;
+            opacity: var(--chat-screen-button-opacity);
         }
         .new-chat-button:hover {
             background-color: var(--bg-button-save-hover);
@@ -1042,8 +1047,9 @@
             border-radius: 5px;
             border: none;
             cursor: pointer;
-            transition: background-color 0.2s ease;
+            transition: background-color 0.2s ease, opacity 0.2s ease;
             flex-shrink: 0;
+            opacity: var(--chat-screen-button-opacity);
         }
         .app-header #delete-session-btn {
             background-color: var(--bg-button-header-delete);
@@ -1056,6 +1062,9 @@
         }
         .app-header #copy-session-btn:hover:not(:disabled) {
             background-color: var(--bg-button-header-copy-hover);
+        }
+        #chat-screen .app-header .header-button {
+            opacity: var(--chat-screen-button-opacity);
         }
 
         .main-content {
@@ -1122,6 +1131,7 @@
         #chat-screen .chat-input-area {
             z-index: 2;
             background-color: rgba(var(--bg-secondary-rgb, 240, 242, 245), var(--header-footer-opacity, 1));
+            opacity: var(--chat-screen-button-opacity);
         }
         #history-screen .main-content,
         #settings-screen .main-content {
@@ -1761,7 +1771,7 @@
             border-top: 1px solid var(--border-primary);
             flex-shrink: 0;
             box-sizing: border-box;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
+            transition: background-color 0.3s ease, border-color 0.3s ease, opacity 0.3s ease;
             gap: 10px;
         }
         .footer-action-button {
@@ -1779,7 +1789,8 @@
             border-radius: 5px;
             border: none;
             cursor: pointer;
-            transition: background-color 0.2s ease;
+            transition: background-color 0.2s ease, opacity 0.2s ease;
+            opacity: var(--chat-screen-button-opacity);
         }
         .footer-action-button:hover:not(:disabled) {
             background-color: var(--bg-button-action-hover);
@@ -1829,6 +1840,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            opacity: var(--chat-screen-button-opacity);
         }
         .chat-input-area button#send-button.sending {
             background-color: #ffc107;
@@ -3163,6 +3175,8 @@
                    <details style="margin-top: 15px; margin-bottom: 15px;">
                         <summary style="cursor: pointer; font-weight: normal; font-size: 14px; color: var(--text-link);">各種透明度設定</summary>
                         <div style="padding-left: 15px; margin-top: 10px;">
+                            <label for="chat-screen-button-opacity">チャット画面ボタンの透明度 (0.0-1.0):</label>
+                            <input type="number" id="chat-screen-button-opacity" min="0" max="1" step="0.05" placeholder="例: 1.0" aria-label="チャット画面ボタンの透明度">
                             <label for="message-bubble-opacity">メッセージバブルの透明度 (0.0-1.0):</label>
                             <input type="number" id="message-bubble-opacity" min="0" max="1" step="0.05" placeholder="例: 0.8" aria-label="メッセージバブルの透明度">
                             <label for="message-actions-background-opacity">メッセージツールバーの透明度（除ボタン） (0.0-1.0):</label>
@@ -3339,6 +3353,7 @@
         const DEFAULT_MESSAGE_ACTIONS_BACKGROUND_OPACITY = 0.9;
         const DEFAULT_HEADER_FOOTER_OPACITY = 0.35;
         const DEFAULT_CHAT_OVERLAY_OPACITY = 0.7;
+        const DEFAULT_CHAT_SCREEN_BUTTON_OPACITY = 1.0;
 
         const DEFAULT_TOGGLE_BUTTON_TOP_WIDTH = 6;
         const DEFAULT_TOGGLE_BUTTON_TOP_HEIGHT = 40;
@@ -3424,6 +3439,7 @@
             messageBubbleOpacityInput: document.getElementById('message-bubble-opacity'),
             chatOverlayOpacityInput: document.getElementById('chat-overlay-opacity'),
             headerFooterOpacityInput: document.getElementById('header-footer-opacity'),
+            chatScreenButtonOpacityInput: document.getElementById('chat-screen-button-opacity'),
             messageActionsBackgroundOpacityInput: document.getElementById('message-actions-background-opacity'),
             appVersionSpan: document.getElementById('app-version'),
             backgroundImageInput: document.getElementById('background-image-input'),
@@ -3594,6 +3610,7 @@
                 messageBubbleOpacity: DEFAULT_MESSAGE_BUBBLE_OPACITY,
                 chatOverlayOpacity: DEFAULT_CHAT_OVERLAY_OPACITY,
                 headerFooterOpacity: DEFAULT_HEADER_FOOTER_OPACITY,
+                chatScreenButtonOpacity: DEFAULT_CHAT_SCREEN_BUTTON_OPACITY,
                 messageActionsBackgroundOpacity: DEFAULT_MESSAGE_ACTIONS_BACKGROUND_OPACITY,
                 toggleButtonTopWidth: DEFAULT_TOGGLE_BUTTON_TOP_WIDTH,
                 toggleButtonTopHeight: DEFAULT_TOGGLE_BUTTON_TOP_HEIGHT,
@@ -3805,7 +3822,7 @@
                                 } else if (typeof defaultValue === 'number' || defaultValue === null) {
                                      let num;
                                      if (key === 'temperature' || key === 'topP' || key === 'presencePenalty' || key === 'frequencyPenalty' ||
-                                         key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity' ||
+                                         key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity' || key === 'chatScreenButtonOpacity' ||
                                          key === 'messageActionsBackgroundOpacity' || key === 'toggleButtonTopOpacity' ||
                                          key === 'messageIconSize' || key === 'messageIconOffsetY' || key === 'iconNameFontSize' || key === 'iconNameOffsetY' ||
                                          key === 'userNameBubbleOpacity' || key === 'aiNameBubbleOpacity') {
@@ -3816,7 +3833,7 @@
                                      if (isNaN(num)) {
                                          if ((key === 'temperature' || key === 'maxTokens' || key === 'topK' || key === 'topP' ||
                                              key === 'presencePenalty' || key === 'frequencyPenalty' || key === 'thinkingBudget' ||
-                                             key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity' ||
+                                             key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity' || key === 'chatScreenButtonOpacity' ||
                                              key === 'messageActionsBackgroundOpacity' || key === 'toggleButtonTopOpacity' ||
                                              key === 'userNameBubbleOpacity' || key === 'aiNameBubbleOpacity'
                                              ) && (loadedValue === null || loadedValue === '')) {
@@ -3832,7 +3849,7 @@
                                           if (key === 'streamingSpeed' && num < 0) num = defaultValue;
                                           if ((key === 'presencePenalty' || key === 'frequencyPenalty') && (num < -2.0 || num >= 2.0)) num = defaultValue;
                                           if (key === 'thinkingBudget' && (num < 0 || !Number.isInteger(num))) num = defaultValue;
-                                          if ((key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity' ||
+                                          if ((key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity' || key === 'chatScreenButtonOpacity' ||
                                               key === 'messageActionsBackgroundOpacity' || key === 'toggleButtonTopOpacity' ||
                                               key === 'userNameBubbleOpacity' || key === 'aiNameBubbleOpacity'
                                               ) && (num < 0 || num > 1)) num = defaultValue;
@@ -4752,6 +4769,7 @@
                 document.documentElement.style.setProperty('--message-bubble-opacity', state.settings.messageBubbleOpacity);
                 document.documentElement.style.setProperty('--header-footer-opacity', state.settings.headerFooterOpacity);
                 document.documentElement.style.setProperty('--chat-overlay-alpha', state.settings.chatOverlayOpacity);
+                document.documentElement.style.setProperty('--chat-screen-button-opacity', state.settings.chatScreenButtonOpacity);
                 document.documentElement.style.setProperty('--message-actions-bg-opacity', state.settings.messageActionsBackgroundOpacity);
 
                 let headerColor, secondaryColor, userMessageColor, modelMessageColor, overlayBaseColor;
@@ -4960,6 +4978,7 @@
                 elements.showBulkHistoryActionsToggle.checked = state.settings.showBulkHistoryActions;
                 elements.showPasteButtonInFooterToggle.checked = state.settings.showPasteButtonInFooter;
                 elements.showPasteButtonInEditToggle.checked = state.settings.showPasteButtonInEdit;
+                elements.chatScreenButtonOpacityInput.value = state.settings.chatScreenButtonOpacity ?? DEFAULT_CHAT_SCREEN_BUTTON_OPACITY;
                 elements.messageBubbleOpacityInput.value = state.settings.messageBubbleOpacity ?? DEFAULT_MESSAGE_BUBBLE_OPACITY;
                 elements.chatOverlayOpacityInput.value = state.settings.chatOverlayOpacity ?? DEFAULT_CHAT_OVERLAY_OPACITY;
                 elements.headerFooterOpacityInput.value = state.settings.headerFooterOpacity ?? DEFAULT_HEADER_FOOTER_OPACITY;
@@ -5045,6 +5064,7 @@
                 if (elements.pasteToInputBtn) {
                     elements.pasteToInputBtn.classList.toggle('hidden', !state.settings.showPasteButtonInFooter);
                 }
+                document.documentElement.style.setProperty('--chat-screen-button-opacity', state.settings.chatScreenButtonOpacity);
             },
             updateHistoryHeaderButtonVisibility() {
                 const showBulkActions = state.settings.showBulkHistoryActions;
@@ -5715,6 +5735,14 @@
                 elements.showBulkHistoryActionsToggle.addEventListener('change', () => {
                     state.settings.showBulkHistoryActions = elements.showBulkHistoryActionsToggle.checked;
                     uiUtils.updateHistoryHeaderButtonVisibility();
+                });
+                elements.chatScreenButtonOpacityInput.addEventListener('input', () => {
+                    const opacity = parseFloat(elements.chatScreenButtonOpacityInput.value);
+                    if (!isNaN(opacity) && opacity >= 0 && opacity <= 1) {
+                        document.documentElement.style.setProperty('--chat-screen-button-opacity', opacity);
+                    } else if (elements.chatScreenButtonOpacityInput.value === '') {
+                         document.documentElement.style.setProperty('--chat-screen-button-opacity', DEFAULT_CHAT_SCREEN_BUTTON_OPACITY);
+                    }
                 });
                 elements.messageBubbleOpacityInput.addEventListener('input', () => {
                     const opacity = parseFloat(elements.messageBubbleOpacityInput.value);
@@ -7351,6 +7379,7 @@
                      showBulkHistoryActions: elements.showBulkHistoryActionsToggle.checked,
                      showPasteButtonInFooter: elements.showPasteButtonInFooterToggle.checked,
                      showPasteButtonInEdit: elements.showPasteButtonInEditToggle.checked,
+                     chatScreenButtonOpacity: elements.chatScreenButtonOpacityInput.value === '' ? DEFAULT_CHAT_SCREEN_BUTTON_OPACITY : parseFloat(elements.chatScreenButtonOpacityInput.value),
                      showMemoButton: elements.showMemoButtonToggle.checked,
                      memoHeight: elements.memoHeightInput.value.trim() || DEFAULT_MEMO_HEIGHT,
                      showClipboardStackButton: elements.showClipboardStackButtonToggle.checked,
@@ -7446,6 +7475,9 @@
                  }
                  if (newSettings.headerFooterOpacity !== null && (isNaN(newSettings.headerFooterOpacity) || newSettings.headerFooterOpacity < 0 || newSettings.headerFooterOpacity > 1)) {
                     newSettings.headerFooterOpacity = DEFAULT_HEADER_FOOTER_OPACITY;
+                 }
+                 if (newSettings.chatScreenButtonOpacity !== null && (isNaN(newSettings.chatScreenButtonOpacity) || newSettings.chatScreenButtonOpacity < 0 || newSettings.chatScreenButtonOpacity > 1)) {
+                    newSettings.chatScreenButtonOpacity = DEFAULT_CHAT_SCREEN_BUTTON_OPACITY;
                  }
                  if (newSettings.messageActionsBackgroundOpacity !== null && (isNaN(newSettings.messageActionsBackgroundOpacity) || newSettings.messageActionsBackgroundOpacity < 0 || newSettings.messageActionsBackgroundOpacity > 1)) {
                     newSettings.messageActionsBackgroundOpacity = DEFAULT_MESSAGE_ACTIONS_BACKGROUND_OPACITY;
@@ -7570,6 +7602,7 @@
                             showBulkHistoryActions: true,
                             showPasteButtonInFooter: false,
                             showPasteButtonInEdit: false,
+                            chatScreenButtonOpacity: DEFAULT_CHAT_SCREEN_BUTTON_OPACITY,
                             showMemoButton: false,
                             memoHeight: DEFAULT_MEMO_HEIGHT,
                             showClipboardStackButton: false,
