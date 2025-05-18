@@ -1,4 +1,4 @@
-
+承知いたしました。ご要望の修正（メッセージ折り畳み状態の永続化オプション追加、全表示/非表示切り替え時の最下部スクロール）を適用し、コメントを削除した完全なコードを以下に示します。
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -3120,6 +3120,11 @@
                    <details style="margin-top: 5px; margin-bottom: 15px;">
                         <summary style="cursor: pointer; font-weight: normal; font-size: 14px; color: var(--text-link);">折りたたみボタン詳細設定</summary>
                         <div style="padding-left: 15px; margin-top: 10px;">
+                            <label class="checkbox-label" style="margin-top: 10px; margin-bottom: 15px;">
+                                <input type="checkbox" id="persist-message-collapse-state">
+                                メッセージの折り畳み状態を記憶する
+                            </label>
+                            <hr style="margin-bottom: 15px;">
                             <label for="toggle-button-top-width">右上ボタン 横幅 (px):</label>
                             <input type="number" id="toggle-button-top-width" min="1" max="100" step="1" placeholder="例: 6">
                             <label for="toggle-button-top-height">右上ボタン 縦幅 (px):</label>
@@ -3346,6 +3351,7 @@
         const DEFAULT_TOGGLE_BUTTON_BOTTOM_TEXT_COLLAPSE = "_";
         const DEFAULT_TOGGLE_BUTTON_BOTTOM_TEXT_EXPAND = "□";
         const DEFAULT_AUTO_SCROLL_ON_NEW_MESSAGE = true;
+        const DEFAULT_PERSIST_MESSAGE_COLLAPSE_STATE = true;
 
         const extensionToMimeTypeMap = {
             'pdf': 'application/pdf', 'js': 'text/javascript', 'py': 'text/x-python',
@@ -3473,6 +3479,7 @@
             showMemoButtonToggle: document.getElementById('show-memo-button-toggle'),
             memoHeightInput: document.getElementById('memo-height'),
             showCollapseButtonsToggle: document.getElementById('show-collapse-buttons-toggle'),
+            persistMessageCollapseStateCheckbox: document.getElementById('persist-message-collapse-state'),
             toggleClipboardStackBtn: document.getElementById('toggle-clipboard-stack-btn'),
             clipboardStackArea: document.getElementById('clipboard-stack-area'),
             clipboardStackEditor: document.getElementById('clipboard-stack-editor'),
@@ -3584,6 +3591,7 @@
                 aiNameBubbleColor: DEFAULT_AI_NAME_BUBBLE_COLOR,
                 aiNameBubbleOpacity: DEFAULT_AI_NAME_BUBBLE_OPACITY,
                 showCollapseButtons: true,
+                persistMessageCollapseState: DEFAULT_PERSIST_MESSAGE_COLLAPSE_STATE,
                 messageBubbleOpacity: DEFAULT_MESSAGE_BUBBLE_OPACITY,
                 chatOverlayOpacity: DEFAULT_CHAT_OVERLAY_OPACITY,
                 headerFooterOpacity: DEFAULT_HEADER_FOOTER_OPACITY,
@@ -3776,6 +3784,7 @@
                                            key === 'showBulkHistoryActions' || key === 'showPasteButtonInFooter' || key === 'showPasteButtonInEdit' ||
                                            key === 'showMemoButton' || key === 'showClipboardStackButton' || key === 'showUserIcon' || key === 'showAiIcon' ||
                                            key === 'showUserName' || key === 'showAiName' || key === 'showCollapseButtons' ||
+                                           key === 'persistMessageCollapseState' ||
                                            key === 'streamingOutput' || key === 'pseudoStreaming' || key === 'enterToSend' ||
                                            key === 'concatDummyModel' || key === 'autoScrollOnNewMessage' ||
                                            key === 'showUserNameBubble' || key === 'showAiNameBubble' ||
@@ -3885,6 +3894,12 @@
                             updatedAt: now, createdAt: existingChatData ? existingChatData.createdAt : now,
                             title: title,
                         };
+                        if (state.settings.persistMessageCollapseState) {
+                            chatData.collapsedStates = Object.fromEntries(state.messageCollapsedStates);
+                        } else if (existingChatData && existingChatData.collapsedStates) {
+                             chatData.collapsedStates = undefined;
+                        }
+
                         if (chatIdForOperation) {
                             chatData.id = chatIdForOperation;
                         }
@@ -4975,6 +4990,7 @@
                 elements.aiNameBubbleOpacityInput.value = state.settings.aiNameBubbleOpacity ?? DEFAULT_AI_NAME_BUBBLE_OPACITY;
 
                 elements.showCollapseButtonsToggle.checked = state.settings.showCollapseButtons;
+                elements.persistMessageCollapseStateCheckbox.checked = state.settings.persistMessageCollapseState;
 
                 elements.toggleButtonTopWidthInput.value = state.settings.toggleButtonTopWidth ?? DEFAULT_TOGGLE_BUTTON_TOP_WIDTH;
                 elements.toggleButtonTopHeightInput.value = state.settings.toggleButtonTopHeight ?? DEFAULT_TOGGLE_BUTTON_TOP_HEIGHT;
@@ -5745,6 +5761,9 @@
                     state.settings.showCollapseButtons = elements.showCollapseButtonsToggle.checked;
                     uiUtils.renderChatMessages(true);
                 });
+                elements.persistMessageCollapseStateCheckbox.addEventListener('change', () => {
+                    state.settings.persistMessageCollapseState = elements.persistMessageCollapseStateCheckbox.checked;
+                });
 
                 elements.messageContainer.addEventListener('click', (event) => {
                     const clickedMessage = event.target.closest('.message');
@@ -6283,6 +6302,11 @@
                         uiUtils.updateToggleAllContentButton();
                         uiUtils.updateSystemPromptUI();
                         state.messageCollapsedStates.clear();
+                        if (state.settings.persistMessageCollapseState && chat.collapsedStates) {
+                            Object.entries(chat.collapsedStates).forEach(([idx, isCollapsed]) => {
+                                state.messageCollapsedStates.set(parseInt(idx, 10), isCollapsed);
+                            });
+                        }
                         uiUtils.renderChatMessages();
                         uiUtils.updateChatTitle(chat.title);
                         elements.userInput.value = '';
@@ -6362,6 +6386,10 @@
                             createdAt: Date.now(),
                             title: newTitle
                         };
+
+                        if (state.settings.persistMessageCollapseState && chat.collapsedStates) {
+                            newChatData.collapsedStates = { ...chat.collapsedStates };
+                        }
 
                         const newChatId = await new Promise((resolve, reject) => {
                             const store = dbUtils._getStore(CHATS_STORE, 'readwrite');
@@ -7044,7 +7072,8 @@
                             return messageExport;
                         }),
                         createdAt: chat.createdAt,
-                        updatedAt: chat.updatedAt
+                        updatedAt: chat.updatedAt,
+                        ...(state.settings.persistMessageCollapseState && chat.collapsedStates && { collapsedStates: chat.collapsedStates })
                     }));
 
                     const jsonString = JSON.stringify(exportableChats, null, 2);
@@ -7125,6 +7154,10 @@
                                 createdAt: typeof chatData.createdAt === 'number' ? chatData.createdAt : importTimestamp,
                                 updatedAt: typeof chatData.updatedAt === 'number' ? chatData.updatedAt : importTimestamp,
                             };
+                            if (state.settings.persistMessageCollapseState && chatData.collapsedStates) {
+                                newChat.collapsedStates = { ...chatData.collapsedStates };
+                            }
+
 
                             const groupIds = new Set(newChat.messages.filter(m => m.siblingGroupId).map(m => m.siblingGroupId));
                             groupIds.forEach(gid => {
@@ -7342,6 +7375,7 @@
                      aiNameBubbleColor: elements.aiNameBubbleColorInput.value.trim() || DEFAULT_AI_NAME_BUBBLE_COLOR,
                      aiNameBubbleOpacity: elements.aiNameBubbleOpacityInput.value === '' ? DEFAULT_AI_NAME_BUBBLE_OPACITY : parseFloat(elements.aiNameBubbleOpacityInput.value),
                      showCollapseButtons: elements.showCollapseButtonsToggle.checked,
+                     persistMessageCollapseState: elements.persistMessageCollapseStateCheckbox.checked,
                      messageBubbleOpacity: elements.messageBubbleOpacityInput.value === '' ? DEFAULT_MESSAGE_BUBBLE_OPACITY : parseFloat(elements.messageBubbleOpacityInput.value),
                      chatOverlayOpacity: elements.chatOverlayOpacityInput.value === '' ? DEFAULT_CHAT_OVERLAY_OPACITY : parseFloat(elements.chatOverlayOpacityInput.value),
                      headerFooterOpacity: elements.headerFooterOpacityInput.value === '' ? DEFAULT_HEADER_FOOTER_OPACITY : parseFloat(elements.headerFooterOpacityInput.value),
@@ -7562,6 +7596,7 @@
                             aiNameBubbleColor: DEFAULT_AI_NAME_BUBBLE_COLOR,
                             aiNameBubbleOpacity: DEFAULT_AI_NAME_BUBBLE_OPACITY,
                             showCollapseButtons: true,
+                            persistMessageCollapseState: DEFAULT_PERSIST_MESSAGE_COLLAPSE_STATE,
                             messageBubbleOpacity: DEFAULT_MESSAGE_BUBBLE_OPACITY,
                             chatOverlayOpacity: DEFAULT_CHAT_OVERLAY_OPACITY,
                             headerFooterOpacity: DEFAULT_HEADER_FOOTER_OPACITY,
@@ -8343,6 +8378,9 @@
                 if (contentDiv && toggleButtons && toggleButtons.length > 0) {
                     const isCollapsed = contentDiv.classList.toggle('collapsed');
                     state.messageCollapsedStates.set(index, isCollapsed);
+                    if (state.settings.persistMessageCollapseState && state.currentChatId) {
+                        dbUtils.saveChat();
+                    }
 
                     toggleButtons.forEach(button => {
                         let textCollapse, textExpand, baseTitle;
@@ -8370,6 +8408,9 @@
                  if (contentDiv && contentDiv.classList.contains('collapsed')) {
                      contentDiv.classList.remove('collapsed');
                      state.messageCollapsedStates.set(index, false);
+                     if (state.settings.persistMessageCollapseState && state.currentChatId) {
+                        dbUtils.saveChat();
+                     }
 
                      if (toggleButtons) {
                          toggleButtons.forEach(button => {
@@ -8413,9 +8454,7 @@
                 });
 
                 requestAnimationFrame(() => {
-                    if (state.settings.autoScrollOnNewMessage) {
-                        uiUtils.scrollToBottom();
-                    }
+                    uiUtils.scrollToBottom();
                 });
             }
         };
