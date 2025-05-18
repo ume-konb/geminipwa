@@ -54,6 +54,10 @@
             --bg-button-header-delete-hover: #c62828;
             --bg-button-header-copy: #e91e63;
             --bg-button-header-copy-hover: #c2185b;
+            --bg-code-copy-button: var(--bg-button-action);
+            --bg-code-copy-button-hover: var(--bg-button-action-hover);
+            --text-code-copy-button: var(--text-light);
+
 
             --text-primary: #333333;
             --text-secondary: #777777;
@@ -194,6 +198,9 @@
             --bg-button-header-delete-hover: var(--bg-button-delete-hover);
             --bg-button-header-copy: var(--bg-button-copy);
             --bg-button-header-copy-hover: var(--bg-button-copy-hover);
+            --bg-code-copy-button: var(--bg-button-action);
+            --bg-code-copy-button-hover: var(--bg-button-action-hover);
+            --text-code-copy-button: var(--text-light);
 
             --text-primary: #e0e0e0;
             --text-secondary: #aaaaaa;
@@ -277,6 +284,9 @@
             --bg-button-header-delete-hover: var(--bg-button-delete-hover);
             --bg-button-header-copy: var(--bg-button-copy);
             --bg-button-header-copy-hover: var(--bg-button-copy-hover);
+            --bg-code-copy-button: var(--bg-button-action);
+            --bg-code-copy-button-hover: var(--bg-button-action-hover);
+            --text-code-copy-button: var(--text-light);
 
             --text-primary: #5c3c45;
             --text-secondary: #8c6b74;
@@ -377,6 +387,9 @@
             --bg-button-header-delete-hover: var(--bg-button-delete-hover);
             --bg-button-header-copy: var(--bg-button-copy);
             --bg-button-header-copy-hover: var(--bg-button-copy-hover);
+            --bg-code-copy-button: var(--bg-button-action);
+            --bg-code-copy-button-hover: var(--bg-button-action-hover);
+            --text-code-copy-button: var(--text-light);
 
             --text-primary: #3a5679;
             --text-secondary: #6b87a9;
@@ -478,6 +491,10 @@
             --bg-button-header-delete-hover: var(--bg-button-delete-hover);
             --bg-button-header-copy: var(--bg-button-copy);
             --bg-button-header-copy-hover: var(--bg-button-copy-hover);
+            --bg-code-copy-button: var(--bg-button-action);
+            --bg-code-copy-button-hover: var(--bg-button-action-hover);
+            --text-code-copy-button: var(--text-light);
+
 
             --text-primary: #5d4037;
             --text-secondary: #8d6e63;
@@ -562,6 +579,9 @@
             --bg-button-header-delete-hover: var(--bg-button-delete-hover);
             --bg-button-header-copy: var(--bg-button-copy);
             --bg-button-header-copy-hover: var(--bg-button-copy-hover);
+            --bg-code-copy-button: var(--bg-button-action);
+            --bg-code-copy-button-hover: var(--bg-button-action-hover);
+            --text-code-copy-button: var(--text-light);
 
             --text-primary: #4a148c;
             --text-secondary: #6a1b9a;
@@ -637,6 +657,9 @@
             --bg-header: linear-gradient(to right, #ffadad, #ffd6a5, #fdffb6, #caffbf, #9bf6ff, #a0c4ff, #bdb2ff, #ffc6ff, #ffadad);
             --overlay-base-rgb: 253, 253, 253;
             --bg-memo: #f0fff0;
+            --bg-code-copy-button: var(--bg-button-action);
+            --bg-code-copy-button-hover: var(--bg-button-action-hover);
+            --text-code-copy-button: var(--text-light);
 
             --text-primary: #333;
             --text-secondary: #555;
@@ -2166,7 +2189,32 @@
             font-size: var(--code-block-font-size);
             border: 1px solid var(--border-tertiary);
             color: var(--text-secondary);
+            position: relative;
         }
+        .message-content pre .code-copy-button {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            padding: 3px 8px;
+            font-size: 10px;
+            background-color: var(--bg-code-copy-button);
+            color: var(--text-code-copy-button);
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+        }
+        .message-content pre:hover .code-copy-button {
+            opacity: 1;
+        }
+        .message-content pre .code-copy-button:hover {
+            background-color: var(--bg-code-copy-button-hover);
+        }
+        body.pastel-yellow-mode .message-content pre .code-copy-button {
+            color: var(--text-light);
+        }
+
         .message.user .message-content pre {
              background-color: transparent;
              padding: 0;
@@ -2180,6 +2228,10 @@
              white-space: pre-wrap;
              word-wrap: break-word;
              overflow-x: visible;
+             position: static;
+        }
+        .message.user .message-content pre .code-copy-button {
+            display: none;
         }
         .message-content code:not(pre > code) {
             background-color: var(--bg-secondary);
@@ -4211,6 +4263,7 @@
                         if (role === 'model' && !isStreamingPlaceholder && typeof marked !== 'undefined') {
                             contentDiv.innerHTML = marked.parse(content || '');
                             this.processInteractiveTitles(contentDiv);
+                            this.addCopyButtonsToCodeBlocks(contentDiv);
                         } else if (role === 'user') {
                             const pre = document.createElement('pre'); pre.textContent = content; contentDiv.appendChild(pre);
                         } else if (role === 'error') {
@@ -4467,6 +4520,42 @@
                 }
                 elements.messageContainer.appendChild(messageDiv);
             },
+            addCopyButtonsToCodeBlocks(contentDiv) {
+                const codeBlocks = contentDiv.querySelectorAll('pre');
+                codeBlocks.forEach(preElement => {
+                    const codeElement = preElement.querySelector('code');
+                    const textToCopy = codeElement ? codeElement.innerText : preElement.innerText;
+
+                    if (textToCopy && textToCopy.trim() !== '') {
+                        const copyButton = document.createElement('button');
+                        copyButton.textContent = 'コピー';
+                        copyButton.classList.add('code-copy-button');
+                        copyButton.title = 'コードをコピー';
+                        copyButton.onclick = (event) => {
+                            event.stopPropagation();
+                            navigator.clipboard.writeText(textToCopy).then(() => {
+                                const originalText = copyButton.textContent;
+                                copyButton.textContent = 'コピー完了!';
+                                copyButton.disabled = true;
+                                setTimeout(() => {
+                                    copyButton.textContent = originalText;
+                                    copyButton.disabled = false;
+                                }, 1500);
+                            }).catch(err => {
+                                console.error('Code block copy error:', err);
+                                const originalText = copyButton.textContent;
+                                copyButton.textContent = '失敗';
+                                copyButton.disabled = true;
+                                setTimeout(() => {
+                                    copyButton.textContent = originalText;
+                                    copyButton.disabled = false;
+                                }, 2000);
+                            });
+                        };
+                        preElement.appendChild(copyButton);
+                    }
+                });
+            },
             updateStreamingMessage(index, newChar) {
                 const messageDiv = document.getElementById(`streaming-message-${index}`);
                 if (messageDiv && typeof marked !== 'undefined') {
@@ -4474,6 +4563,7 @@
                     if (contentDiv) {
                         try {
                             contentDiv.innerHTML = marked.parse(state.partialStreamContent || '');
+                            this.addCopyButtonsToCodeBlocks(contentDiv);
                         } catch (e) {
                             console.error("Streaming markdown parse error:", e);
                             contentDiv.textContent = state.partialStreamContent;
@@ -4493,6 +4583,7 @@
                          try {
                              contentDiv.innerHTML = marked.parse(finalRawContent);
                              this.processInteractiveTitles(contentDiv);
+                             this.addCopyButtonsToCodeBlocks(contentDiv);
                          } catch (e) {
                              console.error("Final markdown parse error:", e);
                              contentDiv.textContent = finalRawContent;
@@ -5104,6 +5195,8 @@
                 const customFont = state.settings.fontFamily?.trim();
                 const fontFamilyToApply = customFont ? customFont : DEFAULT_FONT_FAMILY;
                 document.documentElement.style.setProperty('--font-family', fontFamilyToApply);
+                document.documentElement.style.setProperty('--message-body-font-size', `${state.settings.messageBodyFontSize || DEFAULT_MESSAGE_BODY_FONT_SIZE}px`);
+                document.documentElement.style.setProperty('--code-block-font-size', `${state.settings.codeBlockFontSize || DEFAULT_CODE_BLOCK_FONT_SIZE}px`);
             },
             updateSystemPromptUI() {
                 elements.systemPromptEditor.value = state.currentSystemPrompt;
@@ -5796,7 +5889,7 @@
 
                 elements.messageContainer.addEventListener('click', (event) => {
                     const clickedMessage = event.target.closest('.message');
-                    if (event.target.closest('.message-actions button, .message-cascade-controls button, .message-toggle-button, .interactive-title-content')) {
+                    if (event.target.closest('.message-actions button, .message-cascade-controls button, .message-toggle-button, .interactive-title-content, .code-copy-button')) {
                         return;
                     }
                     if (clickedMessage) {
@@ -7887,6 +7980,7 @@
                     try {
                         contentDiv.innerHTML = marked.parse(newRawContent || '');
                         uiUtils.processInteractiveTitles(contentDiv);
+                        uiUtils.addCopyButtonsToCodeBlocks(contentDiv);
                     } catch (e) {
                         console.error("Markdown parse error on save edit:", e);
                         contentDiv.textContent = newRawContent;
