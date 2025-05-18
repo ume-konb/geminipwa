@@ -3035,10 +3035,7 @@
                        <input type="checkbox" id="enter-to-send">
                        Enterキーで送信する
                    </label>
-                   <label class="checkbox-label">
-                       <input type="checkbox" id="smooth-scroll-toggle">
-                       スムーズスクロールを使用する
-                   </label>
+
                    <label class="checkbox-label">
                        <input type="checkbox" id="auto-scroll-on-new-message">
                        メッセージ送受信時に自動スクロールする
@@ -3355,7 +3352,6 @@
         const DEFAULT_TOGGLE_BUTTON_BOTTOM_TEXT_EXPAND = "□";
         const DEFAULT_AUTO_SCROLL_ON_NEW_MESSAGE = true;
         const DEFAULT_PERSIST_MESSAGE_COLLAPSE_STATE = true;
-        const DEFAULT_SMOOTH_SCROLL = true;
 
         const extensionToMimeTypeMap = {
             'pdf': 'application/pdf', 'js': 'text/javascript', 'py': 'text/x-python',
@@ -3409,7 +3405,6 @@
             additionalModelsTextarea: document.getElementById('additional-models'),
             pseudoStreamingCheckbox: document.getElementById('pseudo-streaming'),
             enterToSendCheckbox: document.getElementById('enter-to-send'),
-            smoothScrollToggleCheckbox: document.getElementById('smooth-scroll-toggle'),
             autoScrollOnNewMessageCheckbox: document.getElementById('auto-scroll-on-new-message'),
             historySortOrderSelect: document.getElementById('history-sort-order'),
             themeSelect: document.getElementById('theme-select'),
@@ -3553,7 +3548,6 @@
                 additionalModels: '',
                 pseudoStreaming: false,
                 enterToSend: true,
-                smoothScroll: DEFAULT_SMOOTH_SCROLL,
                 autoScrollOnNewMessage: DEFAULT_AUTO_SCROLL_ON_NEW_MESSAGE,
                 historySortOrder: 'updatedAt',
                 theme: 'light',
@@ -3790,7 +3784,7 @@
                                            key === 'showBulkHistoryActions' || key === 'showPasteButtonInFooter' || key === 'showPasteButtonInEdit' ||
                                            key === 'showMemoButton' || key === 'showClipboardStackButton' || key === 'showUserIcon' || key === 'showAiIcon' ||
                                            key === 'showUserName' || key === 'showAiName' || key === 'showCollapseButtons' ||
-                                           key === 'persistMessageCollapseState' || key === 'smoothScroll' ||
+                                           key === 'persistMessageCollapseState' ||
                                            key === 'streamingOutput' || key === 'pseudoStreaming' || key === 'enterToSend' ||
                                            key === 'concatDummyModel' || key === 'autoScrollOnNewMessage' ||
                                            key === 'showUserNameBubble' || key === 'showAiNameBubble' ||
@@ -4514,10 +4508,7 @@
                 requestAnimationFrame(() => {
                     const mainContent = elements.chatScreen.querySelector('.main-content');
                     if (mainContent) {
-                        mainContent.scrollTo({
-                            top: mainContent.scrollHeight,
-                            behavior: state.settings.smoothScroll ? 'smooth' : 'auto'
-                        });
+                        mainContent.scrollTop = mainContent.scrollHeight;
                     }
                 });
             },
@@ -4953,7 +4944,6 @@
                 elements.additionalModelsTextarea.value = state.settings.additionalModels || '';
                 elements.pseudoStreamingCheckbox.checked = state.settings.pseudoStreaming;
                 elements.enterToSendCheckbox.checked = state.settings.enterToSend;
-                elements.smoothScrollToggleCheckbox.checked = state.settings.smoothScroll;
                 elements.autoScrollOnNewMessageCheckbox.checked = state.settings.autoScrollOnNewMessage;
                 elements.historySortOrderSelect.value = state.settings.historySortOrder || 'updatedAt';
                 if (elements.themeSelect) elements.themeSelect.value = state.settings.theme || 'light';
@@ -5774,9 +5764,6 @@
                 elements.persistMessageCollapseStateCheckbox.addEventListener('change', () => {
                     state.settings.persistMessageCollapseState = elements.persistMessageCollapseStateCheckbox.checked;
                 });
-                elements.smoothScrollToggleCheckbox.addEventListener('change', () => {
-                    state.settings.smoothScroll = elements.smoothScrollToggleCheckbox.checked;
-                });
 
                 elements.messageContainer.addEventListener('click', (event) => {
                     const clickedMessage = event.target.closest('.message');
@@ -6131,10 +6118,15 @@
                 requestAnimationFrame(() => {
                     const mainContent = elements.chatScreen.querySelector('.main-content');
                     if (mainContent) {
-                        mainContent.scrollTo({
-                            top: 0,
-                            behavior: state.settings.smoothScroll ? 'smooth' : 'auto'
-                        });
+                        mainContent.scrollTop = 0;
+                    }
+                });
+            },
+            scrollToBottom() {
+                requestAnimationFrame(() => {
+                    const mainContent = elements.chatScreen.querySelector('.main-content');
+                    if (mainContent) {
+                        mainContent.scrollTop = mainContent.scrollHeight;
                     }
                 });
             },
@@ -7343,7 +7335,6 @@
                      additionalModels: elements.additionalModelsTextarea.value.trim(),
                      pseudoStreaming: elements.pseudoStreamingCheckbox.checked,
                      enterToSend: elements.enterToSendCheckbox.checked,
-                     smoothScroll: elements.smoothScrollToggleCheckbox.checked,
                      autoScrollOnNewMessage: elements.autoScrollOnNewMessageCheckbox.checked,
                      historySortOrder: elements.historySortOrderSelect.value,
                      theme: elements.themeSelect.value,
@@ -7566,7 +7557,6 @@
                             presencePenalty: null, frequencyPenalty: null, thinkingBudget: null,
                             dummyUser: '', dummyModel: '', concatDummyModel: false,
                             additionalModels: '', pseudoStreaming: false, enterToSend: true,
-                            smoothScroll: DEFAULT_SMOOTH_SCROLL,
                             autoScrollOnNewMessage: DEFAULT_AUTO_SCROLL_ON_NEW_MESSAGE,
                             historySortOrder: 'updatedAt',
                             theme: window.matchMedia?.('(prefers-color-scheme: light)').matches ? 'dark' : 'light',
@@ -8380,7 +8370,7 @@
                 elements.fileUploadDialog.close('cancel');
                 uiUtils.updateAttachmentBadgeVisibility();
             },
-            async toggleMessageCollapse(index) {
+            toggleMessageCollapse(index) {
                 const messageElement = elements.messageContainer.querySelector(`.message[data-index="${index}"]`);
                 const contentDiv = messageElement?.querySelector('.message-content');
                 const toggleButtons = messageElement?.querySelectorAll('.message-toggle-button[data-action="toggle-collapse"]');
@@ -8389,7 +8379,7 @@
                     const isCollapsed = contentDiv.classList.toggle('collapsed');
                     state.messageCollapsedStates.set(index, isCollapsed);
                     if (state.settings.persistMessageCollapseState && state.currentChatId) {
-                       await dbUtils.saveChat();
+                        dbUtils.saveChat();
                     }
 
                     toggleButtons.forEach(button => {
@@ -8408,7 +8398,7 @@
                     });
                 }
             },
-            async uncollapseMessage(index, messageElement = null) {
+            uncollapseMessage(index, messageElement = null) {
                  if (!messageElement) {
                      messageElement = elements.messageContainer.querySelector(`.message[data-index="${index}"]`);
                  }
@@ -8419,7 +8409,7 @@
                      contentDiv.classList.remove('collapsed');
                      state.messageCollapsedStates.set(index, false);
                      if (state.settings.persistMessageCollapseState && state.currentChatId) {
-                        await dbUtils.saveChat();
+                        dbUtils.saveChat();
                      }
 
                      if (toggleButtons) {
