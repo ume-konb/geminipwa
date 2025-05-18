@@ -78,6 +78,8 @@
 
             --message-max-width: 85%;
             --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --message-body-font-size: 14px;
+            --code-block-font-size: 13px;
             --chat-background-image: none;
 
             --bg-dialog-file-item: var(--bg-tertiary);
@@ -1474,7 +1476,7 @@
             white-space: pre-wrap;
             word-wrap: break-word;
             font-family: inherit;
-            font-size: 14px;
+            font-size: var(--message-body-font-size);
             margin: 0;
             color: inherit;
             transition: opacity 0.2s ease;
@@ -2119,7 +2121,7 @@
         }
 
         .message-content {
-            font-size: 14px;
+            font-size: var(--message-body-font-size);
             line-height: 1.6;
             color: inherit;
             word-wrap: break-word;
@@ -2161,7 +2163,7 @@
             overflow-x: auto;
             margin: 1em 0;
             font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
-            font-size: 13px;
+            font-size: var(--code-block-font-size);
             border: 1px solid var(--border-tertiary);
             color: var(--text-secondary);
         }
@@ -2173,7 +2175,7 @@
              border-radius: 0;
              color: inherit;
              font-family: inherit;
-             font-size: inherit;
+             font-size: var(--message-body-font-size);
              line-height: inherit;
              white-space: pre-wrap;
              word-wrap: break-word;
@@ -3153,8 +3155,15 @@
                    </select>
                    <label for="font-family-input">アプリのフォント:</label>
                    <input type="text" id="font-family-input" placeholder="例: 'Meiryo', sans-serif" aria-label="アプリ全体のフォント">
-                   <p style="font-size: 11px; color: var(--text-secondary); margin-top: -5px; margin-bottom: 10px;">
+                   <p style="font-size: 11px; color: var(--text-secondary); margin-top: -5px; margin-bottom: 5px;">
                        ※ 端末またはPCにインストールされているフォント名を指定。
+                   </p>
+                   <label for="message-body-font-size-input">メッセージ本文のフォントサイズ (px):</label>
+                   <input type="number" id="message-body-font-size-input" placeholder="例: 14 (デフォルト)" aria-label="メッセージ本文のフォントサイズ">
+                   <label for="code-block-font-size-input">コードブロックのフォントサイズ (px):</label>
+                   <input type="number" id="code-block-font-size-input" placeholder="例: 13 (デフォルト)" aria-label="コードブロックのフォントサイズ">
+                   <p style="font-size: 11px; color: var(--text-secondary); margin-top: -5px; margin-bottom: 10px;">
+                       ※ 空欄でデフォルト値。
                    </p>
                    <label for="additional-models">追加モデル (カンマ区切り):</label>
                    <textarea id="additional-models" placeholder="例: gemini-2.0-pro,gemini-2.0-flash-lite" aria-label="追加モデル"></textarea>
@@ -3260,6 +3269,8 @@
         const DEFAULT_TOP_K = 40;
         const DEFAULT_TOP_P = 0.95;
         const DEFAULT_FONT_FAMILY = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+        const DEFAULT_MESSAGE_BODY_FONT_SIZE = 14;
+        const DEFAULT_CODE_BLOCK_FONT_SIZE = 13;
         const DEFAULT_MEMO_HEIGHT = '300px';
         const DEFAULT_CLIPBOARD_STACK_HEIGHT = '300px';
         const DEFAULT_MESSAGE_ICON_SIZE = 28;
@@ -3409,6 +3420,8 @@
             historySortOrderSelect: document.getElementById('history-sort-order'),
             themeSelect: document.getElementById('theme-select'),
             fontFamilyInput: document.getElementById('font-family-input'),
+            messageBodyFontSizeInput: document.getElementById('message-body-font-size-input'),
+            codeBlockFontSizeInput: document.getElementById('code-block-font-size-input'),
             hideSystemPromptToggle: document.getElementById('hide-system-prompt-toggle'),
             enableGroundingToggle: document.getElementById('enable-grounding-toggle'),
             swipeNavigationToggle: document.getElementById('swipe-navigation-toggle'),
@@ -3553,6 +3566,8 @@
                 theme: 'light',
                 backgroundImageBlob: null,
                 fontFamily: '',
+                messageBodyFontSize: DEFAULT_MESSAGE_BODY_FONT_SIZE,
+                codeBlockFontSize: DEFAULT_CODE_BLOCK_FONT_SIZE,
                 hideSystemPromptInChat: false,
                 enableGrounding: false,
                 enableSwipeNavigation: true,
@@ -3783,8 +3798,7 @@
                                            key === 'showScrollToTopButton' || key === 'showScrollToBottomButton' || key === 'showToggleAllContentButton' ||
                                            key === 'showBulkHistoryActions' || key === 'showPasteButtonInFooter' || key === 'showPasteButtonInEdit' ||
                                            key === 'showMemoButton' || key === 'showClipboardStackButton' || key === 'showUserIcon' || key === 'showAiIcon' ||
-                                           key === 'showUserName' || key === 'showAiName' || key === 'showCollapseButtons' ||
-                                           key === 'persistMessageCollapseState' ||
+                                           key === 'showUserName' || key === 'showAiName' || key === 'showCollapseButtons' || key === 'persistMessageCollapseState' ||
                                            key === 'streamingOutput' || key === 'pseudoStreaming' || key === 'enterToSend' ||
                                            key === 'concatDummyModel' || key === 'autoScrollOnNewMessage' ||
                                            key === 'showUserNameBubble' || key === 'showAiNameBubble' ||
@@ -3809,7 +3823,8 @@
                                          key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity' ||
                                          key === 'messageActionsBackgroundOpacity' || key === 'toggleButtonTopOpacity' ||
                                          key === 'messageIconSize' || key === 'messageIconOffsetY' || key === 'iconNameFontSize' || key === 'iconNameOffsetY' ||
-                                         key === 'userNameBubbleOpacity' || key === 'aiNameBubbleOpacity') {
+                                         key === 'userNameBubbleOpacity' || key === 'aiNameBubbleOpacity' ||
+                                         key === 'messageBodyFontSize' || key === 'codeBlockFontSize') {
                                          num = parseFloat(loadedValue);
                                      } else {
                                          num = parseInt(loadedValue, 10);
@@ -3819,7 +3834,8 @@
                                              key === 'presencePenalty' || key === 'frequencyPenalty' || key === 'thinkingBudget' ||
                                              key === 'messageBubbleOpacity' || key === 'chatOverlayOpacity' || key === 'headerFooterOpacity' ||
                                              key === 'messageActionsBackgroundOpacity' || key === 'toggleButtonTopOpacity' ||
-                                             key === 'userNameBubbleOpacity' || key === 'aiNameBubbleOpacity'
+                                             key === 'userNameBubbleOpacity' || key === 'aiNameBubbleOpacity' ||
+                                             key === 'messageBodyFontSize' || key === 'codeBlockFontSize'
                                              ) && (loadedValue === null || loadedValue === '')) {
                                               state.settings[key] = null;
                                          } else {
@@ -3841,6 +3857,7 @@
                                           if (key === 'messageIconOffsetY' && (num < -200 || num > 200)) num = defaultValue;
                                           if (key === 'iconNameFontSize' && (num < 1 || num > 46)) num = defaultValue;
                                           if (key === 'iconNameOffsetY' && (num < -200 || num > 200)) num = defaultValue;
+                                          if ((key === 'messageBodyFontSize' || key === 'codeBlockFontSize') && (num < 8 || num > 32)) num = defaultValue;
                                           state.settings[key] = num;
                                      }
                                 } else if (typeof defaultValue === 'string') {
@@ -4948,6 +4965,8 @@
                 elements.historySortOrderSelect.value = state.settings.historySortOrder || 'updatedAt';
                 if (elements.themeSelect) elements.themeSelect.value = state.settings.theme || 'light';
                 elements.fontFamilyInput.value = state.settings.fontFamily || '';
+                elements.messageBodyFontSizeInput.value = state.settings.messageBodyFontSize ?? '';
+                elements.codeBlockFontSizeInput.value = state.settings.codeBlockFontSize ?? '';
                 elements.hideSystemPromptToggle.checked = state.settings.hideSystemPromptInChat;
                 elements.enableGroundingToggle.checked = state.settings.enableGrounding;
                 elements.swipeNavigationToggle.checked = state.settings.enableSwipeNavigation;
@@ -5002,6 +5021,8 @@
                 elements.toggleButtonBottomTextCollapseInput.value = state.settings.toggleButtonBottomTextCollapse || DEFAULT_TOGGLE_BUTTON_BOTTOM_TEXT_COLLAPSE;
                 elements.toggleButtonBottomTextExpandInput.value = state.settings.toggleButtonBottomTextExpand || DEFAULT_TOGGLE_BUTTON_BOTTOM_TEXT_EXPAND;
 
+                document.documentElement.style.setProperty('--message-body-font-size', `${state.settings.messageBodyFontSize || DEFAULT_MESSAGE_BODY_FONT_SIZE}px`);
+                document.documentElement.style.setProperty('--code-block-font-size', `${state.settings.codeBlockFontSize || DEFAULT_CODE_BLOCK_FONT_SIZE}px`);
                 document.documentElement.style.setProperty('--message-toggle-button-top-width', `${state.settings.toggleButtonTopWidth || DEFAULT_TOGGLE_BUTTON_TOP_WIDTH}px`);
                 document.documentElement.style.setProperty('--message-toggle-button-top-height', `${state.settings.toggleButtonTopHeight || DEFAULT_TOGGLE_BUTTON_TOP_HEIGHT}px`);
                 document.documentElement.style.setProperty('--message-toggle-button-top-font-size', `${state.settings.toggleButtonTopFontSize || DEFAULT_TOGGLE_BUTTON_TOP_FONT_SIZE}px`);
@@ -5708,6 +5729,14 @@
                     } else {
                         document.documentElement.style.setProperty('--memo-height', DEFAULT_MEMO_HEIGHT);
                     }
+                });
+                elements.messageBodyFontSizeInput.addEventListener('input', () => {
+                    const newSize = elements.messageBodyFontSizeInput.value.trim();
+                    document.documentElement.style.setProperty('--message-body-font-size', newSize ? `${newSize}px` : `${DEFAULT_MESSAGE_BODY_FONT_SIZE}px`);
+                });
+                elements.codeBlockFontSizeInput.addEventListener('input', () => {
+                    const newSize = elements.codeBlockFontSizeInput.value.trim();
+                    document.documentElement.style.setProperty('--code-block-font-size', newSize ? `${newSize}px` : `${DEFAULT_CODE_BLOCK_FONT_SIZE}px`);
                 });
                 elements.showToggleAllContentButtonToggle.addEventListener('change', () => {
                     state.settings.showToggleAllContentButton = elements.showToggleAllContentButtonToggle.checked;
@@ -7339,6 +7368,8 @@
                      historySortOrder: elements.historySortOrderSelect.value,
                      theme: elements.themeSelect.value,
                      fontFamily: elements.fontFamilyInput.value.trim(),
+                     messageBodyFontSize: elements.messageBodyFontSizeInput.value === '' ? null : parseInt(elements.messageBodyFontSizeInput.value, 10),
+                     codeBlockFontSize: elements.codeBlockFontSizeInput.value === '' ? null : parseInt(elements.codeBlockFontSizeInput.value, 10),
                      hideSystemPromptInChat: elements.hideSystemPromptToggle.checked,
                      enableGrounding: elements.enableGroundingToggle.checked,
                      enableSwipeNavigation: elements.swipeNavigationToggle.checked,
@@ -7414,6 +7445,12 @@
                  }
                  if (newSettings.thinkingBudget !== null && (isNaN(newSettings.thinkingBudget) || newSettings.thinkingBudget < 0 || !Number.isInteger(newSettings.thinkingBudget))) {
                      newSettings.thinkingBudget = null;
+                 }
+                 if (newSettings.messageBodyFontSize !== null && (isNaN(newSettings.messageBodyFontSize))) {
+                    newSettings.messageBodyFontSize = DEFAULT_MESSAGE_BODY_FONT_SIZE;
+                 }
+                 if (newSettings.codeBlockFontSize !== null && (isNaN(newSettings.codeBlockFontSize))) {
+                    newSettings.codeBlockFontSize = DEFAULT_CODE_BLOCK_FONT_SIZE;
                  }
                  if (newSettings.messageIconSize !== null && (isNaN(newSettings.messageIconSize) || newSettings.messageIconSize < 1 || newSettings.messageIconSize > 300)) {
                      newSettings.messageIconSize = DEFAULT_MESSAGE_ICON_SIZE;
@@ -7561,6 +7598,8 @@
                             historySortOrder: 'updatedAt',
                             theme: window.matchMedia?.('(prefers-color-scheme: light)').matches ? 'dark' : 'light',
                             backgroundImageBlob: null, fontFamily: '',
+                            messageBodyFontSize: DEFAULT_MESSAGE_BODY_FONT_SIZE,
+                            codeBlockFontSize: DEFAULT_CODE_BLOCK_FONT_SIZE,
                             hideSystemPromptInChat: false, enableSwipeNavigation: true,
                             preventZoom: true,
                             showNewChatButton: true,
