@@ -2723,6 +2723,42 @@
             font-size: 0.9em;
             color: var(--text-secondary);
         }
+        .history-item-actions .js-link-session-btn {
+        }
+        .history-item-actions .js-link-session-btn:hover:not(:disabled) {
+            background-color: var(--bg-button-action-hover) !important;
+        }
+        .history-item-actions .js-link-session-btn.linked-a {
+            background-color: var(--bg-button-save) !important;
+            color: var(--text-light) !important;
+        }
+        .history-item-actions .js-link-session-btn.linked-a:hover:not(:disabled) {
+            background-color: var(--bg-button-save-hover) !important;
+        }
+        .history-item-actions .js-link-session-btn.linked-b {
+            background-color: var(--bg-button-copy) !important;
+            color: var(--text-light) !important;
+        }
+        .history-item-actions .js-link-session-btn.linked-b:hover:not(:disabled) {
+            background-color: var(--bg-button-copy-hover) !important;
+        }
+        #ai-to-ai-chat-btn {
+        }
+        .ai-processing-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2em;
+            z-index: 200;
+        }
+
     </style>
     <script src="marked.js"></script>
 </head>
@@ -2780,6 +2816,7 @@
                 <div id="loading-indicator" class="loading-indicator hidden" aria-live="polite">応答中</div>
             </main>
             <footer class="chat-input-area">
+                <button id="ai-to-ai-chat-btn" title="AI間会話ステップ実行" class="footer-action-button hidden">👥</button>
                 <button id="paste-to-input-btn" title="入力欄に貼り付け" class="footer-action-button">貼</button>
                 <textarea id="user-input" placeholder="メッセージを入力..." rows="1" aria-label="メッセージ入力"></textarea>
                 <button id="attach-file-btn" title="ファイルを添付" class="footer-action-button">+<span class="attachment-badge"></span></button>
@@ -2812,6 +2849,7 @@
                                 <span class="updated-date"></span>
                             </div>
                             <div class="history-item-actions">
+                                <button class="js-link-session-btn" title="セッションをリンク/解除" style="font-size: 16px; padding: 6px 8px; background-color: var(--bg-button-action);">🔗</button>
                                 <button class="js-edit-title-btn" title="タイトル編集">✎</button>
                                 <button class="js-export-btn" title="出力">出力</button>
                                 <button class="js-duplicate-btn" title="複製">複製</button>
@@ -2949,6 +2987,16 @@
                         ※ チェック時、モデルは回答生成のためにWeb検索を行う。<br>
                         ※ 2.0以降でのみ対応(1.5以前は互換なし。エラーになる)<br>
                         ※ 推論モデルは推論内で検索する場合があり、引用データが帰らない場合がある。
+                    </p>
+                </div>
+                <div class="settings-group">
+                    <h3>AI間会話モード（セッション間リンク）</h3>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="enable-session-linking">
+                        セッション間リンク機能を有効にする
+                    </label>
+                    <p style="font-size: 11px; color: var(--text-secondary); margin-top: -5px; margin-bottom: 10px;">
+                        ※ 有効にすると、履歴画面で2つのセッションをリンクし、AI同士の会話をステップ実行できます。
                     </p>
                 </div>
                 <div class="settings-group">
@@ -3476,6 +3524,7 @@
             codeBlockFontSizeInput: document.getElementById('code-block-font-size-input'),
             hideSystemPromptToggle: document.getElementById('hide-system-prompt-toggle'),
             enableGroundingToggle: document.getElementById('enable-grounding-toggle'),
+            enableSessionLinkingCheckbox: document.getElementById('enable-session-linking'),
             swipeNavigationToggle: document.getElementById('swipe-navigation-toggle'),
             preventZoomToggle: document.getElementById('prevent-zoom-toggle'),
             showNewChatButtonToggle: document.getElementById('show-new-chat-button-toggle'),
@@ -3528,6 +3577,7 @@
             promptOkBtn: document.getElementById('promptDialog').querySelector('.dialog-ok-btn'),
             promptCancelBtn: document.getElementById('promptDialog').querySelector('.dialog-cancel-btn'),
             attachFileBtn: document.getElementById('attach-file-btn'),
+            aiToAiChatBtn: document.getElementById('ai-to-ai-chat-btn'),
             pasteToInputBtn: document.getElementById('paste-to-input-btn'),
             fileUploadDialog: document.getElementById('fileUploadDialog'),
             fileInput: document.getElementById('file-input'),
@@ -3622,6 +3672,7 @@
                 codeBlockFontSize: DEFAULT_CODE_BLOCK_FONT_SIZE,
                 hideSystemPromptInChat: false,
                 enableGrounding: false,
+                enableSessionLinking: false,
                 enableSwipeNavigation: true,
                 preventZoom: true,
                 showNewChatButton: true,
@@ -3695,6 +3746,8 @@
             clipboardStackContent: "",
             areAllMessagesHidden: false,
             messageCollapsedStates: new Map(),
+            linkedSessionIds: [],
+            isAiToAiChatProcessing: false,
         };
 
         function updateMessageMaxWidthVar() {
@@ -3854,7 +3907,8 @@
                                            key === 'streamingOutput' || key === 'pseudoStreaming' || key === 'enterToSend' ||
                                            key === 'concatDummyModel' || key === 'autoScrollOnNewMessage' ||
                                            key === 'showUserNameBubble' || key === 'showAiNameBubble' ||
-                                           key === 'userNameBubbleUseThemeColor' || key === 'aiNameBubbleUseThemeColor') {
+                                           key === 'userNameBubbleUseThemeColor' || key === 'aiNameBubbleUseThemeColor' ||
+                                           key === 'enableSessionLinking') {
                                      state.settings[key] = loadedValue === true;
                                 } else if (key === 'toggleButtonTopFontSize' || key === 'toggleButtonBottomFontSize' || key === 'toggleButtonTopWidth' || key === 'toggleButtonTopHeight') {
                                     let num = parseInt(loadedValue, 10);
@@ -4672,6 +4726,7 @@
                     const chats = await dbUtils.getAllChats(state.settings.historySortOrder);
                     elements.historyList.querySelectorAll('.history-item:not(.js-history-item-template)').forEach(item => item.remove());
                     this.updateHistoryHeaderButtonVisibility();
+                    const sessionLinkingEnabled = state.settings.enableSessionLinking;
 
                     if (chats && chats.length > 0) {
                         elements.noHistoryMessage.classList.add('hidden');
@@ -4701,6 +4756,24 @@
                             li.querySelector('.js-export-btn').onclick = (e) => { e.stopPropagation(); appLogic.exportChat(chat.id, titleText); };
                             li.querySelector('.js-duplicate-btn').onclick = (e) => { e.stopPropagation(); appLogic.duplicateChat(chat.id); };
                             li.querySelector('.js-delete-btn').onclick = (e) => { e.stopPropagation(); appLogic.confirmDeleteChat(chat.id, titleText); };
+
+                            const linkButton = li.querySelector('.js-link-session-btn');
+                            if (linkButton) {
+                                if (sessionLinkingEnabled) {
+                                    linkButton.classList.remove('hidden');
+                                    linkButton.classList.remove('linked-a', 'linked-b');
+                                    if (state.linkedSessionIds.includes(chat.id)) {
+                                        if (state.linkedSessionIds[0] === chat.id) {
+                                            linkButton.classList.add('linked-a');
+                                        } else if (state.linkedSessionIds[1] === chat.id) {
+                                            linkButton.classList.add('linked-b');
+                                        }
+                                    }
+                                    linkButton.onclick = (e) => { e.stopPropagation(); appLogic.toggleSessionLink(chat.id); };
+                                } else {
+                                    linkButton.classList.add('hidden');
+                                }
+                            }
 
                             elements.historyList.appendChild(li);
                         });
@@ -5060,6 +5133,7 @@
                 elements.codeBlockFontSizeInput.value = state.settings.codeBlockFontSize ?? '';
                 elements.hideSystemPromptToggle.checked = state.settings.hideSystemPromptInChat;
                 elements.enableGroundingToggle.checked = state.settings.enableGrounding;
+                elements.enableSessionLinkingCheckbox.checked = state.settings.enableSessionLinking;
                 elements.swipeNavigationToggle.checked = state.settings.enableSwipeNavigation;
                 elements.preventZoomToggle.checked = state.settings.preventZoom;
                 elements.showNewChatButtonToggle.checked = state.settings.showNewChatButton;
@@ -5129,6 +5203,7 @@
                 this.applyFontFamily();
                 this.toggleSystemPromptVisibility();
                 this.applySidePanelSettingsToUI();
+                this.updateSessionLinkingUI();
             },
             updateChatScreenElementVisibility() {
                 if (elements.newChatBtn) {
@@ -5157,6 +5232,12 @@
                 }
                 if (elements.pasteToInputBtn) {
                     elements.pasteToInputBtn.classList.toggle('hidden', !state.settings.showPasteButtonInFooter);
+                }
+                if (elements.aiToAiChatBtn) {
+                    const showAiToAiBtn = state.settings.enableSessionLinking &&
+                                          state.linkedSessionIds.length === 2 &&
+                                          state.currentChatId && state.linkedSessionIds.includes(state.currentChatId);
+                    elements.aiToAiChatBtn.classList.toggle('hidden', !showAiToAiBtn);
                 }
             },
             updateHistoryHeaderButtonVisibility() {
@@ -5298,6 +5379,7 @@
                     elements.userInput.disabled = true;
                     elements.attachFileBtn.disabled = true;
                     elements.pasteToInputBtn.disabled = true;
+                    elements.aiToAiChatBtn.disabled = true;
                     elements.loadingIndicator.classList.remove('hidden');
                     elements.loadingIndicator.setAttribute('aria-live', 'polite');
                     elements.systemPromptDetails.style.pointerEvents = 'none';
@@ -5310,6 +5392,7 @@
                     elements.userInput.disabled = false;
                     elements.attachFileBtn.disabled = false;
                     elements.pasteToInputBtn.disabled = false;
+                    if (elements.aiToAiChatBtn) elements.aiToAiChatBtn.disabled = false;
                     elements.loadingIndicator.classList.add('hidden');
                     elements.loadingIndicator.removeAttribute('aria-live');
                     elements.systemPromptDetails.style.pointerEvents = '';
@@ -5493,7 +5576,41 @@
                         link.style.cursor = 'pointer';
                     }
                 });
-            }
+            },
+            setAiToAiProcessingState(processing, message = "AI間会話処理中...") {
+                state.isAiToAiChatProcessing = processing;
+                let overlay = document.getElementById('ai-processing-overlay');
+
+                if (processing) {
+                    if (!overlay) {
+                        overlay = document.createElement('div');
+                        overlay.id = 'ai-processing-overlay';
+                        overlay.classList.add('ai-processing-overlay');
+                        document.body.appendChild(overlay);
+                    }
+                    overlay.textContent = message;
+                    overlay.classList.remove('hidden');
+
+                    elements.sendButton.disabled = true;
+                    elements.userInput.disabled = true;
+                    elements.attachFileBtn.disabled = true;
+                    elements.pasteToInputBtn.disabled = true;
+                    elements.aiToAiChatBtn.disabled = true;
+                } else {
+                    if (overlay) {
+                        overlay.classList.add('hidden');
+                    }
+                    elements.sendButton.disabled = elements.userInput.value.trim() === '' && state.pendingAttachments.length === 0;
+                    elements.userInput.disabled = false;
+                    elements.attachFileBtn.disabled = false;
+                    elements.pasteToInputBtn.disabled = false;
+                    if (elements.aiToAiChatBtn) elements.aiToAiChatBtn.disabled = false;
+                }
+            },
+            updateSessionLinkingUI() {
+                this.renderHistoryList();
+                this.updateChatScreenElementVisibility();
+            },
         };
 
         const appLogic = {
@@ -5581,6 +5698,7 @@
 
                 elements.scrollToTopBtn.addEventListener('click', () => this.scrollToTop());
                 elements.scrollToBottomBtn.addEventListener('click', () => this.scrollToBottom());
+                elements.aiToAiChatBtn.addEventListener('click', () => this.initiateAiToAiStep());
                 elements.pasteToInputBtn.addEventListener('click', () => this.pasteToUserInput());
 
                 elements.newChatBtn.addEventListener('click', async () => {
@@ -5643,6 +5761,15 @@
                     elements.themeSelect.addEventListener('change', () => {
                         state.settings.theme = elements.themeSelect.value;
                         uiUtils.applyTheme();
+                    });
+                }
+                if (elements.enableSessionLinkingCheckbox) {
+                    elements.enableSessionLinkingCheckbox.addEventListener('change', () => {
+                        state.settings.enableSessionLinking = elements.enableSessionLinkingCheckbox.checked;
+                        if (!state.settings.enableSessionLinking) {
+                            state.linkedSessionIds = [];
+                        }
+                        uiUtils.updateSessionLinkingUI();
                     });
                 }
 
@@ -6752,17 +6879,27 @@
                 }
                 return accumulatedRawContent;
             },
-            async handleSend(isRetry = false, retryUserMessageIndex = -1) {
-                if (state.editingMessageIndex !== null) { await uiUtils.showCustomAlert("他のメッセージを編集中です。"); return; }
-                if (state.isEditingSystemPrompt) { await uiUtils.showCustomAlert("システムプロンプトを編集中です。"); return; }
+            async handleSend(isRetry = false, retryUserMessageIndex = -1, sourceSessionContext = null) {
+                const isBackgroundProcess = !!sourceSessionContext;
+                let currentContextSessionId = isBackgroundProcess ? sourceSessionContext.sessionId : state.currentChatId;
+                let currentContextMessages = isBackgroundProcess ? [...sourceSessionContext.messages] : [...state.currentMessages];
+                let currentContextSystemPrompt = isBackgroundProcess ? sourceSessionContext.systemPrompt : state.currentSystemPrompt;
+
+                if (!isBackgroundProcess) {
+                    if (state.editingMessageIndex !== null) { await uiUtils.showCustomAlert("他のメッセージを編集中です。"); return; }
+                    if (state.isEditingSystemPrompt) { await uiUtils.showCustomAlert("システムプロンプトを編集中です。"); return; }
+                }
 
                 let text = '';
                 let attachmentsToSend = [];
 
-                if (isRetry) {
-                    const retryUserMessage = state.currentMessages[retryUserMessageIndex];
+                if (isBackgroundProcess) {
+                    text = sourceSessionContext.inputText || '';
+                    attachmentsToSend = sourceSessionContext.attachments ? [...sourceSessionContext.attachments] : [];
+                } else if (isRetry) {
+                    const retryUserMessage = currentContextMessages[retryUserMessageIndex];
                     if (!retryUserMessage || retryUserMessage.role !== 'user') {
-                        uiUtils.setSendingState(false);
+                        if (!isBackgroundProcess) uiUtils.setSendingState(false);
                         return;
                     }
                     text = retryUserMessage.content || '';
@@ -6772,20 +6909,27 @@
                     attachmentsToSend = [...state.pendingAttachments];
                 }
 
-                if (state.isSending || (!text && attachmentsToSend.length === 0)) {
+                if (!isBackgroundProcess && (state.isSending || (!text && attachmentsToSend.length === 0))) {
                     return;
                 }
-                if (!state.settings.apiKey) { await uiUtils.showCustomAlert("APIキーが設定されていません。設定画面を開きます。"); uiUtils.showScreen('settings'); return; }
+                if (!state.settings.apiKey) {
+                    if (!isBackgroundProcess) {
+                        await uiUtils.showCustomAlert("APIキーが設定されていません。設定画面を開きます。");
+                        uiUtils.showScreen('settings');
+                    }
+                    return "APIキー未設定";
+                }
 
-                uiUtils.setSendingState(true);
-                state.partialStreamContent = '';
+                if (!isBackgroundProcess) uiUtils.setSendingState(true);
+                if (!isBackgroundProcess) state.partialStreamContent = '';
+
 
                 let userMessageIndex = isRetry ? retryUserMessageIndex : -1;
                 let existingSiblingGroupId = null;
                 let firstResponseIndexForRetry = -1;
                 let siblingGroupIdToUse = null;
 
-                if (!isRetry) {
+                if (!isBackgroundProcess && !isRetry) {
                     const userMessage = {
                         role: 'user', content: text, timestamp: Date.now(),
                         attachments: attachmentsToSend
@@ -6797,20 +6941,26 @@
                     elements.userInput.value = '';
                     state.pendingAttachments = [];
                     uiUtils.adjustTextareaHeight();
-                    if (state.settings.autoScrollOnNewMessage) {
-                        uiUtils.scrollToBottom();
-                    }
-                } else {
+                    if (state.settings.autoScrollOnNewMessage) uiUtils.scrollToBottom();
+                    currentContextMessages = [...state.currentMessages];
+                } else if (isBackgroundProcess && !isRetry) {
+                    const userMessage = {
+                        role: 'user', content: text, timestamp: Date.now(),
+                        attachments: attachmentsToSend
+                    };
+                    currentContextMessages.push(userMessage);
+                    userMessageIndex = currentContextMessages.length - 1;
+                } else if (isRetry) {
                     let siblingStartIndex = userMessageIndex + 1;
-                    while (siblingStartIndex < state.currentMessages.length && state.currentMessages[siblingStartIndex].role !== 'model') {
+                    while (siblingStartIndex < currentContextMessages.length && currentContextMessages[siblingStartIndex].role !== 'model') {
                         siblingStartIndex++;
                     }
-                    if (siblingStartIndex < state.currentMessages.length && state.currentMessages[siblingStartIndex].role === 'model') {
+                    if (siblingStartIndex < currentContextMessages.length && currentContextMessages[siblingStartIndex].role === 'model') {
                          firstResponseIndexForRetry = siblingStartIndex;
-                         const firstResponse = state.currentMessages[firstResponseIndexForRetry];
+                         const firstResponse = currentContextMessages[firstResponseIndexForRetry];
                          if (firstResponse.isCascaded && firstResponse.siblingGroupId) {
                              existingSiblingGroupId = firstResponse.siblingGroupId;
-                             state.currentMessages.forEach(msg => {
+                             currentContextMessages.forEach(msg => {
                                  if (msg.siblingGroupId === existingSiblingGroupId) {
                                      msg.isSelected = false;
                                  }
@@ -6819,27 +6969,78 @@
                          }
                     }
                 }
-
+                
                 const messagesToProcess = isRetry
-                    ? state.currentMessages.slice(0, userMessageIndex + 1)
-                    : [...state.currentMessages];
+                    ? currentContextMessages.slice(0, userMessageIndex + 1)
+                    : [...currentContextMessages];
+
 
                 try {
                     let titleToSave = null;
-                    if(state.currentChatId) {
-                        const currentChat = await dbUtils.getChat(state.currentChatId);
+                    if(currentContextSessionId) {
+                        const currentChat = await dbUtils.getChat(currentContextSessionId);
                         if(currentChat) titleToSave = currentChat.title;
                     }
                     if (!titleToSave) {
-                        const firstUserMsg = state.currentMessages.find(m => m.role === 'user');
+                        const firstUserMsg = currentContextMessages.find(m => m.role === 'user');
                         if(firstUserMsg) {
                             titleToSave = firstUserMsg.content.substring(0, 50);
                         }
                     }
-                    await dbUtils.saveChat(titleToSave);
+                    const chatToSave = {
+                        messages: currentContextMessages.map(msg => ({
+                            role: msg.role, content: msg.content, timestamp: msg.timestamp,
+                            ...(msg.finishReason && { finishReason: msg.finishReason }),
+                            ...(msg.safetyRatings && { safetyRatings: msg.safetyRatings }),
+                            ...(msg.error && { error: msg.error }),
+                            ...(msg.isCascaded !== undefined && { isCascaded: msg.isCascaded }),
+                            ...(msg.isSelected !== undefined && { isSelected: msg.isSelected }),
+                            ...(msg.siblingGroupId !== undefined && { siblingGroupId: msg.siblingGroupId }),
+                            ...(msg.groundingMetadata && { groundingMetadata: msg.groundingMetadata }),
+                            ...(msg.attachments && msg.attachments.length > 0 && { attachments: msg.attachments.map(att => ({
+                                name: att.name, mimeType: att.mimeType 
+                            })) }),
+                            ...(msg.usageMetadata && { usageMetadata: msg.usageMetadata }),
+                        })),
+                        systemPrompt: currentContextSystemPrompt,
+                        updatedAt: Date.now(),
+                        id: currentContextSessionId
+                    };
+                    if (currentContextSessionId) {
+                         const existingChat = await dbUtils.getChat(currentContextSessionId);
+                         if (existingChat) {
+                            chatToSave.createdAt = existingChat.createdAt;
+                            chatToSave.title = titleToSave || existingChat.title;
+                            if (state.settings.persistMessageCollapseState) {
+                                chatToSave.collapsedStates = !isBackgroundProcess ? Object.fromEntries(state.messageCollapsedStates) : (existingChat.collapsedStates || {});
+                            }
+                         } else {
+                            chatToSave.createdAt = Date.now();
+                            chatToSave.title = titleToSave || "新規チャット";
+                         }
+                    } else {
+                        chatToSave.createdAt = Date.now();
+                        chatToSave.title = titleToSave || "新規チャット";
+                    }
+
+                    const savedId = await new Promise((resolve, reject) => {
+                        const store = dbUtils._getStore(CHATS_STORE, 'readwrite');
+                        const request = chatToSave.id ? store.put(chatToSave) : store.add(chatToSave);
+                        request.onsuccess = (event) => resolve(event.target.result || chatToSave.id);
+                        request.onerror = (event) => reject(`チャット保存putエラー: ${event.target.error.name} - ${event.target.error.message}`);
+                    });
+                    
+                    if (!isBackgroundProcess && !state.currentChatId && savedId) {
+                        state.currentChatId = savedId;
+                        uiUtils.updateChatTitle(chatToSave.title);
+                    } else if (isBackgroundProcess && !sourceSessionContext.sessionId && savedId) {
+                        sourceSessionContext.sessionId = savedId;
+                    }
+
+
                 } catch (error) {
                     console.error("Error saving chat before send:", error);
-                    uiUtils.displayError("チャットの保存に失敗しましたが、送信を試みます。", false);
+                    if (!isBackgroundProcess) uiUtils.displayError("チャットの保存に失敗しましたが、送信を試みます。", false);
                 }
 
                 const apiMessages = messagesToProcess
@@ -6855,17 +7056,18 @@
                         }
                         if (msg.role === 'user' && msg.attachments && msg.attachments.length > 0) {
                             msg.attachments.forEach(att => {
-                                parts.push({
-                                    inlineData: {
-                                        mimeType: att.mimeType,
-                                        data: att.base64Data
-                                    }
-                                });
+                                if(att.base64Data) {
+                                    parts.push({
+                                        inlineData: {
+                                            mimeType: att.mimeType,
+                                            data: att.base64Data
+                                        }
+                                    });
+                                }
                             });
                         }
                         return { role: msg.role, parts: parts };
                     });
-
                 const dummyUserText = state.settings.dummyUser?.trim();
                 const dummyModelText = state.settings.dummyModel?.trim();
                 if (dummyUserText) apiMessages.push({ role: 'user', parts: [{ text: dummyUserText }] });
@@ -6886,8 +7088,9 @@
                     };
                 }
 
-                const systemInstruction = state.currentSystemPrompt?.trim()
-                    ? { role: "system", parts: [{ text: state.currentSystemPrompt.trim() }] }
+
+                const systemInstruction = currentContextSystemPrompt?.trim()
+                    ? { role: "system", parts: [{ text: currentContextSystemPrompt.trim() }] }
                     : null;
 
                 let modelResponseRawContent = '';
@@ -6899,7 +7102,7 @@
                     const response = await apiUtils.callGeminiApi(apiMessages, generationConfig, systemInstruction);
                     const dummyModelPrefix = (state.settings.concatDummyModel && state.settings.dummyModel) ? state.settings.dummyModel : '';
 
-                    if (state.settings.streamingOutput && !state.settings.pseudoStreaming) {
+                    if (!isBackgroundProcess && state.settings.streamingOutput && !state.settings.pseudoStreaming) {
                         const tempPlaceholderIndex = state.currentMessages.length;
                         uiUtils.appendMessage('model', '', tempPlaceholderIndex, true);
                         const streamResult = await apiUtils.handleStreamingResponse(response);
@@ -6914,7 +7117,8 @@
                         }
                         const placeholderElement = document.getElementById(`streaming-message-${tempPlaceholderIndex}`);
                         if (placeholderElement) placeholderElement.remove();
-                    } else if (state.settings.streamingOutput && state.settings.pseudoStreaming) {
+
+                    } else if (!isBackgroundProcess && state.settings.streamingOutput && state.settings.pseudoStreaming) {
                         const tempPlaceholderIndex = state.currentMessages.length;
                         uiUtils.appendMessage('model', '', tempPlaceholderIndex, true);
                         const streamResult = await apiUtils.handleStreamingResponse(response);
@@ -6958,6 +7162,47 @@
                         modelResponseRawContent = dummyModelPrefix + rawContentFromApi;
                     }
 
+                    if (isBackgroundProcess) {
+                        if (modelResponseRawContent || modelResponseMetadata.finishReason) {
+                             const bgModelMessage = {
+                                 role: 'model', content: modelResponseRawContent, timestamp: Date.now(),
+                                 ...modelResponseMetadata, groundingMetadata: groundingMetadata, usageMetadata: usageMetadata
+                             };
+                             currentContextMessages.push(bgModelMessage);
+                             const chatToSaveBg = {
+                                messages: currentContextMessages.map(msg => ({
+                                    role: msg.role, content: msg.content, timestamp: msg.timestamp,
+                                    ...(msg.finishReason && { finishReason: msg.finishReason }),
+                                    ...(msg.safetyRatings && { safetyRatings: msg.safetyRatings }),
+                                    ...(msg.error && { error: msg.error }),
+                                    ...(msg.isCascaded !== undefined && { isCascaded: msg.isCascaded }),
+                                    ...(msg.isSelected !== undefined && { isSelected: msg.isSelected }),
+                                    ...(msg.siblingGroupId !== undefined && { siblingGroupId: msg.siblingGroupId }),
+                                    ...(msg.groundingMetadata && { groundingMetadata: msg.groundingMetadata }),
+                                    ...(msg.attachments && msg.attachments.length > 0 && { attachments: msg.attachments.map(att => ({ name: att.name, mimeType: att.mimeType })) }),
+                                    ...(msg.usageMetadata && { usageMetadata: msg.usageMetadata }),
+                                })),
+                                systemPrompt: currentContextSystemPrompt,
+                                updatedAt: Date.now(),
+                                id: sourceSessionContext.sessionId
+                             };
+                             const existingChatForBg = await dbUtils.getChat(sourceSessionContext.sessionId);
+                             if (existingChatForBg) {
+                                 chatToSaveBg.createdAt = existingChatForBg.createdAt;
+                                 chatToSaveBg.title = existingChatForBg.title;
+                             }
+
+                             await new Promise((resolve, reject) => {
+                                const store = dbUtils._getStore(CHATS_STORE, 'readwrite');
+                                const request = store.put(chatToSaveBg);
+                                request.onsuccess = () => resolve();
+                                request.onerror = (event) => reject(`チャット保存putエラー(BG): ${event.target.error.name} - ${event.target.error.message}`);
+                             });
+                             return { content: modelResponseRawContent, metadata: modelResponseMetadata };
+                        }
+                        return { content: "", metadata: modelResponseMetadata };
+                    }
+
 
                     if (modelResponseRawContent || modelResponseMetadata.finishReason) {
                          const newModelMessage = {
@@ -6966,7 +7211,7 @@
                          };
 
                          const targetUserIndexForCascade = userMessageIndex;
-                         if (targetUserIndexForCascade !== -1) {
+                         if (targetUserIndexForCascade !== -1 && !isBackgroundProcess) {
                              if (siblingGroupIdToUse === null) {
                                  siblingGroupIdToUse = `gid-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
                              }
@@ -6991,6 +7236,10 @@
                     const isAbort = error.message === "リクエストがキャンセルされました。";
                     const displayErrorMessage = isAbort ? error.message : (error.message || "不明なエラーが発生しました");
                     const partialRawContent = state.partialStreamContent || error.cause?.partialChunks?.join('');
+
+                    if (isBackgroundProcess) {
+                         throw error;
+                    }
 
                     if (partialRawContent && state.settings.streamingOutput) {
                          const finalPartialContent = partialRawContent + `\n\n(${isAbort ? '中断されました' : 'エラーが発生しました'})`;
@@ -7026,14 +7275,17 @@
                         uiUtils.displayError(displayErrorMessage, !isAbort);
                     }
                 } finally {
-                    uiUtils.setSendingState(false);
-                    state.abortController = null;
-                    state.partialStreamContent = '';
-                    if (state.settings.autoScrollOnNewMessage) {
-                        uiUtils.scrollToBottom();
+                    if (!isBackgroundProcess) {
+                        uiUtils.setSendingState(false);
+                        state.abortController = null;
+                        state.partialStreamContent = '';
+                        if (state.settings.autoScrollOnNewMessage) {
+                            uiUtils.scrollToBottom();
+                        }
+                        uiUtils.updateAttachmentBadgeVisibility();
                     }
-                    uiUtils.updateAttachmentBadgeVisibility();
                 }
+                if (isBackgroundProcess) return null;
             },
             abortRequest() {
                 if (state.abortController) {
@@ -7460,6 +7712,7 @@
                      autoScrollOnNewMessage: elements.autoScrollOnNewMessageCheckbox.checked,
                      historySortOrder: elements.historySortOrderSelect.value,
                      theme: elements.themeSelect.value,
+                     enableSessionLinking: elements.enableSessionLinkingCheckbox.checked,
                      fontFamily: elements.fontFamilyInput.value.trim(),
                      messageBodyFontSize: elements.messageBodyFontSizeInput.value === '' ? null : parseInt(elements.messageBodyFontSizeInput.value, 10),
                      codeBlockFontSize: elements.codeBlockFontSizeInput.value === '' ? null : parseInt(elements.codeBlockFontSizeInput.value, 10),
@@ -7629,6 +7882,10 @@
                      state.settings.userIconBlob = currentUserIconBlob;
                      state.settings.aiIconBlob = currentAiIconBlob;
 
+                     if (!newSettings.enableSessionLinking) {
+                         state.linkedSessionIds = [];
+                     }
+
                      uiUtils.applySettingsToUI();
                      await uiUtils.showCustomAlert("設定を保存しました。");
 
@@ -7679,6 +7936,7 @@
                         state.isClipboardStackVisible = false;
                         elements.clipboardStackArea.classList.add('hidden');
                         state.clipboardStackContent = '';
+                        state.linkedSessionIds = [];
 
                         state.settings = {
                             apiKey: '', modelName: DEFAULT_MODEL, streamingOutput: true,
@@ -7693,7 +7951,8 @@
                             backgroundImageBlob: null, fontFamily: '',
                             messageBodyFontSize: DEFAULT_MESSAGE_BODY_FONT_SIZE,
                             codeBlockFontSize: DEFAULT_CODE_BLOCK_FONT_SIZE,
-                            hideSystemPromptInChat: false, enableSwipeNavigation: true,
+                            hideSystemPromptInChat: false, enableGrounding: false, enableSessionLinking: false,
+                            enableSwipeNavigation: true,
                             preventZoom: true,
                             showNewChatButton: true,
                             showDeleteSessionButton: false, showCopySessionButton: false,
@@ -7777,6 +8036,8 @@
                         state.areAllMessagesHidden = false;
                         uiUtils.updateToggleAllContentButton();
                         state.messageCollapsedStates.clear();
+                        state.linkedSessionIds = [];
+                        uiUtils.updateSessionLinkingUI();
 
                         this.startNewChat();
                         await uiUtils.showCustomAlert("すべてのチャット履歴が削除されました。");
@@ -8589,7 +8850,91 @@
                 requestAnimationFrame(() => {
                     uiUtils.scrollToBottom();
                 });
-            }
+            },
+            toggleSessionLink(sessionId) {
+                if (!state.settings.enableSessionLinking) return;
+
+                const index = state.linkedSessionIds.indexOf(sessionId);
+                if (index > -1) {
+                    state.linkedSessionIds.splice(index, 1);
+                } else {
+                    if (state.linkedSessionIds.length >= 2) {
+                        state.linkedSessionIds.shift();
+                    }
+                    state.linkedSessionIds.push(sessionId);
+                }
+                uiUtils.updateSessionLinkingUI();
+            },
+            async initiateAiToAiStep() {
+                if (state.isAiToAiChatProcessing || state.isSending) {
+                    await uiUtils.showCustomAlert("現在処理中です。");
+                    return;
+                }
+                if (state.linkedSessionIds.length !== 2 || !state.currentChatId || !state.linkedSessionIds.includes(state.currentChatId)) {
+                    await uiUtils.showCustomAlert("AI間会話を実行するには、現在のチャットを含む2つのセッションをリンクしてください。");
+                    return;
+                }
+                 if (!state.settings.apiKey) {
+                    await uiUtils.showCustomAlert("APIキーが設定されていません。");
+                    uiUtils.showScreen('settings');
+                    return;
+                }
+
+
+                uiUtils.setAiToAiProcessingState(true, "AI間会話処理中 (ステップ1/2)...");
+
+                const sessionA_Id = state.currentChatId;
+                const sessionB_Id = state.linkedSessionIds.find(id => id !== sessionA_Id);
+
+                try {
+                    const sessionA_Data = await dbUtils.getChat(sessionA_Id);
+                    if (!sessionA_Data || !sessionA_Data.messages || sessionA_Data.messages.length === 0) {
+                        throw new Error(`セッションA (${sessionA_Id}) のデータが取得できませんでした。`);
+                    }
+
+                    const lastAiMessageA = [...sessionA_Data.messages].reverse().find(msg => msg.role === 'model' && (!msg.isCascaded || msg.isSelected));
+                    if (!lastAiMessageA || !lastAiMessageA.content) {
+                        throw new Error(`セッションA (${sessionA_Id}) の最新のAI応答が見つかりません。`);
+                    }
+                    const inputForB = lastAiMessageA.content;
+
+                    const sessionB_Data = await dbUtils.getChat(sessionB_Id);
+                    if (!sessionB_Data) {
+                        throw new Error(`セッションB (${sessionB_Id}) のデータが取得できませんでした。`);
+                    }
+
+                    const contextForB = {
+                        sessionId: sessionB_Id,
+                        messages: sessionB_Data.messages ? [...sessionB_Data.messages] : [],
+                        systemPrompt: sessionB_Data.systemPrompt || '',
+                        inputText: inputForB,
+                        attachments: []
+                    };
+
+                    const responseFromB = await this.handleSend(false, -1, contextForB);
+                    if (responseFromB === "APIキー未設定") throw new Error("APIキーが設定されていません。");
+                    if (!responseFromB || !responseFromB.content) {
+                        throw new Error(`セッションB (${sessionB_Id}) からの応答がありませんでした。`);
+                    }
+                    const inputForA = responseFromB.content;
+
+                    uiUtils.setAiToAiProcessingState(true, "AI間会話処理中 (ステップ2/2)...");
+                    
+                    elements.userInput.value = inputForA;
+                    uiUtils.adjustTextareaHeight();
+                    
+                    await this.handleSend(); 
+
+                } catch (error) {
+                    console.error("AI to AI chat step error:", error);
+                    await uiUtils.showCustomAlert(`AI間会話処理中にエラーが発生しました: ${error.message}`);
+                    if (state.currentChatId === sessionA_Id && elements.chatScreen.classList.contains('active')) {
+                         uiUtils.displayError(`AI間会話エラー: ${error.message}`, false);
+                    }
+                } finally {
+                    uiUtils.setAiToAiProcessingState(false);
+                }
+            },
         };
 
         const apiUtils = {
@@ -8806,3 +9151,4 @@
     </script>
 </body>
 </html>
+
