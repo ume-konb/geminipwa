@@ -1998,33 +1998,6 @@
         .history-item-actions .js-export-btn { background-color: var(--bg-button-export); }
         .history-item-actions .js-export-btn:hover { background-color: var(--bg-button-export-hover); }
 
-        .history-item-actions .js-link-session-btn {
-            background-color: var(--bg-button-action);
-            color: var(--text-light);
-            padding: 6px 8px;
-            font-size: 16px;
-            margin-right: 5px;
-        }
-        .history-item-actions .js-link-session-btn:hover:not(:disabled) {
-            background-color: var(--bg-button-action-hover);
-        }
-        .history-item-actions .js-link-session-btn.linked {
-            background-color: var(--bg-button-retry);
-        }
-        .history-item-actions .js-link-session-btn.linked:hover:not(:disabled) {
-            background-color: var(--bg-button-retry-hover);
-        }
-        body.pastel-yellow-mode .history-item-actions .js-link-session-btn,
-        body.pastel-rainbow-mode .history-item-actions .js-link-session-btn {
-            color: var(--text-light);
-        }
-        #ai-to-ai-chat-btn {
-        }
-        body.pastel-yellow-mode #ai-to-ai-chat-btn {
-            color: #424242;
-        }
-
-
         .js-history-item-template {
              display: none !important;
         }
@@ -2807,7 +2780,6 @@
                 <div id="loading-indicator" class="loading-indicator hidden" aria-live="polite">応答中</div>
             </main>
             <footer class="chat-input-area">
-                <button id="ai-to-ai-chat-btn" title="AI間会話ステップ" class="footer-action-button hidden">👥</button>
                 <button id="paste-to-input-btn" title="入力欄に貼り付け" class="footer-action-button">貼</button>
                 <textarea id="user-input" placeholder="メッセージを入力..." rows="1" aria-label="メッセージ入力"></textarea>
                 <button id="attach-file-btn" title="ファイルを添付" class="footer-action-button">+<span class="attachment-badge"></span></button>
@@ -2840,7 +2812,6 @@
                                 <span class="updated-date"></span>
                             </div>
                             <div class="history-item-actions">
-                                <button class="js-link-session-btn hidden" title="セッションをリンク">🔗</button>
                                 <button class="js-edit-title-btn" title="タイトル編集">✎</button>
                                 <button class="js-export-btn" title="出力">出力</button>
                                 <button class="js-duplicate-btn" title="複製">複製</button>
@@ -3114,13 +3085,6 @@
 
                 <div class="settings-group">
                    <h3>その他設定</h3>
-                    <label class="checkbox-label">
-                       <input type="checkbox" id="enable-session-linking">
-                       セッション間リンク機能を有効にする (AI同士の会話モード)
-                   </label>
-                   <p style="font-size: 11px; color: var(--text-secondary); margin-top: -5px; margin-bottom: 10px;">
-                       ※ 履歴画面で2つのセッションをリンクし、チャット画面の「👥」ボタンでAI間の応答を手動で仲介できます。
-                   </p>
                    <label class="checkbox-label">
                        <input type="checkbox" id="enter-to-send">
                        Enterキーで送信する
@@ -3623,8 +3587,6 @@
             toggleButtonBottomTextCollapseInput: document.getElementById('toggle-button-bottom-text-collapse'),
             toggleButtonBottomTextExpandInput: document.getElementById('toggle-button-bottom-text-expand'),
             toggleButtonTopOpacityInput: document.getElementById('toggle-button-top-opacity'),
-            aiToAiChatBtn: document.getElementById('ai-to-ai-chat-btn'),
-            enableSessionLinkingCheckbox: document.getElementById('enable-session-linking'),
         };
 
         const state = {
@@ -3710,7 +3672,6 @@
                 toggleButtonBottomFontSize: DEFAULT_TOGGLE_BUTTON_BOTTOM_FONT_SIZE,
                 toggleButtonBottomTextCollapse: DEFAULT_TOGGLE_BUTTON_BOTTOM_TEXT_COLLAPSE,
                 toggleButtonBottomTextExpand: DEFAULT_TOGGLE_BUTTON_BOTTOM_TEXT_EXPAND,
-                enableSessionLinking: false,
             },
             backgroundImageUrl: null,
             userIconUrl: null,
@@ -3734,7 +3695,6 @@
             clipboardStackContent: "",
             areAllMessagesHidden: false,
             messageCollapsedStates: new Map(),
-            linkedSessionIds: [],
         };
 
         function updateMessageMaxWidthVar() {
@@ -3884,7 +3844,7 @@
                                     } else {
                                         state.settings[key] = defaultValue;
                                     }
-                                } else if (key === 'enableSessionLinking' || key === 'hideSystemPromptInChat' || key === 'enableGrounding' || key === 'enableSwipeNavigation' ||
+                                } else if (key === 'hideSystemPromptInChat' || key === 'enableGrounding' || key === 'enableSwipeNavigation' ||
                                            key === 'preventZoom' ||
                                            key === 'showNewChatButton' || key === 'showDeleteSessionButton' || key === 'showCopySessionButton' ||
                                            key === 'showScrollToTopButton' || key === 'showScrollToBottomButton' || key === 'showToggleAllContentButton' ||
@@ -4737,16 +4697,6 @@
                                     this.showScreen('chat');
                                 }
                             };
-
-                            const linkButton = li.querySelector('.js-link-session-btn');
-                            if (state.settings.enableSessionLinking) {
-                                linkButton.classList.remove('hidden');
-                                linkButton.classList.toggle('linked', state.linkedSessionIds.includes(chat.id));
-                                linkButton.onclick = (e) => { e.stopPropagation(); appLogic.toggleSessionLink(chat.id); };
-                            } else {
-                                linkButton.classList.add('hidden');
-                            }
-
                             li.querySelector('.js-edit-title-btn').onclick = (e) => { e.stopPropagation(); appLogic.editHistoryTitle(chat.id, titleEl); };
                             li.querySelector('.js-export-btn').onclick = (e) => { e.stopPropagation(); appLogic.exportChat(chat.id, titleText); };
                             li.querySelector('.js-duplicate-btn').onclick = (e) => { e.stopPropagation(); appLogic.duplicateChat(chat.id); };
@@ -5101,7 +5051,6 @@
                 elements.concatDummyModelCheckbox.checked = state.settings.concatDummyModel;
                 elements.additionalModelsTextarea.value = state.settings.additionalModels || '';
                 elements.pseudoStreamingCheckbox.checked = state.settings.pseudoStreaming;
-                elements.enableSessionLinkingCheckbox.checked = state.settings.enableSessionLinking;
                 elements.enterToSendCheckbox.checked = state.settings.enterToSend;
                 elements.autoScrollOnNewMessageCheckbox.checked = state.settings.autoScrollOnNewMessage;
                 elements.historySortOrderSelect.value = state.settings.historySortOrder || 'updatedAt';
@@ -5180,7 +5129,6 @@
                 this.applyFontFamily();
                 this.toggleSystemPromptVisibility();
                 this.applySidePanelSettingsToUI();
-                this.updateSessionLinkingUI();
             },
             updateChatScreenElementVisibility() {
                 if (elements.newChatBtn) {
@@ -5210,19 +5158,6 @@
                 if (elements.pasteToInputBtn) {
                     elements.pasteToInputBtn.classList.toggle('hidden', !state.settings.showPasteButtonInFooter);
                 }
-                 const showAiToAiButton = state.settings.enableSessionLinking &&
-                                       state.linkedSessionIds.length === 2 &&
-                                       state.currentChatId &&
-                                       state.linkedSessionIds.includes(state.currentChatId);
-                if (elements.aiToAiChatBtn) {
-                    elements.aiToAiChatBtn.classList.toggle('hidden', !showAiToAiButton);
-                }
-            },
-            updateSessionLinkingUI() {
-                if (state.currentScreen === 'history') {
-                    this.renderHistoryList();
-                }
-                this.updateChatScreenElementVisibility();
             },
             updateHistoryHeaderButtonVisibility() {
                 const showBulkActions = state.settings.showBulkHistoryActions;
@@ -5363,7 +5298,6 @@
                     elements.userInput.disabled = true;
                     elements.attachFileBtn.disabled = true;
                     elements.pasteToInputBtn.disabled = true;
-                    elements.aiToAiChatBtn.disabled = true;
                     elements.loadingIndicator.classList.remove('hidden');
                     elements.loadingIndicator.setAttribute('aria-live', 'polite');
                     elements.systemPromptDetails.style.pointerEvents = 'none';
@@ -5376,7 +5310,6 @@
                     elements.userInput.disabled = false;
                     elements.attachFileBtn.disabled = false;
                     elements.pasteToInputBtn.disabled = false;
-                    elements.aiToAiChatBtn.disabled = false;
                     elements.loadingIndicator.classList.add('hidden');
                     elements.loadingIndicator.removeAttribute('aria-live');
                     elements.systemPromptDetails.style.pointerEvents = '';
@@ -5606,7 +5539,6 @@
                     }
 
                     uiUtils.applySettingsToUI();
-                    state.linkedSessionIds = [];
 
                     const chats = await dbUtils.getAllChats(state.settings.historySortOrder);
                     if (chats && chats.length > 0) {
@@ -5650,15 +5582,6 @@
                 elements.scrollToTopBtn.addEventListener('click', () => this.scrollToTop());
                 elements.scrollToBottomBtn.addEventListener('click', () => this.scrollToBottom());
                 elements.pasteToInputBtn.addEventListener('click', () => this.pasteToUserInput());
-                elements.aiToAiChatBtn.addEventListener('click', () => this.initiateAiToAiStep());
-                elements.enableSessionLinkingCheckbox.addEventListener('change', async () => {
-                    state.settings.enableSessionLinking = elements.enableSessionLinkingCheckbox.checked;
-                    if (!state.settings.enableSessionLinking) {
-                        state.linkedSessionIds = [];
-                    }
-                    uiUtils.updateSessionLinkingUI();
-                });
-
 
                 elements.newChatBtn.addEventListener('click', async () => {
                     const confirmed = await uiUtils.showCustomConfirm("現在のチャットを保存して新規チャットを開始しますか？");
@@ -6444,7 +6367,6 @@
                 uiUtils.adjustTextareaHeight();
                 uiUtils.setSendingState(false);
                 uiUtils.updateAttachmentBadgeVisibility();
-                uiUtils.updateChatScreenElementVisibility();
                 if (state.settings.autoScrollOnNewMessage) {
                     uiUtils.scrollToBottom();
                 }
@@ -6513,7 +6435,6 @@
                         uiUtils.adjustTextareaHeight();
                         uiUtils.setSendingState(false);
                         uiUtils.updateAttachmentBadgeVisibility();
-                        uiUtils.updateChatScreenElementVisibility();
                         elements.memoEditor.value = '';
                         if (needsSave) {
                             await dbUtils.saveChat();
@@ -6831,16 +6752,14 @@
                 }
                 return accumulatedRawContent;
             },
-            async handleSend(isRetry = false, retryUserMessageIndex = -1, isAiToAiContinuation = false, aiToAiContent = null) {
-                if (state.editingMessageIndex !== null && !isAiToAiContinuation) { await uiUtils.showCustomAlert("他のメッセージを編集中です。"); return; }
-                if (state.isEditingSystemPrompt && !isAiToAiContinuation) { await uiUtils.showCustomAlert("システムプロンプトを編集中です。"); return; }
+            async handleSend(isRetry = false, retryUserMessageIndex = -1) {
+                if (state.editingMessageIndex !== null) { await uiUtils.showCustomAlert("他のメッセージを編集中です。"); return; }
+                if (state.isEditingSystemPrompt) { await uiUtils.showCustomAlert("システムプロンプトを編集中です。"); return; }
 
                 let text = '';
                 let attachmentsToSend = [];
 
-                if (isAiToAiContinuation) {
-                    text = aiToAiContent || '';
-                } else if (isRetry) {
+                if (isRetry) {
                     const retryUserMessage = state.currentMessages[retryUserMessageIndex];
                     if (!retryUserMessage || retryUserMessage.role !== 'user') {
                         uiUtils.setSendingState(false);
@@ -6875,11 +6794,9 @@
                     userMessageIndex = state.currentMessages.length - 1;
                     state.messageCollapsedStates.set(userMessageIndex, false);
                     uiUtils.appendMessage(userMessage.role, userMessage.content, userMessageIndex, false, null, userMessage.attachments);
-                    if (!isAiToAiContinuation) {
-                        elements.userInput.value = '';
-                        state.pendingAttachments = [];
-                        uiUtils.adjustTextareaHeight();
-                    }
+                    elements.userInput.value = '';
+                    state.pendingAttachments = [];
+                    uiUtils.adjustTextareaHeight();
                     if (state.settings.autoScrollOnNewMessage) {
                         uiUtils.scrollToBottom();
                     }
@@ -7068,9 +6985,7 @@
                          state.messageCollapsedStates.set(newModelIndex, false);
                          uiUtils.renderChatMessages();
                          await dbUtils.saveChat();
-                         return newModelMessage;
                     }
-                     return null;
                 } catch (error) {
                     console.error("Error during API call or response handling:", error);
                     const isAbort = error.message === "リクエストがキャンセルされました。";
@@ -7110,17 +7025,14 @@
                     } else {
                         uiUtils.displayError(displayErrorMessage, !isAbort);
                     }
-                    return null;
                 } finally {
-                    if (!isAiToAiContinuation) {
-                        uiUtils.setSendingState(false);
-                        state.abortController = null;
-                        state.partialStreamContent = '';
-                        if (state.settings.autoScrollOnNewMessage) {
-                            uiUtils.scrollToBottom();
-                        }
-                        uiUtils.updateAttachmentBadgeVisibility();
+                    uiUtils.setSendingState(false);
+                    state.abortController = null;
+                    state.partialStreamContent = '';
+                    if (state.settings.autoScrollOnNewMessage) {
+                        uiUtils.scrollToBottom();
                     }
+                    uiUtils.updateAttachmentBadgeVisibility();
                 }
             },
             abortRequest() {
@@ -7544,7 +7456,6 @@
                      concatDummyModel: elements.concatDummyModelCheckbox.checked,
                      additionalModels: elements.additionalModelsTextarea.value.trim(),
                      pseudoStreaming: elements.pseudoStreamingCheckbox.checked,
-                     enableSessionLinking: elements.enableSessionLinkingCheckbox.checked,
                      enterToSend: elements.enterToSendCheckbox.checked,
                      autoScrollOnNewMessage: elements.autoScrollOnNewMessageCheckbox.checked,
                      historySortOrder: elements.historySortOrderSelect.value,
@@ -7689,8 +7600,6 @@
 
                  try {
                      const oldSortOrder = state.settings.historySortOrder;
-                     const oldEnableSessionLinking = state.settings.enableSessionLinking;
-
                      const { memoWidth, backgroundImageBlob, userIconBlob, aiIconBlob, ...settingsToSave } = newSettings;
 
                      const promises = Object.entries(settingsToSave).map(([key, value]) =>
@@ -7720,10 +7629,6 @@
                      state.settings.userIconBlob = currentUserIconBlob;
                      state.settings.aiIconBlob = currentAiIconBlob;
 
-                     if (oldEnableSessionLinking && !newSettings.enableSessionLinking) {
-                         state.linkedSessionIds = [];
-                     }
-
                      uiUtils.applySettingsToUI();
                      await uiUtils.showCustomAlert("設定を保存しました。");
 
@@ -7735,139 +7640,6 @@
                      console.error("Save settings error:", error);
                      await uiUtils.showCustomAlert(`設定の保存中にエラーが発生しました: ${error}`);
                  }
-            },
-            async toggleSessionLink(sessionId) {
-                if (!state.settings.enableSessionLinking) return;
-
-                const index = state.linkedSessionIds.indexOf(sessionId);
-                if (index > -1) {
-                    state.linkedSessionIds.splice(index, 1);
-                } else {
-                    if (state.linkedSessionIds.length >= 2) {
-                        await uiUtils.showCustomAlert("最大2つのセッションまでリンクできます。いずれかのリンクを解除してください。");
-                        return;
-                    }
-                    state.linkedSessionIds.push(sessionId);
-                }
-                uiUtils.updateSessionLinkingUI();
-            },
-            async initiateAiToAiStep() {
-                if (!state.settings.enableSessionLinking || state.linkedSessionIds.length !== 2 || !state.currentChatId || state.isSending) {
-                    return;
-                }
-                const currentChatId = state.currentChatId;
-                if (!state.linkedSessionIds.includes(currentChatId)) {
-                    return;
-                }
-
-                let latestAiMessageContent = null;
-                for (let i = state.currentMessages.length - 1; i >= 0; i--) {
-                    const msg = state.currentMessages[i];
-                    if (msg.role === 'model') {
-                        if (msg.isCascaded) {
-                            if (msg.isSelected) {
-                                latestAiMessageContent = msg.content;
-                                break;
-                            }
-                        } else {
-                            latestAiMessageContent = msg.content;
-                            break;
-                        }
-                    }
-                }
-
-                if (latestAiMessageContent === null || latestAiMessageContent.trim() === '') {
-                    await uiUtils.showCustomAlert("現在のセッションにAIの応答がありません。");
-                    return;
-                }
-
-                uiUtils.setSendingState(true);
-                const otherSessionId = state.linkedSessionIds.find(id => id !== currentChatId);
-                if (!otherSessionId) {
-                    await uiUtils.showCustomAlert("リンク先のセッションが見つかりません。");
-                    uiUtils.setSendingState(false);
-                    return;
-                }
-
-                try {
-                    const otherSessionChat = await dbUtils.getChat(otherSessionId);
-                    if (!otherSessionChat) {
-                        await uiUtils.showCustomAlert("リンク先のセッションデータを読み込めませんでした。");
-                        uiUtils.setSendingState(false);
-                        return;
-                    }
-
-                    const tempOtherSessionMessages = otherSessionChat.messages.map(msg => ({
-                        role: msg.role,
-                        content: msg.content,
-                        attachments: msg.attachments || []
-                    }));
-                    tempOtherSessionMessages.push({ role: 'user', content: latestAiMessageContent, attachments: [] });
-
-                    const apiMessagesForOther = tempOtherSessionMessages
-                        .filter(msg => msg.role === 'user' || (msg.role === 'model' && (!msg.isCascaded || msg.isSelected)))
-                        .map(msg => {
-                             const parts = [];
-                             if (msg.content && msg.content.trim() !== '') parts.push({ text: msg.content });
-                             if (msg.role === 'user' && msg.attachments && msg.attachments.length > 0) {
-                                 msg.attachments.forEach(att => parts.push({ inlineData: { mimeType: att.mimeType, data: att.base64Data } }));
-                             }
-                             return { role: msg.role, parts: parts };
-                        });
-
-                    const dummyUserText = state.settings.dummyUser?.trim();
-                    const dummyModelText = state.settings.dummyModel?.trim();
-                    if (dummyUserText) apiMessagesForOther.push({ role: 'user', parts: [{ text: dummyUserText }] });
-                    if (dummyModelText) apiMessagesForOther.push({ role: 'model', parts: [{ text: dummyModelText }] });
-
-
-                    const generationConfig = {};
-                    if (state.settings.temperature !== null) generationConfig.temperature = state.settings.temperature;
-                    if (state.settings.maxTokens !== null) generationConfig.maxOutputTokens = state.settings.maxTokens;
-                    if (state.settings.topK !== null) generationConfig.topK = state.settings.topK;
-                    if (state.settings.topP !== null) generationConfig.topP = state.settings.topP;
-                    if (state.settings.presencePenalty !== null) generationConfig.presencePenalty = state.settings.presencePenalty;
-                    if (state.settings.frequencyPenalty !== null) generationConfig.frequencyPenalty = state.settings.frequencyPenalty;
-                    if (state.settings.thinkingBudget !== null && Number.isInteger(state.settings.thinkingBudget) && state.settings.thinkingBudget >= 0) {
-                       generationConfig.thinkingConfig = {"thinkingBudget": state.settings.thinkingBudget};
-                    }
-
-
-                    const otherSystemInstruction = otherSessionChat.systemPrompt?.trim()
-                        ? { role: "system", parts: [{ text: otherSessionChat.systemPrompt.trim() }] }
-                        : null;
-
-                    const otherResponse = await apiUtils.callGeminiApi(apiMessagesForOther, generationConfig, otherSystemInstruction);
-
-                    let otherAiResponseContent = "";
-                    if (state.settings.streamingOutput && !state.settings.pseudoStreaming) {
-                        const streamResult = await apiUtils.handleStreamingResponse(otherResponse);
-                        otherAiResponseContent = (streamResult.processedChunks.map(chunk => chunk === null ? '\n\n' : chunk).join('')).trim();
-                        if (streamResult.finishReason === 'ABORTED' || state.abortController?.signal.aborted) {
-                            throw new Error("リンク先AIの応答生成がキャンセルされました。");
-                        }
-                    } else {
-                        const data = await otherResponse.json();
-                        const candidate = data.candidates?.[0];
-                        if (candidate && candidate.content?.parts) {
-                            otherAiResponseContent = candidate.content.parts.map(p => p.text || "").join('\n\n').trim();
-                        } else {
-                            otherAiResponseContent = "リンク先AIからの応答が空でした。";
-                        }
-                    }
-
-                    if (otherAiResponseContent) {
-                        await this.handleSend(false, -1, true, otherAiResponseContent);
-                    } else {
-                        await uiUtils.showCustomAlert("リンク先のAIから応答がありませんでした。");
-                         uiUtils.setSendingState(false);
-                    }
-
-                } catch (error) {
-                    console.error("AI to AI step error:", error);
-                    await uiUtils.showCustomAlert(`AI間会話処理中にエラー: ${error.message || error}`);
-                    uiUtils.setSendingState(false);
-                }
             },
             async updateApp() {
                 if (!navigator.serviceWorker || !navigator.serviceWorker.controller) {
@@ -7914,7 +7686,7 @@
                             temperature: null, maxTokens: null, topK: null, topP: null,
                             presencePenalty: null, frequencyPenalty: null, thinkingBudget: null,
                             dummyUser: '', dummyModel: '', concatDummyModel: false,
-                            additionalModels: '', pseudoStreaming: false, enableSessionLinking: false, enterToSend: true,
+                            additionalModels: '', pseudoStreaming: false, enterToSend: true,
                             autoScrollOnNewMessage: DEFAULT_AUTO_SCROLL_ON_NEW_MESSAGE,
                             historySortOrder: 'updatedAt',
                             theme: window.matchMedia?.('(prefers-color-scheme: light)').matches ? 'dark' : 'light',
@@ -7976,7 +7748,6 @@
                         state.aiIconUrl = null;
                         state.areAllMessagesHidden = false;
                         state.messageCollapsedStates.clear();
-                        state.linkedSessionIds = [];
 
                         document.documentElement.style.setProperty('--chat-background-image', 'none');
                         uiUtils.applySettingsToUI();
@@ -8006,7 +7777,6 @@
                         state.areAllMessagesHidden = false;
                         uiUtils.updateToggleAllContentButton();
                         state.messageCollapsedStates.clear();
-                        state.linkedSessionIds = [];
 
                         this.startNewChat();
                         await uiUtils.showCustomAlert("すべてのチャット履歴が削除されました。");
