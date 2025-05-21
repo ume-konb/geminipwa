@@ -1651,7 +1651,15 @@
             border-radius: 5px;
             box-shadow: 0 1px 3px var(--shadow-primary);
             z-index: 2;
-            transition: opacity 0.2s ease, background-color 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0s 0.3s, background-color 0.3s ease;
+        }
+        .message.show-actions .message-actions {
+            display: flex;
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.3s ease, background-color 0.3s ease;
         }
 
         .message.user .message-actions {
@@ -1709,11 +1717,15 @@
             border-radius: 5px;
             box-shadow: 0 -1px 3px var(--shadow-primary);
             z-index: 2;
-            transition: opacity 0.2s ease, background-color 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0s 0.3s, background-color 0.3s ease;
         }
-        .message.model:hover .message-cascade-controls,
         .message.model.show-actions .message-cascade-controls {
             display: flex;
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.3s ease, background-color 0.3s ease;
         }
         .message-cascade-controls button {
             background-color: var(--bg-cascade-button);
@@ -2291,13 +2303,17 @@
             margin: 1.5em 0;
         }
 
-        .message:hover .message-actions,
         .message.show-actions .message-actions {
             display: flex;
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.3s ease, background-color 0.3s ease;
         }
-        .message.model:hover .message-cascade-controls,
         .message.model.show-actions .message-cascade-controls {
              display: flex;
+             opacity: 1;
+             visibility: visible;
+             transition: opacity 0.3s ease, background-color 0.3s ease;
         }
         .message:hover .message-toggle-button.top,
         .message.show-actions .message-toggle-button.top {
@@ -6161,24 +6177,22 @@
 
                 elements.messageContainer.addEventListener('click', (event) => {
                     const clickedMessage = event.target.closest('.message');
-                    if (event.target.closest('.message-actions button, .message-cascade-controls button, .message-toggle-button, .interactive-title-content, .code-copy-button')) {
+
+                    if (event.target.closest('.message-actions button, .message-cascade-controls button, .message-toggle-button, .interactive-title-content, .code-copy-button, .citation-details summary, .citation-details a, .attachment-details summary')) {
                         return;
                     }
-                    if (clickedMessage) {
-                        const currentlyShown = elements.messageContainer.querySelector('.message.show-actions');
-                        if (currentlyShown && currentlyShown !== clickedMessage) {
-                            currentlyShown.classList.remove('show-actions');
+                    const allActionMenus = elements.messageContainer.querySelectorAll('.message.show-actions');
+                    allActionMenus.forEach(menu => {
+                        if (menu !== clickedMessage) {
+                            menu.classList.remove('show-actions');
                         }
-                        if (!clickedMessage.classList.contains('editing')) {
-                            clickedMessage.classList.toggle('show-actions');
-                        }
-                    } else {
-                        const currentlyShown = elements.messageContainer.querySelector('.message.show-actions');
-                        if (currentlyShown) {
-                            currentlyShown.classList.remove('show-actions');
-                        }
+                    });
+
+                    if (clickedMessage && !clickedMessage.classList.contains('editing')) {
+                        clickedMessage.classList.toggle('show-actions');
                     }
-                }, true);
+                });
+
                 document.body.addEventListener('click', (event) => {
                     if (!elements.messageContainer.contains(event.target) &&
                         !elements.memoArea.contains(event.target) &&
@@ -6189,7 +6203,7 @@
                             currentlyShown.classList.remove('show-actions');
                         }
                     }
-                }, true);
+                });
 
                 elements.chatScreen.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: true });
                 elements.chatScreen.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
@@ -8708,7 +8722,7 @@
                             state.currentMessages[scanIndex].role === 'model' &&
                             state.currentMessages[scanIndex].siblingGroupId === targetSiblingGroupId
                         ) {
-                            scanIndex++;
+                                                    scanIndex++;
                         }
                     } else {
                          if (scanIndex < state.currentMessages.length && state.currentMessages[scanIndex].role === 'model') {
