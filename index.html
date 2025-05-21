@@ -1640,39 +1640,18 @@
             line-height: 1.5;
         }
 
-        .message-actions,
-        .message-cascade-controls {
+        .message-actions {
             position: absolute;
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
+            bottom: -30px;
+            display: none;
             flex-wrap: nowrap;
             gap: 5px;
             background-color: rgba(var(--message-actions-base-rgb), var(--message-actions-bg-opacity));
+            padding: 1px 1px 1px 1px;
             border-radius: 5px;
             box-shadow: 0 1px 3px var(--shadow-primary);
             z-index: 2;
-            transition: opacity 0.15s ease-in-out, visibility 0s linear 0.15s, background-color 0.3s ease;
-        }
-
-        .message-actions {
-            bottom: -30px;
-            padding: 1px;
-        }
-
-        .message-cascade-controls {
-            top: -35px;
-            left: 0;
-            padding: 5px 8px 10px 8px;
-        }
-
-        .message.show-actions .message-actions,
-        .message.show-actions .message-cascade-controls {
-            opacity: 1;
-            visibility: visible;
-            pointer-events: auto;
-            transition-delay: 0s;
-            display: flex;
+            transition: opacity 0.2s ease, background-color 0.3s ease;
         }
 
         .message.user .message-actions {
@@ -1717,6 +1696,25 @@
             background-color: var(--bg-button-copy-hover);
         }
 
+        .message-cascade-controls {
+            position: absolute;
+            top: -35px;
+            left: 0;
+            display: none;
+            align-items: center;
+            flex-wrap: nowrap;
+            gap: 5px;
+            background-color: rgba(var(--message-actions-base-rgb), var(--message-actions-bg-opacity));
+            padding: 5px 8px 10px 8px;
+            border-radius: 5px;
+            box-shadow: 0 -1px 3px var(--shadow-primary);
+            z-index: 2;
+            transition: opacity 0.2s ease, background-color 0.3s ease;
+        }
+        .message.model:hover .message-cascade-controls,
+        .message.model.show-actions .message-cascade-controls {
+            display: flex;
+        }
         .message-cascade-controls button {
             background-color: var(--bg-cascade-button);
             color: var(--text-light);
@@ -1758,9 +1756,8 @@
         .message.editing .message-actions,
         .message.editing .message-cascade-controls,
         .message.editing .message-toggle-button {
-             opacity: 0 !important;
-             visibility: hidden !important;
-             pointer-events: none !important;
+             opacity: 0;
+             pointer-events: none;
              display: none !important;
         }
         .message-edit-area {
@@ -2294,15 +2291,14 @@
             margin: 1.5em 0;
         }
 
-        .message.show-actions .message-actions,
-        .message.show-actions .message-cascade-controls {
-            opacity: 1;
-            visibility: visible;
-            pointer-events: auto;
-            transition-delay: 0s;
+        .message:hover .message-actions,
+        .message.show-actions .message-actions {
             display: flex;
         }
-
+        .message.model:hover .message-cascade-controls,
+        .message.model.show-actions .message-cascade-controls {
+             display: flex;
+        }
         .message:hover .message-toggle-button.top,
         .message.show-actions .message-toggle-button.top {
              opacity: calc(var(--message-toggle-button-top-opacity) + 0.1);
@@ -2316,9 +2312,6 @@
         .message.editing.show-actions .message-actions,
         .message.editing.show-actions .message-cascade-controls,
         .message.editing.show-actions .message-toggle-button {
-            opacity: 0 !important;
-            visibility: hidden !important;
-            pointer-events: none !important;
             display: none !important;
         }
         .message.retrying-hidden {
@@ -3174,10 +3167,7 @@
                                <input type="checkbox" id="enter-to-send">
                                Enterキーで送信する
                            </label>
-                           <label class="checkbox-label">
-                               <input type="checkbox" id="disable-retry-confirmation">
-                               リトライ時の確認ダイアログを無効にする
-                           </label>
+
                            <label class="checkbox-label">
                                <input type="checkbox" id="auto-scroll-on-new-message">
                                メッセージ送受信時に自動スクロールする
@@ -3197,6 +3187,11 @@
                            <label class="checkbox-label">
                                 <input type="checkbox" id="show-paste-button-in-edit-toggle">
                                 メッセージ編集ツールバーに「貼付け」ボタンを表示する
+                            </label>
+                            <p style="height:10px"></p>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="disable-retry-confirmation-toggle">
+                                リトライ時の確認ダイアログを無効にする
                             </label>
                            <p style="height:10px"></p>
                            <label for="theme-select">表示テーマ:</label>
@@ -3279,12 +3274,13 @@
                                ※ 没入感を高めたい場合に。非表示でも機能は有効。
                            </p>
                             <label class="checkbox-label">
-                               <input type="checkbox" id="show-collapse-buttons-toggle">
-                               メッセージ折りたたみボタンを表示する
+                               <input type="checkbox" id="show-top-collapse-button-toggle">
+                               メッセージ右上に折りたたみボタンを表示する
                            </label>
-                            <p style="font-size: 11px; color: var(--text-secondary); margin-top: -5px; margin-bottom: 10px;">
-                               ※ 各メッセージの上部と下部にテキストを折りたたむボタンを表示。
-                           </p>
+                            <label class="checkbox-label">
+                               <input type="checkbox" id="show-bottom-collapse-button-toggle">
+                               メッセージツールバーに折りたたみボタンを表示する
+                           </label>
                            <details style="margin-top: 5px; margin-bottom: 15px;">
                                 <summary style="cursor: pointer; font-weight: normal; font-size: 14px; color: var(--text-link); list-style: revert;">折りたたみボタン詳細設定</summary>
                                 <div style="padding-left: 15px; margin-top: 10px;">
@@ -3533,8 +3529,6 @@
         const DEFAULT_PERSIST_MESSAGE_COLLAPSE_STATE = true;
         const DEFAULT_DICE_MIN_VALUE = 1;
         const DEFAULT_DICE_MAX_VALUE = 100;
-        const DEFAULT_DISABLE_RETRY_CONFIRMATION = false;
-
 
         const extensionToMimeTypeMap = {
             'pdf': 'application/pdf', 'js': 'text/javascript', 'py': 'text/x-python',
@@ -3592,7 +3586,6 @@
             additionalModelsTextarea: document.getElementById('additional-models'),
             pseudoStreamingCheckbox: document.getElementById('pseudo-streaming'),
             enterToSendCheckbox: document.getElementById('enter-to-send'),
-            disableRetryConfirmationCheckbox: document.getElementById('disable-retry-confirmation'),
             autoScrollOnNewMessageCheckbox: document.getElementById('auto-scroll-on-new-message'),
             historySortOrderSelect: document.getElementById('history-sort-order'),
             themeSelect: document.getElementById('theme-select'),
@@ -3675,7 +3668,9 @@
             deleteMemoBtn: document.getElementById('delete-memo-btn'),
             showMemoButtonToggle: document.getElementById('show-memo-button-toggle'),
             memoHeightInput: document.getElementById('memo-height'),
-            showCollapseButtonsToggle: document.getElementById('show-collapse-buttons-toggle'),
+            disableRetryConfirmationToggle: document.getElementById('disable-retry-confirmation-toggle'),
+            showTopCollapseButtonToggle: document.getElementById('show-top-collapse-button-toggle'),
+            showBottomCollapseButtonToggle: document.getElementById('show-bottom-collapse-button-toggle'),
             persistMessageCollapseStateCheckbox: document.getElementById('persist-message-collapse-state'),
             toggleClipboardStackBtn: document.getElementById('toggle-clipboard-stack-btn'),
             clipboardStackArea: document.getElementById('clipboard-stack-area'),
@@ -3748,7 +3743,6 @@
                 additionalModels: '',
                 pseudoStreaming: false,
                 enterToSend: true,
-                disableRetryConfirmation: DEFAULT_DISABLE_RETRY_CONFIRMATION,
                 autoScrollOnNewMessage: DEFAULT_AUTO_SCROLL_ON_NEW_MESSAGE,
                 historySortOrder: 'updatedAt',
                 theme: 'light',
@@ -3798,7 +3792,9 @@
                 aiNameBubbleUseThemeColor: false,
                 aiNameBubbleColor: DEFAULT_AI_NAME_BUBBLE_COLOR,
                 aiNameBubbleOpacity: DEFAULT_AI_NAME_BUBBLE_OPACITY,
-                showCollapseButtons: true,
+                disableRetryConfirmation: false,
+                showTopCollapseButton: true,
+                showBottomCollapseButton: true,
                 persistMessageCollapseState: DEFAULT_PERSIST_MESSAGE_COLLAPSE_STATE,
                 messageBubbleOpacity: DEFAULT_MESSAGE_BUBBLE_OPACITY,
                 chatOverlayOpacity: DEFAULT_CHAT_OVERLAY_OPACITY,
@@ -3970,6 +3966,7 @@
                         for (const key in loadedSettings) {
                              if (key === 'darkMode') continue;
                              if (key === 'memoWidth') continue;
+                             if (key === 'showCollapseButtons') continue;
 
                              if (key in defaultSettings) {
                                 const loadedValue = loadedSettings[key];
@@ -3992,10 +3989,12 @@
                                            key === 'showNewChatButton' || key === 'showDeleteSessionButton' || key === 'showCopySessionButton' ||
                                            key === 'showScrollToTopButton' || key === 'showScrollToBottomButton' || key === 'showToggleAllContentButton' ||
                                            key === 'showBulkHistoryActions' || key === 'showPasteButtonInFooter' || key === 'showPasteButtonInEdit' ||
-                                           key === 'showDiceButton' || key === 'disableRetryConfirmation' ||
+                                           key === 'showDiceButton' ||
                                            key === 'enableSystemPromptDefault' || key === 'enableDummyUser' || key === 'enableDummyModel' ||
                                            key === 'showMemoButton' || key === 'showClipboardStackButton' || key === 'showUserIcon' || key === 'showAiIcon' ||
-                                           key === 'showUserName' || key === 'showAiName' || key === 'showCollapseButtons' || key === 'persistMessageCollapseState' ||
+                                           key === 'showUserName' || key === 'showAiName' ||
+                                           key === 'disableRetryConfirmation' || key === 'showTopCollapseButton' || key === 'showBottomCollapseButton' ||
+                                           key === 'persistMessageCollapseState' ||
                                            key === 'streamingOutput' || key === 'pseudoStreaming' || key === 'enterToSend' ||
                                            key === 'concatDummyModel' || key === 'autoScrollOnNewMessage' ||
                                            key === 'showUserNameBubble' || key === 'showAiNameBubble' ||
@@ -4362,7 +4361,7 @@
 
                 const isCurrentlyCollapsed = state.messageCollapsedStates.get(index) || false;
 
-                if (role !== 'error' && state.settings.showCollapseButtons) {
+                if (role !== 'error' && state.settings.showTopCollapseButton) {
                     const toggleButtonTop = document.createElement('button');
                     toggleButtonTop.classList.add('message-toggle-button', 'top');
                     toggleButtonTop.dataset.index = index;
@@ -4596,7 +4595,7 @@
                     const actionsDiv = document.createElement('div');
                     actionsDiv.classList.add('message-actions');
 
-                    if (state.settings.showCollapseButtons) {
+                    if (state.settings.showBottomCollapseButton) {
                         const toggleButtonBottom = document.createElement('button');
                         toggleButtonBottom.classList.add('message-toggle-button', 'bottom');
                         toggleButtonBottom.dataset.index = index;
@@ -5226,7 +5225,6 @@
                 elements.additionalModelsTextarea.value = state.settings.additionalModels || '';
                 elements.pseudoStreamingCheckbox.checked = state.settings.pseudoStreaming;
                 elements.enterToSendCheckbox.checked = state.settings.enterToSend;
-                elements.disableRetryConfirmationCheckbox.checked = state.settings.disableRetryConfirmation;
                 elements.autoScrollOnNewMessageCheckbox.checked = state.settings.autoScrollOnNewMessage;
                 elements.historySortOrderSelect.value = state.settings.historySortOrder || 'updatedAt';
                 if (elements.themeSelect) elements.themeSelect.value = state.settings.theme || 'light';
@@ -5280,7 +5278,9 @@
                 elements.aiNameBubbleColorInput.value = state.settings.aiNameBubbleColor || DEFAULT_AI_NAME_BUBBLE_COLOR;
                 elements.aiNameBubbleOpacityInput.value = state.settings.aiNameBubbleOpacity ?? DEFAULT_AI_NAME_BUBBLE_OPACITY;
 
-                elements.showCollapseButtonsToggle.checked = state.settings.showCollapseButtons;
+                elements.disableRetryConfirmationToggle.checked = state.settings.disableRetryConfirmation;
+                elements.showTopCollapseButtonToggle.checked = state.settings.showTopCollapseButton;
+                elements.showBottomCollapseButtonToggle.checked = state.settings.showBottomCollapseButton;
                 elements.persistMessageCollapseStateCheckbox.checked = state.settings.persistMessageCollapseState;
 
                 elements.toggleButtonTopWidthInput.value = state.settings.toggleButtonTopWidth ?? DEFAULT_TOGGLE_BUTTON_TOP_WIDTH;
@@ -6147,56 +6147,49 @@
                         document.documentElement.style.setProperty('--message-toggle-button-top-opacity', DEFAULT_TOGGLE_BUTTON_TOP_OPACITY);
                     }
                 });
-                elements.showCollapseButtonsToggle.addEventListener('change', () => {
-                    state.settings.showCollapseButtons = elements.showCollapseButtonsToggle.checked;
+                elements.showTopCollapseButtonToggle.addEventListener('change', () => {
+                    state.settings.showTopCollapseButton = elements.showTopCollapseButtonToggle.checked;
+                    uiUtils.renderChatMessages(true);
+                });
+                elements.showBottomCollapseButtonToggle.addEventListener('change', () => {
+                    state.settings.showBottomCollapseButton = elements.showBottomCollapseButtonToggle.checked;
                     uiUtils.renderChatMessages(true);
                 });
                 elements.persistMessageCollapseStateCheckbox.addEventListener('change', () => {
                     state.settings.persistMessageCollapseState = elements.persistMessageCollapseStateCheckbox.checked;
                 });
 
-                const hideAllToolbars = (event) => {
-                    if (event.target.closest('.custom-dialog, .message-actions, .message-cascade-controls')) {
-                        return;
-                    }
-                    const allActiveMessages = elements.messageContainer.querySelectorAll('.message.show-actions');
-                    let didHideSomething = false;
-                    allActiveMessages.forEach(activeMsg => {
-                        if (!activeMsg.contains(event.target)) {
-                            activeMsg.classList.remove('show-actions');
-                            didHideSomething = true;
-                        }
-                    });
-                };
-
-                document.body.addEventListener('click', hideAllToolbars, true);
-                if ('ontouchend' in document.documentElement) {
-                    document.body.addEventListener('touchend', hideAllToolbars, true);
-                }
-
                 elements.messageContainer.addEventListener('click', (event) => {
-                    const clickedMessageElement = event.target.closest('.message');
-                    if (event.target.closest('.message-actions button, .message-cascade-controls button, .message-toggle-button, .interactive-title-content, .code-copy-button, .citation-details, .attachment-details')) {
+                    const clickedMessage = event.target.closest('.message');
+                    if (event.target.closest('.message-actions button, .message-cascade-controls button, .message-toggle-button, .interactive-title-content, .code-copy-button')) {
                         return;
                     }
-                    if (clickedMessageElement) {
-                        const allMessagesWithActions = elements.messageContainer.querySelectorAll('.message.show-actions');
-                        allMessagesWithActions.forEach(msg => {
-                            if (msg !== clickedMessageElement) {
-                                msg.classList.remove('show-actions');
-                            }
-                        });
-                        if (!clickedMessageElement.classList.contains('editing')) {
-                            clickedMessageElement.classList.toggle('show-actions');
+                    if (clickedMessage) {
+                        const currentlyShown = elements.messageContainer.querySelector('.message.show-actions');
+                        if (currentlyShown && currentlyShown !== clickedMessage) {
+                            currentlyShown.classList.remove('show-actions');
+                        }
+                        if (!clickedMessage.classList.contains('editing')) {
+                            clickedMessage.classList.toggle('show-actions');
                         }
                     } else {
-                        const allMessagesWithActions = elements.messageContainer.querySelectorAll('.message.show-actions');
-                        allMessagesWithActions.forEach(msg => {
-                            msg.classList.remove('show-actions');
-                        });
+                        const currentlyShown = elements.messageContainer.querySelector('.message.show-actions');
+                        if (currentlyShown) {
+                            currentlyShown.classList.remove('show-actions');
+                        }
                     }
                 }, true);
-
+                document.body.addEventListener('click', (event) => {
+                    if (!elements.messageContainer.contains(event.target) &&
+                        !elements.memoArea.contains(event.target) &&
+                        !elements.clipboardStackArea.contains(event.target) &&
+                        !event.target.closest('.custom-dialog')) {
+                        const currentlyShown = elements.messageContainer.querySelector('.message.show-actions');
+                        if (currentlyShown) {
+                            currentlyShown.classList.remove('show-actions');
+                        }
+                    }
+                }, true);
 
                 elements.chatScreen.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: true });
                 elements.chatScreen.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
@@ -7925,7 +7918,6 @@
                      additionalModels: elements.additionalModelsTextarea.value.trim(),
                      pseudoStreaming: elements.pseudoStreamingCheckbox.checked,
                      enterToSend: elements.enterToSendCheckbox.checked,
-                     disableRetryConfirmation: elements.disableRetryConfirmationCheckbox.checked,
                      autoScrollOnNewMessage: elements.autoScrollOnNewMessageCheckbox.checked,
                      historySortOrder: elements.historySortOrderSelect.value,
                      theme: elements.themeSelect.value,
@@ -7972,7 +7964,9 @@
                      aiNameBubbleUseThemeColor: elements.aiNameBubbleUseThemeColorToggle.checked,
                      aiNameBubbleColor: elements.aiNameBubbleColorInput.value.trim() || DEFAULT_AI_NAME_BUBBLE_COLOR,
                      aiNameBubbleOpacity: elements.aiNameBubbleOpacityInput.value === '' ? DEFAULT_AI_NAME_BUBBLE_OPACITY : parseFloat(elements.aiNameBubbleOpacityInput.value),
-                     showCollapseButtons: elements.showCollapseButtonsToggle.checked,
+                     disableRetryConfirmation: elements.disableRetryConfirmationToggle.checked,
+                     showTopCollapseButton: elements.showTopCollapseButtonToggle.checked,
+                     showBottomCollapseButton: elements.showBottomCollapseButtonToggle.checked,
                      persistMessageCollapseState: elements.persistMessageCollapseStateCheckbox.checked,
                      messageBubbleOpacity: elements.messageBubbleOpacityInput.value === '' ? DEFAULT_MESSAGE_BUBBLE_OPACITY : parseFloat(elements.messageBubbleOpacityInput.value),
                      chatOverlayOpacity: elements.chatOverlayOpacityInput.value === '' ? DEFAULT_CHAT_OVERLAY_OPACITY : parseFloat(elements.chatOverlayOpacityInput.value),
@@ -8178,7 +8172,6 @@
                             dummyModel: '', enableDummyModel: true,
                             concatDummyModel: false,
                             additionalModels: '', pseudoStreaming: false, enterToSend: true,
-                            disableRetryConfirmation: DEFAULT_DISABLE_RETRY_CONFIRMATION,
                             autoScrollOnNewMessage: DEFAULT_AUTO_SCROLL_ON_NEW_MESSAGE,
                             historySortOrder: 'updatedAt',
                             theme: window.matchMedia?.('(prefers-color-scheme: light)').matches ? 'dark' : 'light',
@@ -8224,7 +8217,9 @@
                             aiNameBubbleUseThemeColor: false,
                             aiNameBubbleColor: DEFAULT_AI_NAME_BUBBLE_COLOR,
                             aiNameBubbleOpacity: DEFAULT_AI_NAME_BUBBLE_OPACITY,
-                            showCollapseButtons: true,
+                            disableRetryConfirmation: false,
+                            showTopCollapseButton: true,
+                            showBottomCollapseButton: true,
                             persistMessageCollapseState: DEFAULT_PERSIST_MESSAGE_COLLAPSE_STATE,
                             messageBubbleOpacity: DEFAULT_MESSAGE_BUBBLE_OPACITY,
                             chatOverlayOpacity: DEFAULT_CHAT_OVERLAY_OPACITY,
@@ -8692,8 +8687,8 @@
                 const userMessage = state.currentMessages[index];
                 if (!userMessage || userMessage.role !== 'user') return;
 
-                let confirmed = state.settings.disableRetryConfirmation;
-                if (!confirmed) {
+                let confirmed = true;
+                if (!state.settings.disableRetryConfirmation) {
                     const messageContentPreview = userMessage.content.substring(0, 30) + "...";
                     confirmed = await uiUtils.showCustomConfirm(`「${messageContentPreview}」から再生成しますか？\n(この入力に対する既存の応答は保持されますが、**これより未来の会話履歴は削除されます**)`);
                 }
@@ -9182,7 +9177,7 @@
         };
 
         const apiUtils = {
-                    async callGeminiApi(messagesForApi, generationConfig, systemInstruction, useStreaming, usePseudo) {
+            async callGeminiApi(messagesForApi, generationConfig, systemInstruction, useStreaming, usePseudo) {
                 if (!state.settings.apiKey) {
                     throw new Error("APIキーが設定されていません。");
                 }
