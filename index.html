@@ -3167,10 +3167,7 @@
                                <input type="checkbox" id="enter-to-send">
                                Enterキーで送信する
                            </label>
-                           <label class="checkbox-label">
-                               <input type="checkbox" id="disable-retry-confirmation">
-                               リトライ時の確認ダイアログを無効にする
-                           </label>
+
                            <label class="checkbox-label">
                                <input type="checkbox" id="auto-scroll-on-new-message">
                                メッセージ送受信時に自動スクロールする
@@ -3526,8 +3523,6 @@
         const DEFAULT_PERSIST_MESSAGE_COLLAPSE_STATE = true;
         const DEFAULT_DICE_MIN_VALUE = 1;
         const DEFAULT_DICE_MAX_VALUE = 100;
-        const DEFAULT_DISABLE_RETRY_CONFIRMATION = false;
-
 
         const extensionToMimeTypeMap = {
             'pdf': 'application/pdf', 'js': 'text/javascript', 'py': 'text/x-python',
@@ -3585,7 +3580,6 @@
             additionalModelsTextarea: document.getElementById('additional-models'),
             pseudoStreamingCheckbox: document.getElementById('pseudo-streaming'),
             enterToSendCheckbox: document.getElementById('enter-to-send'),
-            disableRetryConfirmationCheckbox: document.getElementById('disable-retry-confirmation'),
             autoScrollOnNewMessageCheckbox: document.getElementById('auto-scroll-on-new-message'),
             historySortOrderSelect: document.getElementById('history-sort-order'),
             themeSelect: document.getElementById('theme-select'),
@@ -3741,7 +3735,6 @@
                 additionalModels: '',
                 pseudoStreaming: false,
                 enterToSend: true,
-                disableRetryConfirmation: DEFAULT_DISABLE_RETRY_CONFIRMATION,
                 autoScrollOnNewMessage: DEFAULT_AUTO_SCROLL_ON_NEW_MESSAGE,
                 historySortOrder: 'updatedAt',
                 theme: 'light',
@@ -3985,7 +3978,7 @@
                                            key === 'showNewChatButton' || key === 'showDeleteSessionButton' || key === 'showCopySessionButton' ||
                                            key === 'showScrollToTopButton' || key === 'showScrollToBottomButton' || key === 'showToggleAllContentButton' ||
                                            key === 'showBulkHistoryActions' || key === 'showPasteButtonInFooter' || key === 'showPasteButtonInEdit' ||
-                                           key === 'showDiceButton' || key === 'disableRetryConfirmation' ||
+                                           key === 'showDiceButton' ||
                                            key === 'enableSystemPromptDefault' || key === 'enableDummyUser' || key === 'enableDummyModel' ||
                                            key === 'showMemoButton' || key === 'showClipboardStackButton' || key === 'showUserIcon' || key === 'showAiIcon' ||
                                            key === 'showUserName' || key === 'showAiName' || key === 'showCollapseButtons' || key === 'persistMessageCollapseState' ||
@@ -5219,7 +5212,6 @@
                 elements.additionalModelsTextarea.value = state.settings.additionalModels || '';
                 elements.pseudoStreamingCheckbox.checked = state.settings.pseudoStreaming;
                 elements.enterToSendCheckbox.checked = state.settings.enterToSend;
-                elements.disableRetryConfirmationCheckbox.checked = state.settings.disableRetryConfirmation;
                 elements.autoScrollOnNewMessageCheckbox.checked = state.settings.autoScrollOnNewMessage;
                 elements.historySortOrderSelect.value = state.settings.historySortOrder || 'updatedAt';
                 if (elements.themeSelect) elements.themeSelect.value = state.settings.theme || 'light';
@@ -6148,45 +6140,35 @@
                     state.settings.persistMessageCollapseState = elements.persistMessageCollapseStateCheckbox.checked;
                 });
 
-                const hideAllToolbars = (event) => {
-                    if (event.target.closest('.custom-dialog, .message-actions, .message-cascade-controls')) {
-                        return;
-                    }
-                    const allActiveMessages = elements.messageContainer.querySelectorAll('.message.show-actions');
-                    let didHideSomething = false;
-                    allActiveMessages.forEach(activeMsg => {
-                        if (!activeMsg.contains(event.target)) {
-                            activeMsg.classList.remove('show-actions');
-                            didHideSomething = true;
-                        }
-                    });
-                };
-
-                document.body.addEventListener('click', hideAllToolbars, true);
-                if ('ontouchend' in document.documentElement) {
-                    document.body.addEventListener('touchend', hideAllToolbars, true);
-                }
-
                 elements.messageContainer.addEventListener('click', (event) => {
-                    const clickedMessageElement = event.target.closest('.message');
-                    if (event.target.closest('.message-actions button, .message-cascade-controls button, .message-toggle-button, .interactive-title-content, .code-copy-button, .citation-details, .attachment-details')) {
+                    const clickedMessage = event.target.closest('.message');
+                    if (event.target.closest('.message-actions button, .message-cascade-controls button, .message-toggle-button, .interactive-title-content, .code-copy-button')) {
                         return;
                     }
-                    if (clickedMessageElement) {
-                        const allMessagesWithActions = elements.messageContainer.querySelectorAll('.message.show-actions');
-                        allMessagesWithActions.forEach(msg => {
-                            if (msg !== clickedMessageElement) {
-                                msg.classList.remove('show-actions');
-                            }
-                        });
-                        if (!clickedMessageElement.classList.contains('editing')) {
-                            clickedMessageElement.classList.toggle('show-actions');
+                    if (clickedMessage) {
+                        const currentlyShown = elements.messageContainer.querySelector('.message.show-actions');
+                        if (currentlyShown && currentlyShown !== clickedMessage) {
+                            currentlyShown.classList.remove('show-actions');
+                        }
+                        if (!clickedMessage.classList.contains('editing')) {
+                            clickedMessage.classList.toggle('show-actions');
                         }
                     } else {
-                        const allMessagesWithActions = elements.messageContainer.querySelectorAll('.message.show-actions');
-                        allMessagesWithActions.forEach(msg => {
-                            msg.classList.remove('show-actions');
-                        });
+                        const currentlyShown = elements.messageContainer.querySelector('.message.show-actions');
+                        if (currentlyShown) {
+                            currentlyShown.classList.remove('show-actions');
+                        }
+                    }
+                }, true);
+                document.body.addEventListener('click', (event) => {
+                    if (!elements.messageContainer.contains(event.target) &&
+                        !elements.memoArea.contains(event.target) &&
+                        !elements.clipboardStackArea.contains(event.target) &&
+                        !event.target.closest('.custom-dialog')) {
+                        const currentlyShown = elements.messageContainer.querySelector('.message.show-actions');
+                        if (currentlyShown) {
+                            currentlyShown.classList.remove('show-actions');
+                        }
                     }
                 }, true);
 
@@ -7917,7 +7899,6 @@
                      additionalModels: elements.additionalModelsTextarea.value.trim(),
                      pseudoStreaming: elements.pseudoStreamingCheckbox.checked,
                      enterToSend: elements.enterToSendCheckbox.checked,
-                     disableRetryConfirmation: elements.disableRetryConfirmationCheckbox.checked,
                      autoScrollOnNewMessage: elements.autoScrollOnNewMessageCheckbox.checked,
                      historySortOrder: elements.historySortOrderSelect.value,
                      theme: elements.themeSelect.value,
@@ -8170,7 +8151,6 @@
                             dummyModel: '', enableDummyModel: true,
                             concatDummyModel: false,
                             additionalModels: '', pseudoStreaming: false, enterToSend: true,
-                            disableRetryConfirmation: DEFAULT_DISABLE_RETRY_CONFIRMATION,
                             autoScrollOnNewMessage: DEFAULT_AUTO_SCROLL_ON_NEW_MESSAGE,
                             historySortOrder: 'updatedAt',
                             theme: window.matchMedia?.('(prefers-color-scheme: light)').matches ? 'dark' : 'light',
@@ -8684,12 +8664,8 @@
                 const userMessage = state.currentMessages[index];
                 if (!userMessage || userMessage.role !== 'user') return;
 
-                let confirmed = true;
-                if (!state.settings.disableRetryConfirmation) {
-                    const messageContentPreview = userMessage.content.substring(0, 30) + "...";
-                    confirmed = await uiUtils.showCustomConfirm(`「${messageContentPreview}」から再生成しますか？\n(この入力に対する既存の応答は保持されますが、**これより未来の会話履歴は削除されます**)`);
-                }
-
+                const messageContentPreview = userMessage.content.substring(0, 30) + "...";
+                const confirmed = await uiUtils.showCustomConfirm(`「${messageContentPreview}」から再生成しますか？\n(この入力に対する既存の応答は保持されますが、**これより未来の会話履歴は削除されます**)`);
                 if (confirmed) {
                     let deleteStartIndex = -1;
                     let scanIndex = index + 1;
