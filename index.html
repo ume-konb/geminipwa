@@ -1640,18 +1640,39 @@
             line-height: 1.5;
         }
 
-        .message-actions {
+        .message-actions,
+        .message-cascade-controls {
             position: absolute;
-            bottom: -30px;
-            display: none;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
             flex-wrap: nowrap;
             gap: 5px;
             background-color: rgba(var(--message-actions-base-rgb), var(--message-actions-bg-opacity));
-            padding: 1px 1px 1px 1px;
             border-radius: 5px;
             box-shadow: 0 1px 3px var(--shadow-primary);
             z-index: 2;
-            transition: opacity 0.2s ease, background-color 0.3s ease;
+            transition: opacity 0.15s ease-in-out, visibility 0s linear 0.15s, background-color 0.3s ease;
+        }
+
+        .message-actions {
+            bottom: -30px;
+            padding: 1px;
+        }
+
+        .message-cascade-controls {
+            top: -35px;
+            left: 0;
+            padding: 5px 8px 10px 8px;
+        }
+
+        .message.show-actions .message-actions,
+        .message.show-actions .message-cascade-controls {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transition-delay: 0s;
+            display: flex;
         }
 
         .message.user .message-actions {
@@ -1696,25 +1717,6 @@
             background-color: var(--bg-button-copy-hover);
         }
 
-        .message-cascade-controls {
-            position: absolute;
-            top: -35px;
-            left: 0;
-            display: none;
-            align-items: center;
-            flex-wrap: nowrap;
-            gap: 5px;
-            background-color: rgba(var(--message-actions-base-rgb), var(--message-actions-bg-opacity));
-            padding: 5px 8px 10px 8px;
-            border-radius: 5px;
-            box-shadow: 0 -1px 3px var(--shadow-primary);
-            z-index: 2;
-            transition: opacity 0.2s ease, background-color 0.3s ease;
-        }
-        .message.model:hover .message-cascade-controls,
-        .message.model.show-actions .message-cascade-controls {
-            display: flex;
-        }
         .message-cascade-controls button {
             background-color: var(--bg-cascade-button);
             color: var(--text-light);
@@ -1756,8 +1758,9 @@
         .message.editing .message-actions,
         .message.editing .message-cascade-controls,
         .message.editing .message-toggle-button {
-             opacity: 0;
-             pointer-events: none;
+             opacity: 0 !important;
+             visibility: hidden !important;
+             pointer-events: none !important;
              display: none !important;
         }
         .message-edit-area {
@@ -2291,14 +2294,15 @@
             margin: 1.5em 0;
         }
 
-        .message:hover .message-actions,
-        .message.show-actions .message-actions {
+        .message.show-actions .message-actions,
+        .message.show-actions .message-cascade-controls {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transition-delay: 0s;
             display: flex;
         }
-        .message.model:hover .message-cascade-controls,
-        .message.model.show-actions .message-cascade-controls {
-             display: flex;
-        }
+
         .message:hover .message-toggle-button.top,
         .message.show-actions .message-toggle-button.top {
              opacity: calc(var(--message-toggle-button-top-opacity) + 0.1);
@@ -2312,6 +2316,9 @@
         .message.editing.show-actions .message-actions,
         .message.editing.show-actions .message-cascade-controls,
         .message.editing.show-actions .message-toggle-button {
+            opacity: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
             display: none !important;
         }
         .message.retrying-hidden {
@@ -6190,6 +6197,7 @@
                     }
                 }, true);
 
+
                 elements.chatScreen.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: true });
                 elements.chatScreen.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
                 elements.chatScreen.addEventListener('touchend', this.handleTouchEnd.bind(this));
@@ -8684,8 +8692,8 @@
                 const userMessage = state.currentMessages[index];
                 if (!userMessage || userMessage.role !== 'user') return;
 
-                let confirmed = true;
-                if (!state.settings.disableRetryConfirmation) {
+                let confirmed = state.settings.disableRetryConfirmation;
+                if (!confirmed) {
                     const messageContentPreview = userMessage.content.substring(0, 30) + "...";
                     confirmed = await uiUtils.showCustomConfirm(`「${messageContentPreview}」から再生成しますか？\n(この入力に対する既存の応答は保持されますが、**これより未来の会話履歴は削除されます**)`);
                 }
@@ -9174,7 +9182,7 @@
         };
 
         const apiUtils = {
-            async callGeminiApi(messagesForApi, generationConfig, systemInstruction, useStreaming, usePseudo) {
+                    async callGeminiApi(messagesForApi, generationConfig, systemInstruction, useStreaming, usePseudo) {
                 if (!state.settings.apiKey) {
                     throw new Error("APIキーが設定されていません。");
                 }
