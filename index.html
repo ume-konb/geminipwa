@@ -1651,9 +1651,7 @@
             border-radius: 5px;
             box-shadow: 0 1px 3px var(--shadow-primary);
             z-index: 2;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0s 0.3s, background-color 0.3s ease;
+            transition: opacity 0.2s ease, background-color 0.3s ease;
         }
 
         .message.user .message-actions {
@@ -1711,15 +1709,11 @@
             border-radius: 5px;
             box-shadow: 0 -1px 3px var(--shadow-primary);
             z-index: 2;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0s 0.3s, background-color 0.3s ease;
+            transition: opacity 0.2s ease, background-color 0.3s ease;
         }
+        .message.model:hover .message-cascade-controls,
         .message.model.show-actions .message-cascade-controls {
             display: flex;
-            opacity: 1;
-            visibility: visible;
-            transition: opacity 0.3s ease, background-color 0.3s ease;
         }
         .message-cascade-controls button {
             background-color: var(--bg-cascade-button);
@@ -2297,17 +2291,13 @@
             margin: 1.5em 0;
         }
 
+        .message:hover .message-actions,
         .message.show-actions .message-actions {
             display: flex;
-            opacity: 1;
-            visibility: visible;
-            transition: opacity 0.3s ease, background-color 0.3s ease;
         }
+        .message.model:hover .message-cascade-controls,
         .message.model.show-actions .message-cascade-controls {
              display: flex;
-             opacity: 1;
-             visibility: visible;
-             transition: opacity 0.3s ease, background-color 0.3s ease;
         }
         .message:hover .message-toggle-button.top,
         .message.show-actions .message-toggle-button.top {
@@ -6171,7 +6161,7 @@
 
                 elements.messageContainer.addEventListener('click', (event) => {
                     const clickedMessage = event.target.closest('.message');
-                    if (event.target.closest('.message-actions button, .message-cascade-controls button, .message-toggle-button, .interactive-title-content, .code-copy-button, .citation-details summary, .citation-details a, .attachment-details summary')) {
+                    if (event.target.closest('.message-actions button, .message-cascade-controls button, .message-toggle-button, .interactive-title-content, .code-copy-button')) {
                         return;
                     }
                     if (clickedMessage) {
