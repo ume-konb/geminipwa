@@ -3023,6 +3023,11 @@
                     <p style="font-size: 11px; color: var(--text-secondary); margin-top: -5px; margin-bottom: 10px;">
                         ※ 有効にすると、履歴画面で2つのセッションをリンクし、AI同士の会話をステップ実行できます。（👥ボタンを用いた入出力のみ。）
                     </p>
+                           <p style="height:10px"></p>
+                           <label class="checkbox-label">
+                               <input type="checkbox" id="disable-load-chat-confirmation-while-sending-toggle">
+                               メッセージ送信中に別チャットを読み込む際の確認ダイアログを表示しない (非推奨)
+                           </label>
                 </div>
                 <div class="settings-group">
                     <h3>イメージ画像</h3>
@@ -3167,7 +3172,6 @@
                                <input type="checkbox" id="enter-to-send">
                                Enterキーで送信する
                            </label>
-
                            <label class="checkbox-label">
                                <input type="checkbox" id="auto-scroll-on-new-message">
                                メッセージ送受信時に自動スクロールする
@@ -3195,13 +3199,8 @@
                             </label>
                            <p style="height:10px"></p>
                            <label class="checkbox-label">
-                               <input type="checkbox" id="disable-load-chat-confirmation-while-sending-toggle">
-                               送信中に別チャットを読み込む際の確認ダイアログを無効にする
-                           </label>
-                           <p style="height:10px"></p>
-                           <label class="checkbox-label">
                                <input type="checkbox" id="disable-delete-message-confirmation-toggle">
-                               メッセージ削除時の確認ダイアログを無効にする（ツールバーから）
+                               メッセージ削除時の確認ダイアログを無効にする
                            </label>
                            <p style="height:10px"></p>
                            <label for="theme-select">表示テーマ:</label>
