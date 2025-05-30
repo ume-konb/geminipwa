@@ -3164,6 +3164,28 @@
                     </div>
                 </details>
 
+                <details class="settings-group">
+                    <summary style="font-size: 16px; color: var(--text-link); border-bottom: 1px solid var(--border-tertiary); padding-bottom: 5px; margin-bottom: 15px; display: list-item; list-style: revert; cursor:pointer; font-weight: bold;">自動挿入機能</summary>
+                    <div style="margin-top:15px;">                        
+                        <label for="auto-timestamp">
+                            <input type="checkbox" id="auto-timestamp">
+                            送信時の時刻をシスプロに追加
+                        </label>
+                        <label for="auto-dice-roll">
+                            <input type="checkbox" id="auto-dice-roll">
+                            送信時にダミーModelにダイスロール結果を追加
+                        </label>
+                        <label for="dice-sides">
+                            <input type="number" id="dice-sides" step="1" value="6" min="2" max="100" style="width: 60px; margin-left: 10px;">
+                            面のダイス
+                        </label>
+                        <p style="font-size: 11px; color: var(--text-secondary); margin-top: 8px;">
+                            ※ ダイスロール使用時は「このダミーModelプロンプトを有効にする」と<br>
+                            「ダミーモデルと回答を連結」の項目にチェックを入れてください。
+                        </p>
+                    </div>
+                </details>
+
                 <div class="settings-group">
                    <details open>
                         <summary style="font-size: 16px; color: var(--text-link); border-bottom: 1px solid var(--border-tertiary); padding-bottom: 5px; margin-bottom: 15px; display: list-item; list-style: revert; cursor:pointer; font-weight: bold;">その他設定</summary>
@@ -3538,6 +3560,9 @@
         const DEFAULT_PERSIST_MESSAGE_COLLAPSE_STATE = true;
         const DEFAULT_DICE_MIN_VALUE = 1;
         const DEFAULT_DICE_MAX_VALUE = 100;
+        const DEFAULT_AUTO_TIMESTAMP = false; // ★追加
+        const DEFAULT_AUTO_DICE_ROLL = false; // ★追加
+        const DEFAULT_DICE_SIDES = 6; // ★追加
 
         const extensionToMimeTypeMap = {
             'pdf': 'application/pdf', 'js': 'text/javascript', 'py': 'text/x-python',
@@ -3725,6 +3750,9 @@
             toggleButtonBottomTextCollapseInput: document.getElementById('toggle-button-bottom-text-collapse'),
             toggleButtonBottomTextExpandInput: document.getElementById('toggle-button-bottom-text-expand'),
             toggleButtonTopOpacityInput: document.getElementById('toggle-button-top-opacity'),
+            autoTimestampCheckbox: document.getElementById('auto-timestamp'),   // ★追加
+            autoDiceRollCheckbox: document.getElementById('auto-dice-roll'),     // ★追加
+            diceSidesInput: document.getElementById('dice-sides'),               // ★追加
         };
 
         const state = {
@@ -3766,6 +3794,9 @@
                 enableSessionLinking: false,
                 enableSwipeNavigation: true,
                 preventZoom: true,
+                autoTimestamp: DEFAULT_AUTO_TIMESTAMP,         // ★追加
+                autoDiceRoll: DEFAULT_AUTO_DICE_ROLL,           // ★追加
+                diceSides: DEFAULT_DICE_SIDES,                 // ★追加
                 showChatTitle: true,
                 showNewChatButton: true,
                 showDeleteSessionButton: false,
@@ -4015,7 +4046,11 @@
                                            key === 'concatDummyModel' || key === 'autoScrollOnNewMessage' ||
                                            key === 'showUserNameBubble' || key === 'showAiNameBubble' ||
                                            key === 'userNameBubbleUseThemeColor' || key === 'aiNameBubbleUseThemeColor' ||
-                                           key === 'enableSessionLinking') {
+                                           key === 'enableSessionLinking' || 
+                                           key === 'enableSessionLinking' ||   /* ★ここに追加 */
+                                           key === 'autoTimestamp' ||           /* ★追加 */
+                                           key === 'autoDiceRoll'              /* ★追加 */
+                                           ) {
                                      state.settings[key] = loadedValue === true;
                                 } else if (key === 'toggleButtonTopFontSize' || key === 'toggleButtonBottomFontSize' || key === 'toggleButtonTopWidth' || key === 'toggleButtonTopHeight') {
                                     let num = parseInt(loadedValue, 10);
@@ -4037,7 +4072,9 @@
                                          key === 'messageActionsBackgroundOpacity' || key === 'toggleButtonTopOpacity' ||
                                          key === 'messageIconSize' || key === 'messageIconOffsetY' || key === 'iconNameFontSize' || key === 'iconNameOffsetY' ||
                                          key === 'userNameBubbleOpacity' || key === 'aiNameBubbleOpacity' ||
-                                         key === 'messageBodyFontSize' || key === 'codeBlockFontSize') {
+                                         key === 'messageBodyFontSize' || key === 'codeBlockFontSize' || 
+                                         key === 'diceSides' /* ★追加 */
+                                         ) {
                                          num = parseFloat(loadedValue);
                                      } else {
                                          num = parseInt(loadedValue, 10);
@@ -4049,7 +4086,8 @@
                                              key === 'messageActionsBackgroundOpacity' || key === 'toggleButtonTopOpacity' ||
                                              key === 'userNameBubbleOpacity' || key === 'aiNameBubbleOpacity' ||
                                              key === 'messageBodyFontSize' || key === 'codeBlockFontSize' ||
-                                             key === 'diceMinValue' || key === 'diceMaxValue'
+                                             key === 'diceMinValue' || key === 'diceMaxValue' ||
+                                             key === 'diceSides' /* ★追加 */
                                              ) && (loadedValue === null || loadedValue === '')) {
                                               state.settings[key] = null;
                                          } else {
@@ -4074,6 +4112,7 @@
                                           if ((key === 'messageBodyFontSize' || key === 'codeBlockFontSize') && (num < 8 || num > 32)) num = defaultValue;
                                           if (key === 'diceMinValue' && num < 0) num = defaultValue;
                                           if (key === 'diceMaxValue' && num < 0) num = defaultValue;
+                                          if (key === 'diceSides' && (num < 2 || num > 100)) num = defaultValue; // ★ダイス面のバリデーション追加
                                           state.settings[key] = num;
                                      }
                                 } else if (typeof defaultValue === 'string') {
@@ -4088,6 +4127,9 @@
                         }
                         if (!['light', 'dark', 'pastel-pink', 'pastel-blue', 'pastel-yellow', 'pastel-purple', 'pastel-rainbow'].includes(state.settings.theme)) {
                             state.settings.theme = window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                        }
+                        if (state.settings.diceSides === null || isNaN(state.settings.diceSides)) { // ★追加: diceSidesがnullやNaNならデフォルト値
+                            state.settings.diceSides = DEFAULT_DICE_SIDES;
                         }
                         resolve(state.settings);
                     };
@@ -5252,6 +5294,9 @@
                 elements.enableGroundingToggle.checked = state.settings.enableGrounding;
                 elements.swipeNavigationToggle.checked = state.settings.enableSwipeNavigation;
                 elements.preventZoomToggle.checked = state.settings.preventZoom;
+                elements.autoTimestampCheckbox.checked = state.settings.autoTimestamp;     // ★追加
+                elements.autoDiceRollCheckbox.checked = state.settings.autoDiceRoll;       // ★追加
+                elements.diceSidesInput.value = state.settings.diceSides ?? DEFAULT_DICE_SIDES; // ★追加 (nullならデフォルト値)
                 elements.showChatTitleToggle.checked = state.settings.showChatTitle;
                 elements.showNewChatButtonToggle.checked = state.settings.showNewChatButton;
                 elements.showDeleteSessionButtonToggle.checked = state.settings.showDeleteSessionButton;
@@ -7075,6 +7120,46 @@
                 let currentContextEnableSystemPromptDefault = isBackgroundProcess ? (sourceSessionContext.enableSystemPromptDefault ?? state.settings.enableSystemPromptDefault) : state.settings.enableSystemPromptDefault;
                 let currentContextEnableDummyUser = isBackgroundProcess ? (sourceSessionContext.enableDummyUser ?? state.settings.enableDummyUser) : state.settings.enableDummyUser;
                 let currentContextEnableDummyModel = isBackgroundProcess ? (sourceSessionContext.enableDummyModel ?? state.settings.enableDummyModel) : state.settings.enableDummyModel;
+                let systemPromptForApi = isBackgroundProcess ? sourceSessionContext.systemPrompt : state.currentSystemPrompt;
+                let dummyModelTextForApi = (isBackgroundProcess ? sourceSessionContext.dummyModel : state.settings.dummyModel) || '';
+
+                // ★★★ここから自動挿入ロジック★★★
+                if (!isBackgroundProcess) { // バックグラウンドプロセス時は自動挿入しない
+                    if (state.settings.autoTimestamp) {
+                        const now = new Date();
+                        const year = now.getFullYear();
+                        const month = String(now.getMonth() + 1).padStart(2, '0');
+                        const day = String(now.getDate()).padStart(2, '0');
+                        const hours = String(now.getHours()).padStart(2, '0');
+                        const minutes = String(now.getMinutes()).padStart(2, '0');
+                        const seconds = String(now.getSeconds()).padStart(2, '0');
+                        const timestampString = `[時刻: ${year}/${month}/${day} ${hours}:${minutes}:${seconds}]`;
+
+                        if (systemPromptForApi) {
+                            systemPromptForApi += `\n${timestampString}`;
+                        } else {
+                            systemPromptForApi = timestampString;
+                        }
+                    }
+
+                    if (state.settings.autoDiceRoll) {
+                        let sides = parseInt(state.settings.diceSides, 10);
+                        if (isNaN(sides) || sides < 2 || sides > 100) {
+                            sides = DEFAULT_DICE_SIDES; // 不正な値ならデフォルトの6面
+                        }
+                        const rollResult = Math.floor(Math.random() * sides) + 1;
+                        const diceString = `[ダイスロール: ${sides}面 -> ${rollResult}]`;
+
+                        if (dummyModelTextForApi) {
+                            dummyModelTextForApi = `${diceString}\n` + dummyModelTextForApi;
+                        } else {
+                            dummyModelTextForApi = diceString;
+                        }
+                        // state.settings.dummyModel は永続的な設定なので、ここでは変更しない
+                        // dummyModelTextForApi はこの送信でのみ使われる
+                    }
+                }
+                // ★★★自動挿入ロジックここまで★★★
 
                 if (!isBackgroundProcess) {
                     if (state.editingMessageIndex !== null) { await uiUtils.showCustomAlert("他のメッセージを編集中です。"); return; }
@@ -7287,9 +7372,12 @@
                         return { role: msg.role, parts: parts };
                     });
                 const dummyUserText = state.settings.dummyUser?.trim();
-                const dummyModelText = state.settings.dummyModel?.trim();
+                //const dummyModelText = state.settings.dummyModel?.trim();
                 if (currentContextEnableDummyUser && dummyUserText) apiMessages.push({ role: 'user', parts: [{ text: dummyUserText }] });
-                if (currentContextEnableDummyModel && dummyModelText) apiMessages.push({ role: 'model', parts: [{ text: dummyModelText }] });
+                //if (currentContextEnableDummyModel && dummyModelText) apiMessages.push({ role: 'model', parts: [{ text: dummyModelText }] });
+                if (currentContextEnableDummyModel && dummyModelTextForApi.trim()) { // ★変更: dummyModelTextForApi を使用し、空でない場合のみ追加
+                    apiMessages.push({ role: 'model', parts: [{ text: dummyModelTextForApi.trim() }] });
+                    }
 
 
                 const generationConfig = {};
@@ -7306,7 +7394,8 @@
                     };
                 }
 
-                const systemPromptToSend = currentContextEnableSystemPromptDefault && currentContextSystemPrompt?.trim() ? currentContextSystemPrompt.trim() : null;
+                //const systemPromptToSend = currentContextEnableSystemPromptDefault && currentContextSystemPrompt?.trim() ? currentContextSystemPrompt.trim() : null;
+                const systemPromptToSend = currentContextEnableSystemPromptDefault && systemPromptForApi?.trim() ? systemPromptForApi.trim() : null; // ★変更
                 const systemInstruction = systemPromptToSend
                     ? { role: "system", parts: [{ text: systemPromptToSend }] }
                     : null;
@@ -7327,7 +7416,13 @@
 
                 try {
                     const response = await apiUtils.callGeminiApi(apiMessages, generationConfig, systemInstruction, useStreamingForThisCall, usePseudoForThisCall);
-                    const dummyModelPrefix = (state.settings.concatDummyModel && state.settings.dummyModel && currentContextEnableDummyModel) ? state.settings.dummyModel : '';
+                    //const dummyModelPrefix = (state.settings.concatDummyModel && state.settings.dummyModel && currentContextEnableDummyModel) ? state.settings.dummyModel : '';
+                    let dummyModelPrefix = '';
+                    if (state.settings.concatDummyModel && dummyModelTextForApi.trim() && currentContextEnableDummyModel) { // ★条件変更：autoDiceRollが有効で、かつconcatDummyModelも有効な場合
+                        dummyModelPrefix = dummyModelTextForApi.trim() + "\n"; // ダイスロール結果をプレフィックスに設定
+                    } else if (state.settings.concatDummyModel && state.settings.dummyModel && currentContextEnableDummyModel) { // 元のダミーModelプロンプト連結ロジック
+                        dummyModelPrefix = state.settings.dummyModel + "\n";
+                    }
 
                     if (useStreamingForThisCall && !usePseudoForThisCall) {
                         const tempPlaceholderIndex = state.currentMessages.length;
@@ -7950,6 +8045,9 @@
                      enableGrounding: elements.enableGroundingToggle.checked,
                      enableSwipeNavigation: elements.swipeNavigationToggle.checked,
                      preventZoom: elements.preventZoomToggle.checked,
+                     autoTimestamp: elements.autoTimestampCheckbox.checked,         // ★追加
+                     autoDiceRoll: elements.autoDiceRollCheckbox.checked,          // ★追加
+                     diceSides: elements.diceSidesInput.value === '' ? DEFAULT_DICE_SIDES : parseInt(elements.diceSidesInput.value, 10), // ★追加
                      showChatTitle: elements.showChatTitleToggle.checked,
                      showNewChatButton: elements.showNewChatButtonToggle.checked,
                      showDeleteSessionButton: elements.showDeleteSessionButtonToggle.checked,
@@ -8095,6 +8193,9 @@
                  }
                  if (newSettings.diceMinValue !== null && newSettings.diceMaxValue !== null && newSettings.diceMinValue > newSettings.diceMaxValue) {
                     newSettings.diceMaxValue = newSettings.diceMinValue;
+                 }
+                 if (isNaN(newSettings.diceSides) || newSettings.diceSides < 2 || newSettings.diceSides > 100) { // ★ダイス面のバリデーション追加
+                     newSettings.diceSides = DEFAULT_DICE_SIDES;
                  }
 
 
