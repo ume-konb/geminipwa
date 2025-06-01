@@ -40,6 +40,8 @@
 https://titan823.github.io/geminipwa/#chat
 
 ## ■ 更新履歴
+### 【2025/05/30】
+- 本家PWAの修正に準拠した修正（Thought summaries対応、streamingのバグ修正）
 ### 【2025/05/23】
 - メッセージ削除時の確認ダイアログを無効にするオプションを追加
 ### 【2025/05/21】
