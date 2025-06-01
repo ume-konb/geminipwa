@@ -2,6 +2,11 @@
 
 このリポジトリは、[titan823/geminipwa](https://github.com/titan823/geminipwa) をさらにフォークし、個人的なカスタマイズを加えたものです。素晴らしいベースとなるPWAを公開してくださったオリジナルの開発者様、そして多機能なフォーク版を作成されたtitan823様に心より感謝申し上げます。
 
+### ■ 利用方法（PWA）
+
+本フォークのPWAはブラウザから以下のURLで利用可能です：
+https://ume-konb.github.io/geminipwa
+
 当フォーク (ti-uk) での主な変更点は以下の通りです。
 
 ### 【2025/05/30】 (ume-konbによる改修)
